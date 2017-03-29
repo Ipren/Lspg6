@@ -6,6 +6,7 @@
 #include <DirectXMath.h>
 #include <cstdio>
 #include <iostream>
+#include "Game.h"
 
 using namespace DirectX;
 
@@ -71,14 +72,14 @@ HRESULT CreateDirect3DContext(HWND wndHandle)
 	DXGI_SWAP_CHAIN_DESC scd;
 	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-	scd.BufferCount = 1;                                    // one back buffer
-	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;     // use 32-bit color
+	scd.BufferCount = 1;
+	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	scd.BufferDesc.RefreshRate.Numerator = 60;
 	scd.BufferDesc.RefreshRate.Denominator = 1;
-	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;      // how swap chain is to be used
-	scd.OutputWindow = wndHandle;                           // the window to be used
-	scd.SampleDesc.Count = 1;                               // how many multisamples
-	scd.Windowed = true;									// windowed/full-screen mode
+	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	scd.OutputWindow = wndHandle;
+	scd.SampleDesc.Count = 1;
+	scd.Windowed = true;
 
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL,
 		D3D_DRIVER_TYPE_HARDWARE,
@@ -102,9 +103,6 @@ HRESULT CreateDirect3DContext(HWND wndHandle)
 		pBackBuffer->Release();
 
 		CreateDepthBuffer();
-
-		// set the render target as the back buffer
-		gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
 	}
 
 	return hr;
@@ -134,7 +132,7 @@ HWND InitWindow(HINSTANCE hInstance)
 		return false;
 
 	RECT rc = { 0, 0, WIDTH, HEIGHT };
-	//AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
+	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
 	HWND handle = CreateWindow(
 		L"DX11_3D_PROJECT",
@@ -147,7 +145,8 @@ HWND InitWindow(HINSTANCE hInstance)
 		nullptr,
 		nullptr,
 		hInstance,
-		nullptr);
+		nullptr
+	);
 
 	return handle;
 }
@@ -172,13 +171,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	MSG msg = { 0 };
 	wndHandle = InitWindow(hInstance);
 
+
 	if (wndHandle) {
 		CreateDirect3DContext(wndHandle);
 
-		//SetViewport(WIDTH, HEIGHT);
-		//CreateRenderTargets(WIDTH, HEIGHT);
-
-		//Initialize();
+		Game game;
 
 		ShowWindow(wndHandle, nCmdShow);
 
@@ -198,17 +195,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 					int wk = msg.wParam;
 
 					if (wk == VK_ESCAPE) quit = true;
-
-					//KeyUp(wk);
 				}
 
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
 
-
-			//Update((elapsed) / 1000.f);
-			//Render();
+			game.update((elapsed) / 1000.f);
+			game.render();
 
 			gSwapChain->Present(0, 0);
 			prev = newtime;

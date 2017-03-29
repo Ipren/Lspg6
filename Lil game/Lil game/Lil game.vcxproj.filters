@@ -13,18 +13,27 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{03093020-d2a8-4e42-af4a-923b8c5696d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dxerr.cpp">
+    <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dxerr.cpp">
+      <Filter>Misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dxerr.h">
+    <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dxerr.h">
+      <Filter>Misc</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
