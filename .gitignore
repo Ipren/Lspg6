@@ -2,3 +2,4 @@
 *.opendb
 Debug/
 Release/
+.suo
