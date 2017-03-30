@@ -36,6 +36,9 @@
     <ClCompile Include="Helpers.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
+    <ClCompile Include="Gamepad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -52,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="Helpers.h">
       <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Gamepad.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
