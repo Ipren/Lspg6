@@ -1,8 +1,11 @@
 #pragma once
 #include "Map.h"
+#include "Renderer.h"
+#include "Camera.h"
 class Game
 {
 public:
+	Game(HWND wndHandle, int width, int height);
 	Game();
 	~Game();
 
@@ -10,6 +13,10 @@ public:
 	void render();
 
 private: 
-	Map* currentMap;
+	Map *currentMap;
+	Camera *gCamera;
+	Renderer *renderer;
+	int width;
+	int heigth;
 };
 

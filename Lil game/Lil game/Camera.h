@@ -12,10 +12,10 @@ using namespace DirectX;
 class Camera
 {
 public:
-	Camera(XMVECTOR pos, XMVECTOR look);
+	Camera(XMVECTOR pos, XMVECTOR look, ID3D11Device *gDevice);
 	~Camera();
 
-	void update(float dt);
+	void update(float dt, ID3D11DeviceContext *gDeviceContext);
 
 	struct BufferVals {
 		XMMATRIX world;

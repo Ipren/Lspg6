@@ -13,18 +13,23 @@ ID3D11Buffer *quad;
 ID3D11InputLayout *layout;
 ID3D11VertexShader *vsh;
 ID3D11PixelShader *psh;
-Camera *gCamera;
+
 Gamepad *gGamepads[4];
 
-Game::Game()
+
+Game::Game(HWND wndHandle, int width, int height)
 {
 	// TODO: memory management
-	gCamera = new Camera({ 0, 5, -2 }, { 0, 0, 0 });
+	
+	this->renderer = new Renderer(wndHandle, width, height);
+	gCamera = new Camera({ 0, 5, -2 }, { 0, 0, 0 }, this->renderer->gDevice);
 	for (int i = 0; i < 4; ++i) {
 		gGamepads[i] = new Gamepad(i);
 	}
+	this->heigth = height;
+	this->width = width;
 
-	float vertices[] = {
+	/*float vertices[] = {
 		-1, 0, -1,
 		-1, 0,  1,
 		1, 0,  1,
@@ -58,9 +63,13 @@ Game::Game()
 	layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob);
 
 	blob = compile_shader(L"Simple.hlsl", "PS", "ps_5_0");
-	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &psh));
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &psh));*/
 
 	XInputEnable(true);
+}
+
+Game::Game()
+{
 }
 
 Game::~Game()
@@ -77,12 +86,13 @@ void Game::update(float dt)
 	gCamera->pos += { gGamepads[0]->get_left_thumb_x() / 20.f, 0, gGamepads[0]->get_left_thumb_y() / 20.f, 0 };
 	gCamera->look += { gGamepads[1]->get_left_thumb_x() / 20.f, 0, gGamepads[1]->get_left_thumb_y() / 20.f, 0 };
 
-	gCamera->update(dt);
+	gCamera->update(dt, this->renderer->gDeviceContext);
 }
 
 void Game::render()
 {
-	float clear[] = { 0, 0, 0, 1 };
+	this->renderer->render(this->gCamera);
+	/*float clear[] = { 0, 0, 0, 1 };
 
 	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, clear);
 	gDeviceContext->ClearDepthStencilView(gDepthStencil, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -109,5 +119,6 @@ void Game::render()
 
 	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
 
-	gDeviceContext->Draw(6, 0);
+	gDeviceContext->Draw(6, 0);*/
+
 }

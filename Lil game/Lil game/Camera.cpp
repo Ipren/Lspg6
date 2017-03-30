@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-Camera::Camera(XMVECTOR pos, XMVECTOR look)
+Camera::Camera(XMVECTOR pos, XMVECTOR look, ID3D11Device *gDevice)
 	: pos(pos), look(look)
 {
 	vals.world = XMMatrixIdentity();
@@ -27,7 +27,7 @@ Camera::~Camera()
 {
 }
 
-void Camera::update(float dt)
+void Camera::update(float dt, ID3D11DeviceContext *gDeviceContext)
 {
 	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, WIDTH / (float)HEIGHT, 0.01f, 50.f);
 	vals.view = XMMatrixLookAtLH(pos, look, { 0, 1, 0 });

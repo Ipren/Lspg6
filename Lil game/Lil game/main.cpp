@@ -171,9 +171,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 
 	if (wndHandle) {
-		CreateDirect3DContext(wndHandle);
+		//CreateDirect3DContext(wndHandle);
 
-		Game game;
+		Game *game = new Game(wndHandle, WIDTH, HEIGHT);
 
 		ShowWindow(wndHandle, nCmdShow);
 
@@ -190,7 +190,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 					quit = true;
 
 				if (msg.message == WM_KEYUP) {
-					int wk = msg.wParam;
+					int wk = (int)msg.wParam;
 
 					if (wk == VK_ESCAPE) quit = true;
 				}
@@ -199,17 +199,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 				DispatchMessage(&msg);
 			}
 
-			game.update((elapsed) / 1000.f);
-			game.render();
+			game->update((elapsed) / 1000.f);
+			game->render();
 
-			gSwapChain->Present(0, 0);
+			//gSwapChain->Present(0, 0);
 			prev = newtime;
 		}
 
-		gBackbufferRTV->Release();
+		/*gBackbufferRTV->Release();
 		gSwapChain->Release();
 		gDevice->Release();
-		gDeviceContext->Release();
+		gDeviceContext->Release();*/
 
 		DestroyWindow(wndHandle);
 	}

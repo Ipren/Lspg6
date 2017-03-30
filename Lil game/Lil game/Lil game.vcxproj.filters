@@ -31,7 +31,7 @@
     <Filter Include="Header Files\Grapghics">
       <UniqueIdentifier>{912753be-ea7a-42de-9901-d0749a31d1b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\helpers">
+    <Filter Include="Header Files\Misc">
       <UniqueIdentifier>{14f6551d-2e57-4a79-8a9c-bed69183b079}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -102,10 +102,10 @@
       <Filter>Header Files\Grapghics</Filter>
     </ClInclude>
     <ClInclude Include="Definitions.h">
-      <Filter>Header Files\helpers</Filter>
+      <Filter>Header Files\Misc</Filter>
     </ClInclude>
     <ClInclude Include="Globals.h">
-      <Filter>Header Files\helpers</Filter>
+      <Filter>Header Files\Misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
