@@ -17,7 +17,7 @@ Camera *gCamera;
 Game::Game()
 {
 	// TODO: @@
-	gCamera = new Camera({ 0, 10, -2 }, { 0, 0, 0 });
+	gCamera = new Camera({ 0, 5, -2 }, { 0, 0, 0 });
 
 	float vertices[] = {
 		-1, 0, -1,
@@ -79,8 +79,29 @@ void Game::update(float dt)
 		//determine the direction the controller is pushed
 		float normalizedLX = LX / magnitude;
 		float normalizedLY = LY / magnitude;
+		float normalizedMagnitude = 0;
 
-		gCamera->pos += { normalizedLX / 32.f, 0, normalizedLY / 32.f, 0 };
+		//check if the controller is outside a circular dead zone
+		if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+		{
+			//clip the magnitude at its expected maximum value
+			if (magnitude > 32767) magnitude = 32767;
+
+			//adjust magnitude relative to the end of the dead zone
+			magnitude -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
+
+			//optionally normalize the magnitude with respect to its expected range
+			//giving a magnitude value of 0.0 to 1.0
+			normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+		}
+		else //if the controller is in the deadzone zero out the magnitude
+		{
+			magnitude = 0.0;
+			normalizedMagnitude = 0.0;
+		}
+
+		gCamera->pos += { normalizedLX * normalizedMagnitude / 20.f, 0, normalizedLY * normalizedMagnitude / 20.f, 0 };
+		gCamera->look += { normalizedLX * normalizedMagnitude / 20.f, 0, normalizedLY * normalizedMagnitude / 20.f, 0 };
 	}
 
 	gCamera->update(dt);
