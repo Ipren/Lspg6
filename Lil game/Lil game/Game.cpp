@@ -67,14 +67,14 @@ void Game::update(float dt)
 	XINPUT_STATE state;
 	ZeroMemory(&state, sizeof(XINPUT_STATE));
 
-	auto result = XInputGetState(0, &state);
-
+	DWORD result = XInputGetState(0, &state);
+	
 	if (result == ERROR_SUCCESS) {
 		float LX = state.Gamepad.sThumbLX;
 		float LY = state.Gamepad.sThumbLY;
 
 		//determine how far the controller is pushed
-		float magnitude = sqrt(LX*LX + LY*LY);
+		float magnitude = (float)sqrt(LX*LX + LY*LY);
 
 		//determine the direction the controller is pushed
 		float normalizedLX = LX / magnitude;
@@ -125,8 +125,8 @@ void Game::render()
 	gDeviceContext->RSSetViewports(1, &vp);
 	gDeviceContext->IASetInputLayout(layout);
 
-	auto size = sizeof(float) * 3;
-	auto offset = 0u;
+	UINT32 size = sizeof(float) * 3;
+	UINT32 offset = 0u;
 	gDeviceContext->IASetVertexBuffers(0, 1, &quad, &size, &offset);
 	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
