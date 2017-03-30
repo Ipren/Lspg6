@@ -1,4 +1,5 @@
 #pragma once
+#include "Map.h"
 class Game
 {
 public:
@@ -7,5 +8,8 @@ public:
 
 	void update(float dt);
 	void render();
+
+private: 
+	Map* currentMap;
 };
 
