@@ -3,16 +3,28 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 
+#include "dxerr.h"
+
+#include "Globals.h"
+
 using namespace DirectX;
 
 class Camera
 {
 public:
-	Camera();
+	Camera(XMVECTOR pos, XMVECTOR look);
 	~Camera();
 
-	XMMATRIX world;
-	XMMATRIX view;
-	XMMATRIX proj;
+	void update(float dt);
+
+	struct BufferVals {
+		XMMATRIX world;
+		XMMATRIX view;
+		XMMATRIX proj;
+	} vals;
+
+	XMVECTOR pos, look;
+
+	ID3D11Buffer *wvp_buffer;
 };
 

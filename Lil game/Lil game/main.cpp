@@ -7,14 +7,12 @@
 #include <cstdio>
 #include <iostream>
 #include "Game.h"
+#include "Globals.h"
 
 using namespace DirectX;
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
-
-#define WIDTH 1280
-#define HEIGHT 800
 
 IDXGISwapChain *gSwapChain;
 ID3D11Device *gDevice;
@@ -136,8 +134,8 @@ HWND InitWindow(HINSTANCE hInstance)
 
 	HWND handle = CreateWindow(
 		L"DX11_3D_PROJECT",
-		L"DX11 3D Project",
-		WS_VISIBLE | WS_SYSMENU,
+		L"Dunkar Som Munkar",
+		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
 		rc.right - rc.left,
