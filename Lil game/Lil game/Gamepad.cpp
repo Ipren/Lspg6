@@ -62,6 +62,21 @@ float Gamepad::get_right_thumb_y()
 	return right_thumb_y;
 }
 
+void Gamepad::set_rumble(float rumble, int motor)
+{
+	XINPUT_VIBRATION vib;
+	ZeroMemory(&vib, sizeof(vib));
+	if (motor == 1 || motor == 0)
+	{
+		vib.wLeftMotorSpeed = rumble * 65535;
+	}
+	if (motor == 2 || motor == 0)
+	{
+		vib.wRightMotorSpeed = rumble * 65535;
+	}
+	XInputSetState(this->index, &vib);
+}
+
 void Gamepad::update(float dt)
 {
 	XINPUT_STATE state;
@@ -108,4 +123,7 @@ void Gamepad::update(float dt)
 		right_thumb_x = 0.f;
 		right_thumb_y = 0.f;
 	}
+	
+	
+
 }

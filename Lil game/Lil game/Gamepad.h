@@ -17,6 +17,10 @@ public:
 	float get_right_thumb_x();
 	float get_right_thumb_y();
 
+	//input rumble: 0-1
+	//input motor: 0-both, 1-left, 2-right
+	void set_rumble(float rumble, int motor = 0);
+
 private:
 	unsigned int index;
 
