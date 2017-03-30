@@ -4,6 +4,7 @@
 
 class Camera;
 
+#define RECONN_TIME 5.0
 #define WIDTH 1280
 #define HEIGHT 800
 

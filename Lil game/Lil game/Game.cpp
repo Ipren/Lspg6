@@ -7,17 +7,22 @@
 #include "Globals.h"
 #include "Helpers.h"
 #include "Camera.h"
+#include "Gamepad.h"
 
 ID3D11Buffer *quad;
 ID3D11InputLayout *layout;
 ID3D11VertexShader *vsh;
 ID3D11PixelShader *psh;
 Camera *gCamera;
+Gamepad *gGamepads[4];
 
 Game::Game()
 {
-	// TODO: @@
+	// TODO: memory management
 	gCamera = new Camera({ 0, 5, -2 }, { 0, 0, 0 });
+	for (int i = 0; i < 4; ++i) {
+		gGamepads[i] = new Gamepad(i);
+	}
 
 	float vertices[] = {
 		-1, 0, -1,
@@ -64,45 +69,15 @@ Game::~Game()
 
 void Game::update(float dt)
 {
-	XINPUT_STATE state;
-	ZeroMemory(&state, sizeof(XINPUT_STATE));
-
+	for (int i = 0; i < 4; ++i) {
+		gGamepads[i]->update(dt);
 	DWORD result = XInputGetState(0, &state);
-	
-	if (result == ERROR_SUCCESS) {
-		float LX = state.Gamepad.sThumbLX;
-		float LY = state.Gamepad.sThumbLY;
 
-		//determine how far the controller is pushed
 		float magnitude = (float)sqrt(LX*LX + LY*LY);
-
-		//determine the direction the controller is pushed
-		float normalizedLX = LX / magnitude;
-		float normalizedLY = LY / magnitude;
-		float normalizedMagnitude = 0;
-
-		//check if the controller is outside a circular dead zone
-		if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-		{
-			//clip the magnitude at its expected maximum value
-			if (magnitude > 32767) magnitude = 32767;
-
-			//adjust magnitude relative to the end of the dead zone
-			magnitude -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
-
-			//optionally normalize the magnitude with respect to its expected range
-			//giving a magnitude value of 0.0 to 1.0
-			normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-		}
-		else //if the controller is in the deadzone zero out the magnitude
-		{
-			magnitude = 0.0;
-			normalizedMagnitude = 0.0;
-		}
-
-		gCamera->pos += { normalizedLX * normalizedMagnitude / 20.f, 0, normalizedLY * normalizedMagnitude / 20.f, 0 };
-		gCamera->look += { normalizedLX * normalizedMagnitude / 20.f, 0, normalizedLY * normalizedMagnitude / 20.f, 0 };
 	}
+
+	gCamera->pos += { gGamepads[0]->get_left_thumb_x() / 20.f, 0, gGamepads[0]->get_left_thumb_y() / 20.f, 0 };
+	gCamera->look += { gGamepads[1]->get_left_thumb_x() / 20.f, 0, gGamepads[1]->get_left_thumb_y() / 20.f, 0 };
 
 	gCamera->update(dt);
 }

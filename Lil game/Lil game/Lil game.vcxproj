@@ -94,6 +94,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>XInput.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -152,6 +153,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="dxerr.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Gamepad.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -159,6 +161,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="dxerr.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Gamepad.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Helpers.h" />
   </ItemGroup>
