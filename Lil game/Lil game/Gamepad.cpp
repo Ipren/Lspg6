@@ -52,6 +52,11 @@ float Gamepad::get_left_thumb_y()
 	return left_thumb_y;
 }
 
+float Gamepad::get_left_thumb_angle()
+{
+	return atan2f(left_thumb_y, left_thumb_x);
+}
+
 float Gamepad::get_right_thumb_x()
 {
 	return right_thumb_x;
@@ -60,6 +65,11 @@ float Gamepad::get_right_thumb_x()
 float Gamepad::get_right_thumb_y()
 {
 	return right_thumb_y;
+}
+
+float Gamepad::get_right_thumb_angle()
+{
+	return atan2f(right_thumb_y, right_thumb_x);
 }
 
 void Gamepad::set_rumble(float rumble, int motor)

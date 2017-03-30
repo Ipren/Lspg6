@@ -81,7 +81,6 @@ void Game::update(float dt)
 	for (int i = 0; i < 4; ++i) {
 		gGamepads[i]->update(dt);
 	}
-	
 
 	gCamera->pos += { gGamepads[0]->get_left_thumb_x() / 20.f, 0, gGamepads[0]->get_left_thumb_y() / 20.f, 0 };
 	gCamera->look += { gGamepads[1]->get_left_thumb_x() / 20.f, 0, gGamepads[1]->get_left_thumb_y() / 20.f, 0 };
