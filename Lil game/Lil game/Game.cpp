@@ -71,9 +71,7 @@ void Game::update(float dt)
 {
 	for (int i = 0; i < 4; ++i) {
 		gGamepads[i]->update(dt);
-	DWORD result = XInputGetState(0, &state);
 
-		float magnitude = (float)sqrt(LX*LX + LY*LY);
 	}
 
 	gCamera->pos += { gGamepads[0]->get_left_thumb_x() / 20.f, 0, gGamepads[0]->get_left_thumb_y() / 20.f, 0 };
