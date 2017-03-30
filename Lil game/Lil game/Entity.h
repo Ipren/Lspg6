@@ -10,5 +10,6 @@ public:
 private:
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT2 velocity;
+	float radious;
 	EntityType type;
 };
