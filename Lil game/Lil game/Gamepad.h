@@ -14,8 +14,12 @@ public:
 	float get_left_thumb_x();
 	float get_left_thumb_y();
 
+	float get_left_thumb_angle();
+
 	float get_right_thumb_x();
 	float get_right_thumb_y();
+
+	float get_right_thumb_angle();
 
 	//input rumble: 0-1
 	//input motor: 0-both, 1-left, 2-right
