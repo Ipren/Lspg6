@@ -20,56 +20,21 @@ Gamepad *gGamepads[4];
 Game::Game(HWND wndHandle, int width, int height)
 {
 	// TODO: memory management
-	
+	this->currentMap = new Map();
 	this->renderer = new Renderer(wndHandle, width, height);
-	gCamera = new Camera({ 0, 5, -2 }, { 0, 0, 0 }, this->renderer->gDevice);
+	gCamera = new Camera({ 0, 15, -5 }, { 0, 0, 0 }, this->renderer->gDevice);
 	for (int i = 0; i < 4; ++i) {
 		gGamepads[i] = new Gamepad(i);
 	}
 	this->heigth = height;
 	this->width = width;
 
-	/*float vertices[] = {
-		-1, 0, -1,
-		-1, 0,  1,
-		1, 0,  1,
-		 
-		-1, 0, -1,
-		1, 0,  1,
-		1, 0, -1
-	};
-
-	D3D11_BUFFER_DESC desc;
-	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
-	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.ByteWidth = sizeof(vertices);
-	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	desc.MiscFlags = 0;
-	desc.StructureByteStride = 0;
-
-	D3D11_SUBRESOURCE_DATA data;
-	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
-	data.pSysMem = &vertices;
-
-	DXCALL(gDevice->CreateBuffer(&desc, &data, &quad));
-
-	ID3DBlob *blob = compile_shader(L"Simple.hlsl", "VS", "vs_5_0");
-	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &vsh));
-	
-	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob);
-
-	blob = compile_shader(L"Simple.hlsl", "PS", "ps_5_0");
-	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &psh));*/
-
 	XInputEnable(true);
 }
 
 Game::Game()
 {
+
 }
 
 Game::~Game()
@@ -82,15 +47,20 @@ void Game::update(float dt)
 		gGamepads[i]->update(dt);
 	}
 
-	gCamera->pos += { gGamepads[0]->get_left_thumb_x() / 20.f, 0, gGamepads[0]->get_left_thumb_y() / 20.f, 0 };
-	gCamera->look += { gGamepads[1]->get_left_thumb_x() / 20.f, 0, gGamepads[1]->get_left_thumb_y() / 20.f, 0 };
+	for (auto entity : currentMap->entitys)
+	{
+		entity->update();
+	}
+
+	//gCamera->pos += { gGamepads[0]->get_left_thumb().x / 20.f, 0, gGamepads[0]->get_left_thumb().y / 20.f, 0 };
+	//gCamera->look += { gGamepads[1]->get_left_thumb().x / 20.f, 0, gGamepads[1]->get_left_thumb().y / 20.f, 0 };
 
 	gCamera->update(dt, this->renderer->gDeviceContext);
 }
 
 void Game::render()
 {
-	this->renderer->render(this->gCamera);
+	this->renderer->render(this->currentMap, this->gCamera);
 	/*float clear[] = { 0, 0, 0, 1 };
 
 	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, clear);

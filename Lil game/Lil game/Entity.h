@@ -7,9 +7,12 @@ public:
 	Entity();
 	virtual ~Entity();
 
-private:
+	virtual void update() {}
+
+//private:
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT2 velocity;
 	float radious;
+	float angle;
 	EntityType type;
 };

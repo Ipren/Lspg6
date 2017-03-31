@@ -2,6 +2,9 @@
 
 #include <Windows.h>
 #include <Xinput.h>
+#include <DirectXMath.h>
+
+using namespace DirectX;
 
 class Gamepad
 {
@@ -11,15 +14,11 @@ public:
 
 	void update(float dt);
 
-	float get_left_thumb_x();
-	float get_left_thumb_y();
+	XMFLOAT2 get_left_thumb() const;
+	XMFLOAT2 get_right_thumb() const;
 
-	float get_left_thumb_angle();
-
-	float get_right_thumb_x();
-	float get_right_thumb_y();
-
-	float get_right_thumb_angle();
+	float get_left_thumb_angle() const;
+	float get_right_thumb_angle() const;
 
 	//input rumble: 0-1
 	//input motor: 0-both, 1-left, 2-right
@@ -28,11 +27,11 @@ public:
 private:
 	unsigned int index;
 
-	float left_thumb_x;
-	float left_thumb_y;
-
-	float right_thumb_x;
-	float right_thumb_y;
+	XMFLOAT2 left_thumb;
+	XMFLOAT2 right_thumb;
+	
+	float left_angle;
+	float right_angle;
 
 	bool connected;
 	// håll reda på hur länge vi har varit disconnectad för att kunna kolla efter
