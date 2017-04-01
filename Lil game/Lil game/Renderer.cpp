@@ -116,6 +116,18 @@ void Renderer::createShaders()
 
 	DXCALL(gDevice->CreateBuffer(&desc, &data, &debug_map_quad));
 
+	
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.ByteWidth = sizeof(float) * 4;
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+
+	DXCALL(gDevice->CreateBuffer(&desc, nullptr, &color_buffer));
+	
+
 	ID3DBlob *blob = compile_shader(L"Simple.hlsl", "VS", "vs_5_0", this->gDevice);
 	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_map_vsh));
 
@@ -230,13 +242,21 @@ void Renderer::setViewPort(int width, int height)
 
 void Renderer::render(Map *map, Camera *camera)
 {
+	XMFLOAT4 clear = normalize_color(0x93a9bcff);
 
-	float clear[] = { 0, 0, 0, 1 };
-
-	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, clear);
+	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, (float*)&clear);
 	gDeviceContext->ClearDepthStencilView(gDepthStencil, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	{
+		XMFLOAT4 col = normalize_color(0x5e6172ff);
+		D3D11_MAPPED_SUBRESOURCE data;
+		DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
+		{
+			CopyMemory(data.pData, &col, sizeof(float) * 4);
+		}
+		gDeviceContext->Unmap(color_buffer, 0);
+
+
 		gDeviceContext->IASetInputLayout(debug_map_layout);
 
 		UINT32 size = sizeof(float) * 3;
@@ -247,6 +267,7 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->VSSetShader(debug_map_vsh, nullptr, 0);
 		gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 		gDeviceContext->PSSetShader(debug_map_psh, nullptr, 0);
+		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 
 		gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
 
@@ -264,9 +285,19 @@ void Renderer::render(Map *map, Camera *camera)
 
 		gDeviceContext->VSSetShader(debug_entity_vsh, nullptr, 0);
 		gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
+		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 
+		int i = 2;
 		for (auto entity : map->entitys)
 		{
+			XMFLOAT4 col = normalize_color(0xfff6b2ff * (++i));
+			D3D11_MAPPED_SUBRESOURCE data;
+			DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
+			{
+				CopyMemory(data.pData, &col, sizeof(float) * 4);
+			}
+			gDeviceContext->Unmap(color_buffer, 0);
+
 			XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, entity->angle) * XMMatrixScaling(entity->radious, 1, entity->radious) * XMMatrixTranslation(entity->position.x, 0, entity->position.z);
 
 			camera->vals.world = model;

@@ -29,6 +29,8 @@ private:
 	ID3D11RenderTargetView *gBackbufferRTV;
 	ID3D11DepthStencilView *gDepthStencil;
 
+	ID3D11Buffer *color_buffer;
+
 	ID3D11Buffer *debug_map_quad;
 	ID3D11InputLayout *debug_map_layout;
 	ID3D11VertexShader *debug_map_vsh;

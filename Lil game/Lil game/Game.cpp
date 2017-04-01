@@ -22,7 +22,7 @@ Game::Game(HWND wndHandle, int width, int height)
 	// TODO: memory management
 	this->currentMap = new Map();
 	this->renderer = new Renderer(wndHandle, width, height);
-	gCamera = new Camera({ 0, 15, -5 }, { 0, 0, 0 }, this->renderer->gDevice);
+	camera = new Camera({ 0, 15, -5 }, { 0, 0, 0 }, this->renderer->gDevice);
 	for (int i = 0; i < 4; ++i) {
 		gGamepads[i] = new Gamepad(i);
 	}
@@ -47,20 +47,21 @@ void Game::update(float dt)
 		gGamepads[i]->update(dt);
 	}
 
+	// TODO: endast players
+	std::vector<XMVECTOR> pos;
 	for (auto entity : currentMap->entitys)
 	{
 		entity->update();
+		pos.push_back(XMLoadFloat3(&entity->position));
 	}
 
-	//gCamera->pos += { gGamepads[0]->get_left_thumb().x / 20.f, 0, gGamepads[0]->get_left_thumb().y / 20.f, 0 };
-	//gCamera->look += { gGamepads[1]->get_left_thumb().x / 20.f, 0, gGamepads[1]->get_left_thumb().y / 20.f, 0 };
-
-	gCamera->update(dt, this->renderer->gDeviceContext);
+	camera->focus(pos);
+	camera->update(dt, this->renderer->gDeviceContext);
 }
 
 void Game::render()
 {
-	this->renderer->render(this->currentMap, this->gCamera);
+	this->renderer->render(this->currentMap, this->camera);
 	/*float clear[] = { 0, 0, 0, 1 };
 
 	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, clear);
