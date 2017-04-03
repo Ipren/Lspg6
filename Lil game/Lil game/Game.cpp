@@ -47,16 +47,12 @@ void Game::update(float dt)
 		gGamepads[i]->update(dt);
 	}
 
-	// TODO: endast players
-	std::vector<XMVECTOR> pos;
-	for (auto entity : currentMap->entitys)
-	{
-		entity->update();
-		pos.push_back(XMLoadFloat3(&entity->position));
-	}
+	
 
-	camera->focus(pos);
+	currentMap->update(dt, camera);
 	camera->update(dt, this->renderer->gDeviceContext);
+
+	
 }
 
 void Game::render()

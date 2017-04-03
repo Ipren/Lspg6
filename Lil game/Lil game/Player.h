@@ -8,7 +8,7 @@ public:
 	Player(unsigned int index);
 	virtual ~Player();
 
-	void update() override;
+	void update(float dt) override;
 
 private:
 	unsigned int index;
