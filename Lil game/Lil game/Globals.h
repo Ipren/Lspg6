@@ -18,3 +18,4 @@ extern ID3D11DepthStencilView *gDepthStencil;
 
 extern Camera *gCamera;
 extern Gamepad *gGamepads[4];
+
