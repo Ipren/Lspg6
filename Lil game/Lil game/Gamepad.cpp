@@ -65,6 +65,91 @@ float Gamepad::get_right_thumb_angle() const
 	return right_angle;
 }
 
+bool Gamepad::get_button_down(Button butt)const
+{
+
+	XINPUT_STATE state;
+	ZeroMemory(&state, sizeof(XINPUT_STATE));
+
+	if (XInputGetState(index, &state) == ERROR_SUCCESS)
+	{
+		if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_A) && butt == Button::A)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_B) && butt == Button::B)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_X) && butt == Button::X)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) && butt == Button::Y)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) && butt == Button::Up)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) && butt == Button::Down)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) && butt == Button::Left)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) && butt == Button::Right)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) && butt == Button::Lstick)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) && butt == Button::Rstick)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) && butt == Button::Lb)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) && butt == Button::Rb)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_START) && butt == Button::Start)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK) && butt == Button::Back)
+		{
+			return true;
+		}
+		
+	}
+
+
+	return false;
+}
+
+bool Gamepad::get_button_pressed(Button butt) const
+{
+	bool notDown = get_button_down(butt);
+	if (get_button_down(butt) && !notDown)
+	{
+		notDown = false;
+	}
+	else if (get_button_down(butt) && notDown)
+	{
+		notDown = true;
+	}
+	return notDown;
+}
+
 void Gamepad::set_rumble(float rumble, int motor)
 {
 	XINPUT_VIBRATION vib;
