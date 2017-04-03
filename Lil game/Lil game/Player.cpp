@@ -43,13 +43,13 @@ void Player::update(Map *map, float dt)
 	//acceleration.x *= 0.9;
 	//acceleration.y *= 0.9;
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Rb) && map->entitys.size() <= 4) {
+	if (gGamepads[index]->get_button_pressed(Gamepad::Rb)) {
 		PushSpell *spell = new PushSpell({ 
-				position.x + sin(angle) * (radius + 0.4f),
+				position.x + cos(angle) * (radius + 0.4f),
 				0,
-				position.z + cos(angle) * (radius + 0.4f)
+				position.z + sin(angle) * (radius + 0.4f)
 			},
-			{ sin(angle) * 30, cos(angle) * 30 },
+			{ cos(angle) * 30, sin(angle) * 30 },
 			0.1
 		);
 		map->add_entity(spell);

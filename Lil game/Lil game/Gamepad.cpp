@@ -215,11 +215,11 @@ void Gamepad::update(float dt)
 		);
 
 		if (left_thumb.x != 0 || left_thumb.y != 0) {
-			left_angle = XM_PI * 0.5 - atan2f(left_thumb.y, left_thumb.x);
+			left_angle = atan2f(left_thumb.y, left_thumb.x);
 		}
 
 		if (right_thumb.x != 0 || right_thumb.y != 0) {
-			right_angle = XM_PI * 0.5 - atan2f(right_thumb.y, right_thumb.x);
+			right_angle = atan2f(right_thumb.y, right_thumb.x);
 		}
 	}
 	else {

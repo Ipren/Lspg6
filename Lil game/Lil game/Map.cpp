@@ -28,27 +28,32 @@ void Map::update(float dt, Camera *cam)
 
 	for (int i = 0; i < this->entitys.size(); i++)
 	{
-		float entIx = entitys[i]->position.x;
-		float entIz = entitys[i]->position.z;
+		Entity *a = entitys[i];
+		float entIx = a->position.x;
+		float entIz = a->position.z;
 
 
 		for (int j = 0; j < entitys.size(); j++)
 		{
 			if (i != j)
 			{
-				float distanceX = abs(entIx - entitys[j]->position.x);
-				float distanceZ = abs(entIz - entitys[j]->position.z);
+				Entity *b = entitys[j];
 
-				if (sqrt(distanceX*distanceX + distanceZ*distanceZ) < entitys[i]->radius + entitys[j]->radius)
+				float dx = abs(a->position.x - b->position.x);
+				float dz = abs(a->position.z - b->position.z);
+
+				if (sqrt(dx * dx + dz * dz) < (a->radius + b->radius))
 				{
-					if (entitys[i]->type == EntityType::Player && entitys[j]->type == EntityType::Player)
+					// Player vs. Player
+					if (a->type == EntityType::Player && b->type == EntityType::Player)
 					{
-						entitys[j]->add_velocity((entIx - entitys[j]->position.x)/-10, (entIz - entitys[j]->position.z)/-10);
+						b->acceleration.x = -(a->position.x - b->position.x) * 150;
+						b->acceleration.y = -(a->position.z - b->position.z) * 150;
 					}
-
-					if (entitys[i]->type == EntityType::Player && entitys[j]->type == EntityType::Spell)
+					// Player vs. Spell
+					else if (a->type == EntityType::Player && b->type == EntityType::Spell)
 					{
-						Spell *spell = dynamic_cast<Spell*>(entitys[j]);
+						Spell *spell = dynamic_cast<Spell*>(b);
 						spell->on_effect(this);
 						spell->dead = true;
 					}
@@ -98,8 +103,8 @@ std::vector<EntityQueryResult> Map::get_entities_in_radius(Entity *self, float r
 
 		auto pos = self->position;
 
-		float dx = abs(entity->position.x - pos.x);
-		float dz = abs(entity->position.z - pos.z);
+		float dx = pos.x - entity->position.x;
+		float dz = pos.z - entity->position.z;
 
 		float dist = sqrt((dx * dx + dz * dz));
 		if (dist < radius + radius) {
