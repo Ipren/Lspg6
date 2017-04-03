@@ -14,97 +14,7 @@ using namespace DirectX;
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 
-IDXGISwapChain *gSwapChain;
-ID3D11Device *gDevice;
-ID3D11DeviceContext *gDeviceContext;
-ID3D11RenderTargetView *gBackbufferRTV;
-ID3D11DepthStencilView *gDepthStencil;
 
-void CreateDepthBuffer()
-{
-	ID3D11Texture2D* pDepthStencil = NULL;
-	D3D11_TEXTURE2D_DESC descDepth;
-	descDepth.Width = WIDTH;
-	descDepth.Height = HEIGHT;
-	descDepth.MipLevels = 1;
-	descDepth.ArraySize = 1;
-	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
-	descDepth.SampleDesc.Count = 1;
-	descDepth.SampleDesc.Quality = 0;
-	descDepth.Usage = D3D11_USAGE_DEFAULT;
-	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	descDepth.CPUAccessFlags = 0;
-	descDepth.MiscFlags = 0;
-	DXCALL(gDevice->CreateTexture2D(&descDepth, NULL, &pDepthStencil));
-
-	D3D11_DEPTH_STENCIL_DESC dsDesc;
-	dsDesc.DepthEnable = true;
-	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
-	dsDesc.StencilEnable = true;
-	dsDesc.StencilReadMask = 0xFF;
-	dsDesc.StencilWriteMask = 0xFF;
-	dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-	dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-	dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-	dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-	dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-	ID3D11DepthStencilState * pDSState;
-	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &pDSState));
-
-	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
-	ZeroMemory(&descDSV, sizeof(descDSV));
-	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
-	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	descDSV.Texture2D.MipSlice = 0;
-
-	DXCALL(gDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &gDepthStencil));
-}
-
-HRESULT CreateDirect3DContext(HWND wndHandle)
-{
-	DXGI_SWAP_CHAIN_DESC scd;
-	ZeroMemory(&scd, sizeof(DXGI_SWAP_CHAIN_DESC));
-
-	scd.BufferCount = 1;
-	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	scd.BufferDesc.RefreshRate.Numerator = 60;
-	scd.BufferDesc.RefreshRate.Denominator = 1;
-	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	scd.OutputWindow = wndHandle;
-	scd.SampleDesc.Count = 1;
-	scd.Windowed = true;
-
-	HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL,
-		D3D_DRIVER_TYPE_HARDWARE,
-		NULL,
-		D3D11_CREATE_DEVICE_DEBUG,
-		NULL,
-		NULL,
-		D3D11_SDK_VERSION,
-		&scd,
-		&gSwapChain,
-		&gDevice,
-		NULL,
-		&gDeviceContext);
-
-	if (SUCCEEDED(hr))
-	{
-		ID3D11Texture2D* pBackBuffer = nullptr;
-		DXCALL(gSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer));
-
-		DXCALL(gDevice->CreateRenderTargetView(pBackBuffer, NULL, &gBackbufferRTV));
-		pBackBuffer->Release();
-
-		CreateDepthBuffer();
-	}
-
-	return hr;
-}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -171,7 +81,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 
 	if (wndHandle) {
-		//CreateDirect3DContext(wndHandle);
+	
 
 		Game *game = new Game(wndHandle, WIDTH, HEIGHT);
 
@@ -202,15 +112,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			game->update((elapsed) / 1000.f);
 			game->render();
 
-			//gSwapChain->Present(0, 0);
+
 			prev = newtime;
 		}
-
-		/*gBackbufferRTV->Release();
-		gSwapChain->Release();
-		gDevice->Release();
-		gDeviceContext->Release();*/
-
+		delete game;
 		DestroyWindow(wndHandle);
 	}
 

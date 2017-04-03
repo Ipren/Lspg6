@@ -41,6 +41,8 @@ private:
 	ID3D11VertexShader *debug_entity_vsh;
 	ID3D11PixelShader *debug_entity_psh;
 
+	ID3D11Debug *debugDevice;
+
 	int width; 
 	int height;
 

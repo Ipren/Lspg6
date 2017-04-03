@@ -18,6 +18,11 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->debug_map_quad = nullptr;
 	this->debug_map_vsh = nullptr;
 
+	this->debug_entity_circle = nullptr;
+	this->debug_entity_layout = nullptr;
+	this->debug_entity_psh = nullptr;
+	this->debug_entity_vsh = nullptr;
+
 	this->height = height;
 	this->width = width;
 
@@ -25,14 +30,23 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createDepthBuffers();
 	this->createShaders();
 	this->setViewPort(width, height);
+	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"debug device failed", L"error", MB_OK);
+	}
+
+
 	this->create_debug_entity();
 
 }
 
 Renderer::~Renderer()
 {
+	ULONG test = 0;
+	this->gDeviceContext->ClearState();
 	this->gBackbufferRTV->Release();
-	this->gDepthStencil->Release();
+	test = this->gDepthStencil->Release();
 	this->gDevice->Release();
 	this->gDeviceContext->Release();
 	this->gSwapChain->Release();
@@ -40,6 +54,14 @@ Renderer::~Renderer()
 	this->debug_map_quad->Release();
 	this->debug_map_psh->Release();
 	this->debug_map_vsh->Release();
+	this->color_buffer->Release();
+	this->debug_entity_circle->Release();
+	this->debug_entity_layout->Release();
+	this->debug_entity_psh->Release();
+	this->debug_entity_vsh->Release();
+
+	this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	this->debugDevice->Release();
 }
 
 void Renderer::create_debug_entity()
@@ -176,6 +198,8 @@ void Renderer::createDepthBuffers()
 
 	ID3D11DepthStencilState * pDSState;
 	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &pDSState));
+	this->gDeviceContext->OMSetDepthStencilState(pDSState, 1);
+	pDSState->Release();
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 	ZeroMemory(&descDSV, sizeof(descDSV));
@@ -184,6 +208,7 @@ void Renderer::createDepthBuffers()
 	descDSV.Texture2D.MipSlice = 0;
 
 	DXCALL(gDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &gDepthStencil));
+	pDepthStencil->Release();
 
 }
 
