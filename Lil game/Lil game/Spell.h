@@ -8,10 +8,18 @@ public:
 	virtual ~Spell();
 
 	virtual void update(Map *map, float dt) override {
+		velocity.x += acceleration.x;
+		velocity.y += acceleration.y;
+
 		position.x += velocity.x * dt;
 		position.z += velocity.y * dt;
 
-		//velocity = { 0, 0 };
+		//velocity.x -= velocity.x * 0.2;
+		//velocity.y -= velocity.y * 0.2;
+
+		acceleration.x = 0;
+		acceleration.y = 0;
+
 		life -= dt;
 		if (life <= 0.f) {
 			dead = true;

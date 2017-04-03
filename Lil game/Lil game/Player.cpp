@@ -21,21 +21,21 @@ void Player::update(Map *map, float dt)
 	auto right_angle = gGamepads[index]->get_right_thumb_angle();
 	angle = right_angle;
 
-	acceleration.x = left.x;
-	acceleration.y = left.y;
+	acceleration.x += left.x * 50;
+	acceleration.y += left.y * 50;
 
-	velocity.x += acceleration.x;
-	velocity.y += acceleration.y;
+	velocity.x += acceleration.x * dt;
+	velocity.y += acceleration.y * dt;
 
-	position.x += velocity.x*dt;
-	position.z += velocity.y*dt;
+	position.x += velocity.x * dt;
+	position.z += velocity.y * dt;
 
 
-	velocity.x -= velocity.x * 0.9 * dt;
-	velocity.y -= velocity.y * 0.9 * dt;
+	velocity.x -= velocity.x * 5 * dt;
+	velocity.y -= velocity.y * 5 * dt;
 
-	//velocity.x = 0;
-	//velocity.y = 0;
+	acceleration.x = 0;
+	acceleration.y = 0;
 
 	//velocity.x *= 0.9;
 	//velocity.y *= 0.9;
@@ -43,13 +43,13 @@ void Player::update(Map *map, float dt)
 	//acceleration.x *= 0.9;
 	//acceleration.y *= 0.9;
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Rb)) {
+	if (gGamepads[index]->get_button_pressed(Gamepad::Rb) && map->entitys.size() <= 4) {
 		PushSpell *spell = new PushSpell({ 
 				position.x + sin(angle) * (radius + 0.4f),
 				0,
 				position.z + cos(angle) * (radius + 0.4f)
 			},
-			{ sin(angle) * 10, cos(angle) * 10 },
+			{ sin(angle) * 30, cos(angle) * 30 },
 			0.1
 		);
 		map->add_entity(spell);

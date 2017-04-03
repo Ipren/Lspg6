@@ -8,7 +8,7 @@ using namespace DirectX;
 Map::Map()
 {
 	for (int i = 0; i < 4; ++i) {
-		Entity *e = new Player(i, { 0, 0, 0 }, { 0, 0 }, 1.f);
+		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, 0.5f);
 		entitys.push_back(e);
 	}
 }
@@ -43,7 +43,7 @@ void Map::update(float dt, Camera *cam)
 				{
 					if (entitys[i]->type == EntityType::Player && entitys[j]->type == EntityType::Player)
 					{
-						entitys[j]->add_velocity((entIx - entitys[j]->position.x)*-10, (entIz - entitys[j]->position.z)*-10);
+						entitys[j]->add_velocity((entIx - entitys[j]->position.x)/-10, (entIz - entitys[j]->position.z)/-10);
 					}
 
 					if (entitys[i]->type == EntityType::Player && entitys[j]->type == EntityType::Spell)
