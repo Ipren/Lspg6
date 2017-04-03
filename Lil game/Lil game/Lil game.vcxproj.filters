@@ -112,5 +112,8 @@
     <FxCompile Include="Simple.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Debug.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

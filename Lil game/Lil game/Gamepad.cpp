@@ -5,7 +5,7 @@
 #include "Globals.h"
 
 // saxat från https://msdn.microsoft.com/en-us/library/windows/desktop/ee417001(v=vs.85).aspx
-static void normalize_thumbs(float x, float y, float deadzone, float *out_x, float *out_y)
+static XMFLOAT2 normalize_thumbs(float x, float y, float deadzone)
 {
 	float magnitude = sqrt(x * x + y * y);
 
@@ -27,49 +27,42 @@ static void normalize_thumbs(float x, float y, float deadzone, float *out_x, flo
 		normalized_magnitude = 0.0;
 	}
 
-	*out_x = normalized_x * normalized_magnitude;
-	*out_y = normalized_y * normalized_magnitude;
+	return {
+		normalized_x * normalized_magnitude,
+		normalized_y * normalized_magnitude
+	};
 }
 
 Gamepad::Gamepad(unsigned int index) :
-	index(index), reconn_time(0.f), left_thumb_x(0.f), left_thumb_y(0.f),
-	right_thumb_x(0.f), right_thumb_y(0.f)
+	index(index), reconn_time(0.f), left_thumb(0.f, 0.f), right_thumb(0.f, 0.f),
+	left_angle(0.f), right_angle(0.f)
 {
-	connected = XInputGetState(index, nullptr) == ERROR_SUCCESS;
+	XINPUT_STATE state;
+	connected = XInputGetState(index, &state) == ERROR_SUCCESS;
 }
 
 Gamepad::~Gamepad()
 {
 }
 
-float Gamepad::get_left_thumb_x()
+XMFLOAT2 Gamepad::get_left_thumb() const
 {
-	return left_thumb_x;
+	return left_thumb;
 }
 
-float Gamepad::get_left_thumb_y()
+XMFLOAT2 Gamepad::get_right_thumb() const
 {
-	return left_thumb_y;
+	return right_thumb;
 }
 
-float Gamepad::get_left_thumb_angle()
+float Gamepad::get_left_thumb_angle() const
 {
-	return atan2f(left_thumb_y, left_thumb_x);
+	return left_angle;
 }
 
-float Gamepad::get_right_thumb_x()
+float Gamepad::get_right_thumb_angle() const
 {
-	return right_thumb_x;
-}
-
-float Gamepad::get_right_thumb_y()
-{
-	return right_thumb_y;
-}
-
-float Gamepad::get_right_thumb_angle()
-{
-	return atan2f(right_thumb_y, right_thumb_x);
+	return right_angle;
 }
 
 void Gamepad::set_rumble(float rumble, int motor)
@@ -108,32 +101,30 @@ void Gamepad::update(float dt)
 	}
 
 	if (XInputGetState(index, &state) == ERROR_SUCCESS) {
-		normalize_thumbs(
+		left_thumb = normalize_thumbs(
 			state.Gamepad.sThumbLX,
 			state.Gamepad.sThumbLY,
-			XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE,
-			&left_thumb_x,
-			&left_thumb_y
+			XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
 		);
 
-		normalize_thumbs(
+		right_thumb = normalize_thumbs(
 			state.Gamepad.sThumbRX,
 			state.Gamepad.sThumbRY,
-			XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE,
-			&right_thumb_x,
-			&right_thumb_y
+			XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
 		);
+
+		if (left_thumb.x != 0 || left_thumb.y != 0) {
+			left_angle = XM_PI * 0.5 - atan2f(left_thumb.y, left_thumb.x);
+		}
+
+		if (right_thumb.x != 0 || right_thumb.y != 0) {
+			right_angle = XM_PI * 0.5 - atan2f(right_thumb.y, right_thumb.x);
+		}
 	}
 	else {
 		connected = false;
 
-		left_thumb_x = 0.f;
-		left_thumb_y = 0.f;
-
-		right_thumb_x = 0.f;
-		right_thumb_y = 0.f;
+		left_thumb = { 0.f, 0.f };
+		right_thumb = { 0.f, 0.f };
 	}
-	
-	
-
 }

@@ -8,6 +8,6 @@ public:
 	Map();
 	virtual ~Map();
 
-private:
+//private:
 	std::vector <Entity*> entitys;
 };

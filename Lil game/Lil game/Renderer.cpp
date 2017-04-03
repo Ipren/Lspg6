@@ -12,17 +12,21 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->gDevice = nullptr;
 	this->gDeviceContext = nullptr;
 	this->gSwapChain = nullptr;
-	this->layout = nullptr;
-	this->psh = nullptr;
-	this->quad = nullptr;
-	this->vsh = nullptr;
+
+	this->debug_map_layout = nullptr;
+	this->debug_map_psh = nullptr;
+	this->debug_map_quad = nullptr;
+	this->debug_map_vsh = nullptr;
+
 	this->height = height;
-	this->widht = widht;
+	this->width = width;
+
 	this->createDirect3DContext(wndHandle);
 	this->createDepthBuffers();
 	this->createShaders();
 	this->setViewPort(width, height);
-	
+	this->create_debug_entity();
+
 }
 
 Renderer::~Renderer()
@@ -32,22 +36,69 @@ Renderer::~Renderer()
 	this->gDevice->Release();
 	this->gDeviceContext->Release();
 	this->gSwapChain->Release();
-	this->layout->Release();
-	this->quad->Release();
-	this->psh->Release();
-	this->vsh->Release();
+	this->debug_map_layout->Release();
+	this->debug_map_quad->Release();
+	this->debug_map_psh->Release();
+	this->debug_map_vsh->Release();
+}
+
+void Renderer::create_debug_entity()
+{
+
+	std::vector<XMFLOAT3> vertices;
+	for (int i = 0; i < 128; ++i)
+	{
+		XMFLOAT3 vert = {
+			sin(2 * XM_PI * i / 128.f),
+			0.01f,
+			cos(2 * XM_PI * i / 128.f)
+		};
+		vertices.push_back(vert);
+	}
+
+	XMFLOAT3 start = vertices[0];
+	start.z += 0.4;
+
+	vertices[0] = start;
+	vertices.push_back(start);
+
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.ByteWidth = sizeof(XMFLOAT3) * vertices.size();
+	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	data.pSysMem = &vertices[0];
+
+	DXCALL(gDevice->CreateBuffer(&desc, &data, &debug_entity_circle));
+
+	ID3DBlob *blob = compile_shader(L"Debug.hlsl", "VS", "vs_5_0", gDevice);
+	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_entity_vsh));
+
+	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	debug_entity_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, gDevice);
+
+	blob = compile_shader(L"Debug.hlsl", "PS", "ps_5_0", gDevice);
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_entity_psh));
 }
 
 void Renderer::createShaders()
 {
 	float vertices[] = {
-		-1, 0, -1,
-		-1, 0,  1,
-		1, 0,  1,
+		-10, 0, -10,
+		-10, 0,  10,
+		10, 0,  10,
 
-		-1, 0, -1,
-		1, 0,  1,
-		1, 0, -1
+		-10, 0, -10,
+		10, 0,  10,
+		10, 0, -10
 	};
 
 	D3D11_BUFFER_DESC desc;
@@ -63,18 +114,30 @@ void Renderer::createShaders()
 	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
 	data.pSysMem = &vertices;
 
-	DXCALL(gDevice->CreateBuffer(&desc, &data, &quad));
+	DXCALL(gDevice->CreateBuffer(&desc, &data, &debug_map_quad));
+
+	
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.ByteWidth = sizeof(float) * 4;
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+
+	DXCALL(gDevice->CreateBuffer(&desc, nullptr, &color_buffer));
+	
 
 	ID3DBlob *blob = compile_shader(L"Simple.hlsl", "VS", "vs_5_0", this->gDevice);
-	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &vsh));
+	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_map_vsh));
 
 	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, this->gDevice);
+	debug_map_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, this->gDevice);
 
 	blob = compile_shader(L"Simple.hlsl", "PS", "ps_5_0", this->gDevice);
-	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &psh));
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_map_psh));
 	blob->Release();
 }
 
@@ -177,29 +240,73 @@ void Renderer::setViewPort(int width, int height)
 	gDeviceContext->RSSetViewports(1, &vp);
 }
 
-void Renderer::render(Camera *gCamera)
+void Renderer::render(Map *map, Camera *camera)
 {
+	XMFLOAT4 clear = normalize_color(0x93a9bcff);
 
-	float clear[] = { 0, 0, 0, 1 };
-
-	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, clear);
+	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, (float*)&clear);
 	gDeviceContext->ClearDepthStencilView(gDepthStencil, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
+	{
+		XMFLOAT4 col = normalize_color(0x5e6172ff);
+		D3D11_MAPPED_SUBRESOURCE data;
+		DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
+		{
+			CopyMemory(data.pData, &col, sizeof(float) * 4);
+		}
+		gDeviceContext->Unmap(color_buffer, 0);
+
+
+		gDeviceContext->IASetInputLayout(debug_map_layout);
+
+		UINT32 size = sizeof(float) * 3;
+		UINT32 offset = 0u;
+		gDeviceContext->IASetVertexBuffers(0, 1, &debug_map_quad, &size, &offset);
+		gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		gDeviceContext->VSSetShader(debug_map_vsh, nullptr, 0);
+		gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+		gDeviceContext->PSSetShader(debug_map_psh, nullptr, 0);
+		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+
+		gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
+
+		gDeviceContext->Draw(6, 0);
+	}
 
 	
-	gDeviceContext->IASetInputLayout(layout);
+	{
+		gDeviceContext->IASetInputLayout(debug_entity_layout);
 
-	UINT32 size = sizeof(float) * 3;
-	UINT32 offset = 0u;
-	gDeviceContext->IASetVertexBuffers(0, 1, &quad, &size, &offset);
-	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		UINT32 size = sizeof(float) * 3;
+		UINT32 offset = 0u;
+		gDeviceContext->IASetVertexBuffers(0, 1, &debug_entity_circle, &size, &offset);
+		gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
-	gDeviceContext->VSSetShader(vsh, nullptr, 0);
-	gDeviceContext->VSSetConstantBuffers(0, 1, &gCamera->wvp_buffer);
-	gDeviceContext->PSSetShader(psh, nullptr, 0);
+		gDeviceContext->VSSetShader(debug_entity_vsh, nullptr, 0);
+		gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
+		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 
-	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
+		int i = 2;
+		for (auto entity : map->entitys)
+		{
+			XMFLOAT4 col = normalize_color(0xfff6b2ff * (++i));
+			D3D11_MAPPED_SUBRESOURCE data;
+			DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
+			{
+				CopyMemory(data.pData, &col, sizeof(float) * 4);
+			}
+			gDeviceContext->Unmap(color_buffer, 0);
 
-	gDeviceContext->Draw(6, 0);
+			XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, entity->angle) * XMMatrixScaling(entity->radious, 1, entity->radious) * XMMatrixTranslation(entity->position.x, 0, entity->position.z);
+
+			camera->vals.world = model;
+			camera->update(0, gDeviceContext);
+
+			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+			gDeviceContext->Draw(129, 0);
+		}
+	}
+
 	this->gSwapChain->Present(0,0);
 }

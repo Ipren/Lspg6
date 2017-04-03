@@ -14,7 +14,7 @@ public:
 
 private: 
 	Map *currentMap;
-	Camera *gCamera;
+	Camera *camera;
 	Renderer *renderer;
 	int width;
 	int heigth;

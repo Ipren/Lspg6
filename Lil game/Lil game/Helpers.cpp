@@ -64,3 +64,13 @@ ID3D11InputLayout *create_input_layout(D3D11_INPUT_ELEMENT_DESC *elements, size_
 
 	return layout;
 }
+
+XMFLOAT4 normalize_color(int32_t color)
+{
+	return XMFLOAT4(
+		((color & 0xff000000) >> 24) / 255.f,
+		((color & 0xff0000) >> 16) / 255.f,
+		((color & 0xff00) >> 8) / 255.f,
+		(color & 0xff) / 255.f
+	);
+}
