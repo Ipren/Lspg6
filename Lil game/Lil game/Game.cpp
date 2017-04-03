@@ -39,6 +39,8 @@ Game::Game()
 
 Game::~Game()
 {
+	delete this->renderer;
+	delete this->camera;
 }
 
 void Game::update(float dt)
@@ -56,33 +58,5 @@ void Game::update(float dt)
 void Game::render()
 {
 	this->renderer->render(this->currentMap, this->camera);
-	/*float clear[] = { 0, 0, 0, 1 };
-
-	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, clear);
-	gDeviceContext->ClearDepthStencilView(gDepthStencil, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-	D3D11_VIEWPORT vp;
-	vp.Width = WIDTH;
-	vp.Height = HEIGHT;
-	vp.MinDepth = 0.0f;
-	vp.MaxDepth = 1.0f;
-	vp.TopLeftX = 0;
-	vp.TopLeftY = 0;
-
-	gDeviceContext->RSSetViewports(1, &vp);
-	gDeviceContext->IASetInputLayout(layout);
-
-	UINT32 size = sizeof(float) * 3;
-	UINT32 offset = 0u;
-	gDeviceContext->IASetVertexBuffers(0, 1, &quad, &size, &offset);
-	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	gDeviceContext->VSSetShader(vsh, nullptr, 0);
-	gDeviceContext->VSSetConstantBuffers(0, 1, &gCamera->wvp_buffer);
-	gDeviceContext->PSSetShader(psh, nullptr, 0);
-
-	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
-
-	gDeviceContext->Draw(6, 0);*/
-
+	
 }

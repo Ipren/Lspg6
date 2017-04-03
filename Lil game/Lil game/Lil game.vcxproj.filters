@@ -71,9 +71,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dxerr.h">
       <Filter>Misc</Filter>
     </ClInclude>
@@ -106,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="Globals.h">
       <Filter>Header Files\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Header Files\GameLogic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
