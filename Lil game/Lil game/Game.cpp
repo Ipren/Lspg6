@@ -47,8 +47,6 @@ void Game::update(float dt)
 		gGamepads[i]->update(dt);
 	}
 
-	
-
 	currentMap->update(dt, camera);
 	camera->update(dt, this->renderer->gDeviceContext);
 

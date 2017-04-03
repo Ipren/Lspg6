@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Definitions.h"
 #include <Windows.h>
 #include <Xinput.h>
 #include <DirectXMath.h>
@@ -8,17 +8,10 @@ using namespace DirectX;
 
 class Gamepad
 {
-private:
-	enum Button
-	{
-		A, B, X, Y,
-		Rb, Rt, Lb, Lt,
-		Up, Down, Left, Right,
-		Lstick, Rstick,
-		Start, Back
-	};
-
 public:
+	
+
+
 	Gamepad(unsigned int index);
 	~Gamepad();
 
@@ -30,14 +23,15 @@ public:
 	float get_left_thumb_angle() const;
 	float get_right_thumb_angle() const;
 
-	bool get_button_down(Button butt)const;
-	bool get_button_pressed(Button butt)const;
+	bool get_button_down(Button butt);// const;
+	bool get_button_pressed(Button butt);//const;
 
 	//input rumble: 0-1
 	//input motor: 0-both, 1-left, 2-right
 	void set_rumble(float rumble, int motor = 0);
 
 private:
+	bool buttons[16];//size = nrOfButtons
 	unsigned int index;
 
 	XMFLOAT2 left_thumb;
