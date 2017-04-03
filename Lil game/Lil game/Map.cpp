@@ -1,23 +1,25 @@
 #include "Map.h"
 #include <DirectXMath.h>
 #include "Player.h"
+#include "Spell.h"
 
 using namespace DirectX;
 
 Map::Map()
 {
 	for (int i = 0; i < 4; ++i) {
-		Entity *e = new Player(i);
-		e->position = { 0, 0, 0 };
-		e->radius = 1;
-		e->angle = 0.f;
-		e->type = EntityType::Player;
+		Entity *e = new Player(i, { 0, 0, 0 }, { 0, 0 }, 1.f);
 		entitys.push_back(e);
 	}
 }
 
 Map::~Map()
 {
+}
+
+void Map::add_entity(Entity * entity)
+{
+	entitys_to_add.push_back(entity);
 }
 
 void Map::update(float dt, Camera *cam)
@@ -46,7 +48,9 @@ void Map::update(float dt, Camera *cam)
 
 					if (entitys[i]->type == EntityType::Player && entitys[j]->type == EntityType::Spell)
 					{
-
+						Spell *spell = dynamic_cast<Spell*>(entitys[j]);
+						spell->on_effect(this);
+						spell->dead = true;
 					}
 
 				}
@@ -58,11 +62,56 @@ void Map::update(float dt, Camera *cam)
 	// TODO: endast players
 	std::vector<XMVECTOR> pos;
 
-	for (int i = 0; i < this->entitys.size(); i++)
+	int i = 0;
+	auto it = entitys.begin();
+	while (it != entitys.end())
 	{
-		pos.push_back(XMLoadFloat3(&entitys[i]->position));
-		entitys[i]->update(dt);
+		if (i++ < 4)
+		pos.push_back(XMLoadFloat3(&(*it)->position));
+		
+		(*it)->update(this, dt);
+
+		if ((*it)->dead) {
+			it = entitys.erase(it);
+		}
+		else {
+			it++;
+		}
+	}
+
+	it = entitys_to_add.begin();
+	while (it != entitys_to_add.end())
+	{
+		entitys.push_back(*it);
+		it = entitys_to_add.erase(it);
 	}
 
 	cam->focus(pos);
+}
+
+std::vector<EntityQueryResult> Map::get_entities_in_radius(Entity *self, float radius)
+{
+	std::vector<EntityQueryResult> entities;
+
+	for (auto entity : this->entitys) {
+		if (entity == self) continue;
+
+		auto pos = self->position;
+
+		float dx = abs(entity->position.x - pos.x);
+		float dz = abs(entity->position.z - pos.z);
+
+		float dist = sqrt((dx * dx + dz * dz));
+		if (dist < radius + radius) {
+			EntityQueryResult result;
+
+			result.entity = entity;
+			result.distance = dist;
+			result.angle = atan2f(entity->position.z - pos.z, entity->position.x - pos.x);
+
+			entities.push_back(result);
+		}
+	}
+
+	return entities;
 }

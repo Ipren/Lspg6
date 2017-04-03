@@ -9,8 +9,14 @@ using namespace DirectX;
 class Gamepad
 {
 public:
-	
-
+	enum Button
+	{
+		A, B, X, Y,
+		Rb, Rt, Lb, Lt,
+		Up, Down, Left, Right,
+		Lstick, Rstick,
+		Start, Back
+	};
 
 	Gamepad(unsigned int index);
 	~Gamepad();
