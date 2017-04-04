@@ -113,7 +113,7 @@ void Renderer::create_debug_entity()
 
 void Renderer::createShaders()
 {
-	float vertices[] = {
+	/*float vertices[] = {
 		-10, 0, -10,
 		-10, 0,  10,
 		10, 0,  10,
@@ -121,12 +121,35 @@ void Renderer::createShaders()
 		-10, 0, -10,
 		10, 0,  10,
 		10, 0, -10
-	};
+	};*/
+
+	std::vector<XMFLOAT3> vertices;
+	
+	
+	for (int i = 0; i < 128; i++)
+	{
+		
+		XMFLOAT3 vert = {
+			sin(2 * XM_PI * i / 128.f) * 15,
+			0.01f,
+			cos(2 * XM_PI * i / 128.f) * 15
+		};
+
+		XMFLOAT3 vert2 = {
+			sin(2 * XM_PI * (i+1) / 128.f) * 15,
+			0.01f,
+			cos(2 * XM_PI * (i+1) / 128.f) * 15
+		};
+		vertices.push_back({ 0.f, 0.f, 0.f });
+		vertices.push_back(vert);
+		vertices.push_back(vert2);
+
+	}
 
 	D3D11_BUFFER_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.ByteWidth = sizeof(vertices);
+	desc.ByteWidth = vertices.size() * 3 * sizeof(float);
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
@@ -134,7 +157,7 @@ void Renderer::createShaders()
 
 	D3D11_SUBRESOURCE_DATA data;
 	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
-	data.pSysMem = &vertices;
+	data.pSysMem = &vertices[0];
 
 	DXCALL(gDevice->CreateBuffer(&desc, &data, &debug_map_quad));
 
@@ -296,7 +319,7 @@ void Renderer::render(Map *map, Camera *camera)
 
 		gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
 
-		gDeviceContext->Draw(6, 0);
+		gDeviceContext->Draw(128*3, 0);
 	}
 
 	
