@@ -71,7 +71,7 @@ float Gamepad::get_right_thumb_angle() const
 	return right_angle;
 }
 
-bool Gamepad::get_button_down(Button butt)//const
+bool Gamepad::get_button_down(Button butt)const
 {
 
 	XINPUT_STATE state;
@@ -137,7 +137,6 @@ bool Gamepad::get_button_down(Button butt)//const
 		}
 		else if ((state.Gamepad.bLeftTrigger) && butt == Button::Lt)
 		{
-			this->set_rumble(0.2);
 			return true;
 		}
 		else if ((state.Gamepad.bRightTrigger) && butt == Button::Rt)
@@ -151,7 +150,7 @@ bool Gamepad::get_button_down(Button butt)//const
 	return false;
 }
 
-bool Gamepad::get_button_pressed(Button butt)// const
+bool Gamepad::get_button_pressed(Button butt)
 {
 	if (get_button_down(butt) && !this->buttons[butt])
 	{

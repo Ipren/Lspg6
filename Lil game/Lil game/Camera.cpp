@@ -35,7 +35,7 @@ void Camera::focus(std::vector<XMVECTOR> positions)
 		total += pos;
 	}
 
-	this->target = total / positions.size();
+	this->target = total / max(positions.size(), 1);
 }
 
 void Camera::update(float dt, ID3D11DeviceContext *gDeviceContext)

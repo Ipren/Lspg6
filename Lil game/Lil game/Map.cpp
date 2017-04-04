@@ -71,7 +71,7 @@ void Map::update(float dt, Camera *cam)
 	auto it = entitys.begin();
 	while (it != entitys.end())
 	{
-		if (i++ < 4)
+		if ((*it)->type == EntityType::Player)
 		pos.push_back(XMLoadFloat3(&(*it)->position));
 		
 		(*it)->update(this, dt);

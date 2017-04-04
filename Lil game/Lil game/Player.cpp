@@ -55,4 +55,9 @@ void Player::update(Map *map, float dt)
 		map->add_entity(spell);
 	}
 
+	if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > 15)
+	{
+		this->dead = true;
+	}
+
 }

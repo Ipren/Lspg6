@@ -29,8 +29,8 @@ public:
 	float get_left_thumb_angle() const;
 	float get_right_thumb_angle() const;
 
-	bool get_button_down(Button butt);// const;
-	bool get_button_pressed(Button butt);//const;
+	bool get_button_down(Button butt) const;
+	bool get_button_pressed(Button butt);
 
 	//input rumble: 0-1
 	//input motor: 0-both, 1-left, 2-right
