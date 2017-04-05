@@ -79,7 +79,7 @@ void Renderer::create_debug_entity()
 	}
 
 	XMFLOAT3 start = vertices[0];
-	start.z += 0.4;
+	start.z += 5.4;
 
 	vertices[0] = start;
 	vertices.push_back(start);

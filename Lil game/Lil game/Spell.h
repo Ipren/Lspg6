@@ -1,10 +1,13 @@
 #pragma once
 #include "Entity.h"
 #include "Map.h"
+
+class Player;
+
 class Spell : public Entity
 {
 public:
-	Spell(XMFLOAT3 position, XMFLOAT2 velocity, float radius, float life);
+	Spell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius, float life);
 	virtual ~Spell();
 
 	virtual void update(Map *map, float dt) override {
@@ -14,8 +17,8 @@ public:
 		position.x += velocity.x * dt;
 		position.z += velocity.y * dt;
 
-		//velocity.x -= velocity.x * 0.2;
-		//velocity.y -= velocity.y * 0.2;
+		velocity.x -= velocity.x * 0.3 * dt;
+		velocity.y -= velocity.y * 0.3 * dt;
 
 		acceleration.x = 0;
 		acceleration.y = 0;
@@ -28,27 +31,29 @@ public:
 
 	virtual bool on_effect(Map *map) { return true; };
 protected:
+	Player *owner;
 	float life;
 };
 
-class PushSpell : public Spell
+class ArcaneProjectileSpell : public Spell
 {
 public:
-	PushSpell(XMFLOAT3 position, XMFLOAT2 velocity, float radius);
-	virtual ~PushSpell();
-	
+	ArcaneProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius);
+	virtual ~ArcaneProjectileSpell();
+
+	virtual void update(Map *map, float dt) override;
 	virtual bool on_effect(Map *map) override;
 private:
 	float explosion_radius;
 	float strength;
 };
 
-class WallSpell : public Spell
+class ArcaneWallSpell : public Spell
 {
 public:
-	WallSpell(XMFLOAT3 position, float radius)
-		:Spell(position, {0,0}, radius, 10.f){}
-	virtual ~WallSpell() {}
+	ArcaneWallSpell(Player *owner, XMFLOAT3 position, float radius)
+		:Spell(owner, position, {0,0}, radius, 10.f){}
+	virtual ~ArcaneWallSpell() {}
 
 	virtual void update(Map *map, float dt) override
 	{
@@ -58,7 +63,7 @@ public:
 		}
 	}
 
-	virtual bool on_effect(Map *map) override { return false; };
+	virtual bool on_effect(Map *map) override;// { return false; };
 private:
 	float explosion_radius;
 	float strength;

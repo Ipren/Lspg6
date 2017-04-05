@@ -95,12 +95,13 @@ void Map::update(float dt, Camera *cam)
 	cam->focus(pos);
 }
 
-std::vector<EntityQueryResult> Map::get_entities_in_radius(Entity *self, float radius)
+std::vector<EntityQueryResult> Map::get_entities_in_radius(Entity *self, float radius, std::function<bool(Entity*)> predicate)
 {
 	std::vector<EntityQueryResult> entities;
 
 	for (auto entity : this->entitys) {
 		if (entity == self) continue;
+		if (!predicate(entity)) continue;
 
 		auto pos = self->position;
 
@@ -108,7 +109,7 @@ std::vector<EntityQueryResult> Map::get_entities_in_radius(Entity *self, float r
 		float dz = pos.z - entity->position.z;
 
 		float dist = sqrt((dx * dx + dz * dz));
-		if (dist < radius) {
+		if (dist < radius + entity->radius) {
 			EntityQueryResult result;
 
 			result.entity = entity;
@@ -120,4 +121,22 @@ std::vector<EntityQueryResult> Map::get_entities_in_radius(Entity *self, float r
 	}
 
 	return entities;
+}
+
+bool Map::get_nearest_entity(Entity * self, float radius, EntityQueryResult * result, std::function<bool(Entity*)> predicate)
+{
+	auto results = get_entities_in_radius(self, radius, predicate);
+
+	if (results.size() > 0) {
+		auto it = std::min_element(results.begin(), results.end(), [](EntityQueryResult a, EntityQueryResult b) {
+			return a.distance < b.distance;
+		});
+
+		*result = *it;
+		return true;
+	}
+	else {
+		return false;
+	}
+
 }
