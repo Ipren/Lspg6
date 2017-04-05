@@ -54,8 +54,9 @@ void Map::update(float dt, Camera *cam)
 					else if (a->type == EntityType::Player && b->type == EntityType::Spell)
 					{
 						Spell *spell = dynamic_cast<Spell*>(b);
-						spell->on_effect(this);
-						spell->dead = true;
+						if (spell->on_effect(this)) {
+							spell->dead = true;
+						}
 					}
 
 				}

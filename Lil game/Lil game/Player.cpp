@@ -74,20 +74,21 @@ void Player::update(Map *map, float dt)
 	}
 	if (gGamepads[index]->get_button_pressed(Gamepad::Rt))
 	{
-		XMFLOAT3 pos = {
-			position.x + cos(angle) * (radius + 0.4f),
+		XMVECTOR pos = {
+			position.x + cos(angle) * (radius + 0.9f),
 			0,
-			position.z + sin(angle) * (radius + 0.4f)
+			position.z + sin(angle) * (radius + 0.9f)
 		};
-		XMFLOAT3 wPos1 = { pos.x - this->position.x, 0, pos.z - this->position.z };
-		XMFLOAT3 wPos2 = { -wPos1.z, 0, wPos1.x };
-		float length = sqrt(wPos1.x*wPos1.x + wPos1.z * wPos1.z);
-		XMFLOAT3 wPos3 = { wPos2.x / length, 0, wPos2.z / length };
 
-		for (int i = 0; i < 10; i++)
+		XMVECTOR dist = pos - XMLoadFloat3(&position);
+		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
+
+		for (int i = 0; i < 6; i++)
 		{
-			XMFLOAT3 bob = {pos.x+wPos3.x * i-5, 0, pos.z+wPos3.z *i-5};
-			map->add_entity(new WallSpell(bob,1));
+
+			XMFLOAT3 p;
+			XMStoreFloat3(&p, n * (i - 3)*0.35 + pos);
+			map->add_entity(new WallSpell(p,0.35));
 		}
 	}
 

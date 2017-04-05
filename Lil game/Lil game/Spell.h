@@ -26,7 +26,7 @@ public:
 		}
 	};
 
-	virtual void on_effect(Map *map) {};
+	virtual bool on_effect(Map *map) { return true; };
 protected:
 	float life;
 };
@@ -37,7 +37,7 @@ public:
 	PushSpell(XMFLOAT3 position, XMFLOAT2 velocity, float radius);
 	virtual ~PushSpell();
 	
-	virtual void on_effect(Map *map) override;
+	virtual bool on_effect(Map *map) override;
 private:
 	float explosion_radius;
 	float strength;
@@ -52,13 +52,13 @@ public:
 
 	virtual void update(Map *map, float dt) override
 	{
-		
-
 		life -= dt;
 		if (life <= 0.f) {
 			dead = true;
 		}
 	}
+
+	virtual bool on_effect(Map *map) override { return false; };
 private:
 	float explosion_radius;
 	float strength;
