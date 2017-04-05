@@ -27,7 +27,7 @@ public:
 	};
 
 	virtual void on_effect(Map *map) {};
-private:
+protected:
 	float life;
 };
 
@@ -38,6 +38,27 @@ public:
 	virtual ~PushSpell();
 	
 	virtual void on_effect(Map *map) override;
+private:
+	float explosion_radius;
+	float strength;
+};
+
+class WallSpell : public Spell
+{
+public:
+	WallSpell(XMFLOAT3 position, float radius)
+		:Spell(position, {0,0}, radius, 10.f){}
+	virtual ~WallSpell() {}
+
+	virtual void update(Map *map, float dt) override
+	{
+		
+
+		life -= dt;
+		if (life <= 0.f) {
+			dead = true;
+		}
+	}
 private:
 	float explosion_radius;
 	float strength;

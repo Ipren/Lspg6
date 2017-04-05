@@ -21,8 +21,8 @@ void Player::update(Map *map, float dt)
 	auto right_angle = gGamepads[index]->get_right_thumb_angle();
 	angle = right_angle;
 
-	acceleration.x += left.x * 50;
-	acceleration.y += left.y * 50;
+	acceleration.x += left.x * 30;
+	acceleration.y += left.y * 30;
 
 	velocity.x += acceleration.x * dt;
 	velocity.y += acceleration.y * dt;
@@ -54,6 +54,43 @@ void Player::update(Map *map, float dt)
 		);
 		map->add_entity(spell);
 	}
+
+	if (gGamepads[index]->get_button_pressed(Gamepad::Lstick))
+	{
+		
+		auto left_angle = gGamepads[index]->get_left_thumb_angle();
+		this->velocity.x += cos(left_angle) * 30;
+		this->velocity.y += sin(left_angle) * 30;
+	}
+
+	if (gGamepads[index]->get_button_pressed(Gamepad::Lb))
+	{
+		auto nearby = map->get_entities_in_radius(this, 3);
+
+		for (auto result : nearby) {
+			result.entity->velocity.x += cos(result.angle) * 10 * abs(5 - result.distance);
+			result.entity->velocity.y += sin(result.angle) * 10 * abs(5 - result.distance);
+		}
+	}
+	if (gGamepads[index]->get_button_pressed(Gamepad::Rt))
+	{
+		XMFLOAT3 pos = {
+			position.x + cos(angle) * (radius + 0.4f),
+			0,
+			position.z + sin(angle) * (radius + 0.4f)
+		};
+		XMFLOAT3 wPos1 = { pos.x - this->position.x, 0, pos.z - this->position.z };
+		XMFLOAT3 wPos2 = { -wPos1.z, 0, wPos1.x };
+		float length = sqrt(wPos1.x*wPos1.x + wPos1.z * wPos1.z);
+		XMFLOAT3 wPos3 = { wPos2.x / length, 0, wPos2.z / length };
+
+		for (int i = 0; i < 10; i++)
+		{
+			XMFLOAT3 bob = {pos.x+wPos3.x * i-5, 0, pos.z+wPos3.z *i-5};
+			map->add_entity(new WallSpell(bob,1));
+		}
+	}
+
 
 	if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > 15)
 	{

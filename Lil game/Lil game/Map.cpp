@@ -107,7 +107,7 @@ std::vector<EntityQueryResult> Map::get_entities_in_radius(Entity *self, float r
 		float dz = pos.z - entity->position.z;
 
 		float dist = sqrt((dx * dx + dz * dz));
-		if (dist < radius + radius) {
+		if (dist < radius) {
 			EntityQueryResult result;
 
 			result.entity = entity;
