@@ -31,6 +31,8 @@ static XMFLOAT2 normalize_thumbs(float x, float y, float deadzone)
 		normalized_x * normalized_magnitude,
 		normalized_y * normalized_magnitude
 	};
+
+	
 }
 
 Gamepad::Gamepad(unsigned int index) :
@@ -39,6 +41,10 @@ Gamepad::Gamepad(unsigned int index) :
 {
 	XINPUT_STATE state;
 	connected = XInputGetState(index, &state) == ERROR_SUCCESS;
+	for (int i = 0; i < 16; i++)
+	{
+		this->buttons[i] = false;
+	}
 }
 
 Gamepad::~Gamepad()
@@ -129,6 +135,14 @@ bool Gamepad::get_button_down(Button butt)const
 		{
 			return true;
 		}
+		else if ((state.Gamepad.bLeftTrigger) && butt == Button::Lt)
+		{
+			return true;
+		}
+		else if ((state.Gamepad.bRightTrigger) && butt == Button::Rt)
+		{
+			return true;
+		}
 		
 	}
 
@@ -136,18 +150,19 @@ bool Gamepad::get_button_down(Button butt)const
 	return false;
 }
 
-bool Gamepad::get_button_pressed(Button butt) const
+bool Gamepad::get_button_pressed(Button butt)
 {
-	bool notDown = get_button_down(butt);
-	if (get_button_down(butt) && !notDown)
+	if (get_button_down(butt) && !this->buttons[butt])
 	{
-		notDown = false;
+		this->buttons[butt] = true;
+		return true;
 	}
-	else if (get_button_down(butt) && notDown)
+	else if (!get_button_down(butt) && this->buttons[butt])
 	{
-		notDown = true;
+		this->buttons[butt] = false;
+		return false;
 	}
-	return notDown;
+	return false;
 }
 
 void Gamepad::set_rumble(float rumble, int motor)
@@ -199,11 +214,11 @@ void Gamepad::update(float dt)
 		);
 
 		if (left_thumb.x != 0 || left_thumb.y != 0) {
-			left_angle = XM_PI * 0.5 - atan2f(left_thumb.y, left_thumb.x);
+			left_angle = atan2f(left_thumb.y, left_thumb.x);
 		}
 
 		if (right_thumb.x != 0 || right_thumb.y != 0) {
-			right_angle = XM_PI * 0.5 - atan2f(right_thumb.y, right_thumb.x);
+			right_angle = atan2f(right_thumb.y, right_thumb.x);
 		}
 	}
 	else {

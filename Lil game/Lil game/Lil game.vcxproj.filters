@@ -22,20 +22,17 @@
     <Filter Include="Source Files\GameLogic">
       <UniqueIdentifier>{1fcf7fd3-8710-4bb0-b841-121ede73eab4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Grapghics">
-      <UniqueIdentifier>{3b1523e7-3c5d-4b6f-975d-74de69bc5c8a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\GameLogic">
       <UniqueIdentifier>{4901d0d5-2002-4cd6-bd3a-d1dba2f9b174}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Grapghics">
-      <UniqueIdentifier>{912753be-ea7a-42de-9901-d0749a31d1b4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Misc">
       <UniqueIdentifier>{14f6551d-2e57-4a79-8a9c-bed69183b079}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\Paricles">
-      <UniqueIdentifier>{f9f3c619-655f-4d28-86b4-c2557aa7cfc1}</UniqueIdentifier>
+    <Filter Include="Header Files\Graphics">
+      <UniqueIdentifier>{912753be-ea7a-42de-9901-d0749a31d1b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{3b1523e7-3c5d-4b6f-975d-74de69bc5c8a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -64,10 +61,10 @@
       <Filter>Source Files\GameLogic</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>Source Files\Grapghics</Filter>
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>Source Files\Grapghics</Filter>
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Game.cpp">
       <Filter>Source Files\GameLogic</Filter>
@@ -96,10 +93,10 @@
       <Filter>Header Files\GameLogic</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
-      <Filter>Header Files\Grapghics</Filter>
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Header Files\Grapghics</Filter>
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Definitions.h">
       <Filter>Header Files\Misc</Filter>
