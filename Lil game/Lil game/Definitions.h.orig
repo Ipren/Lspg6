@@ -1,5 +1,5 @@
 #pragma once
-#include <DirectXMath.h>
+
 
 enum class EntityType
 {
@@ -7,15 +7,7 @@ enum class EntityType
 	Spell
 };
 
-enum Button
-{
-	A, B, X, Y,
-	Rb, Rt, Lb, Lt,
-	Up, Down, Left, Right,
-	Lstick, Rstick,
-	Start, Back
-};
-
+<<<<<<< HEAD
 struct Particle
 {
 	DirectX::XMFLOAT3 position;
@@ -29,4 +21,13 @@ struct Emitterlocation
 	DirectX::XMFLOAT4 randomVector;
 	DirectX::XMFLOAT3 position;
 	int particleType;
+=======
+enum Button
+{
+	A, B, X, Y,
+	Rb, Rt, Lb, Lt,
+	Up, Down, Left, Right,
+	Lstick, Rstick,
+	Start, Back
+>>>>>>> 9aefea704652a3482845943afa600392842ddce8
 };
