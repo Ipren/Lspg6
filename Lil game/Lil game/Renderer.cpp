@@ -1,5 +1,9 @@
 #include "Renderer.h"
 
+const UINT startParticleCount = 0;
+//makes it so the actual amount of particles in the buffers is used
+const UINT UAVFLAG = -1;
+
 Renderer::Renderer()
 {
 
@@ -23,13 +27,21 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->debug_entity_psh = nullptr;
 	this->debug_entity_vsh = nullptr;
 
+	this->nullSRV = nullptr;
+	this->nullUAV = nullptr;
+	this->nullRTV = nullptr;
+
 	this->height = height;
 	this->width = width;
+	this->totalTime = 0.0f;
+	this->lastParticleInsert = 0.0f;
+	this->emitterCount = 0;
 
 	this->createDirect3DContext(wndHandle);
 	this->createDepthBuffers();
 	this->createShaders();
 	this->setViewPort(width, height);
+	this->createParticleBuffer(2048);
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
 	{
@@ -46,7 +58,7 @@ Renderer::~Renderer()
 	ULONG test = 0;
 	this->gDeviceContext->ClearState();
 	this->gBackbufferRTV->Release();
-	test = this->gDepthStencil->Release();
+	this->gDepthStencil->Release();
 	this->gDevice->Release();
 	this->gDeviceContext->Release();
 	this->gSwapChain->Release();
@@ -59,6 +71,20 @@ Renderer::~Renderer()
 	this->debug_entity_layout->Release();
 	this->debug_entity_psh->Release();
 	this->debug_entity_vsh->Release();
+	this->UAVS[0]->Release();
+	this->UAVS[1]->Release();
+	this->SRVS[0]->Release();
+	this->SRVS[1]->Release();
+	this->inderectArgumentBuffer->Release();
+	this->ParticleCount->Release();
+	this->computeShader->Release();
+	this->inserter->Release();
+	this->pVertex->Release();
+	this->pGeometry->Release();
+	this->pPixel->Release();
+	this->deltaTimeBuffer->Release();
+	this->eLocations->Release();
+	this->emitterCountBuffer->Release();
 
 	this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	this->debugDevice->Release();
@@ -161,6 +187,8 @@ void Renderer::createShaders()
 	blob = compile_shader(L"Simple.hlsl", "PS", "ps_5_0", this->gDevice);
 	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_map_psh));
 	blob->Release();
+
+	this->createParticleShaders();
 }
 
 void Renderer::createDepthBuffers()
@@ -265,6 +293,372 @@ void Renderer::setViewPort(int width, int height)
 	gDeviceContext->RSSetViewports(1, &vp);
 }
 
+void Renderer::createParticleBuffer(int nrOfParticles)
+{
+	Particle *particles = new Particle[nrOfParticles];
+
+	for (size_t i = 0; i < nrOfParticles; i++)
+	{
+		particles[i].position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		particles[i].velocity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		particles[i].age = 0.0f;
+		particles[i].type = 0.0f;
+	}
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	data.pSysMem = particles;
+
+	ID3D11Buffer *particleBuffer1 = nullptr;
+	ID3D11Buffer *particleBuffer2 = nullptr;
+
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	desc.ByteWidth = nrOfParticles * sizeof(Particle);
+	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	desc.StructureByteStride = sizeof(Particle);
+	desc.Usage = D3D11_USAGE_DEFAULT;
+
+	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data,  &particleBuffer1);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"paricle buffer 1 failed", L"error", MB_OK);
+	}
+	hr = this->gDevice->CreateBuffer(&desc, &data, &particleBuffer2);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"paricle buffer 2 failed", L"error", MB_OK);
+	}
+
+
+	D3D11_BUFFER_UAV uav;
+	uav.FirstElement = 0;
+	uav.Flags = D3D11_BUFFER_UAV_FLAG_APPEND;
+	uav.NumElements = nrOfParticles;
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc;
+	ZeroMemory(&uavDesc, sizeof(D3D11_UNORDERED_ACCESS_VIEW_DESC));
+
+	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	uavDesc.Buffer = uav;
+
+	hr = this->gDevice->CreateUnorderedAccessView(particleBuffer1, &uavDesc, &this->UAVS[0]);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"uav 1 failed", L"error", MB_OK);
+	}
+	hr = this->gDevice->CreateUnorderedAccessView(particleBuffer2, &uavDesc, &this->UAVS[1]);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"uav 2 failed", L"error", MB_OK);
+	}
+
+	D3D11_BUFFER_SRV srv;
+	srv.FirstElement = 0;
+	srv.NumElements = nrOfParticles;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer = srv;
+
+	hr = this->gDevice->CreateShaderResourceView(particleBuffer1, &srvDesc, &this->SRVS[0]);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"srv 1 failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreateShaderResourceView(particleBuffer2, &srvDesc, &this->SRVS[1]);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"srv 2 failed", L"error", MB_OK);
+	}
+	particleBuffer1->Release();
+	particleBuffer2->Release();
+
+	UINT* init = new UINT[5];
+	for (size_t i = 0; i < 5; i++)
+	{
+		init[i] = 0;
+	}
+
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = 4 * sizeof(UINT);
+	desc.Usage = D3D11_USAGE_DEFAULT;
+
+	data.pSysMem = init;
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->ParticleCount);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"particle count cbuffer creation failed", L"error", MB_OK);
+	}
+
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+
+	desc.ByteWidth = 5 * sizeof(UINT);
+	desc.MiscFlags = D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+
+	init[1] = 1;
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->inderectArgumentBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"ind. arg. cbuffer creation failed", L"error", MB_OK);
+	}
+
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = 4 * sizeof(float);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	float temp = 0.0f;
+
+	data.pSysMem = &temp;
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->deltaTimeBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"d time cbuffer creation failed", L"error", MB_OK);
+	}
+
+	desc.ByteWidth = sizeof(Emitterlocation);
+	Emitterlocation tempE;
+	tempE.particleType = 0;
+	tempE.position = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
+	tempE.randomVector = DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	data.pSysMem = &tempE;
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->eLocations);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"e location cbuffer creation failed", L"error", MB_OK);
+	}
+
+	desc.ByteWidth = 4 * sizeof(int);
+	this->emitterCount = 1;
+	data.pSysMem = &this->emitterCount;
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->emitterCountBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"e count cbuffer creation failed", L"error", MB_OK);
+	}
+}
+
+void Renderer::createParticleShaders()
+{
+
+	ID3D10Blob *csBlob = nullptr;
+	HRESULT hr = D3DCompileFromFile(
+		L"ComputeShader.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"cs_5_0",
+		0,
+		0,
+		&csBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"compute shader compile failed", L"error", MB_OK);
+	}
+	hr = this->gDevice->CreateComputeShader(csBlob->GetBufferPointer(), csBlob->GetBufferSize(), nullptr, &this->computeShader);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"compute Shader creation failed", L"error", MB_OK);
+	}
+	csBlob->Release();
+
+	ID3D10Blob *icsBlob = nullptr;
+	  hr = D3DCompileFromFile(
+		L"Inserter.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"cs_5_0",
+		0,
+		0,
+		&icsBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"inserter compute shader compile failed", L"error", MB_OK);
+	}
+	hr = this->gDevice->CreateComputeShader(icsBlob->GetBufferPointer(), icsBlob->GetBufferSize(), nullptr, &this->inserter);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"inserter compute Shader creation failed", L"error", MB_OK);
+	}
+	icsBlob->Release();
+
+	ID3DBlob* pvsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"pVertex.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"vs_5_0",
+		0,
+		0,
+		&pvsBlob,
+		nullptr);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"pvsblob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreateVertexShader(pvsBlob->GetBufferPointer(), pvsBlob->GetBufferSize(), NULL, &this->pVertex);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"particle vertex shader creation failed", L"error", MB_OK);
+	}
+	pvsBlob->Release();
+
+	ID3DBlob* pgsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"pGeometry.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"gs_5_0",
+		0,
+		0,
+		&pgsBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"paricle geometry shader compile failed", L"error", MB_OK);
+	}
+	hr = this->gDevice->CreateGeometryShader(pgsBlob->GetBufferPointer(), pgsBlob->GetBufferSize(), nullptr, &this->pGeometry);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"paricle Geometry shader creation failed", L"error", MB_OK);
+	}
+
+	pgsBlob->Release();
+
+	ID3DBlob *ppsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"pPixel.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"ps_5_0",
+		0,
+		0,
+		&ppsBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"particle psBlob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreatePixelShader(ppsBlob->GetBufferPointer(), ppsBlob->GetBufferSize(), nullptr, &this->pPixel);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"paricle pixel shader creation failed", L"error", MB_OK);
+	}
+
+	ppsBlob->Release();
+}
+
+void Renderer::updateParticles(float dt)
+{
+	this->updateDTimeBuffer(dt);
+	this->totalTime += dt;
+	//if (this->totalTime - this->lastParticleInsert > 100.0f)
+	{
+		this->lastParticleInsert = this->totalTime;
+		this->gDeviceContext->CSSetShader(this->inserter, nullptr, 0);
+		this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->eLocations);
+		this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->ParticleCount);
+		this->gDeviceContext->CSSetConstantBuffers(2, 1, &this->emitterCountBuffer);
+
+		this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
+
+		this->gDeviceContext->Dispatch(1, 1, 1);
+		this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0 ,this->UAVS[0]);
+
+		this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->nullUAV, &UAVFLAG);
+		this->gDeviceContext->CSSetUnorderedAccessViews(1, 1, &this->nullUAV, &UAVFLAG);
+
+	}
+
+	this->gDeviceContext->CSSetShader(this->computeShader, nullptr, 0);
+	this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->ParticleCount);
+	this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->deltaTimeBuffer);
+
+	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
+	this->gDeviceContext->CSSetUnorderedAccessViews(1, 1, &this->UAVS[1], &startParticleCount);
+
+	this->gDeviceContext->Dispatch(1, 1, 1);
+	this->swapBuffers();
+
+	this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0, this->UAVS[0]);
+	this->gDeviceContext->CopyStructureCount(this->inderectArgumentBuffer, 0, this->UAVS[0]);
+
+	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->nullUAV, &UAVFLAG);
+	this->gDeviceContext->CSSetUnorderedAccessViews(1, 1, &this->nullUAV, &UAVFLAG);
+
+}
+
+void Renderer::swapBuffers()
+{
+	ID3D11UnorderedAccessView *tempUAV;
+	ID3D11ShaderResourceView *tempSRV;
+	tempUAV = this->UAVS[0];
+	tempSRV = this->SRVS[0];
+
+	this->UAVS[0] = this->UAVS[1];
+	this->SRVS[0] = this->SRVS[1];
+
+	this->UAVS[1] = tempUAV;
+	this->SRVS[1] = tempSRV;
+
+	tempSRV = nullptr;
+	tempUAV = nullptr;
+}
+
+void Renderer::renderParticles(Camera *camera)
+{
+	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	this->gDeviceContext->VSSetShader(this->pVertex, nullptr, 0);
+	this->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
+	this->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
+	this->gDeviceContext->GSSetShader(this->pGeometry, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->pPixel, nullptr, 0);
+	this->gDeviceContext->IASetInputLayout(nullptr);
+	this->gDeviceContext->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+
+	this->gDeviceContext->VSSetShaderResources(0, 1, &this->SRVS[0]);
+	this->gDeviceContext->GSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+
+	this->gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
+
+	this->gDeviceContext->DrawInstancedIndirect(this->inderectArgumentBuffer, 0);
+
+	this->gDeviceContext->VSSetShaderResources(0, 1, &this->nullSRV);
+	gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+
+}
+
+void Renderer::updateDTimeBuffer(float dt)
+{
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->deltaTimeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &dt, sizeof(dt));
+	this->gDeviceContext->Unmap(this->deltaTimeBuffer, 0);
+}
+
 void Renderer::render(Map *map, Camera *camera)
 {
 	XMFLOAT4 clear = normalize_color(0x93a9bcff);
@@ -333,5 +727,6 @@ void Renderer::render(Map *map, Camera *camera)
 		}
 	}
 
+	this->renderParticles(camera);
 	this->gSwapChain->Present(0,0);
 }

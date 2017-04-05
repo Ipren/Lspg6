@@ -20,6 +20,7 @@ public:
 	virtual ~Renderer();
 
 	void render(Map *map, Camera *camera);
+	void updateParticles(float dt);
 	ID3D11Device *gDevice;
 	ID3D11DeviceContext *gDeviceContext;
 
@@ -43,13 +44,40 @@ private:
 
 	ID3D11Debug *debugDevice;
 
+	ID3D11UnorderedAccessView *UAVS[2];
+	ID3D11ShaderResourceView* SRVS[2];
+	ID3D11Buffer *ParticleCount;
+	ID3D11Buffer *inderectArgumentBuffer;
+	ID3D11ComputeShader *computeShader;
+	ID3D11ComputeShader *inserter;
+	ID3D11VertexShader* pVertex;
+	ID3D11GeometryShader* pGeometry;
+	ID3D11PixelShader* pPixel;
+	ID3D11Buffer* deltaTimeBuffer;
+	ID3D11Buffer* eLocations;
+	ID3D11Buffer* emitterCountBuffer;
+
+	ID3D11UnorderedAccessView* nullUAV;
+	ID3D11ShaderResourceView* nullSRV;
+	ID3D11RenderTargetView* nullRTV;
+
 	int width; 
 	int height;
+	int emitterCount;
+	float totalTime;
+	float lastParticleInsert;
 
 	void create_debug_entity();
 	void createShaders();
 	void createDepthBuffers();
 	HRESULT createDirect3DContext(HWND wndHandle);
 	void setViewPort(int width, int height);
+	void createParticleBuffer(int nrOfParticles);
+	void createParticleShaders();
+	
+	void swapBuffers();
+	void renderParticles(Camera *camera);
+	void updateDTimeBuffer(float dt);
+
 	
 };
