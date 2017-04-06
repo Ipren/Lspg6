@@ -16,7 +16,7 @@ struct el
 
 cbuffer emitterLocation : register(b0)
 {
-    el eLocations[100];
+    el eLocations[2048];
 }
 cbuffer particleCount : register(b1)
 {
@@ -50,7 +50,7 @@ void main(uint3 GTID : SV_GroupThreadID)
             newParticle.age = 0.0f;
             newParticle.position = eLocations[i].ePosition;
             newParticle.type = eLocations[i].eType;
-            newParticle.velocity = (reflect(eLocations[i].randomVector.xyz, reflectVectors[GTID.x]));
+            newParticle.velocity = reflect(eLocations[i].randomVector.xyz, reflectVectors[GTID.x]);
             if(sign(newParticle.velocity.y) == -1)
             {
                 newParticle.velocity.y *= -1.0f; 

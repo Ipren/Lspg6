@@ -452,7 +452,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 	}
 
 	desc.ByteWidth = 100 * sizeof(Emitterlocation);
-	Emitterlocation *tempE = new Emitterlocation[100];
+	Emitterlocation *tempE = new Emitterlocation[2048];
 	for (size_t i = 0; i < 100; i++)
 	{
 		tempE[i].particleType = 0;
@@ -692,7 +692,7 @@ void Renderer::updateDTimeBuffer(float dt)
 void Renderer::updateEmitters(Map * map)
 {
 	this->emitterCount = 0;
-	Emitterlocation *temp = new Emitterlocation[100000];
+	Emitterlocation *temp = new Emitterlocation[2048];
 	for (size_t i = 0; i < map->entitys.size(); i++)
 	{
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
