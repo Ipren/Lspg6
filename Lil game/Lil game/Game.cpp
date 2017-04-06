@@ -8,6 +8,9 @@
 #include "Helpers.h"
 #include "Camera.h"
 #include "Gamepad.h"
+#include "Constants.h"
+
+#include "imgui.h"
 
 ID3D11Buffer *quad;
 ID3D11InputLayout *layout;
@@ -45,6 +48,53 @@ Game::~Game()
 
 void Game::update(float dt)
 {
+	{
+		ImGui::Begin("Constants");
+		
+		if (ImGui::CollapsingHeader("Arcane")) {
+			ImGui::TextDisabled("Projectile");
+			ImGui::SliderFloat("seek strength", &gSpellConstants.kArcaneProjectileSeekStrength, 0.0f, 10.0f);
+			ImGui::SliderFloat("seek radius", &gSpellConstants.kArcaneProjectileSeekRadius, 0.0f, 10.0f);
+			ImGui::SliderFloat("strength", &gSpellConstants.kArcaneProjectileStrength, 0.0f, 30.0f);
+			ImGui::SliderFloat("speed", &gSpellConstants.kArcaneProjectileSpeed, 0.0f, 20.0f);
+
+			ImGui::TextDisabled("Stomp");
+			ImGui::SliderFloat("distance", &gSpellConstants.kArcaneStompDistance, 0.0f, 10.0f);
+			ImGui::SliderFloat("strength##stomp", &gSpellConstants.kArcaneStompStrength, 0.0f, 10.0f);
+			ImGui::SliderFloat("strength falloff", &gSpellConstants.kArcaneStompStrengthFalloff, 0.0f, 10.0f);
+
+			ImGui::TextDisabled("Dash");
+			ImGui::SliderFloat("speed##dash", &gSpellConstants.kArcaneDashSpeed, 0.0f, 60.f);
+		}
+
+		if (ImGui::CollapsingHeader("Player")) {
+			ImGui::SliderFloat("radius", &gPlayerConstants.kRadius, 0.0f, 5.f);
+			ImGui::SliderFloat("speed##player", &gPlayerConstants.kSpeed, 0.0f, 120);
+			ImGui::SliderFloat("friction factor", &gPlayerConstants.kFriction, 0.0f, 30.0f);
+		}
+
+		ImGui::Separator();
+
+		if (ImGui::CollapsingHeader("Reset")) {
+			if (ImGui::Button("Spells")) {
+				gSpellConstants = gDefaultSpellConstants;
+			}
+			if (ImGui::Button("Players")) {
+				gPlayerConstants = gDefaultPlayerConstants;
+			}
+		}
+
+		ImGui::End();
+	}
+
+	{
+		ImGui::Begin("Debug");
+		if (ImGui::Button("Reset map")) {
+			currentMap->reset();
+		}
+		ImGui::End();
+	}
+
 	for (int i = 0; i < 4; ++i) {
 		gGamepads[i]->update(dt);
 	}
@@ -58,6 +108,8 @@ void Game::update(float dt)
 
 void Game::render()
 {
+
 	this->renderer->render(this->currentMap, this->camera);
-	
+	ImGui::Render();
+	this->renderer->present();
 }

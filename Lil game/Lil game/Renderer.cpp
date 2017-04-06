@@ -106,7 +106,7 @@ void Renderer::create_debug_entity()
 	}
 
 	XMFLOAT3 start = vertices[0];
-	start.z += 0.4;
+	start.z += 3.4;
 
 	vertices[0] = start;
 	vertices.push_back(start);
@@ -785,5 +785,8 @@ void Renderer::render(Map *map, Camera *camera)
 
 	this->updateEmitters(map);
 	this->renderParticles(camera);
-	this->gSwapChain->Present(0,0);
+}
+
+void Renderer::present() {
+	this->gSwapChain->Present(0, 0);
 }

@@ -12,7 +12,7 @@ public:
 	void update(float dt);
 	void render();
 
-private: 
+//private: 
 	Map *currentMap;
 	Camera *camera;
 	Renderer *renderer;

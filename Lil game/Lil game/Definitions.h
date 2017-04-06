@@ -4,7 +4,8 @@
 enum class EntityType
 {
 	Player,
-	Spell
+	Spell,
+	Wall
 };
 
 enum Button

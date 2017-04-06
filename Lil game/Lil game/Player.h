@@ -2,6 +2,7 @@
 
 #include "Entity.h"
 #include "Map.h"
+#include "Element.h"
 
 class Player : public Entity
 {
@@ -12,5 +13,6 @@ public:
 	void update(Map *map, float dt) override;
 
 private:
+	Element *element;
 	unsigned int index;
 };

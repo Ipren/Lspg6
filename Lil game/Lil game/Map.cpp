@@ -2,19 +2,29 @@
 #include <DirectXMath.h>
 #include "Player.h"
 #include "Spell.h"
+#include "Constants.h"
 
 using namespace DirectX;
 
 Map::Map()
 {
 	for (int i = 0; i < 4; ++i) {
-		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, 0.5f);
+		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
 		entitys.push_back(e);
 	}
 }
 
 Map::~Map()
 {
+}
+
+void Map::reset()
+{
+	entitys.clear();
+	for (int i = 0; i < 4; ++i) {
+		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
+		entitys.push_back(e);
+	}
 }
 
 void Map::add_entity(Entity * entity)
@@ -42,7 +52,9 @@ void Map::update(float dt, Camera *cam)
 				float dx = abs(a->position.x - b->position.x);
 				float dz = abs(a->position.z - b->position.z);
 
-				if (sqrt(dx * dx + dz * dz) < (a->radius + b->radius))
+				float distance = sqrt(dx * dx + dz * dz);
+
+				if (distance < (a->radius + b->radius))
 				{
 					// Player vs. Player
 					if (a->type == EntityType::Player && b->type == EntityType::Player)
@@ -57,6 +69,20 @@ void Map::update(float dt, Camera *cam)
 						if (spell->on_effect(this)) {
 							spell->dead = true;
 						}
+					}
+					// Player and Spell vs. Wall
+					else if (a->type == EntityType::Wall && (b->type == EntityType::Spell || b->type == EntityType::Player))
+					{
+
+						b->acceleration.x = -(a->position.x - b->position.x) * 150;
+						b->acceleration.y = -(a->position.z - b->position.z) * 150;
+
+						if (b->acceleration.x > 4 || b->acceleration.y > 4)
+						{
+							b->velocity.x = -b->velocity.x;
+							b->velocity.y = -b->velocity.y;
+						}
+
 					}
 
 				}
@@ -95,12 +121,13 @@ void Map::update(float dt, Camera *cam)
 	cam->focus(pos);
 }
 
-std::vector<EntityQueryResult> Map::get_entities_in_radius(Entity *self, float radius)
+std::vector<EntityQueryResult> Map::get_entities_in_radius(Entity *self, float radius, std::function<bool(Entity*)> predicate)
 {
 	std::vector<EntityQueryResult> entities;
 
 	for (auto entity : this->entitys) {
 		if (entity == self) continue;
+		if (!predicate(entity)) continue;
 
 		auto pos = self->position;
 
@@ -108,7 +135,7 @@ std::vector<EntityQueryResult> Map::get_entities_in_radius(Entity *self, float r
 		float dz = pos.z - entity->position.z;
 
 		float dist = sqrt((dx * dx + dz * dz));
-		if (dist < radius) {
+		if (dist < radius + entity->radius) {
 			EntityQueryResult result;
 
 			result.entity = entity;
@@ -120,4 +147,22 @@ std::vector<EntityQueryResult> Map::get_entities_in_radius(Entity *self, float r
 	}
 
 	return entities;
+}
+
+bool Map::get_nearest_entity(Entity * self, float radius, EntityQueryResult * result, std::function<bool(Entity*)> predicate)
+{
+	auto results = get_entities_in_radius(self, radius, predicate);
+
+	if (results.size() > 0) {
+		auto it = std::min_element(results.begin(), results.end(), [](EntityQueryResult a, EntityQueryResult b) {
+			return a.distance < b.distance;
+		});
+
+		*result = *it;
+		return true;
+	}
+	else {
+		return false;
+	}
+
 }

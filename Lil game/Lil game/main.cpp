@@ -9,15 +9,22 @@
 #include "Game.h"
 #include "Globals.h"
 
+#include "imgui.h"
+#include "imgui_impl_dx11.h"
+
 using namespace DirectX;
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment (lib, "d3dcompiler.lib")
 
 
+extern LRESULT ImGui_ImplDX11_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT WINAPI WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplDX11_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
+
 	switch (message)
 	{
 	case WM_DESTROY:
@@ -31,6 +38,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 HWND InitWindow(HINSTANCE hInstance)
 {
 	WNDCLASSEX wcex = { 0 };
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc = WndProc;
@@ -52,7 +60,7 @@ HWND InitWindow(HINSTANCE hInstance)
 		rc.bottom - rc.top,
 		nullptr,
 		nullptr,
-		hInstance,
+		wcex.hInstance,
 		nullptr
 	);
 
@@ -81,9 +89,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 
 	if (wndHandle) {
-	
-
 		Game *game = new Game(wndHandle, WIDTH, HEIGHT);
+
+		ImGui_ImplDX11_Init(wndHandle, game->renderer->gDevice, game->renderer->gDeviceContext);
 
 		ShowWindow(wndHandle, nCmdShow);
 
@@ -109,13 +117,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 				DispatchMessage(&msg);
 			}
 
+			ImGui_ImplDX11_NewFrame();
+
 			game->update((elapsed) / 1000.f);
 			game->render();
 
+			ImGui::Render();
 
 			prev = newtime;
 		}
 		delete game;
+		ImGui_ImplDX11_Shutdown();
 		DestroyWindow(wndHandle);
 	}
 
