@@ -79,6 +79,7 @@ private:
 	void swapBuffers();
 	void renderParticles(Camera *camera);
 	void updateDTimeBuffer(float dt);
+	void updateEmitters(Map *map);
 
 	
 };
