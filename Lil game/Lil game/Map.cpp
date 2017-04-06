@@ -2,13 +2,14 @@
 #include <DirectXMath.h>
 #include "Player.h"
 #include "Spell.h"
+#include "Constants.h"
 
 using namespace DirectX;
 
 Map::Map()
 {
 	for (int i = 0; i < 4; ++i) {
-		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, 0.5f);
+		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
 		entitys.push_back(e);
 	}
 }
@@ -21,7 +22,7 @@ void Map::reset()
 {
 	entitys.clear();
 	for (int i = 0; i < 4; ++i) {
-		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, 0.5f);
+		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
 		entitys.push_back(e);
 	}
 }
