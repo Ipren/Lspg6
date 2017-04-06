@@ -41,7 +41,7 @@ static const float3 reflectVectors[6] =
 [numthreads(6, 1, 1)]
 void main(uint3 GTID : SV_GroupThreadID)
 {
-    if(pCount <= 2040)
+    if (pCount <= 524282)
     {
         for (int i = 0; i < eCount; i++)
         {

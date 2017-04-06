@@ -42,7 +42,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createDepthBuffers();
 	this->createShaders();
 	this->setViewPort(width, height);
-	this->createParticleBuffer(2048);
+	this->createParticleBuffer(524288);
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
 	{
@@ -603,7 +603,7 @@ void Renderer::updateParticles(float dt)
 {
 	this->updateDTimeBuffer(dt);
 	this->totalTime += dt;
-	if (this->totalTime - this->lastParticleInsert > 1.0f)
+	if (this->totalTime - this->lastParticleInsert > 0.01f)
 	{
 		this->lastParticleInsert = this->totalTime;
 		this->gDeviceContext->CSSetShader(this->inserter, nullptr, 0);
@@ -628,7 +628,7 @@ void Renderer::updateParticles(float dt)
 	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
 	this->gDeviceContext->CSSetUnorderedAccessViews(1, 1, &this->UAVS[1], &startParticleCount);
 
-	this->gDeviceContext->Dispatch(2, 1, 1);
+	this->gDeviceContext->Dispatch(512, 1, 1);
 	this->swapBuffers();
 
 	this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0, this->UAVS[0]);
@@ -692,7 +692,7 @@ void Renderer::updateDTimeBuffer(float dt)
 void Renderer::updateEmitters(Map * map)
 {
 	this->emitterCount = 0;
-	Emitterlocation *temp = new Emitterlocation[10000];
+	Emitterlocation *temp = new Emitterlocation[100000];
 	for (size_t i = 0; i < map->entitys.size(); i++)
 	{
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)

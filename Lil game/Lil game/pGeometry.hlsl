@@ -20,10 +20,10 @@ cbuffer Camera : register(b0)
 
 static const float4 quadCorners[4] =
 {
-    float4(-0.016f, 0.016f, 0.0f, 0.0f),
-    float4(0.016f, 0.016f, 0.0f, 0.0f),
-    float4(-0.016f, -0.016f, 0.0f, 0.0f),
-    float4(0.016f, -0.016f, 0.0f, 0.0f)
+    float4(-0.026f, 0.026f, 0.0f, 0.0f),
+    float4(0.026f, 0.026f, 0.0f, 0.0f),
+    float4(-0.026f, -0.026f, 0.0f, 0.0f),
+    float4(0.026f, -0.026f, 0.0f, 0.0f)
 };
 
 
