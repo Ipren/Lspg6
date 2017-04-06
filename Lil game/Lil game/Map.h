@@ -17,6 +17,7 @@ public:
 	Map();
 	virtual ~Map();
 
+	void reset();
 	void add_entity(Entity *entity);
 	void update(float dt, Camera *cam);
 

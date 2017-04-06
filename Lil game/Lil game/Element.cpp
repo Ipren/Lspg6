@@ -2,6 +2,7 @@
 
 #include "Spell.h"
 #include "Player.h"
+#include "Constants.h"
 
 void ArcaneElement::projectile(Player *player, Map *map)
 {
@@ -15,7 +16,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 		0,
 		position.z + sin(angle) * (radius + 0.4f)
 	},
-	{ cos(angle) * 10, sin(angle) * 10 },
+	{ cos(angle) * gConstants.kArcaneProjectileSpeed, sin(angle) * gConstants.kArcaneProjectileSpeed },
 		0.1
 	);
 
@@ -24,13 +25,13 @@ void ArcaneElement::projectile(Player *player, Map *map)
 
 void ArcaneElement::stomp(Player *player, Map *map)
 {
-	auto nearby = map->get_entities_in_radius(player, 3, [](Entity *e) {
+	auto nearby = map->get_entities_in_radius(player, gConstants.kArcaneStompDistance, [](Entity *e) {
 		return e->type == EntityType::Player;
 	});
 
 	for (auto result : nearby) {
-		result.entity->velocity.x += cos(result.angle) * 5 * abs(5 - result.distance);
-		result.entity->velocity.y += sin(result.angle) * 5 * abs(5 - result.distance);
+		result.entity->velocity.x += cos(result.angle) * gConstants.kArcaneStompStrength * abs((gConstants.kArcaneStompDistance + gConstants.kArcaneStompStrengthFalloff) - result.distance);
+		result.entity->velocity.y += sin(result.angle) * gConstants.kArcaneStompStrength * abs((gConstants.kArcaneStompDistance + gConstants.kArcaneStompStrengthFalloff) - result.distance);
 	}
 }
 

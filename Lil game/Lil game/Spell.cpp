@@ -1,5 +1,7 @@
 #include "Spell.h"
 
+#include "Constants.h"
+
 Spell::Spell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius, float life)
 	: Entity(EntityType::Spell, position, velocity, radius), owner(owner), life(life)
 {
@@ -21,7 +23,7 @@ ArcaneProjectileSpell::~ArcaneProjectileSpell()
 void ArcaneProjectileSpell::update(Map *map, float dt)
 {
 	EntityQueryResult result;
-	if (map->get_nearest_entity(this, 5.f, &result, [this](Entity *e) {
+	if (map->get_nearest_entity(this, gConstants.kArcaneProjectileSeekRadius, &result, [this](Entity *e) {
 		return e->type == EntityType::Player && e != (Entity*)this->owner;
 	})) {
 		float magnitude = sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
@@ -29,7 +31,7 @@ void ArcaneProjectileSpell::update(Map *map, float dt)
 		float ang = atan2f(velocity.y, velocity.x);
 		float an = atan2(sin(result.angle - ang), cos(result.angle - ang));
 
-		float new_angle = fmod((ang + an *4* dt), (XM_PI*2));
+		float new_angle = fmod((ang + an * gConstants.kArcaneProjectileSeekStrength * dt), (XM_PI * 2));
 		angle = new_angle;
 		
 		XMFLOAT2 new_vel = {
@@ -50,8 +52,8 @@ bool ArcaneProjectileSpell::on_effect(Map *map)
 	});
 
 	for (auto result : nearby) {
-		result.entity->velocity.x += cos(result.angle) * 15 * abs(explosion_radius - result.distance);
-		result.entity->velocity.y += sin(result.angle) * 15 * abs(explosion_radius - result.distance);
+		result.entity->velocity.x += cos(result.angle) * gConstants.kArcaneProjectileStrength * abs(explosion_radius - result.distance);
+		result.entity->velocity.y += sin(result.angle) * gConstants.kArcaneProjectileStrength * abs(explosion_radius - result.distance);
 	}
 
 	return true;

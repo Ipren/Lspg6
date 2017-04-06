@@ -17,6 +17,15 @@ Map::~Map()
 {
 }
 
+void Map::reset()
+{
+	entitys.clear();
+	for (int i = 0; i < 4; ++i) {
+		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, 0.5f);
+		entitys.push_back(e);
+	}
+}
+
 void Map::add_entity(Entity * entity)
 {
 	entitys_to_add.push_back(entity);
