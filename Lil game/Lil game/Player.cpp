@@ -3,6 +3,7 @@
 #include "Spell.h"
 #include "Globals.h"
 #include "Gamepad.h"
+#include "Constants.h"
 
 Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float radius) :
 	Entity(EntityType::Player, position, velocity, radius), index(index)
@@ -23,8 +24,8 @@ void Player::update(Map *map, float dt)
 	auto right_angle = gGamepads[index]->get_right_thumb_angle();
 	angle = right_angle;
 
-	acceleration.x += left.x * 30;
-	acceleration.y += left.y * 30;
+	acceleration.x += left.x * gPlayerConstants.kSpeed;
+	acceleration.y += left.y * gPlayerConstants.kSpeed;
 
 	velocity.x += acceleration.x * dt;
 	velocity.y += acceleration.y * dt;
@@ -33,8 +34,8 @@ void Player::update(Map *map, float dt)
 	position.z += velocity.y * dt;
 
 
-	velocity.x -= velocity.x * 5 * dt;
-	velocity.y -= velocity.y * 5 * dt;
+	velocity.x -= velocity.x * gPlayerConstants.kFriction * dt;
+	velocity.y -= velocity.y * gPlayerConstants.kFriction * dt;
 
 	acceleration.x = 0;
 	acceleration.y = 0;
@@ -45,7 +46,7 @@ void Player::update(Map *map, float dt)
 	//acceleration.x *= 0.9;
 	//acceleration.y *= 0.9;
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Rb)) {
+	if (gGamepads[index]->get_button_down(Gamepad::Rb)) {
 		this->element->projectile(this, map);
 	}
 
@@ -53,8 +54,8 @@ void Player::update(Map *map, float dt)
 	{
 		
 		auto left_angle = gGamepads[index]->get_left_thumb_angle();
-		this->velocity.x += cos(left_angle) * 30;
-		this->velocity.y += sin(left_angle) * 30;
+		this->velocity.x += cos(left_angle) * gSpellConstants.kArcaneDashSpeed;
+		this->velocity.y += sin(left_angle) * gSpellConstants.kArcaneDashSpeed;
 	}
 
 	if (gGamepads[index]->get_button_pressed(Gamepad::Lb))

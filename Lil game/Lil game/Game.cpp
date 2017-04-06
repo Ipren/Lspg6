@@ -53,21 +53,35 @@ void Game::update(float dt)
 		
 		if (ImGui::CollapsingHeader("Arcane")) {
 			ImGui::TextDisabled("Projectile");
-			ImGui::SliderFloat("seek strength", &gConstants.kArcaneProjectileSeekStrength, 0.0f, 10.0f);
-			ImGui::SliderFloat("seek radius", &gConstants.kArcaneProjectileSeekRadius, 0.0f, 10.0f);
-			ImGui::SliderFloat("strength", &gConstants.kArcaneProjectileStrength, 0.0f, 30.0f);
-			ImGui::SliderFloat("speed", &gConstants.kArcaneProjectileSpeed, 0.0f, 20.0f);
+			ImGui::SliderFloat("seek strength", &gSpellConstants.kArcaneProjectileSeekStrength, 0.0f, 10.0f);
+			ImGui::SliderFloat("seek radius", &gSpellConstants.kArcaneProjectileSeekRadius, 0.0f, 10.0f);
+			ImGui::SliderFloat("strength", &gSpellConstants.kArcaneProjectileStrength, 0.0f, 30.0f);
+			ImGui::SliderFloat("speed", &gSpellConstants.kArcaneProjectileSpeed, 0.0f, 20.0f);
 
 			ImGui::TextDisabled("Stomp");
-			ImGui::SliderFloat("distance", &gConstants.kArcaneStompDistance, 0.0f, 10.0f);
-			ImGui::SliderFloat("strength##stomp", &gConstants.kArcaneStompStrength, 0.0f, 10.0f);
-			ImGui::SliderFloat("strength falloff", &gConstants.kArcaneStompStrengthFalloff, 0.0f, 10.0f);
+			ImGui::SliderFloat("distance", &gSpellConstants.kArcaneStompDistance, 0.0f, 10.0f);
+			ImGui::SliderFloat("strength##stomp", &gSpellConstants.kArcaneStompStrength, 0.0f, 10.0f);
+			ImGui::SliderFloat("strength falloff", &gSpellConstants.kArcaneStompStrengthFalloff, 0.0f, 10.0f);
+
+			ImGui::TextDisabled("Dash");
+			ImGui::SliderFloat("speed##dash", &gSpellConstants.kArcaneDashSpeed, 0.0f, 60.f);
+		}
+
+		if (ImGui::CollapsingHeader("Player")) {
+			ImGui::SliderFloat("radius", &gPlayerConstants.kRadius, 0.0f, 5.f);
+			ImGui::SliderFloat("speed##player", &gPlayerConstants.kSpeed, 0.0f, 120);
+			ImGui::SliderFloat("friction factor", &gPlayerConstants.kFriction, 0.0f, 30.0f);
 		}
 
 		ImGui::Separator();
 
-		if (ImGui::Button("Reset")) {
-			gConstants = gDefaultConstants;
+		if (ImGui::CollapsingHeader("Reset")) {
+			if (ImGui::Button("Spells")) {
+				gSpellConstants = gDefaultSpellConstants;
+			}
+			if (ImGui::Button("Players")) {
+				gPlayerConstants = gDefaultPlayerConstants;
+			}
 		}
 
 		ImGui::End();

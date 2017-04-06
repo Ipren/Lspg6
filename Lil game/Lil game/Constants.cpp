@@ -1,4 +1,7 @@
 #include "Constants.h";
 
-SpellConstants gDefaultConstants;
-SpellConstants gConstants;
+SpellConstants gDefaultSpellConstants;
+SpellConstants gSpellConstants;
+
+PlayerConstants gDefaultPlayerConstants;
+PlayerConstants gPlayerConstants;
