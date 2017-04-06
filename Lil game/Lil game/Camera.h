@@ -33,5 +33,12 @@ public:
 	XMVECTOR offset;
 
 	ID3D11Buffer *wvp_buffer;
+	ID3D11Buffer *floatwvpBuffer;
+
+	struct testMatrix {
+		XMFLOAT4X4 world;
+		XMFLOAT4X4 view;
+		XMFLOAT4X4 proj;
+	} wvpmatrixes;
 };
 

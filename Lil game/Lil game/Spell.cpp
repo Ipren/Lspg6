@@ -18,6 +18,13 @@ ArcaneProjectileSpell::ArcaneProjectileSpell(Player *owner, XMFLOAT3 position, X
 
 ArcaneProjectileSpell::~ArcaneProjectileSpell()
 {
+	this->pEmitter.randomVector = DirectX::XMFLOAT4(velocity.x, position.x, velocity.y, 1.0f);
+	float x, y, z;
+	x = this->pEmitter.randomVector.x;
+	y = this->pEmitter.randomVector.y;
+	z = this->pEmitter.randomVector.z;
+	this->pEmitter.position = position;
+	this->pEmitter.particleType = 0;
 }
 
 void ArcaneProjectileSpell::update(Map *map, float dt)

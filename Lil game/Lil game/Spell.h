@@ -16,6 +16,9 @@ public:
 
 		position.x += velocity.x * dt;
 		position.z += velocity.y * dt;
+		
+		pEmitter.position = position;
+		pEmitter.particleType = 0;
 
 		velocity.x -= velocity.x * 0.3 * dt;
 		velocity.y -= velocity.y * 0.3 * dt;
@@ -33,6 +36,8 @@ public:
 protected:
 	Player *owner;
 	float life;
+public:
+	Emitterlocation pEmitter;
 };
 
 class ArcaneProjectileSpell : public Spell
@@ -46,6 +51,7 @@ public:
 private:
 	float explosion_radius;
 	float strength;
+	
 };
 
 class ArcaneWallSpell : public Spell
