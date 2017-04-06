@@ -695,10 +695,10 @@ void Renderer::updateEmitters(Map * map)
 	Emitterlocation *temp = new Emitterlocation[100];
 	for (size_t i = 0; i < map->entitys.size(); i++)
 	{
-		if (dynamic_cast<PushSpell*>(map->entitys[i]) != nullptr)
+		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
 		{
 			emitterCount++;
-			temp[emitterCount] = dynamic_cast<PushSpell*>(map->entitys[i])->pEmitter;
+			temp[emitterCount] = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i])->pEmitter;
 		}
 	}
 	D3D11_MAPPED_SUBRESOURCE data;
