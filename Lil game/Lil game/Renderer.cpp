@@ -106,7 +106,7 @@ void Renderer::create_debug_entity()
 	}
 
 	XMFLOAT3 start = vertices[0];
-	start.z += 3.4;
+	start.z += 3.4f;
 
 	vertices[0] = start;
 	vertices.push_back(start);
@@ -114,7 +114,7 @@ void Renderer::create_debug_entity()
 	D3D11_BUFFER_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.ByteWidth = sizeof(XMFLOAT3) * vertices.size();
+	desc.ByteWidth = (UINT)(sizeof(XMFLOAT3) * vertices.size());
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
@@ -176,7 +176,7 @@ void Renderer::createShaders()
 	D3D11_BUFFER_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.ByteWidth = vertices.size() * 3 * sizeof(float);
+	desc.ByteWidth = (UINT)(vertices.size() * 3 * sizeof(float));
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
@@ -326,7 +326,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 		particles[i].position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 		particles[i].velocity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 		particles[i].age = 0.0f;
-		particles[i].type = 0.0f;
+		particles[i].type = 0;
 	}
 	D3D11_SUBRESOURCE_DATA data;
 	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
@@ -773,7 +773,7 @@ void Renderer::render(Map *map, Camera *camera)
 			}
 			gDeviceContext->Unmap(color_buffer, 0);
 
-			XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5 - entity->angle) * XMMatrixScaling(entity->radius, 1, entity->radius) * XMMatrixTranslation(entity->position.x, 0, entity->position.z);
+			XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, 1, entity->radius) * XMMatrixTranslation(entity->position.x, 0, entity->position.z);
 
 			camera->vals.world = model;
 			camera->update(0, gDeviceContext);

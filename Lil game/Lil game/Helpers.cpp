@@ -60,7 +60,7 @@ ID3DBlob *compile_shader(const wchar_t *filename, const char *function, const ch
 ID3D11InputLayout *create_input_layout(D3D11_INPUT_ELEMENT_DESC *elements, size_t size, ID3DBlob *blob, ID3D11Device *gDevice)
 {
 	ID3D11InputLayout *layout = nullptr;
-	DXCALL(gDevice->CreateInputLayout(elements, size, blob->GetBufferPointer(), blob->GetBufferSize(), &layout));
+	DXCALL(gDevice->CreateInputLayout(elements, (UINT)size, blob->GetBufferPointer(), (UINT)blob->GetBufferSize(), &layout));
 
 	return layout;
 }

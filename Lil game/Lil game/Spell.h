@@ -20,8 +20,8 @@ public:
 		pEmitter.position = position;
 		pEmitter.particleType = 0;
 
-		velocity.x -= velocity.x * 0.3 * dt;
-		velocity.y -= velocity.y * 0.3 * dt;
+		velocity.x -= velocity.x * 0.3f * dt;
+		velocity.y -= velocity.y * 0.3f * dt;
 
 		acceleration.x = 0;
 		acceleration.y = 0;

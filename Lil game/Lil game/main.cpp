@@ -94,7 +94,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	HICON icon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG1));
 	SendMessage(wndHandle, WM_SETICON, ICON_BIG, (LPARAM)icon);
 
-
 	if (wndHandle) {
 		Game *game = new Game(wndHandle, WIDTH, HEIGHT);
 
