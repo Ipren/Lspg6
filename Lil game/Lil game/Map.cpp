@@ -51,7 +51,9 @@ void Map::update(float dt, Camera *cam)
 				float dx = abs(a->position.x - b->position.x);
 				float dz = abs(a->position.z - b->position.z);
 
-				if (sqrt(dx * dx + dz * dz) < (a->radius + b->radius))
+				float distance = sqrt(dx * dx + dz * dz);
+
+				if (distance < (a->radius + b->radius))
 				{
 					// Player vs. Player
 					if (a->type == EntityType::Player && b->type == EntityType::Player)
@@ -66,6 +68,18 @@ void Map::update(float dt, Camera *cam)
 						if (spell->on_effect(this)) {
 							spell->dead = true;
 						}
+					}
+					// Player and Spell vs. Wall
+					else if (a->type == EntityType::Wall && (b->type == EntityType::Spell || b->type == EntityType::Player))
+					{
+						float moveDis = a->radius+b->radius - distance;
+						float angle = atan2f(b->velocity.y, b->velocity.x);
+						b->position.x -= moveDis * cos(angle);
+						b->position.z -= moveDis * sin(angle);
+
+						/*b->velocity.x = -b->velocity.x;
+						b->velocity.y = -b->velocity.y;*/
+
 					}
 
 				}

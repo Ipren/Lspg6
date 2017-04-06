@@ -52,7 +52,8 @@ class ArcaneWallSpell : public Spell
 {
 public:
 	ArcaneWallSpell(Player *owner, XMFLOAT3 position, float radius)
-		:Spell(owner, position, {0,0}, radius, 10.f){}
+		:Spell(owner, position, { 0,0 }, radius, 10.f) {
+		this->type = EntityType::Wall;}
 	virtual ~ArcaneWallSpell() {}
 
 	virtual void update(Map *map, float dt) override
