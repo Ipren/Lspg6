@@ -20,11 +20,12 @@ cbuffer Camera : register(b0)
 
 static const float4 quadCorners[4] =
 {
-    float4(-1.016f, 1.016f, 0.0f, 0.0f),
-    float4(1.016f, 1.016f, 0.0f, 0.0f),
-    float4(-1.016f, -1.016f, 0.0f, 0.0f),
-    float4(1.016f, -1.016f, 0.0f, 0.0f)
+    float4(-0.016f, 0.016f, 0.0f, 0.0f),
+    float4(0.016f, 0.016f, 0.0f, 0.0f),
+    float4(-0.016f, -0.016f, 0.0f, 0.0f),
+    float4(0.016f, -0.016f, 0.0f, 0.0f)
 };
+
 
 static const float2 quadTexCoords[4] =
 {
@@ -37,20 +38,40 @@ static const float2 quadTexCoords[4] =
 [maxvertexcount(4)]
 void main(point VS_OUT input[1], inout TriangleStream<GS_OUT> tStream)
 {
-    //this shader takes points and blows them up to billboarded quads.
+    
     GS_OUT output;
 
     float4 pos = mul(float4(input[0].position, 1.0f), World);
     pos = mul(pos, View);
     pos = mul(pos, Proj);
-   
+    
     for (int i = 0; i < 4; i++)
     {
-        //this results in a billboarded particle since the quad is created facing the camera in clip space
         output.pos = pos + quadCorners[i];
+       
         output.uv = quadTexCoords[i];
         output.type = input[0].type;
         tStream.Append(output);
+       
     }
-    
+
+    //float4 guadCorners[4];
+    //guadCorners[0] = float4(input[0].position + float3(10.0f, -10.0f, 0.0f), 1.0f);
+    //guadCorners[1] = float4(input[0].position + float3(10.0f, 10.0f, 0.0f), 1.0f);
+    //guadCorners[2] = float4(input[0].position + float3(-10.0f, -10.0f, 0.0f), 1.0f);
+    //guadCorners[3] = float4(input[0].position + float3(-10.0f, 10.0f, 0.0f), 1.0f);
+
+    //GS_OUT output;
+    //[unroll]
+    //for (int i = 0; i < 4; i++)
+    //{
+    //    output.pos = mul(guadCorners[i], World);
+    //    output.pos = mul(guadCorners[i], View);
+    //    output.pos = mul(guadCorners[i], Proj);
+    //    output.uv = quadTexCoords[i];
+    //    output.type = input[0].type;
+
+    //    tStream.Append(output);
+    //}
+
 }

@@ -31,9 +31,9 @@ void main(uint3 DTID : SV_DispatchThreadID)
         
         currentParticle.age += dTime;
 
-        if (currentParticle.age < 10000.0f)
+        if (currentParticle.age < 15.0f)
         {
-            currentParticle.position.xyz += float3(currentParticle.velocity * dTime * 0.001);
+            currentParticle.position.xyz += float3(currentParticle.velocity * dTime * 0.01);
             nextSimState.Append(currentParticle);
         }
     }

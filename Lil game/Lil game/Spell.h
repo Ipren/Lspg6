@@ -13,6 +13,9 @@ public:
 
 		position.x += velocity.x * dt;
 		position.z += velocity.y * dt;
+		
+		pEmitter.position = position;
+		pEmitter.particleType = 0;
 
 		//velocity.x -= velocity.x * 0.2;
 		//velocity.y -= velocity.y * 0.2;
@@ -29,6 +32,8 @@ public:
 	virtual bool on_effect(Map *map) { return true; };
 protected:
 	float life;
+public:
+	Emitterlocation pEmitter;
 };
 
 class PushSpell : public Spell
@@ -41,6 +46,7 @@ public:
 private:
 	float explosion_radius;
 	float strength;
+	
 };
 
 class WallSpell : public Spell

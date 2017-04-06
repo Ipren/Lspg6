@@ -12,6 +12,13 @@ Spell::~Spell()
 PushSpell::PushSpell(XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(position, velocity, radius, 2.f), explosion_radius(1.5f), strength(1.f)
 {
+	this->pEmitter.randomVector = DirectX::XMFLOAT4(velocity.x, position.x, velocity.y, 1.0f);
+	float x, y, z;
+	x = this->pEmitter.randomVector.x;
+	y = this->pEmitter.randomVector.y;
+	z = this->pEmitter.randomVector.z;
+	this->pEmitter.position = position;
+	this->pEmitter.particleType = 0;
 }
 
 PushSpell::~PushSpell()

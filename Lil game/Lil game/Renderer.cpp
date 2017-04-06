@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Spell.h"
 
 const UINT startParticleCount = 0;
 //makes it so the actual amount of particles in the buffers is used
@@ -86,7 +87,7 @@ Renderer::~Renderer()
 	this->eLocations->Release();
 	this->emitterCountBuffer->Release();
 
-	this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
 }
 
@@ -450,11 +451,15 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 		MessageBox(0, L"d time cbuffer creation failed", L"error", MB_OK);
 	}
 
-	desc.ByteWidth = sizeof(Emitterlocation);
-	Emitterlocation tempE;
-	tempE.particleType = 0;
-	tempE.position = DirectX::XMFLOAT3(0.1f, 0.1f, 0.1f);
-	tempE.randomVector = DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	desc.ByteWidth = 100 * sizeof(Emitterlocation);
+	Emitterlocation *tempE = new Emitterlocation[100];
+	for (size_t i = 0; i < 100; i++)
+	{
+		tempE[i].particleType = 0;
+		tempE[i].position = DirectX::XMFLOAT3(1.1f, 1.1f, 1.1f);
+		tempE[i].randomVector = DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	}
+	
 	data.pSysMem = &tempE;
 
 	hr = this->gDevice->CreateBuffer(&desc, &data, &this->eLocations);
@@ -462,9 +467,9 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 	{
 		MessageBox(0, L"e location cbuffer creation failed", L"error", MB_OK);
 	}
+	delete[] tempE;
 
 	desc.ByteWidth = 4 * sizeof(int);
-	this->emitterCount = 1;
 	data.pSysMem = &this->emitterCount;
 
 	hr = this->gDevice->CreateBuffer(&desc, &data, &this->emitterCountBuffer);
@@ -598,7 +603,7 @@ void Renderer::updateParticles(float dt)
 {
 	this->updateDTimeBuffer(dt);
 	this->totalTime += dt;
-	//if (this->totalTime - this->lastParticleInsert > 100.0f)
+	if (this->totalTime - this->lastParticleInsert > 1.0f)
 	{
 		this->lastParticleInsert = this->totalTime;
 		this->gDeviceContext->CSSetShader(this->inserter, nullptr, 0);
@@ -623,7 +628,7 @@ void Renderer::updateParticles(float dt)
 	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
 	this->gDeviceContext->CSSetUnorderedAccessViews(1, 1, &this->UAVS[1], &startParticleCount);
 
-	this->gDeviceContext->Dispatch(1, 1, 1);
+	this->gDeviceContext->Dispatch(2, 1, 1);
 	this->swapBuffers();
 
 	this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0, this->UAVS[0]);
@@ -653,6 +658,7 @@ void Renderer::swapBuffers()
 
 void Renderer::renderParticles(Camera *camera)
 {
+	
 	this->gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	this->gDeviceContext->VSSetShader(this->pVertex, nullptr, 0);
 	this->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
@@ -662,8 +668,9 @@ void Renderer::renderParticles(Camera *camera)
 	this->gDeviceContext->IASetInputLayout(nullptr);
 	this->gDeviceContext->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 
+	this->gDeviceContext->VSSetShaderResources(0, 0, nullptr);
 	this->gDeviceContext->VSSetShaderResources(0, 1, &this->SRVS[0]);
-	this->gDeviceContext->GSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+	this->gDeviceContext->GSSetConstantBuffers(0, 1, &camera->floatwvpBuffer);
 
 	this->gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
 
@@ -680,6 +687,32 @@ void Renderer::updateDTimeBuffer(float dt)
 	this->gDeviceContext->Map(this->deltaTimeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
 	memcpy(data.pData, &dt, sizeof(dt));
 	this->gDeviceContext->Unmap(this->deltaTimeBuffer, 0);
+}
+
+void Renderer::updateEmitters(Map * map)
+{
+	this->emitterCount = 0;
+	Emitterlocation *temp = new Emitterlocation[100];
+	for (size_t i = 0; i < map->entitys.size(); i++)
+	{
+		if (dynamic_cast<PushSpell*>(map->entitys[i]) != nullptr)
+		{
+			emitterCount++;
+			temp[emitterCount] = dynamic_cast<PushSpell*>(map->entitys[i])->pEmitter;
+		}
+	}
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->emitterCountBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &this->emitterCount, sizeof(this->emitterCount));
+	this->gDeviceContext->Unmap(this->emitterCountBuffer, 0);
+
+	this->gDeviceContext->Map(this->eLocations, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, temp, sizeof(Emitterlocation)*this->emitterCount);
+	this->gDeviceContext->Unmap(this->eLocations, 0);
+
+
+
+	delete[] temp;
 }
 
 void Renderer::render(Map *map, Camera *camera)
@@ -750,6 +783,7 @@ void Renderer::render(Map *map, Camera *camera)
 		}
 	}
 
+	this->updateEmitters(map);
 	this->renderParticles(camera);
 	this->gSwapChain->Present(0,0);
 }
