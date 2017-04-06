@@ -15,4 +15,5 @@ public:
 private:
 	Element *element;
 	unsigned int index;
+	float cooldown[5];
 };

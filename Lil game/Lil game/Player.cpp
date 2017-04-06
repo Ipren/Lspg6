@@ -12,6 +12,10 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	this->velocity.y = 0;
 
 	element = new ArcaneElement();
+	for (int i = 0; i < 5; i++)
+	{
+		this->cooldown[i] = 0;
+	}
 }
 
 Player::~Player()
@@ -46,26 +50,41 @@ void Player::update(Map *map, float dt)
 	//acceleration.x *= 0.9;
 	//acceleration.y *= 0.9;
 
-	if (gGamepads[index]->get_button_down(Gamepad::Rb)) {
-		this->element->projectile(this, map);
+	for (int i = 0; i < 5; i++)
+	{
+		if (cooldown[i]>0)
+			this->cooldown[i] -= dt;
+		if (cooldown[i] < 0)
+			this->cooldown[i] = 0;
 	}
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Lstick))
+	if (gGamepads[index]->get_button_down(Gamepad::Rb) && cooldown[0] == 0.f) {//projectile
+		this->element->projectile(this, map);
+		this->cooldown[0] = gSpellConstants.kArcaneProjectileCooldown;//cooldown time
+	}
+
+	if (gGamepads[index]->get_button_pressed(Gamepad::Lstick) && cooldown[1] == 0.f)//dash
 	{
 		
 		auto left_angle = gGamepads[index]->get_left_thumb_angle();
 		this->velocity.x += cos(left_angle) * gSpellConstants.kArcaneDashSpeed;
 		this->velocity.y += sin(left_angle) * gSpellConstants.kArcaneDashSpeed;
+		this->cooldown[1] = gSpellConstants.kArcaneDashCooldown;//cooldown time
+
 	}
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Lb))
+	if (gGamepads[index]->get_button_pressed(Gamepad::Lb) && cooldown[2] == 0.f)//stomp
 	{
 		this->element->stomp(this, map);
+		this->cooldown[2] = gSpellConstants.kArcaneStompCooldown;//cooldown time
+
 	}
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Rt))
+	if (gGamepads[index]->get_button_pressed(Gamepad::Rt) && cooldown[3] == 0.f)//wall
 	{
 		this->element->wall(this, map);
+		this->cooldown[3] = gSpellConstants.kArcaneWallCooldown;//cooldown time
+
 	}
 
 
