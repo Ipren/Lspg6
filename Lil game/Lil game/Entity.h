@@ -1,7 +1,10 @@
 #pragma once
 #include <DirectXMath.h>
 #include "Definitions.h"
+#include <string>
+#include <d3d11.h>
 
+class Mesh;
 class Map;
 using namespace DirectX;
 
@@ -18,6 +21,9 @@ public:
 
 	virtual void update(Map *map, float dt) {}
 
+	void DrawMesh();
+	void AddMesh(std::string filename);
+	
 	//private:
 	DirectX::XMFLOAT2 acceleration;
 	DirectX::XMFLOAT2 velocity;
@@ -25,4 +31,5 @@ public:
 	EntityType type;
 	bool dead;
 private:
+	Mesh* mesh = nullptr;
 };

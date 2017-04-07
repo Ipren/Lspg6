@@ -8,7 +8,7 @@
 #include <iostream>
 #include "Game.h"
 #include "Globals.h"
-
+#include "Mesh.h"
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 
@@ -19,7 +19,8 @@ using namespace DirectX;
 
 
 extern LRESULT ImGui_ImplDX11_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
+ID3D11Device *gDevice;
+ID3D11DeviceContext *gDeviceContext;
 LRESULT WINAPI WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (ImGui_ImplDX11_WndProcHandler(hWnd, message, wParam, lParam))
@@ -98,7 +99,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		Game *game = new Game(wndHandle, WIDTH, HEIGHT);
 
 		ImGui_ImplDX11_Init(wndHandle, game->renderer->gDevice, game->renderer->gDeviceContext);
+		
 
+		gDevice = game->renderer->gDevice;
+		gDeviceContext = game->renderer->gDeviceContext;
+		//init Mesh static members
+		Mesh::device = gDevice;
+		Mesh::deviceContext = gDeviceContext;
+		//////////////////////////
+		
 		ShowWindow(wndHandle, nCmdShow);
 
 		long long start = time_ms();

@@ -164,6 +164,8 @@
     <ClCompile Include="imgui_impl_dx11.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="ObjectLoader.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Spell.cpp" />
@@ -184,6 +186,8 @@
     <ClInclude Include="imgui_impl_dx11.h" />
     <ClInclude Include="imgui_internal.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ObjectLoader.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />

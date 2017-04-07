@@ -1,4 +1,6 @@
 #include "Entity.h"
+#include "Mesh.h"
+
 
 Entity::Entity()
 {
@@ -11,4 +13,19 @@ Entity::Entity(EntityType type, XMFLOAT3 position, XMFLOAT2 velocity, float radi
 
 Entity::~Entity()
 {
+	if (this->mesh != nullptr)
+		delete mesh;
+}
+
+void Entity::DrawMesh()
+{
+	if (this->mesh != nullptr)
+		mesh->Draw();
+
+}
+
+void Entity::AddMesh(std::string filename)
+{
+	mesh = new Mesh();
+	mesh->LoadOBJ(filename);
 }

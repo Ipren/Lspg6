@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include "Globals.h"
 
 struct EntityQueryResult {
 	Entity *entity;
