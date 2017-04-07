@@ -837,6 +837,41 @@ void Renderer::updateEmitters(Map * map)
 
 void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
 {
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->playerPosBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &pos, sizeof(DirectX::XMFLOAT3));
+	this->gDeviceContext->Unmap(this->playerPosBuffer, 0);
+
+	float lenght = 0.0f;
+	Particle *particles = new Particle[50];
+	for (size_t i = 0; i < 50; i++)
+	{
+		particles->age = 0.0f;
+		particles->type = 1;
+		particles->position.y = pos.y;
+
+		//creates circle of particles around player
+		particles->position.x = (pos.x + 0.55f) * cos(i);
+		particles->position.y = (pos.y + 0.55f) * sin(i);
+		lenght = sqrt(particles->position.x*particles->position.x+ particles->position.y*particles->position.y + particles->position.z*particles->position.z);
+		
+		particles->velocity.x = particles->position.x / lenght;
+		particles->velocity.y = particles->position.y / lenght;
+		particles->velocity.z = particles->position.z / lenght;
+
+	}
+	memcpy(data.pData, particles, sizeof(Particle) * 50);
+	delete[] particles;
+
+	this->gDeviceContext->CSSetShader(this->stompInserter, nullptr, 0);
+	this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->playerPosBuffer);
+	this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->stompParticles);
+
+	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
+
+	this->gDeviceContext->Dispatch(1, 1, 1);
+
+	this->gDeviceContext->CSSetUnorderedAccessViews(0, 0, &this->nullUAV, &startParticleCount);
 
 }
 
