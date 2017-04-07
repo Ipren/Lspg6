@@ -70,8 +70,8 @@ void Map::update(float dt, Camera *cam)
 							spell->dead = true;
 						}
 					}
-					// Player and Spell vs. Wall
-					else if (a->type == EntityType::Wall && (b->type == EntityType::Spell || b->type == EntityType::Player))
+					// Playervs. Wall
+					else if (a->type == EntityType::Wall && b->type == EntityType::Player)
 					{
 
 						b->acceleration.x = -(a->position.x - b->position.x) * 150;
@@ -83,6 +83,11 @@ void Map::update(float dt, Camera *cam)
 							b->velocity.y = -b->velocity.y;
 						}
 
+					}
+					else if (a->type == EntityType::Wall && b->type == EntityType::Spell)
+					{
+						b->velocity.x = -b->velocity.x;
+						b->velocity.y = -b->velocity.y;
 					}
 
 				}
