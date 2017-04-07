@@ -573,6 +573,28 @@ void Renderer::createParticleShaders()
 	}
 	icsBlob->Release();
 
+	ID3D10Blob *sicsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"Inserter.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"cs_5_0",
+		0,
+		0,
+		&sicsBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"stomp inserter compute shader compile failed", L"error", MB_OK);
+	}
+	hr = this->gDevice->CreateComputeShader(sicsBlob->GetBufferPointer(), sicsBlob->GetBufferSize(), nullptr, &this->stompInserter);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" stomp inserter compute Shader creation failed", L"error", MB_OK);
+	}
+	sicsBlob->Release();
+
 	ID3DBlob* pvsBlob = nullptr;
 	hr = D3DCompileFromFile(
 		L"pVertex.hlsl",
