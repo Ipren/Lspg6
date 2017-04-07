@@ -63,12 +63,23 @@ void Player::update(Map *map, float dt)
 		this->cooldown[0] = gSpellConstants.kArcaneProjectileCooldown;//cooldown time
 	}
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Lstick) && cooldown[1] == 0.f)//dash
+	if (gGamepads[index]->get_button_pressed(Gamepad::Lt) && cooldown[1] == 0.f)//dash
 	{
+		float left_angle = gGamepads[index]->get_left_thumb_angle();
+		XMFLOAT2 leftVector = gGamepads[index]->get_left_thumb();
+
+		if (leftVector.x != 0.f && leftVector.y != 0.f)
+		{
+			this->velocity.x += cos(left_angle) * gSpellConstants.kArcaneDashSpeed;
+			this->velocity.y += sin(left_angle) * gSpellConstants.kArcaneDashSpeed;
+		}
+		else
+		{
+			this->velocity.x += cos(this->angle) * gSpellConstants.kArcaneDashSpeed;
+			this->velocity.y += sin(this->angle) * gSpellConstants.kArcaneDashSpeed;
+		}
 		
-		auto left_angle = gGamepads[index]->get_left_thumb_angle();
-		this->velocity.x += cos(left_angle) * gSpellConstants.kArcaneDashSpeed;
-		this->velocity.y += sin(left_angle) * gSpellConstants.kArcaneDashSpeed;
+
 		this->cooldown[1] = gSpellConstants.kArcaneDashCooldown;//cooldown time
 
 	}
