@@ -16,9 +16,11 @@ public:
 
 		position.x += velocity.x * dt;
 		position.z += velocity.y * dt;
-		
-		pEmitter.position = position;
+
+		pEmitter.position.x = position.x;
+		pEmitter.position.z = position.z;
 		pEmitter.particleType = 0;
+		this->pEmitter.randomVector = DirectX::XMFLOAT4(velocity.x*0.12, 0, velocity.y*0.12, 1.0f);
 
 		velocity.x -= velocity.x * 0.3f * dt;
 		velocity.y -= velocity.y * 0.3f * dt;
