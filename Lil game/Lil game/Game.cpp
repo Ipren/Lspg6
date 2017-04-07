@@ -71,6 +71,8 @@ void Game::update(float dt)
 
 			ImGui::TextDisabled("Wall");
 			ImGui::SliderFloat("cooldown##Wall", &gSpellConstants.kArcaneWallCooldown, 0.0f, 20.0f);
+			ImGui::SliderInt("number of pillars", &gSpellConstants.kArcaneWallNrOfPillars, 1, 20);
+			ImGui::SliderFloat("distance between pillars", &gSpellConstants.kArcaneWallPillarDistance, 0, 1);
 		}
 
 		if (ImGui::CollapsingHeader("Player")) {

@@ -16,6 +16,8 @@ struct SpellConstants {
 	float kArcaneDashCooldown = 1.5f;
 
 	float kArcaneWallCooldown = 4.5f;
+	int kArcaneWallNrOfPillars = 6;
+	float kArcaneWallPillarDistance = 0.65f;
 };
 
 extern SpellConstants gDefaultSpellConstants;

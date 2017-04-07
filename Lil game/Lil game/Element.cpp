@@ -50,11 +50,12 @@ void ArcaneElement::wall(Player *player, Map *map)
 	XMVECTOR dist = pos - XMLoadFloat3(&position);
 	XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < gSpellConstants.kArcaneWallNrOfPillars; i++)
 	{
 
 		XMFLOAT3 p;
-		XMStoreFloat3(&p, n * ((float)i - 3)*0.35f + pos);
+		XMStoreFloat3(&p, n * ((float)i - gSpellConstants.kArcaneWallNrOfPillars/2.f) *
+			gSpellConstants.kArcaneWallPillarDistance/2.f + pos);
 		map->add_entity(new ArcaneWallSpell(player, p, 0.35f));
 	}
 }
