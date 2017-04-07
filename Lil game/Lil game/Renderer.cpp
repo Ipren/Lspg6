@@ -91,6 +91,8 @@ Renderer::~Renderer()
 	this->eLocations->Release();
 	this->emitterCountBuffer->Release();
 	this->randomVecBufer->Release();
+	this->stompParticles->Release();
+	this->playerPosBuffer->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -349,7 +351,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 	desc.StructureByteStride = sizeof(Particle);
 	desc.Usage = D3D11_USAGE_DEFAULT;
 
-	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data,  &particleBuffer1);
+	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &particleBuffer1);
 	if (FAILED(hr))
 	{
 		MessageBox(0, L"paricle buffer 1 failed", L"error", MB_OK);
@@ -489,8 +491,26 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 		MessageBox(0, L"playerpos cbuffer creation failed", L"error", MB_OK);
 	}
 
+	Particle *stompParticles = new Particle[50];
+	for (size_t i = 0; i < 50; i++)
+	{
+		stompParticles->position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		stompParticles->velocity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		stompParticles->age = 0.0f;
+		stompParticles->type = 1;
+	}
+
+	desc.ByteWidth = 50 * sizeof(Particle);
+	data.pSysMem = stompParticles;
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->stompParticles);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"stomp particle cbuffer creation failed", L"error", MB_OK);
+	}
 
 
+	delete[] stompParticles;
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -778,7 +798,11 @@ void Renderer::updateEmitters(Map * map)
 
 		if (dynamic_cast<Player*>(map->entitys[i]) != nullptr)
 		{
-			this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
+			if (dynamic_cast<Player*>(map->entitys[i])->stomped)
+			{
+				this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
+			}
+			
 		}
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
 		{
@@ -813,6 +837,7 @@ void Renderer::updateEmitters(Map * map)
 
 void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
 {
+
 }
 
 void Renderer::render(Map *map, Camera *camera)

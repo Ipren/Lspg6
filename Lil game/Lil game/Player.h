@@ -11,10 +11,11 @@ public:
 	virtual ~Player();
 
 	void update(Map *map, float dt) override;
+	bool stomped;
 
 private:
 	Element *element;
 	unsigned int index;
 	float cooldown[5];
-	bool stomped;
+	
 };
