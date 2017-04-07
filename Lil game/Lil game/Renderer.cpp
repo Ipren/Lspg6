@@ -481,6 +481,14 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 		MessageBox(0, L"random cbuffer creation failed", L"error", MB_OK);
 	}
 
+	DirectX::XMFLOAT4 tempPlayerPos;
+	data.pSysMem = &tempPlayerPos;
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->playerPosBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"playerpos cbuffer creation failed", L"error", MB_OK);
+	}
+
 
 
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
@@ -776,7 +784,6 @@ void Renderer::updateEmitters(Map * map)
 		{
 			emitterCount++;	
 			ArcaneProjectileSpell* test = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]);
-			//temp[emitterCount] = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i])->pEmitter;
 			temp[emitterCount].position = test->pEmitter.position;
 			temp[emitterCount].randomVector = test->pEmitter.randomVector;
 			temp[emitterCount].particleType = test->pEmitter.particleType;
