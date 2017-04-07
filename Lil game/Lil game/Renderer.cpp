@@ -726,10 +726,15 @@ void Renderer::updateEmitters(Map * map)
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
 		{
 			emitterCount++;	
-			temp[emitterCount] = dynamic_cast<Spell*>(map->entitys[i])->pEmitter;	
+			ArcaneProjectileSpell* test = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]);
+			//temp[emitterCount] = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i])->pEmitter;
+			temp[emitterCount].position = test->pEmitter.position;
+			temp[emitterCount].randomVector = test->pEmitter.randomVector;
+			temp[emitterCount].particleType = test->pEmitter.particleType;
 
 		}
 	}
+	emitterCount++;
 	D3D11_MAPPED_SUBRESOURCE data;
 	this->gDeviceContext->Map(this->emitterCountBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
 	memcpy(data.pData, &this->emitterCount, sizeof(this->emitterCount));
