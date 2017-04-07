@@ -604,7 +604,7 @@ void Renderer::createParticleShaders()
 
 	ID3D10Blob *sicsBlob = nullptr;
 	hr = D3DCompileFromFile(
-		L"Inserter.hlsl",
+		L"StompInserter.hlsl",
 		NULL,
 		NULL,
 		"main",
@@ -697,29 +697,31 @@ void Renderer::createParticleShaders()
 	ppsBlob->Release();
 }
 
-void Renderer::updateParticles(float dt)
+void Renderer::updateParticles(float dt, Map *map)
 {
+	this->updateEmitters(map);
 	this->updateDTimeBuffer(dt);
 	this->totalTime += dt;
 	if (this->totalTime - this->lastParticleInsert > 0.1f)
-	{
-		this->lastParticleInsert = this->totalTime;
-		this->gDeviceContext->CSSetShader(this->inserter, nullptr, 0);
-		this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->ParticleCount);
-		this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->emitterCountBuffer);
-		this->gDeviceContext->CSSetConstantBuffers(2, 1, &this->randomVecBufer);
+	//{
+	//	this->lastParticleInsert = this->totalTime;
+	//	this->gDeviceContext->CSSetShader(this->inserter, nullptr, 0);
+	//	this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->ParticleCount);
+	//	this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->emitterCountBuffer);
+	//	this->gDeviceContext->CSSetConstantBuffers(2, 1, &this->randomVecBufer);
 
-		this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
-		this->gDeviceContext->CSSetShaderResources(0, 1, &this->emitterSRV);
+	//	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
+	//	this->gDeviceContext->CSSetShaderResources(0, 1, &this->emitterSRV);
 
 
-		this->gDeviceContext->Dispatch(1, 1, 1);
-		this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0 ,this->UAVS[0]);
+	//	this->gDeviceContext->Dispatch(1, 1, 1);
+	//	this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0 ,this->UAVS[0]);
 
-		this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->nullUAV, &UAVFLAG);
-		this->gDeviceContext->CSSetUnorderedAccessViews(1, 1, &this->nullUAV, &UAVFLAG);
+	//	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->nullUAV, &UAVFLAG);
+	//	this->gDeviceContext->CSSetUnorderedAccessViews(1, 1, &this->nullUAV, &UAVFLAG);
 
-	}
+	//}
+	this->createStompParticles(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
 
 	this->gDeviceContext->CSSetShader(this->computeShader, nullptr, 0);
 	this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->ParticleCount);
@@ -802,27 +804,29 @@ void Renderer::updateEmitters(Map * map)
 			{
 				this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
 			}
-			
 		}
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
-		{
-			emitterCount++;	
+		{	
 			ArcaneProjectileSpell* test = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]);
 			temp[emitterCount].position = test->pEmitter.position;
 			temp[emitterCount].randomVector = test->pEmitter.randomVector;
 			temp[emitterCount].particleType = test->pEmitter.particleType;
-
+			emitterCount++;
 		}
 	}
-	emitterCount++;
+	
 	D3D11_MAPPED_SUBRESOURCE data;
+
 	this->gDeviceContext->Map(this->emitterCountBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
 	memcpy(data.pData, &this->emitterCount, sizeof(this->emitterCount));
 	this->gDeviceContext->Unmap(this->emitterCountBuffer, 0);
 
-	this->gDeviceContext->Map(this->eLocations, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
-	memcpy(data.pData, temp, sizeof(Emitterlocation)*this->emitterCount);
-	this->gDeviceContext->Unmap(this->eLocations, 0);
+	if (this->emitterCount > 0)
+	{
+		this->gDeviceContext->Map(this->eLocations, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+		memcpy(data.pData, temp, sizeof(Emitterlocation)*this->emitterCount);
+		this->gDeviceContext->Unmap(this->eLocations, 0);
+	}
 
 	this->gDeviceContext->Map(this->randomVecBufer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
 	DirectX::XMFLOAT4 randVec;
@@ -846,32 +850,37 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
 	Particle *particles = new Particle[50];
 	for (size_t i = 0; i < 50; i++)
 	{
-		particles->age = 0.0f;
-		particles->type = 1;
-		particles->position.y = pos.y;
+		particles[i].age = 0.0f;
+		particles[i].type = 1;
+		particles[i].position.y = pos.y;
 
 		//creates circle of particles around player
-		particles->position.x = (pos.x + 0.55f) * cos(i);
-		particles->position.y = (pos.y + 0.55f) * sin(i);
-		lenght = sqrt(particles->position.x*particles->position.x+ particles->position.y*particles->position.y + particles->position.z*particles->position.z);
+		particles[i].position.x = (pos.x + 0.55f) * cos(i);
+		particles[i].position.y = (pos.y + 0.55f) * sin(i);
+		lenght = sqrt(particles[i].position.x*particles[i].position.x+ particles[i].position.y*particles[i].position.y + particles[i].position.z*particles[i].position.z);
 		
-		particles->velocity.x = particles->position.x / lenght;
-		particles->velocity.y = particles->position.y / lenght;
-		particles->velocity.z = particles->position.z / lenght;
+		particles[i].velocity.x = particles[i].position.x / lenght;
+		particles[i].velocity.y = particles[i].position.y / lenght;
+		particles[i].velocity.z = particles[i].position.z / lenght;
 
 	}
+	gDeviceContext->Map(this->stompParticles, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
 	memcpy(data.pData, particles, sizeof(Particle) * 50);
+	gDeviceContext->Unmap(this->stompParticles, 0);
 	delete[] particles;
+
 
 	this->gDeviceContext->CSSetShader(this->stompInserter, nullptr, 0);
 	this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->playerPosBuffer);
 	this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->stompParticles);
+	this->gDeviceContext->CSSetConstantBuffers(2, 1, &this->ParticleCount);
 
 	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
 
 	this->gDeviceContext->Dispatch(1, 1, 1);
+	this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0, this->UAVS[0]);
 
-	this->gDeviceContext->CSSetUnorderedAccessViews(0, 0, &this->nullUAV, &startParticleCount);
+	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->nullUAV, &startParticleCount);
 
 }
 
@@ -943,7 +952,6 @@ void Renderer::render(Map *map, Camera *camera)
 		}
 	}
 
-	this->updateEmitters(map);
 	this->renderParticles(camera);
 }
 

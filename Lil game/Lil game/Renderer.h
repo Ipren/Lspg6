@@ -21,7 +21,7 @@ public:
 
 	void render(Map *map, Camera *camera);
 	void present();
-	void updateParticles(float dt);
+	void updateParticles(float dt, Map *map);
 	ID3D11Device *gDevice;
 	ID3D11DeviceContext *gDeviceContext;
 

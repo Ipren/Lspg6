@@ -17,10 +17,6 @@ AppendStructuredBuffer<Particle> particleBuffer : register(u0);
 StructuredBuffer<el> emitters;
 
 
-//cbuffer emitterLocation : register(b0)
-//{
-//    el eLocations[1024];
-//}
 cbuffer particleCount : register(b0)
 {
     uint pCount;
@@ -61,7 +57,6 @@ void main(uint3 GTID : SV_GroupThreadID)
             //arcane
             if(emitters[i].eType == 0)
             {
-            //newParticle.velocity = reflect(emitters[i].velocityVector.xyz, reflectVectors[GTID.x]);
                 newParticle.velocity = reflect(rv.xyz, reflectVectors[GTID.x]);
                 newParticle.velocity += emitters[i].velocityVector;
                 if (sign(newParticle.velocity.y) == -1)
