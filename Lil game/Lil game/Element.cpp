@@ -25,11 +25,12 @@ void ArcaneElement::projectile(Player *player, Map *map)
 
 void ArcaneElement::stomp(Player *player, Map *map)
 {
+	//saves nearby players in a vector
 	auto nearby = map->get_entities_in_radius(player, gSpellConstants.kArcaneStompDistance, [](Entity *e) {
 		return e->type == EntityType::Player;
 	});
 
-	for (auto result : nearby) {
+	for (auto result : nearby) { //moves all nearby players
 		result.entity->velocity.x += cos(result.angle) * gSpellConstants.kArcaneStompStrength * abs((gSpellConstants.kArcaneStompDistance + gSpellConstants.kArcaneStompStrengthFalloff) - result.distance);
 		result.entity->velocity.y += sin(result.angle) * gSpellConstants.kArcaneStompStrength * abs((gSpellConstants.kArcaneStompDistance + gSpellConstants.kArcaneStompStrengthFalloff) - result.distance);
 	}

@@ -15,5 +15,10 @@ public:
 private:
 	Element *element;
 	unsigned int index;
+	/*0:projectile
+	1:dash
+	2:stomp
+	3:wall
+	4:defence*/
 	float cooldown[5];
 };
