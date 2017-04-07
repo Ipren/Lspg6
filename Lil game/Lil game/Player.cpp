@@ -50,7 +50,7 @@ void Player::update(Map *map, float dt)
 	//acceleration.x *= 0.9;
 	//acceleration.y *= 0.9;
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 5; i++)//counting down all cooldowns
 	{
 		if (cooldown[i]>0)
 			this->cooldown[i] -= dt;
@@ -65,15 +65,16 @@ void Player::update(Map *map, float dt)
 
 	if (gGamepads[index]->get_button_pressed(Gamepad::Lt) && cooldown[1] == 0.f)//dash
 	{
-		float left_angle = gGamepads[index]->get_left_thumb_angle();
 		XMFLOAT2 leftVector = gGamepads[index]->get_left_thumb();
 
-		if (leftVector.x != 0.f && leftVector.y != 0.f)
+		//check if left stick is centered
+		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
 		{
+			float left_angle = gGamepads[index]->get_left_thumb_angle();
 			this->velocity.x += cos(left_angle) * gSpellConstants.kArcaneDashSpeed;
 			this->velocity.y += sin(left_angle) * gSpellConstants.kArcaneDashSpeed;
 		}
-		else
+		else//if it is centered: dash to where you are looking
 		{
 			this->velocity.x += cos(this->angle) * gSpellConstants.kArcaneDashSpeed;
 			this->velocity.y += sin(this->angle) * gSpellConstants.kArcaneDashSpeed;
