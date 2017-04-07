@@ -60,6 +60,7 @@ private:
 	ID3D11ShaderResourceView* emitterSRV;
 	ID3D11Buffer* randomVecBufer;
 	ID3D11ComputeShader* stompInserter;
+	ID3D11Buffer *stompParticles;
 
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;

@@ -16,4 +16,5 @@ private:
 	Element *element;
 	unsigned int index;
 	float cooldown[5];
+	bool stomped;
 };
