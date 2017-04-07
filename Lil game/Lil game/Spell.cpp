@@ -14,10 +14,6 @@ Spell::~Spell()
 ArcaneProjectileSpell::ArcaneProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, velocity, radius, 4.5f), explosion_radius(1.5f), strength(1.f)
 {
-}
-
-ArcaneProjectileSpell::~ArcaneProjectileSpell()
-{
 	this->pEmitter.randomVector = DirectX::XMFLOAT4(velocity.x, position.x, velocity.y, 1.0f);
 	float x, y, z;
 	x = this->pEmitter.randomVector.x;
@@ -25,6 +21,11 @@ ArcaneProjectileSpell::~ArcaneProjectileSpell()
 	z = this->pEmitter.randomVector.z;
 	this->pEmitter.position = position;
 	this->pEmitter.particleType = 0;
+}
+
+ArcaneProjectileSpell::~ArcaneProjectileSpell()
+{
+	
 }
 
 void ArcaneProjectileSpell::update(Map *map, float dt)

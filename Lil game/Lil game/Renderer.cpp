@@ -451,23 +451,6 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 		MessageBox(0, L"d time cbuffer creation failed", L"error", MB_OK);
 	}
 
-	desc.ByteWidth = 100 * sizeof(Emitterlocation);
-	Emitterlocation *tempE = new Emitterlocation[2048];
-	for (size_t i = 0; i < 100; i++)
-	{
-		tempE[i].particleType = 0;
-		tempE[i].position = DirectX::XMFLOAT3(1.1f, 1.1f, 1.1f);
-		tempE[i].randomVector = DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-	}
-	
-	data.pSysMem = &tempE;
-
-	hr = this->gDevice->CreateBuffer(&desc, &data, &this->eLocations);
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"e location cbuffer creation failed", L"error", MB_OK);
-	}
-	delete[] tempE;
 
 	desc.ByteWidth = 4 * sizeof(int);
 	data.pSysMem = &this->emitterCount;
@@ -477,6 +460,49 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 	{
 		MessageBox(0, L"e count cbuffer creation failed", L"error", MB_OK);
 	}
+
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.ByteWidth = 1024 * sizeof(Emitterlocation);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	desc.StructureByteStride = sizeof(Emitterlocation);
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	Emitterlocation *tempE = new Emitterlocation[1024];
+	for (size_t i = 0; i < 1024; i++)
+	{
+		tempE[i].particleType = 0;
+		tempE[i].position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		tempE[i].randomVector = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	}
+
+	data.pSysMem = tempE;
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->eLocations);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"e location cbuffer creation failed", L"error", MB_OK);
+	}
+	delete[] tempE;
+
+	D3D11_BUFFER_SRV esrv;
+	esrv.FirstElement = 0;
+	esrv.NumElements = 1024;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC esrvDesc;
+	ZeroMemory(&esrvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	esrvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	esrvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	esrvDesc.Buffer = esrv;
+
+	hr = this->gDevice->CreateShaderResourceView(this->eLocations, &esrvDesc, &this->emitterSRV);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"emitter srv failed", L"error", MB_OK);
+	}
+	
 }
 
 void Renderer::createParticleShaders()
@@ -603,15 +629,17 @@ void Renderer::updateParticles(float dt)
 {
 	this->updateDTimeBuffer(dt);
 	this->totalTime += dt;
-	if (this->totalTime - this->lastParticleInsert > 0.01f)
+	if (this->totalTime - this->lastParticleInsert > 0.1f)
 	{
 		this->lastParticleInsert = this->totalTime;
 		this->gDeviceContext->CSSetShader(this->inserter, nullptr, 0);
-		this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->eLocations);
-		this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->ParticleCount);
-		this->gDeviceContext->CSSetConstantBuffers(2, 1, &this->emitterCountBuffer);
+		//this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->eLocations);
+		this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->ParticleCount);
+		this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->emitterCountBuffer);
 
 		this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
+		this->gDeviceContext->CSSetShaderResources(0, 1, &this->emitterSRV);
+
 
 		this->gDeviceContext->Dispatch(1, 1, 1);
 		this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0 ,this->UAVS[0]);
@@ -692,13 +720,14 @@ void Renderer::updateDTimeBuffer(float dt)
 void Renderer::updateEmitters(Map * map)
 {
 	this->emitterCount = 0;
-	Emitterlocation *temp = new Emitterlocation[2048];
+	Emitterlocation *temp = new Emitterlocation[1024];
 	for (size_t i = 0; i < map->entitys.size(); i++)
 	{
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
 		{
-			emitterCount++;
-			temp[emitterCount] = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i])->pEmitter;
+			emitterCount++;	
+			temp[emitterCount] = dynamic_cast<Spell*>(map->entitys[i])->pEmitter;	
+
 		}
 	}
 	D3D11_MAPPED_SUBRESOURCE data;

@@ -57,6 +57,7 @@ private:
 	ID3D11Buffer* deltaTimeBuffer;
 	ID3D11Buffer* eLocations;
 	ID3D11Buffer* emitterCountBuffer;
+	ID3D11ShaderResourceView* emitterSRV;
 
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
