@@ -26,5 +26,4 @@ public:
 //private:
 	std::vector <Entity*> entitys;
 	std::vector <Entity*> entitys_to_add;
-	bool stomped[4];
 };

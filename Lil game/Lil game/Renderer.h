@@ -61,6 +61,8 @@ private:
 	ID3D11Buffer* randomVecBufer;
 	ID3D11ComputeShader* stompInserter;
 	ID3D11Buffer *stompParticles;
+	ID3D11Buffer* playerPosBuffer;
+
 
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
@@ -84,6 +86,7 @@ private:
 	void renderParticles(Camera *camera);
 	void updateDTimeBuffer(float dt);
 	void updateEmitters(Map *map);
+	void createStompParticles(DirectX::XMFLOAT3 pos);
 
 	
 };

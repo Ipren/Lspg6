@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Spell.h"
+#include "Player.h"
 #include <cstdlib>
 #include <time.h>
 
@@ -766,6 +767,11 @@ void Renderer::updateEmitters(Map * map)
 	Emitterlocation *temp = new Emitterlocation[1024];
 	for (size_t i = 0; i < map->entitys.size(); i++)
 	{
+
+		if (dynamic_cast<Player*>(map->entitys[i]) != nullptr)
+		{
+			this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
+		}
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
 		{
 			emitterCount++;	
@@ -796,6 +802,10 @@ void Renderer::updateEmitters(Map * map)
 	memcpy(data.pData, &randVec, sizeof(DirectX::XMFLOAT4));
 	this->gDeviceContext->Unmap(this->randomVecBufer, 0);
 	delete[] temp;
+}
+
+void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
+{
 }
 
 void Renderer::render(Map *map, Camera *camera)
