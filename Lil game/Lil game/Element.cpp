@@ -57,6 +57,6 @@ void ArcaneElement::wall(Player *player, Map *map)
 		XMFLOAT3 p;
 		XMStoreFloat3(&p, n * ((float)i - gSpellConstants.kArcaneWallNrOfPillars/2.f) *
 			gSpellConstants.kArcaneWallPillarDistance/2.f + pos);
-		map->add_entity(new ArcaneWallSpell(player, p, 0.35f));
+		map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kArcaneWallPillarRadius));
 	}
 }
