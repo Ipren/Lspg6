@@ -1,4 +1,4 @@
-#include "Constants.h";
+#include "Constants.h"
 
 SpellConstants gDefaultSpellConstants;
 SpellConstants gSpellConstants;

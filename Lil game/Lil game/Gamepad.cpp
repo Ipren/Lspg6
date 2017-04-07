@@ -7,7 +7,7 @@
 // saxat från https://msdn.microsoft.com/en-us/library/windows/desktop/ee417001(v=vs.85).aspx
 static XMFLOAT2 normalize_thumbs(float x, float y, float deadzone)
 {
-	float magnitude = sqrt(x * x + y * y);
+	float magnitude = sqrtf(x * x + y * y);
 
 	float normalized_x = x / magnitude;
 	float normalized_y = y / magnitude;
@@ -171,11 +171,11 @@ void Gamepad::set_rumble(float rumble, int motor)
 	ZeroMemory(&vib, sizeof(vib));
 	if (motor == 1 || motor == 0)
 	{
-		vib.wLeftMotorSpeed = rumble * 65535;
+		vib.wLeftMotorSpeed = (WORD)(rumble * 65535);
 	}
 	if (motor == 2 || motor == 0)
 	{
-		vib.wRightMotorSpeed = rumble * 65535;
+		vib.wRightMotorSpeed = (WORD)(rumble * 65535);
 	}
 	XInputSetState(this->index, &vib);
 }

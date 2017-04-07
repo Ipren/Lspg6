@@ -62,7 +62,7 @@ void Camera::focus(std::vector<XMVECTOR> positions)
 		total += pos;
 	}
 
-	this->target = total / max(positions.size(), 1);
+	this->target = total / (float)max(positions.size(), 1);
 }
 
 void Camera::update(float dt, ID3D11DeviceContext *gDeviceContext)
@@ -74,7 +74,7 @@ void Camera::update(float dt, ID3D11DeviceContext *gDeviceContext)
 	look = XMVectorSelect(look, temp, XMVectorSelectControl(XM_SELECT_1, XM_SELECT_0, XM_SELECT_1, XM_SELECT_0));
 
 	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, WIDTH / (float)HEIGHT, 0.01f, 50.f);
-	vals.view = XMMatrixLookAtLH(pos + temp * 0.9, look + temp, { 0, 1, 0 });
+	vals.view = XMMatrixLookAtLH(pos + temp * 0.9f, look + temp, { 0, 1, 0 });
 
 	D3D11_MAPPED_SUBRESOURCE data;
 	DXCALL(gDeviceContext->Map(wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));

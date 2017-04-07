@@ -35,15 +35,19 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
+#include "resource.h"
+
 HWND InitWindow(HINSTANCE hInstance)
 {
 	WNDCLASSEX wcex = { 0 };
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcex.cbSize = sizeof(WNDCLASSEX);
+
+	//wcex.hIcon = ;
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc = WndProc;
 	wcex.hInstance = hInstance;
-	wcex.lpszClassName = L"DX11_3D_PROJECT";
+	wcex.lpszClassName = L"PushlockDX11";
 	if (!RegisterClassEx(&wcex))
 		return false;
 
@@ -51,8 +55,8 @@ HWND InitWindow(HINSTANCE hInstance)
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
 	HWND handle = CreateWindow(
-		L"DX11_3D_PROJECT",
-		L"Dunkar Som Munkar",
+		L"PushlockDX11",
+		L"Pushlock",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
@@ -87,6 +91,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	MSG msg = { 0 };
 	wndHandle = InitWindow(hInstance);
 
+	HICON icon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG1));
+	SendMessage(wndHandle, WM_SETICON, ICON_BIG, (LPARAM)icon);
 
 	if (wndHandle) {
 		Game *game = new Game(wndHandle, WIDTH, HEIGHT);

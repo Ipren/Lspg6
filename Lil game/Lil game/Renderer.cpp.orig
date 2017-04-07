@@ -477,7 +477,11 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 		tempE[i].position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 		tempE[i].randomVector = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	}
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> 6d3eecfafeb58ef15e167cc1fd9bcf71152a643c
 	data.pSysMem = tempE;
 
 	hr = this->gDevice->CreateBuffer(&desc, &data, &this->eLocations);

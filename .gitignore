@@ -6,3 +6,4 @@ Release/
 Lil game/Lil game/Game.cpp.orig
 *.user
 imgui.ini
+*.aps

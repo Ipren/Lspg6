@@ -17,7 +17,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 		position.z + sin(angle) * (radius + 0.4f)
 	},
 	{ cos(angle) * gSpellConstants.kArcaneProjectileSpeed, sin(angle) * gSpellConstants.kArcaneProjectileSpeed },
-		0.1
+		0.1f
 	);
 
 	map->add_entity(spell);
@@ -54,7 +54,7 @@ void ArcaneElement::wall(Player *player, Map *map)
 	{
 
 		XMFLOAT3 p;
-		XMStoreFloat3(&p, n * (i - 3)*0.35 + pos);
-		map->add_entity(new ArcaneWallSpell(player, p, 0.35));
+		XMStoreFloat3(&p, n * ((float)i - 3)*0.35f + pos);
+		map->add_entity(new ArcaneWallSpell(player, p, 0.35f));
 	}
 }
