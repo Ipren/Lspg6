@@ -32,6 +32,11 @@ extern PlayerConstants gDefaultPlayerConstants;
 extern PlayerConstants gPlayerConstants;
 
 struct GameConstants {
+	float kCameraX = 0.0f;
+	float kCameraY = 15.0f;
+	float kCameraZ = -5.0f;
+	float kCameraSpeed = 0.1f;
+	float kCameraDrag = 0.9f;
 	bool kCanDie = false;
 };
 

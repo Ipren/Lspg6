@@ -79,6 +79,28 @@ void Game::update(float dt)
 			ImGui::SliderFloat("friction factor", &gPlayerConstants.kFriction, 0.0f, 30.0f);
 		}
 		if (ImGui::CollapsingHeader("Game")) {
+			ImGui::TextDisabled("Camera");
+			
+			float p[3] = {
+				gGameConstants.kCameraX,
+				gGameConstants.kCameraY,
+				gGameConstants.kCameraZ
+			};
+			ImGui::SliderFloat3("pos", p, -30.f, 30.f);
+			
+			ImGui::SliderFloat("drag", &gGameConstants.kCameraDrag, 0.f, 1.f);
+			
+			gGameConstants.kCameraX = p[0];
+			gGameConstants.kCameraY = p[1];
+			gGameConstants.kCameraZ	= p[2];
+			
+			camera->pos = {
+				gGameConstants.kCameraX,
+				gGameConstants.kCameraY,
+				gGameConstants.kCameraZ
+			};
+
+			ImGui::TextDisabled("Gameplay");
 			ImGui::Checkbox("can die", &gGameConstants.kCanDie);
 		}
 
@@ -91,7 +113,7 @@ void Game::update(float dt)
 			if (ImGui::Button("Players")) {
 				gPlayerConstants = gDefaultPlayerConstants;
 			}
-			if (ImGui::Button("Game")) {
+			if (ImGui::Button("Game##header")) {
 				gGameConstants = gDefaultGameConstants;
 			}
 		}
