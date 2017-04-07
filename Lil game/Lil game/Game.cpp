@@ -78,6 +78,9 @@ void Game::update(float dt)
 			ImGui::SliderFloat("speed##player", &gPlayerConstants.kSpeed, 0.0f, 120);
 			ImGui::SliderFloat("friction factor", &gPlayerConstants.kFriction, 0.0f, 30.0f);
 		}
+		if (ImGui::CollapsingHeader("Game")) {
+			ImGui::Checkbox("can die", &gGameConstants.kCanDie);
+		}
 
 		ImGui::Separator();
 
@@ -87,6 +90,9 @@ void Game::update(float dt)
 			}
 			if (ImGui::Button("Players")) {
 				gPlayerConstants = gDefaultPlayerConstants;
+			}
+			if (ImGui::Button("Game")) {
+				gGameConstants = gDefaultGameConstants;
 			}
 		}
 

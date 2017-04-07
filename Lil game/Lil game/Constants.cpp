@@ -5,3 +5,6 @@ SpellConstants gSpellConstants;
 
 PlayerConstants gDefaultPlayerConstants;
 PlayerConstants gPlayerConstants;
+
+GameConstants gDefaultGameConstants; 
+GameConstants gGameConstants;

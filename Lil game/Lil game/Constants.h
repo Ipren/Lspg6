@@ -30,3 +30,10 @@ struct PlayerConstants {
 
 extern PlayerConstants gDefaultPlayerConstants;
 extern PlayerConstants gPlayerConstants;
+
+struct GameConstants {
+	bool kCanDie = false;
+};
+
+extern GameConstants gDefaultGameConstants;
+extern GameConstants gGameConstants;
