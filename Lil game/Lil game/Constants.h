@@ -37,7 +37,7 @@ struct GameConstants {
 	float kCameraZ = -5.0f;
 	float kCameraSpeed = 0.1f;
 	float kCameraDrag = 0.9f;
-	bool kCanDie = false;
+	bool kCanDie = true;
 };
 
 extern GameConstants gDefaultGameConstants;
