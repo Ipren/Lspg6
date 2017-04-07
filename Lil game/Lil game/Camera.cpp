@@ -68,8 +68,8 @@ void Camera::focus(std::vector<XMVECTOR> positions)
 
 void Camera::update(float dt, ID3D11DeviceContext *gDeviceContext)
 {
-	temp = XMVectorLerp(temp, target, 1.9f * dt);
-	offset = XMVectorLerp(offset, temp, 1.9f * dt);
+	temp = XMVectorLerp(temp, target, gGameConstants.kCameraSpeed * dt);
+	offset = XMVectorLerp(offset, temp, gGameConstants.kCameraSpeed * dt);
 
 	pos = XMVectorSelect(pos, temp, XMVectorSelectControl(XM_SELECT_1, XM_SELECT_0, XM_SELECT_1, XM_SELECT_0));
 	look = XMVectorSelect(look, temp, XMVectorSelectControl(XM_SELECT_1, XM_SELECT_0, XM_SELECT_1, XM_SELECT_0));

@@ -88,8 +88,9 @@ void Game::update(float dt)
 			};
 			ImGui::SliderFloat3("pos", p, -30.f, 30.f);
 			
+			ImGui::SliderFloat("speed##camera", &gGameConstants.kCameraSpeed, 0.f, 5.f);
 			ImGui::SliderFloat("drag", &gGameConstants.kCameraDrag, 0.f, 1.f);
-			
+
 			gGameConstants.kCameraX = p[0];
 			gGameConstants.kCameraY = p[1];
 			gGameConstants.kCameraZ	= p[2];

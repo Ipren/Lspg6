@@ -35,7 +35,7 @@ struct GameConstants {
 	float kCameraX = 0.0f;
 	float kCameraY = 15.0f;
 	float kCameraZ = -5.0f;
-	float kCameraSpeed = 0.1f;
+	float kCameraSpeed = 1.9f;
 	float kCameraDrag = 0.9f;
 	bool kCanDie = true;
 };
