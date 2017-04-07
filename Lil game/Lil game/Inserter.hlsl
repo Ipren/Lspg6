@@ -57,6 +57,8 @@ void main(uint3 GTID : SV_GroupThreadID)
             newParticle.age = 0.0f;
             newParticle.position = emitters[i].ePosition;
             newParticle.type = emitters[i].eType;
+
+            //arcane
             if(emitters[i].eType == 0)
             {
             //newParticle.velocity = reflect(emitters[i].velocityVector.xyz, reflectVectors[GTID.x]);
@@ -66,7 +68,6 @@ void main(uint3 GTID : SV_GroupThreadID)
                 {
                     newParticle.velocity.y *= -1.0f;
                 }
-                //newParticle.position.y += 0.2f;
             }
 
             particleBuffer.Append(newParticle);
