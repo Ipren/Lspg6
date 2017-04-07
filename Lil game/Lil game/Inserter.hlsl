@@ -8,7 +8,7 @@ struct Particle
 
 struct el
 {
-    float4 randomVector;
+    float4 velocityVector;
     float3 ePosition;
     int eType;
 };
@@ -28,6 +28,10 @@ cbuffer particleCount : register(b0)
 cbuffer emitterCount : register(b1)
 {
     int eCount;
+}
+cbuffer randomVector : register(b2)
+{
+    float4 rv;
 }
 
 
@@ -53,12 +57,17 @@ void main(uint3 GTID : SV_GroupThreadID)
             newParticle.age = 0.0f;
             newParticle.position = emitters[i].ePosition;
             newParticle.type = emitters[i].eType;
-            newParticle.velocity = reflect(emitters[i].randomVector.xyz, reflectVectors[GTID.x]);
-            if(sign(newParticle.velocity.y) == -1)
+            if(emitters[i].eType == 0)
             {
-                newParticle.velocity.y *= -1.0f; 
+            //newParticle.velocity = reflect(emitters[i].velocityVector.xyz, reflectVectors[GTID.x]);
+                newParticle.velocity = reflect(rv.xyz, reflectVectors[GTID.x]);
+                newParticle.velocity += emitters[i].velocityVector;
+                if (sign(newParticle.velocity.y) == -1)
+                {
+                    newParticle.velocity.y *= -1.0f;
+                }
+                //newParticle.position.y += 0.2f;
             }
-            newParticle.position.y += 0.2f;
 
             particleBuffer.Append(newParticle);
         }

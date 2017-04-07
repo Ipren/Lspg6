@@ -1,5 +1,7 @@
 #include "Renderer.h"
 #include "Spell.h"
+#include <cstdlib>
+#include <time.h>
 
 const UINT startParticleCount = 0;
 //makes it so the actual amount of particles in the buffers is used
@@ -12,6 +14,7 @@ Renderer::Renderer()
 
 Renderer::Renderer(HWND wndHandle, int width, int height)
 {
+	srand(static_cast <unsigned> (time(0)));
 	this->gBackbufferRTV = nullptr;
 	this->gDepthStencil = nullptr;
 	this->gDevice = nullptr;
@@ -86,6 +89,7 @@ Renderer::~Renderer()
 	this->deltaTimeBuffer->Release();
 	this->eLocations->Release();
 	this->emitterCountBuffer->Release();
+	this->randomVecBufer->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -461,6 +465,23 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 		MessageBox(0, L"e count cbuffer creation failed", L"error", MB_OK);
 	}
 
+	DirectX::XMFLOAT4 randVec;
+	randVec.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	randVec.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	randVec.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	randVec.w = (1.0f);
+
+	desc.ByteWidth = sizeof(DirectX::XMFLOAT4);
+	data.pSysMem = &randVec;
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->randomVecBufer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"random cbuffer creation failed", L"error", MB_OK);
+	}
+
+
+
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -633,9 +654,9 @@ void Renderer::updateParticles(float dt)
 	{
 		this->lastParticleInsert = this->totalTime;
 		this->gDeviceContext->CSSetShader(this->inserter, nullptr, 0);
-		//this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->eLocations);
 		this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->ParticleCount);
 		this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->emitterCountBuffer);
+		this->gDeviceContext->CSSetConstantBuffers(2, 1, &this->randomVecBufer);
 
 		this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
 		this->gDeviceContext->CSSetShaderResources(0, 1, &this->emitterSRV);
@@ -744,8 +765,14 @@ void Renderer::updateEmitters(Map * map)
 	memcpy(data.pData, temp, sizeof(Emitterlocation)*this->emitterCount);
 	this->gDeviceContext->Unmap(this->eLocations, 0);
 
-
-
+	this->gDeviceContext->Map(this->randomVecBufer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	DirectX::XMFLOAT4 randVec;
+	randVec.x = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	randVec.y = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	randVec.z = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+	randVec.w = (1.0f);
+	memcpy(data.pData, &randVec, sizeof(DirectX::XMFLOAT4));
+	this->gDeviceContext->Unmap(this->randomVecBufer, 0);
 	delete[] temp;
 }
 
