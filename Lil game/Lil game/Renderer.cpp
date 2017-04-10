@@ -839,7 +839,7 @@ void Renderer::updateEmitters(Map * map)
 		{
 			if (dynamic_cast<Player*>(map->entitys[i])->stomped)
 			{
-				this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
+				//this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
 			}
 		}
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
