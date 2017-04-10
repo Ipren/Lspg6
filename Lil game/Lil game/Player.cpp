@@ -18,6 +18,7 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 		this->cooldown[i] = 0;
 	}
 	stomped = false;
+	blowUp = false;
 }
 
 Player::~Player()

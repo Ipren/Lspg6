@@ -12,6 +12,7 @@ public:
 
 	void update(Map *map, float dt) override;
 	bool stomped;
+	bool blowUp;
 
 //private:
 	Element *element;

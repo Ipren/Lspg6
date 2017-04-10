@@ -88,7 +88,7 @@ private:
 	void renderParticles(Camera *camera);
 	void updateDTimeBuffer(float dt);
 	void updateEmitters(Map *map);
-	void createStompParticles(DirectX::XMFLOAT3 pos);
+	void createStompParticles(DirectX::XMFLOAT3 pos, int type);
 	void updateParticles(float dt, Map *map);
 	void shrinkMap(Map *map);
 
