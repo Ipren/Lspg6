@@ -41,7 +41,7 @@ void Map::update(float dt, Camera *cam)
 	totalTime += dt;
 	if (totalTime > 1)
 	{
-		radius -= 0.01;
+		//radius -= 0.01;
 		shrunk = false;
 	}
 
