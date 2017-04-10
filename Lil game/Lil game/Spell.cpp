@@ -1,6 +1,7 @@
 #include "Spell.h"
 
 #include "Constants.h"
+#include "Player.h"
 
 Spell::Spell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius, float life)
 	: Entity(EntityType::Spell, position, velocity, radius), owner(owner), life(life)
@@ -86,3 +87,33 @@ bool ArcaneWallSpell::on_effect(Map *map) {
 	return false;
 };
 
+FireProjectileSpell::FireProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
+	: Spell(owner, position, velocity, radius, 4.5f), explosion_radius(1.5f), strength(1.f)
+{
+}
+
+FireProjectileSpell::~FireProjectileSpell()
+{
+}
+
+void FireProjectileSpell::update(Map *map, float dt)
+{
+	Spell::update(map, dt);
+}
+
+bool FireProjectileSpell::on_effect(Map *map)
+{
+	//saves nearby players in a vector
+	auto nearby = map->get_entities_in_radius(this, gSpellConstants.kFireProjectileExplosionRadius, [](Entity *e) {
+		return e->type == EntityType::Player;
+	});
+
+	for (auto result : nearby) { //moves all nearby players
+		float falloff = abs(gSpellConstants.kFireProjectileExplosionRadius - result.distance) * gSpellConstants.kArcaneStompStrengthFalloff;
+
+		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kFireProjectileStrength + falloff);
+		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kFireProjectileStrength + falloff);
+	}
+	
+	return true;
+}

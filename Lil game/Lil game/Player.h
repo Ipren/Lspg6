@@ -13,7 +13,7 @@ public:
 	void update(Map *map, float dt) override;
 	bool stomped;
 
-private:
+//private:
 	Element *element;
 	unsigned int index;
 	/*0:projectile

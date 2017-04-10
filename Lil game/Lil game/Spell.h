@@ -77,3 +77,17 @@ private:
 	float explosion_radius;
 	float strength;
 };
+
+class FireProjectileSpell : public Spell
+{
+public:
+	FireProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius);
+	virtual ~FireProjectileSpell();
+
+	virtual void update(Map *map, float dt) override;
+	virtual bool on_effect(Map *map) override;
+private:
+	float explosion_radius;
+	float strength;
+
+};
