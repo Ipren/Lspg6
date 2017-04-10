@@ -65,3 +65,11 @@ struct GameConstants {
 
 extern GameConstants gDefaultGameConstants;
 extern GameConstants gGameConstants;
+
+struct MapConstants
+{
+	float kShrinkAmount = 1.0f;
+	float kShrinkTimer = 20,0f;
+};
+extern MapConstants gDefaultMapConstants;
+extern MapConstants gMapConstants;

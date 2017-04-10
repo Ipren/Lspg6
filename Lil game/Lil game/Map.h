@@ -30,4 +30,6 @@ public:
 	float timeSinceLastShrunk;
 	float radius;
 	bool shrunk;
+	float shrinkAmount;
+	float shrinkTimer;
 };
