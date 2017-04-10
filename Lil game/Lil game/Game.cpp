@@ -131,6 +131,10 @@ void Game::update(float dt)
 
 			ImGui::TextDisabled("Gameplay");
 			ImGui::Checkbox("can die", &gGameConstants.kCanDie);
+
+			ImGui::TextDisabled("Map");
+			ImGui::SliderFloat("Shrink amount", &gMapConstants.kShrinkAmount, 0.0f, 5.0f);
+			ImGui::SliderFloat("shrinkl time", &gMapConstants.kShrinkTimer, 0.0f, 60.0f);
 		}
 
 		ImGui::Separator();
@@ -144,6 +148,10 @@ void Game::update(float dt)
 			}
 			if (ImGui::Button("Game##header")) {
 				gGameConstants = gDefaultGameConstants;
+			}
+			if (ImGui::Button("Map"))
+			{
+				gMapConstants = gDefaultMapConstants;
 			}
 		}
 

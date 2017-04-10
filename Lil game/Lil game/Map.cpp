@@ -58,8 +58,6 @@ void Map::update(float dt, Camera *cam)
 			radius -= shrinkAmount;
 			shrunk = true;
 		}
-		
-		
 	}
 
 	for (int i = 0; i < this->entitys.size(); i++)
