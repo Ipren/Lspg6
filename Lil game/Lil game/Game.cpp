@@ -130,13 +130,13 @@ void Game::update(float dt)
 
 	{
 		ImGui::Begin("Debug");
-		if (ImGui::Button("Reset to 2p")) {
+		if (ImGui::Button("Reset to 2p")) {//resetting the map with 2 players
 			currentMap->reset(2);
 		}
-		if (ImGui::Button("Reset to 3p")) {
+		if (ImGui::Button("Reset to 3p")) {//resetting the map with 3 players
 			currentMap->reset(3);
 		}
-		if (ImGui::Button("Reset to 4p")) {
+		if (ImGui::Button("Reset to 4p")) {//resetting the map with 4 players
 			currentMap->reset(4);
 		}
 		ImGui::End();
@@ -145,15 +145,15 @@ void Game::update(float dt)
 	if (currentState == GameState::MainMenu)
 	{
 		ImGui::Begin("Main Menu");
-		if (ImGui::Button("Start Game 2p")) {
+		if (ImGui::Button("Start Game 2p")) {//starting the game with 2 players
 			currentState = GameState::Playing;
 			currentMap->reset(2);
 		}
-		if (ImGui::Button("Start Game 3p")) {
+		if (ImGui::Button("Start Game 3p")) {//starting the game with 3 players
 			currentState = GameState::Playing;
 			currentMap->reset(3);
 		}
-		if (ImGui::Button("Start Game 4p")) {
+		if (ImGui::Button("Start Game 4p")) {//starting the game with 4 players
 			currentState = GameState::Playing;
 			currentMap->reset(4);
 		}

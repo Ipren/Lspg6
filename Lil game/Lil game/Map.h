@@ -28,4 +28,5 @@ public:
 	std::vector <Entity*> entitys_to_add;
 	int nrOfAlivePlayers;
 	int playerPoints[4];
+	int round;
 };

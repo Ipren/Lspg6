@@ -8,12 +8,9 @@ using namespace DirectX;
 
 Map::Map()
 {
-	for (int i = 0; i < 4; ++i) {
-		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
-		entitys.push_back(e);
-		this->playerPoints[i] = 0;
-	}
+	this->reset(4);
 	this->nrOfAlivePlayers = 4;
+	this->round = 1;
 }
 
 Map::~Map()
