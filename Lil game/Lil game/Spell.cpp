@@ -109,10 +109,10 @@ bool FireProjectileSpell::on_effect(Map *map)
 	});
 
 	for (auto result : nearby) { //moves all nearby players
-		float falloff = abs(gSpellConstants.kFireProjectileExplosionRadius - result.distance) * gSpellConstants.kArcaneStompStrengthFalloff;
+		float falloff = (abs(gSpellConstants.kFireProjectileExplosionRadius - result.distance) / gSpellConstants.kFireProjectileExplosionRadius) * gSpellConstants.kFireStompStrengthFalloff;
 
-		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kFireProjectileStrength + falloff);
-		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kFireProjectileStrength + falloff);
+		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kFireProjectileStrength * falloff);
+		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kFireProjectileStrength * falloff);
 	}
 	
 	return true;
