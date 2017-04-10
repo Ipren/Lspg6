@@ -3,6 +3,7 @@
 struct SpellConstants {
 	float kArcaneProjectileSeekStrength = 4.0f;
 	float kArcaneProjectileSeekRadius = 5.0f;
+	float kArcaneProjectileSeekFalloff = 0.0f;
 	float kArcaneProjectileStrength = 15.0f;
 	float kArcaneProjectileSpeed = 10.0f;
 	float kArcaneProjectileCooldown = .5f;

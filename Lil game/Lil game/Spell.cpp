@@ -41,7 +41,8 @@ void ArcaneProjectileSpell::update(Map *map, float dt)
 		float ang = atan2f(velocity.y, velocity.x);
 		float an = atan2(sin(result.angle - ang), cos(result.angle - ang));
 
-		float new_angle = fmod((ang + an * gSpellConstants.kArcaneProjectileSeekStrength * dt), (XM_PI * 2));
+		float new_angle = fmod((ang + an *
+			(gSpellConstants.kArcaneProjectileSeekStrength + abs(gSpellConstants.kArcaneProjectileSeekRadius - result.distance) * gSpellConstants.kArcaneProjectileSeekFalloff) * dt), (XM_PI * 2));
 		angle = new_angle;
 		
 		XMFLOAT2 new_vel = {
