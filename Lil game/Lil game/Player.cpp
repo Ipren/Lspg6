@@ -107,6 +107,7 @@ void Player::update(Map *map, float dt)
 	if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > 15 && gGameConstants.kCanDie)
 	{
 		this->dead = true;
+		map->nrOfAlivePlayers--;
 	}
 
 }

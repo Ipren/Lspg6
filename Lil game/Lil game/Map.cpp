@@ -11,7 +11,9 @@ Map::Map()
 	for (int i = 0; i < 4; ++i) {
 		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
 		entitys.push_back(e);
+		this->playerPoints[i] = 0;
 	}
+	this->nrOfAlivePlayers = 4;
 }
 
 Map::~Map()
@@ -25,6 +27,7 @@ void Map::reset(int nrOfPlayers)
 		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
 		entitys.push_back(e);
 	}
+	this->nrOfAlivePlayers = nrOfPlayers;
 }
 
 void Map::add_entity(Entity * entity)

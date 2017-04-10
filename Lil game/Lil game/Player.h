@@ -12,15 +12,14 @@ public:
 
 	void update(Map *map, float dt) override;
 	bool stomped;
+	unsigned int index;
 
 private:
 	Element *element;
-	unsigned int index;
 	/*0:projectile
 	1:dash
 	2:stomp
 	3:wall
 	4:defence*/
 	float cooldown[5];
-	
 };
