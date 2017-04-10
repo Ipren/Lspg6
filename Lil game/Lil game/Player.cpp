@@ -11,7 +11,8 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	this->velocity.x = 0;
 	this->velocity.y = 0;
 
-	element = new ArcaneElement();
+	//element = new ArcaneElement();
+	element = new FireElement();
 	for (int i = 0; i < 5; i++)
 	{
 		this->cooldown[i] = 0;
@@ -50,55 +51,26 @@ void Player::update(Map *map, float dt)
 	//acceleration.x *= 0.9;
 	//acceleration.y *= 0.9;
 
-	for (int i = 0; i < 5; i++)//counting down all cooldowns
-	{
-		if (cooldown[i]>0)
-			this->cooldown[i] -= dt;
-		if (cooldown[i] < 0)
-			this->cooldown[i] = 0;
-	}
+	this->element->update(this, map, dt);
 
-	if (gGamepads[index]->get_button_down(Gamepad::Rb) && cooldown[0] == 0.f) {//projectile
+	if (gGamepads[index]->get_button_pressed(Gamepad::Rb)) {//projectile
 		this->element->projectile(this, map);
-		this->cooldown[0] = gSpellConstants.kArcaneProjectileCooldown;//cooldown time
 	}
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Lt) && cooldown[1] == 0.f)//dash
+	if (gGamepads[index]->get_button_pressed(Gamepad::Lt))//dash
 	{
-		XMFLOAT2 leftVector = gGamepads[index]->get_left_thumb();
-
-		//check if left stick is centered
-		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
-		{
-			float left_angle = gGamepads[index]->get_left_thumb_angle();
-			this->velocity.x += cos(left_angle) * gSpellConstants.kArcaneDashSpeed;
-			this->velocity.y += sin(left_angle) * gSpellConstants.kArcaneDashSpeed;
-		}
-		else//if it is centered: dash to where you are looking
-		{
-			this->velocity.x += cos(this->angle) * gSpellConstants.kArcaneDashSpeed;
-			this->velocity.y += sin(this->angle) * gSpellConstants.kArcaneDashSpeed;
-		}
-		
-
-		this->cooldown[1] = gSpellConstants.kArcaneDashCooldown;//cooldown time
-
+		this->element->dash(this, map);
 	}
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Lb) && cooldown[2] == 0.f)//stomp
+	if (gGamepads[index]->get_button_pressed(Gamepad::Lb))//stomp
 	{
 		this->element->stomp(this, map);
-		this->cooldown[2] = gSpellConstants.kArcaneStompCooldown;//cooldown time
-
 	}
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Rt) && cooldown[3] == 0.f)//wall
+	if (gGamepads[index]->get_button_pressed(Gamepad::Rt))//wall
 	{
 		this->element->wall(this, map);
-		this->cooldown[3] = gSpellConstants.kArcaneWallCooldown;//cooldown time
-
 	}
-
 
 	if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > 15 && gGameConstants.kCanDie)
 	{
