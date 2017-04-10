@@ -16,6 +16,9 @@ struct SpellConstants {
 	float kArcaneDashCooldown = 1.5f;
 
 	float kArcaneWallCooldown = 4.5f;
+	int kArcaneWallNrOfPillars = 6;
+	float kArcaneWallPillarDistance = 0.65f;
+	float kArcaneWallPillarRadius = 0.35f;
 };
 
 extern SpellConstants gDefaultSpellConstants;
@@ -30,3 +33,15 @@ struct PlayerConstants {
 
 extern PlayerConstants gDefaultPlayerConstants;
 extern PlayerConstants gPlayerConstants;
+
+struct GameConstants {
+	float kCameraX = 0.0f;
+	float kCameraY = 15.0f;
+	float kCameraZ = -5.0f;
+	float kCameraSpeed = 1.9f;
+	float kCameraDrag = 0.9f;
+	bool kCanDie = true;
+};
+
+extern GameConstants gDefaultGameConstants;
+extern GameConstants gGameConstants;

@@ -25,11 +25,12 @@ void ArcaneElement::projectile(Player *player, Map *map)
 
 void ArcaneElement::stomp(Player *player, Map *map)
 {
+	//saves nearby players in a vector
 	auto nearby = map->get_entities_in_radius(player, gSpellConstants.kArcaneStompDistance, [](Entity *e) {
 		return e->type == EntityType::Player;
 	});
 
-	for (auto result : nearby) {
+	for (auto result : nearby) { //moves all nearby players
 		result.entity->velocity.x += cos(result.angle) * gSpellConstants.kArcaneStompStrength * abs((gSpellConstants.kArcaneStompDistance + gSpellConstants.kArcaneStompStrengthFalloff) - result.distance);
 		result.entity->velocity.y += sin(result.angle) * gSpellConstants.kArcaneStompStrength * abs((gSpellConstants.kArcaneStompDistance + gSpellConstants.kArcaneStompStrengthFalloff) - result.distance);
 	}
@@ -50,11 +51,12 @@ void ArcaneElement::wall(Player *player, Map *map)
 	XMVECTOR dist = pos - XMLoadFloat3(&position);
 	XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < gSpellConstants.kArcaneWallNrOfPillars; i++)
 	{
 
 		XMFLOAT3 p;
-		XMStoreFloat3(&p, n * ((float)i - 3)*0.35f + pos);
-		map->add_entity(new ArcaneWallSpell(player, p, 0.35f));
+		XMStoreFloat3(&p, n * ((float)i - gSpellConstants.kArcaneWallNrOfPillars/2.f) *
+			gSpellConstants.kArcaneWallPillarDistance/2.f + pos);
+		map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kArcaneWallPillarRadius));
 	}
 }

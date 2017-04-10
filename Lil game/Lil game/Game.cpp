@@ -71,12 +71,41 @@ void Game::update(float dt)
 
 			ImGui::TextDisabled("Wall");
 			ImGui::SliderFloat("cooldown##Wall", &gSpellConstants.kArcaneWallCooldown, 0.0f, 20.0f);
+			ImGui::SliderInt("number of pillars", &gSpellConstants.kArcaneWallNrOfPillars, 1, 20);
+			ImGui::SliderFloat("distance between pillars", &gSpellConstants.kArcaneWallPillarDistance, 0, 1);
+			ImGui::SliderFloat("pillars radius", &gSpellConstants.kArcaneWallPillarRadius, 0, 5);
 		}
 
 		if (ImGui::CollapsingHeader("Player")) {
 			ImGui::SliderFloat("radius", &gPlayerConstants.kRadius, 0.0f, 5.f);
 			ImGui::SliderFloat("speed##player", &gPlayerConstants.kSpeed, 0.0f, 120);
 			ImGui::SliderFloat("friction factor", &gPlayerConstants.kFriction, 0.0f, 30.0f);
+		}
+		if (ImGui::CollapsingHeader("Game")) {
+			ImGui::TextDisabled("Camera");
+			
+			float p[3] = {
+				gGameConstants.kCameraX,
+				gGameConstants.kCameraY,
+				gGameConstants.kCameraZ
+			};
+			ImGui::SliderFloat3("pos", p, -30.f, 30.f);
+			
+			ImGui::SliderFloat("speed##camera", &gGameConstants.kCameraSpeed, 0.f, 5.f);
+			ImGui::SliderFloat("drag", &gGameConstants.kCameraDrag, 0.f, 1.f);
+
+			gGameConstants.kCameraX = p[0];
+			gGameConstants.kCameraY = p[1];
+			gGameConstants.kCameraZ	= p[2];
+			
+			camera->pos = {
+				gGameConstants.kCameraX,
+				gGameConstants.kCameraY,
+				gGameConstants.kCameraZ
+			};
+
+			ImGui::TextDisabled("Gameplay");
+			ImGui::Checkbox("can die", &gGameConstants.kCanDie);
 		}
 
 		ImGui::Separator();
@@ -87,6 +116,9 @@ void Game::update(float dt)
 			}
 			if (ImGui::Button("Players")) {
 				gPlayerConstants = gDefaultPlayerConstants;
+			}
+			if (ImGui::Button("Game##header")) {
+				gGameConstants = gDefaultGameConstants;
 			}
 		}
 

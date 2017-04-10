@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "Constants.h"
 
 Camera::Camera(XMVECTOR pos, XMVECTOR look, ID3D11Device *gDevice)
 	: pos(pos), look(look), target({}), temp({}), offset({})
@@ -67,14 +68,14 @@ void Camera::focus(std::vector<XMVECTOR> positions)
 
 void Camera::update(float dt, ID3D11DeviceContext *gDeviceContext)
 {
-	temp = XMVectorLerp(temp, target, 1.9f * dt);
-	offset = XMVectorLerp(offset, temp, 1.9f * dt);
+	temp = XMVectorLerp(temp, target, gGameConstants.kCameraSpeed * dt);
+	offset = XMVectorLerp(offset, temp, gGameConstants.kCameraSpeed * dt);
 
 	pos = XMVectorSelect(pos, temp, XMVectorSelectControl(XM_SELECT_1, XM_SELECT_0, XM_SELECT_1, XM_SELECT_0));
 	look = XMVectorSelect(look, temp, XMVectorSelectControl(XM_SELECT_1, XM_SELECT_0, XM_SELECT_1, XM_SELECT_0));
 
 	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, WIDTH / (float)HEIGHT, 0.01f, 50.f);
-	vals.view = XMMatrixLookAtLH(pos + temp * 0.9f, look + temp, { 0, 1, 0 });
+	vals.view = XMMatrixLookAtLH(pos + temp * gGameConstants.kCameraDrag, look + temp, { 0, 1, 0 });
 
 	D3D11_MAPPED_SUBRESOURCE data;
 	DXCALL(gDeviceContext->Map(wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
