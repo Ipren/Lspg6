@@ -996,4 +996,8 @@ void Renderer::present() {
 void Renderer::update(float dt, Map * map)
 {
 	this->updateParticles(dt, map);
+	if (map->shrunk == true)
+	{
+		map->shrunk == false;
+	}
 }
