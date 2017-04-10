@@ -741,25 +741,24 @@ void Renderer::updateParticles(float dt, Map *map)
 	this->updateDTimeBuffer(dt);
 	this->totalTime += dt;
 	if (this->totalTime - this->lastParticleInsert > 0.1f)
-	//{
-	//	this->lastParticleInsert = this->totalTime;
-	//	this->gDeviceContext->CSSetShader(this->inserter, nullptr, 0);
-	//	this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->ParticleCount);
-	//	this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->emitterCountBuffer);
-	//	this->gDeviceContext->CSSetConstantBuffers(2, 1, &this->randomVecBufer);
+	{
+		this->lastParticleInsert = this->totalTime;
+		this->gDeviceContext->CSSetShader(this->inserter, nullptr, 0);
+		this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->ParticleCount);
+		this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->emitterCountBuffer);
+		this->gDeviceContext->CSSetConstantBuffers(2, 1, &this->randomVecBufer);
 
-	//	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
-	//	this->gDeviceContext->CSSetShaderResources(0, 1, &this->emitterSRV);
+		this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
+		this->gDeviceContext->CSSetShaderResources(0, 1, &this->emitterSRV);
 
 
-	//	this->gDeviceContext->Dispatch(1, 1, 1);
-	//	this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0 ,this->UAVS[0]);
+		this->gDeviceContext->Dispatch(1, 1, 1);
+		this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0 ,this->UAVS[0]);
 
-	//	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->nullUAV, &UAVFLAG);
-	//	this->gDeviceContext->CSSetUnorderedAccessViews(1, 1, &this->nullUAV, &UAVFLAG);
+		this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->nullUAV, &UAVFLAG);
+		this->gDeviceContext->CSSetUnorderedAccessViews(1, 1, &this->nullUAV, &UAVFLAG);
 
-	//}
-	//this->createStompParticles(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
+	}
 
 	this->gDeviceContext->CSSetShader(this->computeShader, nullptr, 0);
 	this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->ParticleCount);
