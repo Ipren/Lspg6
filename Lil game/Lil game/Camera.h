@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <d3d11.h>
 #include <DirectXMath.h>
 
@@ -12,10 +14,11 @@ using namespace DirectX;
 class Camera
 {
 public:
-	Camera(XMVECTOR pos, XMVECTOR look);
+	Camera(XMVECTOR pos, XMVECTOR look, ID3D11Device *gDevice);
 	~Camera();
 
-	void update(float dt);
+	void focus(std::vector<XMVECTOR> positions);
+	void update(float dt, ID3D11DeviceContext *gDeviceContext);
 
 	struct BufferVals {
 		XMMATRIX world;
@@ -24,7 +27,18 @@ public:
 	} vals;
 
 	XMVECTOR pos, look;
+	XMVECTOR target;
+
+	XMVECTOR temp;
+	XMVECTOR offset;
 
 	ID3D11Buffer *wvp_buffer;
+	ID3D11Buffer *floatwvpBuffer;
+
+	struct testMatrix {
+		XMFLOAT4X4 world;
+		XMFLOAT4X4 view;
+		XMFLOAT4X4 proj;
+	} wvpmatrixes;
 };
 

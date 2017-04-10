@@ -2,6 +2,8 @@
 
 #include <d3d11.h>
 
+#include "Gamepad.h"
+
 class Camera;
 
 #define RECONN_TIME 5.0
@@ -15,3 +17,5 @@ extern ID3D11RenderTargetView *gBackbufferRTV;
 extern ID3D11DepthStencilView *gDepthStencil;
 
 extern Camera *gCamera;
+extern Gamepad *gGamepads[4];
+

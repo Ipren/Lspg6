@@ -16,7 +16,7 @@
 //   ID3DBlob *blob = compile_shader(L"Shader.hlsl", "VS", "vs_5_0");
 //   DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &vertexShader));
 //
-ID3DBlob *compile_shader(const wchar_t *filename, const char *function, const char *model)
+ID3DBlob *compile_shader(const wchar_t *filename, const char *function, const char *model, ID3D11Device *gDevice)
 {
 	ID3DBlob *blob = nullptr;
 	ID3DBlob *error = nullptr;
@@ -57,10 +57,20 @@ ID3DBlob *compile_shader(const wchar_t *filename, const char *function, const ch
 //	 };
 //   create_input_layout(desc, ARRAYSIZE(desc), blob, &inputLayout);
 //
-ID3D11InputLayout *create_input_layout(D3D11_INPUT_ELEMENT_DESC *elements, size_t size, ID3DBlob *blob)
+ID3D11InputLayout *create_input_layout(D3D11_INPUT_ELEMENT_DESC *elements, size_t size, ID3DBlob *blob, ID3D11Device *gDevice)
 {
 	ID3D11InputLayout *layout = nullptr;
-	DXCALL(gDevice->CreateInputLayout(elements, size, blob->GetBufferPointer(), blob->GetBufferSize(), &layout));
+	DXCALL(gDevice->CreateInputLayout(elements, (UINT)size, blob->GetBufferPointer(), (UINT)blob->GetBufferSize(), &layout));
 
 	return layout;
+}
+
+XMFLOAT4 normalize_color(int32_t color)
+{
+	return XMFLOAT4(
+		((color & 0xff000000) >> 24) / 255.f,
+		((color & 0xff0000) >> 16) / 255.f,
+		((color & 0xff00) >> 8) / 255.f,
+		(color & 0xff) / 255.f
+	);
 }
