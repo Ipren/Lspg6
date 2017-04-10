@@ -18,10 +18,10 @@ Map::~Map()
 {
 }
 
-void Map::reset()
+void Map::reset(int nrOfPlayers)
 {
 	entitys.clear();
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < nrOfPlayers; ++i) {
 		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
 		entitys.push_back(e);
 	}
