@@ -15,7 +15,7 @@ Map::Map()
 	totalTime = 0.0f;
 	timeSinceLastShrunk = 0.0f;
 	radius = 15.0f;
-	shrunk = true;
+	shrunk = false;
 }
 
 Map::~Map()
@@ -41,11 +41,11 @@ void Map::update(float dt, Camera *cam)
 
 	totalTime += dt;
 	timeSinceLastShrunk += dt;
-	if (timeSinceLastShrunk > 1)
+	if (timeSinceLastShrunk > 20)
 	{
 		timeSinceLastShrunk = 0.0f;
-		radius -= 0.01;
-		shrunk = false;
+		radius -= 1.0f;
+		shrunk = true;
 	}
 
 	for (int i = 0; i < this->entitys.size(); i++)

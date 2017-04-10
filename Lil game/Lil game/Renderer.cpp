@@ -760,6 +760,34 @@ void Renderer::updateParticles(float dt, Map *map)
 
 void Renderer::shrinkMap(Map * map)
 {
+	std::vector<XMFLOAT3> vertices;
+
+
+	for (int i = 0; i < 128; i++)
+	{
+
+		XMFLOAT3 vert = {
+			sin(2 * XM_PI * i / 128.f) * map->radius,
+			0.01f,
+			cos(2 * XM_PI * i / 128.f) * map->radius
+		};
+
+		XMFLOAT3 vert2 = {
+			sin(2 * XM_PI * (i + 1) / 128.f) * map->radius,
+			0.01f,
+			cos(2 * XM_PI * (i + 1) / 128.f) * map->radius
+		};
+		vertices.push_back({ 0.f, 0.f, 0.f });
+		vertices.push_back(vert);
+		vertices.push_back(vert2);
+	}
+
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->debug_map_quad, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &vertices[0], (UINT)(vertices.size() * 3 * sizeof(float)));
+	this->gDeviceContext->Unmap(this->debug_map_quad, 0);
+
+
 }
 
 void Renderer::swapBuffers()
