@@ -839,7 +839,7 @@ void Renderer::updateEmitters(Map * map)
 		{
 			if (dynamic_cast<Player*>(map->entitys[i])->stomped)
 			{
-				//this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
+				this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
 			}
 		}
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
@@ -887,18 +887,33 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
 	Particle *particles = new Particle[50];
 	for (size_t i = 0; i < 50; i++)
 	{
-		particles[i].age = 0.0f;
+		particles[i].age = 1.6f;
 		particles[i].type = 1;
-		particles[i].position.y = pos.y;
+		particles[i].velocity.y = pos.y;
 
 		//creates circle of particles around player
-		particles[i].position.x = (pos.x + 0.55f) * cos(i);
-		particles[i].position.z = (pos.z + 0.55f) * sin(i);
-		lenght = sqrt(particles[i].position.x * particles[i].position.x + particles[i].position.y * particles[i].position.y + particles[i].position.z * particles[i].position.z);
+		particles[i].velocity.x = (pos.x + 0.55f) * cos(i);
+		particles[i].velocity.z = (pos.z + 0.55f) * sin(i);
+		lenght = sqrt(particles[i].velocity.x * particles[i].velocity.x + particles[i].velocity.y * particles[i].velocity.y + particles[i].velocity.z * particles[i].velocity.z);
 
-		particles[i].velocity.x = particles[i].position.x / lenght;
-		particles[i].velocity.y = particles[i].position.y / lenght;
-		particles[i].velocity.z = particles[i].position.z / lenght;
+		particles[i].velocity.x = particles[i].velocity.x / lenght;
+		if (particles[i].velocity.y < 0)
+		{
+			particles[i].velocity.y = particles[i].velocity.y / -lenght;
+		}
+		else
+		{
+			particles[i].velocity.y = particles[i].velocity.y / lenght;
+		}
+		
+		particles[i].velocity.z = particles[i].velocity.z / lenght;
+
+		particles[i].velocity.x *= 9.0f;
+		particles[i].velocity.z *= 9.0f;
+
+		particles[i].position = pos;
+		particles[i].position.y = 0.1f;
+
 
 	}
 	gDeviceContext->Map(this->stompParticles, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
