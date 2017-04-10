@@ -61,6 +61,7 @@ private:
 	ID3D11Buffer* randomVecBufer;
 	ID3D11ComputeShader* stompInserter;
 	ID3D11Buffer *stompParticles;
+	ID3D11ShaderResourceView *stompSRV;
 	ID3D11Buffer* playerPosBuffer;
 
 

@@ -491,7 +491,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 		MessageBox(0, L"playerpos cbuffer creation failed", L"error", MB_OK);
 	}
 
-	Particle *stompParticles = new Particle[50];
+	/*Particle *stompParticles = new Particle[50];
 	for (size_t i = 0; i < 50; i++)
 	{
 		stompParticles->position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -502,6 +502,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 
 	desc.ByteWidth = 50 * sizeof(Particle);
 	data.pSysMem = stompParticles;
+	desc.StructureByteStride = sizeof(Particle);
 
 	hr = this->gDevice->CreateBuffer(&desc, &data, &this->stompParticles);
 	if (FAILED(hr))
@@ -510,7 +511,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 	}
 
 
-	delete[] stompParticles;
+	delete[] stompParticles;*/
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -552,7 +553,44 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 	{
 		MessageBox(0, L"emitter srv failed", L"error", MB_OK);
 	}
+
+	desc.ByteWidth = 50 * sizeof(Particle);
+	desc.StructureByteStride = sizeof(Particle);
+
+	Particle *stompParticles = new Particle[50];
+	for (size_t i = 0; i < 50; i++)
+	{
+		stompParticles->position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		stompParticles->velocity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		stompParticles->age = 0.0f;
+		stompParticles->type = 1;
+	}
+
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->stompParticles);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"stomp particle cbuffer creation failed", L"error", MB_OK);
+	}
 	
+	delete[] stompParticles;
+
+	D3D11_BUFFER_SRV ssrv;
+	ssrv.FirstElement = 0;
+	ssrv.NumElements = 50;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC ssrvDesc;
+	ZeroMemory(&ssrvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	ssrvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	ssrvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	ssrvDesc.Buffer = ssrv;
+
+	hr = this->gDevice->CreateShaderResourceView(this->stompParticles, &ssrvDesc, &this->stompSRV);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"stomp srv failed", L"error", MB_OK);
+	}
+
 }
 
 void Renderer::createParticleShaders()
@@ -721,7 +759,7 @@ void Renderer::updateParticles(float dt, Map *map)
 	//	this->gDeviceContext->CSSetUnorderedAccessViews(1, 1, &this->nullUAV, &UAVFLAG);
 
 	//}
-	this->createStompParticles(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
+	//this->createStompParticles(DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
 
 	this->gDeviceContext->CSSetShader(this->computeShader, nullptr, 0);
 	this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->ParticleCount);
@@ -856,9 +894,9 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
 
 		//creates circle of particles around player
 		particles[i].position.x = (pos.x + 0.55f) * cos(i);
-		particles[i].position.y = (pos.y + 0.55f) * sin(i);
-		lenght = sqrt(particles[i].position.x*particles[i].position.x+ particles[i].position.y*particles[i].position.y + particles[i].position.z*particles[i].position.z);
-		
+		particles[i].position.z = (pos.z + 0.55f) * sin(i);
+		lenght = sqrt(particles[i].position.x * particles[i].position.x + particles[i].position.y * particles[i].position.y + particles[i].position.z * particles[i].position.z);
+
 		particles[i].velocity.x = particles[i].position.x / lenght;
 		particles[i].velocity.y = particles[i].position.y / lenght;
 		particles[i].velocity.z = particles[i].position.z / lenght;
@@ -872,8 +910,9 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
 
 	this->gDeviceContext->CSSetShader(this->stompInserter, nullptr, 0);
 	this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->playerPosBuffer);
-	this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->stompParticles);
-	this->gDeviceContext->CSSetConstantBuffers(2, 1, &this->ParticleCount);
+	//this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->stompParticles);
+	this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->ParticleCount);
+	this->gDeviceContext->CSSetShaderResources(0, 1, &this->stompSRV);
 
 	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
 
@@ -881,6 +920,7 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
 	this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0, this->UAVS[0]);
 
 	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->nullUAV, &startParticleCount);
+	this->gDeviceContext->CSSetShaderResources(0, 1, &this->nullSRV);
 
 }
 
