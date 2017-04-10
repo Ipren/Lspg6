@@ -12,10 +12,6 @@
 
 #include "imgui.h"
 
-ID3D11Buffer *quad;
-ID3D11InputLayout *layout;
-ID3D11VertexShader *vsh;
-ID3D11PixelShader *psh;
 
 Gamepad *gGamepads[4];
 

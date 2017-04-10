@@ -491,27 +491,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 		MessageBox(0, L"playerpos cbuffer creation failed", L"error", MB_OK);
 	}
 
-	/*Particle *stompParticles = new Particle[50];
-	for (size_t i = 0; i < 50; i++)
-	{
-		stompParticles->position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-		stompParticles->velocity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-		stompParticles->age = 0.0f;
-		stompParticles->type = 1;
-	}
-
-	desc.ByteWidth = 50 * sizeof(Particle);
-	data.pSysMem = stompParticles;
-	desc.StructureByteStride = sizeof(Particle);
-
-	hr = this->gDevice->CreateBuffer(&desc, &data, &this->stompParticles);
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"stomp particle cbuffer creation failed", L"error", MB_OK);
-	}
-
-
-	delete[] stompParticles;*/
+	
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;

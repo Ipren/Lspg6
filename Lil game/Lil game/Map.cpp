@@ -12,6 +12,8 @@ Map::Map()
 		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
 		entitys.push_back(e);
 	}
+	totalTime = 0.0f;
+	radius = 15.0f;
 }
 
 Map::~Map()
@@ -35,7 +37,7 @@ void Map::add_entity(Entity * entity)
 void Map::update(float dt, Camera *cam)
 {
 
-
+	totalTime += dt;
 	for (int i = 0; i < this->entitys.size(); i++)
 	{
 		Entity *a = entitys[i];
