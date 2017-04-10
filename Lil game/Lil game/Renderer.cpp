@@ -758,6 +758,10 @@ void Renderer::updateParticles(float dt, Map *map)
 
 }
 
+void Renderer::shrinkMap(Map * map)
+{
+}
+
 void Renderer::swapBuffers()
 {
 	ID3D11UnorderedAccessView *tempUAV;
@@ -999,5 +1003,6 @@ void Renderer::update(float dt, Map * map)
 	if (map->shrunk == true)
 	{
 		map->shrunk == false;
+		this->shrinkMap(map);
 	}
 }
