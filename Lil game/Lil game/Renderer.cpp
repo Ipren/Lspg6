@@ -851,7 +851,14 @@ void Renderer::updateEmitters(Map * map)
 		{
 			if (dynamic_cast<Player*>(map->entitys[i])->stomped)
 			{
-				this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
+				this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position, 1);
+			}
+			if (dynamic_cast<Player*>(map->entitys[i])->blowUp)
+			{
+				Player *temp = dynamic_cast<Player*>(map->entitys[i]);
+				this->createStompParticles(dynamic_cast<FireElement*>(temp->element)->active_projectile->position, 0);
+				temp->blowUp = false;
+				dynamic_cast<FireElement*>(temp->element)->active_projectile = nullptr;
 			}
 		}
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
@@ -888,7 +895,7 @@ void Renderer::updateEmitters(Map * map)
 	delete[] temp;
 }
 
-void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
+void Renderer::createStompParticles(DirectX::XMFLOAT3 pos, int type)
 {
 	D3D11_MAPPED_SUBRESOURCE data;
 	this->gDeviceContext->Map(this->playerPosBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
@@ -900,7 +907,7 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
 	for (size_t i = 0; i < 50; i++)
 	{
 		particles[i].age = 1.6f;
-		particles[i].type = 1;
+		particles[i].type = type;
 		particles[i].velocity.y = pos.y;
 
 		//creates circle of particles around player
