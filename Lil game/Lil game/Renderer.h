@@ -90,6 +90,7 @@ private:
 	void updateEmitters(Map *map);
 	void createStompParticles(DirectX::XMFLOAT3 pos);
 	void updateParticles(float dt, Map *map);
+	void shrinkMap(Map *map);
 
 	
 };

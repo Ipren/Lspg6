@@ -27,6 +27,7 @@ public:
 	std::vector <Entity*> entitys;
 	std::vector <Entity*> entitys_to_add;
 	float totalTime;
+	float timeSinceLastShrunk;
 	float radius;
 	bool shrunk;
 };
