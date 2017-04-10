@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Spell.h"
+#include "Player.h"
 #include <cstdlib>
 #include <time.h>
 
@@ -90,6 +91,8 @@ Renderer::~Renderer()
 	this->eLocations->Release();
 	this->emitterCountBuffer->Release();
 	this->randomVecBufer->Release();
+	this->stompParticles->Release();
+	this->playerPosBuffer->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -348,7 +351,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 	desc.StructureByteStride = sizeof(Particle);
 	desc.Usage = D3D11_USAGE_DEFAULT;
 
-	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data,  &particleBuffer1);
+	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &particleBuffer1);
 	if (FAILED(hr))
 	{
 		MessageBox(0, L"paricle buffer 1 failed", L"error", MB_OK);
@@ -480,8 +483,35 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 		MessageBox(0, L"random cbuffer creation failed", L"error", MB_OK);
 	}
 
+	DirectX::XMFLOAT4 tempPlayerPos;
+	data.pSysMem = &tempPlayerPos;
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->playerPosBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"playerpos cbuffer creation failed", L"error", MB_OK);
+	}
+
+	/*Particle *stompParticles = new Particle[50];
+	for (size_t i = 0; i < 50; i++)
+	{
+		stompParticles->position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		stompParticles->velocity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		stompParticles->age = 0.0f;
+		stompParticles->type = 1;
+	}
+
+	desc.ByteWidth = 50 * sizeof(Particle);
+	data.pSysMem = stompParticles;
+	desc.StructureByteStride = sizeof(Particle);
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->stompParticles);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"stomp particle cbuffer creation failed", L"error", MB_OK);
+	}
 
 
+	delete[] stompParticles;*/
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -523,7 +553,44 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 	{
 		MessageBox(0, L"emitter srv failed", L"error", MB_OK);
 	}
+
+	desc.ByteWidth = 50 * sizeof(Particle);
+	desc.StructureByteStride = sizeof(Particle);
+
+	Particle *stompParticles = new Particle[50];
+	for (size_t i = 0; i < 50; i++)
+	{
+		stompParticles->position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		stompParticles->velocity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		stompParticles->age = 0.0f;
+		stompParticles->type = 1;
+	}
+
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->stompParticles);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"stomp particle cbuffer creation failed", L"error", MB_OK);
+	}
 	
+	delete[] stompParticles;
+
+	D3D11_BUFFER_SRV ssrv;
+	ssrv.FirstElement = 0;
+	ssrv.NumElements = 50;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC ssrvDesc;
+	ZeroMemory(&ssrvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	ssrvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	ssrvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	ssrvDesc.Buffer = ssrv;
+
+	hr = this->gDevice->CreateShaderResourceView(this->stompParticles, &ssrvDesc, &this->stompSRV);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"stomp srv failed", L"error", MB_OK);
+	}
+
 }
 
 void Renderer::createParticleShaders()
@@ -572,6 +639,28 @@ void Renderer::createParticleShaders()
 		MessageBox(0, L"inserter compute Shader creation failed", L"error", MB_OK);
 	}
 	icsBlob->Release();
+
+	ID3D10Blob *sicsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"StompInserter.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"cs_5_0",
+		0,
+		0,
+		&sicsBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"stomp inserter compute shader compile failed", L"error", MB_OK);
+	}
+	hr = this->gDevice->CreateComputeShader(sicsBlob->GetBufferPointer(), sicsBlob->GetBufferSize(), nullptr, &this->stompInserter);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" stomp inserter compute Shader creation failed", L"error", MB_OK);
+	}
+	sicsBlob->Release();
 
 	ID3DBlob* pvsBlob = nullptr;
 	hr = D3DCompileFromFile(
@@ -646,8 +735,9 @@ void Renderer::createParticleShaders()
 	ppsBlob->Release();
 }
 
-void Renderer::updateParticles(float dt)
+void Renderer::updateParticles(float dt, Map *map)
 {
+	this->updateEmitters(map);
 	this->updateDTimeBuffer(dt);
 	this->totalTime += dt;
 	if (this->totalTime - this->lastParticleInsert > 0.1f)
@@ -744,26 +834,36 @@ void Renderer::updateEmitters(Map * map)
 	Emitterlocation *temp = new Emitterlocation[1024];
 	for (size_t i = 0; i < map->entitys.size(); i++)
 	{
-		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
+
+		if (dynamic_cast<Player*>(map->entitys[i]) != nullptr)
 		{
-			emitterCount++;	
+			if (dynamic_cast<Player*>(map->entitys[i])->stomped)
+			{
+				this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
+			}
+		}
+		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
+		{	
 			ArcaneProjectileSpell* test = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]);
-			//temp[emitterCount] = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i])->pEmitter;
 			temp[emitterCount].position = test->pEmitter.position;
 			temp[emitterCount].randomVector = test->pEmitter.randomVector;
 			temp[emitterCount].particleType = test->pEmitter.particleType;
-
+			emitterCount++;
 		}
 	}
-	emitterCount++;
+	
 	D3D11_MAPPED_SUBRESOURCE data;
+
 	this->gDeviceContext->Map(this->emitterCountBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
 	memcpy(data.pData, &this->emitterCount, sizeof(this->emitterCount));
 	this->gDeviceContext->Unmap(this->emitterCountBuffer, 0);
 
-	this->gDeviceContext->Map(this->eLocations, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
-	memcpy(data.pData, temp, sizeof(Emitterlocation)*this->emitterCount);
-	this->gDeviceContext->Unmap(this->eLocations, 0);
+	if (this->emitterCount > 0)
+	{
+		this->gDeviceContext->Map(this->eLocations, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+		memcpy(data.pData, temp, sizeof(Emitterlocation)*this->emitterCount);
+		this->gDeviceContext->Unmap(this->eLocations, 0);
+	}
 
 	this->gDeviceContext->Map(this->randomVecBufer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
 	DirectX::XMFLOAT4 randVec;
@@ -774,6 +874,53 @@ void Renderer::updateEmitters(Map * map)
 	memcpy(data.pData, &randVec, sizeof(DirectX::XMFLOAT4));
 	this->gDeviceContext->Unmap(this->randomVecBufer, 0);
 	delete[] temp;
+}
+
+void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
+{
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->playerPosBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &pos, sizeof(DirectX::XMFLOAT3));
+	this->gDeviceContext->Unmap(this->playerPosBuffer, 0);
+
+	float lenght = 0.0f;
+	Particle *particles = new Particle[50];
+	for (size_t i = 0; i < 50; i++)
+	{
+		particles[i].age = 0.0f;
+		particles[i].type = 1;
+		particles[i].position.y = pos.y;
+
+		//creates circle of particles around player
+		particles[i].position.x = (pos.x + 0.55f) * cos(i);
+		particles[i].position.z = (pos.z + 0.55f) * sin(i);
+		lenght = sqrt(particles[i].position.x * particles[i].position.x + particles[i].position.y * particles[i].position.y + particles[i].position.z * particles[i].position.z);
+
+		particles[i].velocity.x = particles[i].position.x / lenght;
+		particles[i].velocity.y = particles[i].position.y / lenght;
+		particles[i].velocity.z = particles[i].position.z / lenght;
+
+	}
+	gDeviceContext->Map(this->stompParticles, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, particles, sizeof(Particle) * 50);
+	gDeviceContext->Unmap(this->stompParticles, 0);
+	delete[] particles;
+
+
+	this->gDeviceContext->CSSetShader(this->stompInserter, nullptr, 0);
+	this->gDeviceContext->CSSetConstantBuffers(0, 1, &this->playerPosBuffer);
+	//this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->stompParticles);
+	this->gDeviceContext->CSSetConstantBuffers(1, 1, &this->ParticleCount);
+	this->gDeviceContext->CSSetShaderResources(0, 1, &this->stompSRV);
+
+	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->UAVS[0], &UAVFLAG);
+
+	this->gDeviceContext->Dispatch(1, 1, 1);
+	this->gDeviceContext->CopyStructureCount(this->ParticleCount, 0, this->UAVS[0]);
+
+	this->gDeviceContext->CSSetUnorderedAccessViews(0, 1, &this->nullUAV, &startParticleCount);
+	this->gDeviceContext->CSSetShaderResources(0, 1, &this->nullSRV);
+
 }
 
 void Renderer::render(Map *map, Camera *camera)
@@ -844,7 +991,6 @@ void Renderer::render(Map *map, Camera *camera)
 		}
 	}
 
-	this->updateEmitters(map);
 	this->renderParticles(camera);
 }
 
