@@ -145,7 +145,7 @@ void Game::update(float dt)
 
 	currentMap->update(dt, camera);
 	camera->update(dt, this->renderer->gDeviceContext);
-	renderer->updateParticles(dt, this->currentMap);
+	renderer->update(dt, this->currentMap);
 
 	
 }

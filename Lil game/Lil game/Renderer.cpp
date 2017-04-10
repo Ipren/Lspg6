@@ -992,3 +992,8 @@ void Renderer::render(Map *map, Camera *camera)
 void Renderer::present() {
 	this->gSwapChain->Present(0, 0);
 }
+
+void Renderer::update(float dt, Map * map)
+{
+	this->updateParticles(dt, map);
+}

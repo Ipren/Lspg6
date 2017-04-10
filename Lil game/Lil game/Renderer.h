@@ -21,7 +21,8 @@ public:
 
 	void render(Map *map, Camera *camera);
 	void present();
-	void updateParticles(float dt, Map *map);
+	void update(float dt, Map *map);
+	
 	ID3D11Device *gDevice;
 	ID3D11DeviceContext *gDeviceContext;
 
@@ -88,6 +89,7 @@ private:
 	void updateDTimeBuffer(float dt);
 	void updateEmitters(Map *map);
 	void createStompParticles(DirectX::XMFLOAT3 pos);
+	void updateParticles(float dt, Map *map);
 
 	
 };

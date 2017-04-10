@@ -14,6 +14,7 @@ Map::Map()
 	}
 	totalTime = 0.0f;
 	radius = 15.0f;
+	shrunk = true;
 }
 
 Map::~Map()
@@ -38,6 +39,12 @@ void Map::update(float dt, Camera *cam)
 {
 
 	totalTime += dt;
+	if (totalTime > 1)
+	{
+		radius -= 0.01;
+		shrunk = false;
+	}
+
 	for (int i = 0; i < this->entitys.size(); i++)
 	{
 		Entity *a = entitys[i];
