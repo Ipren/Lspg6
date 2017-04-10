@@ -56,9 +56,10 @@ void Map::update(float dt, Camera *cam)
 		if (radius -= shrinkAmount > 0)
 		{
 			radius -= shrinkAmount;
+			shrunk = true;
 		}
 		
-		shrunk = true;
+		
 	}
 
 	for (int i = 0; i < this->entitys.size(); i++)
