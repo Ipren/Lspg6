@@ -127,8 +127,17 @@ void Game::update(float dt)
 
 	{
 		ImGui::Begin("Debug");
-		if (ImGui::Button("Reset map")) {
-			currentMap->reset();
+		if (ImGui::Button("Reset to 1p")) {
+			currentMap->reset(1);
+		}
+		if (ImGui::Button("Reset to 2p")) {
+			currentMap->reset(2);
+		}
+		if (ImGui::Button("Reset to 3p")) {
+			currentMap->reset(3);
+		}
+		if (ImGui::Button("Reset to 4p")) {
+			currentMap->reset(4);
 		}
 		ImGui::End();
 	}
