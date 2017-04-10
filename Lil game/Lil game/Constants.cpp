@@ -8,3 +8,6 @@ PlayerConstants gPlayerConstants;
 
 GameConstants gDefaultGameConstants; 
 GameConstants gGameConstants;
+
+MapConstants gDefaultMapConstants;
+MapConstants gMapConstants;

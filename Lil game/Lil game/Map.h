@@ -29,4 +29,10 @@ public:
 	int nrOfAlivePlayers;
 	int playerPoints[4];
 	int round;
+	float totalTime;
+	float timeSinceLastShrunk;
+	float radius;
+	bool shrunk;
+	float shrinkAmount;
+	float shrinkTimer;
 };

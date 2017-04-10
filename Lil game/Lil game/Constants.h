@@ -20,6 +20,25 @@ struct SpellConstants {
 	int kArcaneWallNrOfPillars = 6;
 	float kArcaneWallPillarDistance = 0.65f;
 	float kArcaneWallPillarRadius = 0.35f;
+
+	float kFireProjectileStrength = 30.0f;
+	float kFireProjectileSpeed = 10.0f;
+	float kFireProjectileCooldown = 1.f;
+	float kFireProjectileExplosionRadius = 5.f;
+	float kFireProjectileExplosionFalloff = 1.f;
+
+	float kFireStompDistance = 5.3f;
+	float kFireStompStrength = 5.f;
+	float kFireStompStrengthFalloff = 2.f;
+	float kFireStompCooldown = 2.5f;
+
+	float kFireDashSpeed = 30.f;
+	float kFireDashCooldown = 1.5f;
+
+	float kFireWallCooldown = 4.5f;
+	int   kFireWallNrOfPillars = 6;
+	float kFireWallPillarDistance = 0.65f;
+	float kFireWallPillarRadius = 0.35f;
 };
 
 extern SpellConstants gDefaultSpellConstants;
@@ -46,3 +65,11 @@ struct GameConstants {
 
 extern GameConstants gDefaultGameConstants;
 extern GameConstants gGameConstants;
+
+struct MapConstants
+{
+	float kShrinkAmount = 1.0f;
+	float kShrinkTimer = 20.0f;
+};
+extern MapConstants gDefaultMapConstants;
+extern MapConstants gMapConstants;

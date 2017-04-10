@@ -14,7 +14,7 @@ public:
 	bool stomped;
 	unsigned int index;
 
-private:
+//private:
 	Element *element;
 	/*0:projectile
 	1:dash

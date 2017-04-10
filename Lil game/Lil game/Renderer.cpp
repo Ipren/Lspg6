@@ -491,27 +491,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 		MessageBox(0, L"playerpos cbuffer creation failed", L"error", MB_OK);
 	}
 
-	/*Particle *stompParticles = new Particle[50];
-	for (size_t i = 0; i < 50; i++)
-	{
-		stompParticles->position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-		stompParticles->velocity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-		stompParticles->age = 0.0f;
-		stompParticles->type = 1;
-	}
-
-	desc.ByteWidth = 50 * sizeof(Particle);
-	data.pSysMem = stompParticles;
-	desc.StructureByteStride = sizeof(Particle);
-
-	hr = this->gDevice->CreateBuffer(&desc, &data, &this->stompParticles);
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"stomp particle cbuffer creation failed", L"error", MB_OK);
-	}
-
-
-	delete[] stompParticles;*/
+	
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -778,6 +758,38 @@ void Renderer::updateParticles(float dt, Map *map)
 
 }
 
+void Renderer::shrinkMap(Map * map)
+{
+	std::vector<XMFLOAT3> vertices;
+
+
+	for (int i = 0; i < 128; i++)
+	{
+
+		XMFLOAT3 vert = {
+			sin(2 * XM_PI * i / 128.f) * map->radius,
+			0.01f,
+			cos(2 * XM_PI * i / 128.f) * map->radius
+		};
+
+		XMFLOAT3 vert2 = {
+			sin(2 * XM_PI * (i + 1) / 128.f) * map->radius,
+			0.01f,
+			cos(2 * XM_PI * (i + 1) / 128.f) * map->radius
+		};
+		vertices.push_back({ 0.f, 0.f, 0.f });
+		vertices.push_back(vert);
+		vertices.push_back(vert2);
+	}
+
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->debug_map_quad, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &vertices[0], (UINT)(vertices.size() * 3 * sizeof(float)));
+	this->gDeviceContext->Unmap(this->debug_map_quad, 0);
+
+
+}
+
 void Renderer::swapBuffers()
 {
 	ID3D11UnorderedAccessView *tempUAV;
@@ -839,7 +851,7 @@ void Renderer::updateEmitters(Map * map)
 		{
 			if (dynamic_cast<Player*>(map->entitys[i])->stomped)
 			{
-				//this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
+				this->createStompParticles(dynamic_cast<Player*>(map->entitys[i])->position);
 			}
 		}
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
@@ -887,18 +899,33 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos)
 	Particle *particles = new Particle[50];
 	for (size_t i = 0; i < 50; i++)
 	{
-		particles[i].age = 0.0f;
+		particles[i].age = 1.6f;
 		particles[i].type = 1;
-		particles[i].position.y = pos.y;
+		particles[i].velocity.y = pos.y;
 
 		//creates circle of particles around player
-		particles[i].position.x = (pos.x + 0.55f) * cos(i);
-		particles[i].position.z = (pos.z + 0.55f) * sin(i);
-		lenght = sqrt(particles[i].position.x * particles[i].position.x + particles[i].position.y * particles[i].position.y + particles[i].position.z * particles[i].position.z);
+		particles[i].velocity.x = (pos.x + 0.55f) * cos(i);
+		particles[i].velocity.z = (pos.z + 0.55f) * sin(i);
+		lenght = sqrt(particles[i].velocity.x * particles[i].velocity.x + particles[i].velocity.y * particles[i].velocity.y + particles[i].velocity.z * particles[i].velocity.z);
 
-		particles[i].velocity.x = particles[i].position.x / lenght;
-		particles[i].velocity.y = particles[i].position.y / lenght;
-		particles[i].velocity.z = particles[i].position.z / lenght;
+		particles[i].velocity.x = particles[i].velocity.x / lenght;
+		if (particles[i].velocity.y < 0)
+		{
+			particles[i].velocity.y = particles[i].velocity.y / -lenght;
+		}
+		else
+		{
+			particles[i].velocity.y = particles[i].velocity.y / lenght;
+		}
+		
+		particles[i].velocity.z = particles[i].velocity.z / lenght;
+
+		particles[i].velocity.x *= 9.0f;
+		particles[i].velocity.z *= 9.0f;
+
+		particles[i].position = pos;
+		particles[i].position.y = 0.1f;
+
 
 	}
 	gDeviceContext->Map(this->stompParticles, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
@@ -996,4 +1023,14 @@ void Renderer::render(Map *map, Camera *camera)
 
 void Renderer::present() {
 	this->gSwapChain->Present(0, 0);
+}
+
+void Renderer::update(float dt, Map * map)
+{
+	this->updateParticles(dt, map);
+	if (map->shrunk == true)
+	{
+		map->shrunk == false;
+		this->shrinkMap(map);
+	}
 }

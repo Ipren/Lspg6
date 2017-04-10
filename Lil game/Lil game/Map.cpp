@@ -11,6 +11,7 @@ Map::Map()
 	this->reset(4);
 	this->nrOfAlivePlayers = 4;
 	this->round = 1;
+
 }
 
 Map::~Map()
@@ -25,6 +26,12 @@ void Map::reset(int nrOfPlayers)
 		entitys.push_back(e);
 	}
 	this->nrOfAlivePlayers = nrOfPlayers;
+	totalTime = 0.0f;
+	timeSinceLastShrunk = 0.0f;
+	radius = 15.0f;
+	shrunk = true;
+	shrinkAmount = gDefaultMapConstants.kShrinkAmount;
+	shrinkTimer = gDefaultMapConstants.kShrinkTimer;
 }
 
 void Map::add_entity(Entity * entity)
@@ -34,7 +41,19 @@ void Map::add_entity(Entity * entity)
 
 void Map::update(float dt, Camera *cam)
 {
-
+	shrinkAmount = gMapConstants.kShrinkAmount;
+	shrinkTimer = gMapConstants.kShrinkTimer;
+	totalTime += dt;
+	timeSinceLastShrunk += dt;
+	if (timeSinceLastShrunk > shrinkTimer)
+	{
+		timeSinceLastShrunk = 0.0f;
+		if (radius -= shrinkAmount > 0)
+		{
+			radius -= shrinkAmount;
+			shrunk = true;
+		}
+	}
 
 	for (int i = 0; i < this->entitys.size(); i++)
 	{
