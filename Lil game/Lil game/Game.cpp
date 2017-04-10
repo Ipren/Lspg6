@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Gamepad.h"
 #include "Constants.h"
+#include "Player.h"
 
 #include "imgui.h"
 
@@ -29,6 +30,7 @@ Game::Game(HWND wndHandle, int width, int height)
 	this->width = width;
 
 	XInputEnable(true);
+	this->currentState = GameState::MainMenu;
 }
 
 Game::Game()
@@ -160,26 +162,58 @@ void Game::update(float dt)
 
 	{
 		ImGui::Begin("Debug");
-		if (ImGui::Button("Reset to 1p")) {
-			currentMap->reset(1);
-		}
-		if (ImGui::Button("Reset to 2p")) {
+		if (ImGui::Button("Reset to 2p")) {//resetting the map with 2 players
 			currentMap->reset(2);
 		}
-		if (ImGui::Button("Reset to 3p")) {
+		if (ImGui::Button("Reset to 3p")) {//resetting the map with 3 players
 			currentMap->reset(3);
 		}
-		if (ImGui::Button("Reset to 4p")) {
+		if (ImGui::Button("Reset to 4p")) {//resetting the map with 4 players
 			currentMap->reset(4);
 		}
 		ImGui::End();
 	}
 
-	for (int i = 0; i < 4; ++i) {
-		gGamepads[i]->update(dt);
-	}
+	if (currentState == GameState::MainMenu)
+	{
+		ImGui::Begin("Main Menu");
+		if (ImGui::Button("Start Game 2p")) {//starting the game with 2 players
+			currentState = GameState::Playing;
+			currentMap->reset(2);
+		}
+		if (ImGui::Button("Start Game 3p")) {//starting the game with 3 players
+			currentState = GameState::Playing;
+			currentMap->reset(3);
+		}
+		if (ImGui::Button("Start Game 4p")) {//starting the game with 4 players
+			currentState = GameState::Playing;
+			currentMap->reset(4);
+		}
+		ImGui::End();
+	}else if(currentState == GameState::Playing)
+	{ 
+		for (int i = 0; i < 4; ++i) {
+			gGamepads[i]->update(dt);
+		}
+		currentMap->update(dt, camera);
+		if (currentMap->nrOfAlivePlayers < 2)
+		{
+			for (int i = 0; i < this->currentMap->entitys.size(); i++)
+			{
+				if (this->currentMap->entitys[i]->type == EntityType::Player)//adding points to the winning player
+				{
+					Player* p = dynamic_cast<Player*>(this->currentMap->entitys[i]);
+					currentMap->playerPoints[p->index]++;
+				}
+			}
+			currentState = GameState::MainMenu;
+		}
+	}else if (currentState == GameState::UpgradeMenu)
+	{
 
-	currentMap->update(dt, camera);
+	}
+	
+
 	camera->update(dt, this->renderer->gDeviceContext);
 	renderer->update(dt, this->currentMap);
 

@@ -26,6 +26,9 @@ public:
 //private:
 	std::vector <Entity*> entitys;
 	std::vector <Entity*> entitys_to_add;
+	int nrOfAlivePlayers;
+	int playerPoints[4];
+	int round;
 	float totalTime;
 	float timeSinceLastShrunk;
 	float radius;

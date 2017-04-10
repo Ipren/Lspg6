@@ -80,6 +80,7 @@ void Player::update(Map *map, float dt)
 	if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > map->radius && gGameConstants.kCanDie)
 	{
 		this->dead = true;
+		map->nrOfAlivePlayers--;
 	}
 
 }

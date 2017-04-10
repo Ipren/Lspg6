@@ -21,13 +21,13 @@ struct SpellConstants {
 	float kArcaneWallPillarDistance = 0.65f;
 	float kArcaneWallPillarRadius = 0.35f;
 
-	float kFireProjectileStrength = 35.0f;
+	float kFireProjectileStrength = 30.0f;
 	float kFireProjectileSpeed = 10.0f;
 	float kFireProjectileCooldown = 1.f;
 	float kFireProjectileExplosionRadius = 5.f;
 	float kFireProjectileExplosionFalloff = 1.f;
 
-	float kFireStompDistance = 3.f;
+	float kFireStompDistance = 5.3f;
 	float kFireStompStrength = 5.f;
 	float kFireStompStrengthFalloff = 2.f;
 	float kFireStompCooldown = 2.5f;

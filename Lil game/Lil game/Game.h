@@ -4,6 +4,12 @@
 #include "Camera.h"
 class Game
 {
+private:
+	enum GameState {
+		MainMenu,
+		Playing,
+		UpgradeMenu
+	};
 public:
 	Game(HWND wndHandle, int width, int height);
 	Game();
@@ -18,5 +24,7 @@ public:
 	Renderer *renderer;
 	int width;
 	int heigth;
+	
+	GameState currentState;
 };
 

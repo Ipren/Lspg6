@@ -8,16 +8,10 @@ using namespace DirectX;
 
 Map::Map()
 {
-	for (int i = 0; i < 4; ++i) {
-		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
-		entitys.push_back(e);
-	}
-	totalTime = 0.0f;
-	timeSinceLastShrunk = 0.0f;
-	radius = 15.0f;
-	shrunk = false;
-	shrinkAmount = gDefaultMapConstants.kShrinkAmount;
-	shrinkTimer = gDefaultMapConstants.kShrinkTimer;
+	this->reset(4);
+	this->nrOfAlivePlayers = 4;
+	this->round = 1;
+
 }
 
 Map::~Map()
@@ -31,6 +25,7 @@ void Map::reset(int nrOfPlayers)
 		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
 		entitys.push_back(e);
 	}
+	this->nrOfAlivePlayers = nrOfPlayers;
 	totalTime = 0.0f;
 	timeSinceLastShrunk = 0.0f;
 	radius = 15.0f;
