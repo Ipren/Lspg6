@@ -17,6 +17,7 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	{
 		this->cooldown[i] = 0;
 	}
+	stomped = false;
 }
 
 Player::~Player()
@@ -25,6 +26,7 @@ Player::~Player()
 
 void Player::update(Map *map, float dt)
 {
+
 	auto left = gGamepads[index]->get_left_thumb();
 	auto right_angle = gGamepads[index]->get_right_thumb_angle();
 	angle = right_angle;
@@ -44,6 +46,7 @@ void Player::update(Map *map, float dt)
 
 	acceleration.x = 0;
 	acceleration.y = 0;
+	stomped = false;
 
 	//velocity.x *= 0.9;
 	//velocity.y *= 0.9;
@@ -65,6 +68,7 @@ void Player::update(Map *map, float dt)
 	if (gGamepads[index]->get_button_pressed(Gamepad::Lb))//stomp
 	{
 		this->element->stomp(this, map);
+		stomped = true;
 	}
 
 	if (gGamepads[index]->get_button_pressed(Gamepad::Rt))//wall
@@ -72,7 +76,7 @@ void Player::update(Map *map, float dt)
 		this->element->wall(this, map);
 	}
 
-	if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > 15 && gGameConstants.kCanDie)
+	if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > map->radius && gGameConstants.kCanDie)
 	{
 		this->dead = true;
 	}

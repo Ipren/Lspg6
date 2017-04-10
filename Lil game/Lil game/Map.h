@@ -17,7 +17,7 @@ public:
 	Map();
 	virtual ~Map();
 
-	void reset();
+	void reset(int nrOfPlayers = 4);
 	void add_entity(Entity *entity);
 	void update(float dt, Camera *cam);
 
@@ -26,4 +26,7 @@ public:
 //private:
 	std::vector <Entity*> entitys;
 	std::vector <Entity*> entitys_to_add;
+	float totalTime;
+	float radius;
+	bool shrunk;
 };

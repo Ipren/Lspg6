@@ -12,10 +12,6 @@
 
 #include "imgui.h"
 
-ID3D11Buffer *quad;
-ID3D11InputLayout *layout;
-ID3D11VertexShader *vsh;
-ID3D11PixelShader *psh;
 
 Gamepad *gGamepads[4];
 
@@ -156,8 +152,17 @@ void Game::update(float dt)
 
 	{
 		ImGui::Begin("Debug");
-		if (ImGui::Button("Reset map")) {
-			currentMap->reset();
+		if (ImGui::Button("Reset to 1p")) {
+			currentMap->reset(1);
+		}
+		if (ImGui::Button("Reset to 2p")) {
+			currentMap->reset(2);
+		}
+		if (ImGui::Button("Reset to 3p")) {
+			currentMap->reset(3);
+		}
+		if (ImGui::Button("Reset to 4p")) {
+			currentMap->reset(4);
 		}
 		ImGui::End();
 	}
@@ -168,7 +173,7 @@ void Game::update(float dt)
 
 	currentMap->update(dt, camera);
 	camera->update(dt, this->renderer->gDeviceContext);
-	renderer->updateParticles(dt);
+	renderer->update(dt, this->currentMap);
 
 	
 }

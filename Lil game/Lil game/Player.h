@@ -11,6 +11,7 @@ public:
 	virtual ~Player();
 
 	void update(Map *map, float dt) override;
+	bool stomped;
 
 //private:
 	Element *element;
@@ -21,4 +22,5 @@ public:
 	3:wall
 	4:defence*/
 	float cooldown[5];
+	
 };

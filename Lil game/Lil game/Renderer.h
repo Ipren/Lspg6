@@ -21,7 +21,8 @@ public:
 
 	void render(Map *map, Camera *camera);
 	void present();
-	void updateParticles(float dt);
+	void update(float dt, Map *map);
+	
 	ID3D11Device *gDevice;
 	ID3D11DeviceContext *gDeviceContext;
 
@@ -59,6 +60,11 @@ private:
 	ID3D11Buffer* emitterCountBuffer;
 	ID3D11ShaderResourceView* emitterSRV;
 	ID3D11Buffer* randomVecBufer;
+	ID3D11ComputeShader* stompInserter;
+	ID3D11Buffer *stompParticles;
+	ID3D11ShaderResourceView *stompSRV;
+	ID3D11Buffer* playerPosBuffer;
+
 
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
@@ -82,6 +88,8 @@ private:
 	void renderParticles(Camera *camera);
 	void updateDTimeBuffer(float dt);
 	void updateEmitters(Map *map);
+	void createStompParticles(DirectX::XMFLOAT3 pos);
+	void updateParticles(float dt, Map *map);
 
 	
 };

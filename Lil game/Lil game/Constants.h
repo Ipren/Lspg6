@@ -1,15 +1,15 @@
 #pragma once
 
 struct SpellConstants {
-	float kArcaneProjectileSeekStrength = 4.0f;
-	float kArcaneProjectileSeekRadius = 5.0f;
-	float kArcaneProjectileSeekFalloff = 0.0f;
-	float kArcaneProjectileStrength = 15.0f;
+	float kArcaneProjectileSeekStrength = 2.0f;
+	float kArcaneProjectileSeekRadius = 8.0f;
+	float kArcaneProjectileSeekFalloff = 0.08f;
+	float kArcaneProjectileStrength = 40.0f;
 	float kArcaneProjectileSpeed = 10.0f;
-	float kArcaneProjectileCooldown = .5f;
+	float kArcaneProjectileCooldown = 0.8f;
 
-	float kArcaneStompDistance = 3.f;
-	float kArcaneStompStrength = 5.f;
+	float kArcaneStompDistance = 7.f;
+	float kArcaneStompStrength = 5.5f;
 	float kArcaneStompStrengthFalloff = 2.f;
 	float kArcaneStompCooldown = 2.5f;
 
