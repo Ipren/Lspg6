@@ -18,7 +18,7 @@ public:
 	Map();
 	virtual ~Map();
 
-	void reset();
+	void reset(int nrOfPlayers = 4);
 	void add_entity(Entity *entity);
 	void update(float dt, Camera *cam);
 

@@ -21,10 +21,10 @@ Map::~Map()
 {
 }
 
-void Map::reset()
+void Map::reset(int nrOfPlayers)
 {
 	entitys.clear();
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < nrOfPlayers; ++i) {
 		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
 		entitys.push_back(e);
 	}
@@ -62,6 +62,7 @@ void Map::update(float dt, Camera *cam)
 					// Player vs. Player
 					if (a->type == EntityType::Player && b->type == EntityType::Player)
 					{
+						//changing the acceleration to negative to create a small bounce effect
 						b->acceleration.x = -(a->position.x - b->position.x) * 150;
 						b->acceleration.y = -(a->position.z - b->position.z) * 150;
 					}
@@ -69,23 +70,29 @@ void Map::update(float dt, Camera *cam)
 					else if (a->type == EntityType::Player && b->type == EntityType::Spell)
 					{
 						Spell *spell = dynamic_cast<Spell*>(b);
-						if (spell->on_effect(this)) {
-							spell->dead = true;
+						if (spell->on_effect(this)) {//calling spell effect
+							spell->dead = true;//deleting the spell
 						}
 					}
-					// Player and Spell vs. Wall
-					else if (a->type == EntityType::Wall && (b->type == EntityType::Spell || b->type == EntityType::Player))
+					// Player vs. Wall
+					else if (a->type == EntityType::Wall && b->type == EntityType::Player)
 					{
-
+						//changing the acceleration to negative to create a small bounce effect
 						b->acceleration.x = -(a->position.x - b->position.x) * 150;
 						b->acceleration.y = -(a->position.z - b->position.z) * 150;
 
-						if (b->acceleration.x > 4 || b->acceleration.y > 4)
+						if (b->acceleration.x > 4 || b->acceleration.y > 4)//prevents dashing through the wall
 						{
 							b->velocity.x = -b->velocity.x;
 							b->velocity.y = -b->velocity.y;
 						}
 
+					}
+					//Spell vs. Wall
+					else if (a->type == EntityType::Wall && b->type == EntityType::Spell)
+					{
+						b->velocity.x = -b->velocity.x;
+						b->velocity.y = -b->velocity.y;
 					}
 
 				}

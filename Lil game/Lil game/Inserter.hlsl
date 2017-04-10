@@ -6,25 +6,28 @@ struct Particle
     int type;
 };
 
-AppendStructuredBuffer<Particle> particleBuffer : register(u0);
 struct el
 {
-    float4 randomVector;
+    float4 velocityVector;
     float3 ePosition;
     int eType;
 };
 
-cbuffer emitterLocation : register(b0)
-{
-    el eLocations[100];
-}
-cbuffer particleCount : register(b1)
+AppendStructuredBuffer<Particle> particleBuffer : register(u0);
+StructuredBuffer<el> emitters;
+
+
+cbuffer particleCount : register(b0)
 {
     uint pCount;
 }
-cbuffer emitterCount : register(b2)
+cbuffer emitterCount : register(b1)
 {
     int eCount;
+}
+cbuffer randomVector : register(b2)
+{
+    float4 rv;
 }
 
 
@@ -32,7 +35,7 @@ static const float3 reflectVectors[6] =
 {
     float3(1.0f, 0.0f, 0.0f),
     float3(-1.0f, 0.0f, 0.0f),
-    float3(0.0f, -1.0f, 1.0f),
+    float3(0.0f, 1.0f, 0.0f),
     float3(0.0f, -1.0f, 0.0f),
     float3(0.0f, 0.0f, 1.0f),
     float3(0.0f, 0.0f, -1.0f), 
@@ -48,12 +51,18 @@ void main(uint3 GTID : SV_GroupThreadID)
             Particle newParticle;
 
             newParticle.age = 0.0f;
-            newParticle.position = eLocations[i].ePosition;
-            newParticle.type = eLocations[i].eType;
-            newParticle.velocity = (reflect(eLocations[i].randomVector.xyz, reflectVectors[GTID.x]));
-            if(sign(newParticle.velocity.y) == -1)
+            newParticle.position = emitters[i].ePosition;
+            newParticle.type = emitters[i].eType;
+
+            //arcane
+            if(emitters[i].eType == 0)
             {
-                newParticle.velocity.y *= -1.0f; 
+                newParticle.velocity = reflect(rv.xyz, reflectVectors[GTID.x]);
+                newParticle.velocity += emitters[i].velocityVector;
+                if (sign(newParticle.velocity.y) == -1)
+                {
+                    newParticle.velocity.y *= -1.0f;
+                }
             }
 
             particleBuffer.Append(newParticle);

@@ -16,6 +16,7 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	{
 		this->cooldown[i] = 0;
 	}
+	stomped = false;
 }
 
 Player::~Player()
@@ -24,6 +25,7 @@ Player::~Player()
 
 void Player::update(Map *map, float dt)
 {
+
 	auto left = gGamepads[index]->get_left_thumb();
 	auto right_angle = gGamepads[index]->get_right_thumb_angle();
 	angle = right_angle;
@@ -43,6 +45,7 @@ void Player::update(Map *map, float dt)
 
 	acceleration.x = 0;
 	acceleration.y = 0;
+	stomped = false;
 
 	//velocity.x *= 0.9;
 	//velocity.y *= 0.9;
@@ -50,7 +53,7 @@ void Player::update(Map *map, float dt)
 	//acceleration.x *= 0.9;
 	//acceleration.y *= 0.9;
 
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 5; i++)//counting down all cooldowns
 	{
 		if (cooldown[i]>0)
 			this->cooldown[i] -= dt;
@@ -63,12 +66,24 @@ void Player::update(Map *map, float dt)
 		this->cooldown[0] = gSpellConstants.kArcaneProjectileCooldown;//cooldown time
 	}
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Lstick) && cooldown[1] == 0.f)//dash
+	if (gGamepads[index]->get_button_pressed(Gamepad::Lt) && cooldown[1] == 0.f)//dash
 	{
+		XMFLOAT2 leftVector = gGamepads[index]->get_left_thumb();
+
+		//check if left stick is centered
+		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
+		{
+			float left_angle = gGamepads[index]->get_left_thumb_angle();
+			this->velocity.x += cos(left_angle) * gSpellConstants.kArcaneDashSpeed;
+			this->velocity.y += sin(left_angle) * gSpellConstants.kArcaneDashSpeed;
+		}
+		else//if it is centered: dash to where you are looking
+		{
+			this->velocity.x += cos(this->angle) * gSpellConstants.kArcaneDashSpeed;
+			this->velocity.y += sin(this->angle) * gSpellConstants.kArcaneDashSpeed;
+		}
 		
-		auto left_angle = gGamepads[index]->get_left_thumb_angle();
-		this->velocity.x += cos(left_angle) * gSpellConstants.kArcaneDashSpeed;
-		this->velocity.y += sin(left_angle) * gSpellConstants.kArcaneDashSpeed;
+
 		this->cooldown[1] = gSpellConstants.kArcaneDashCooldown;//cooldown time
 
 	}
@@ -77,7 +92,8 @@ void Player::update(Map *map, float dt)
 	{
 		this->element->stomp(this, map);
 		this->cooldown[2] = gSpellConstants.kArcaneStompCooldown;//cooldown time
-
+		stomped = true;
+		
 	}
 
 	if (gGamepads[index]->get_button_pressed(Gamepad::Rt) && cooldown[3] == 0.f)//wall
@@ -88,7 +104,7 @@ void Player::update(Map *map, float dt)
 	}
 
 
-	if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > 15)
+	if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > 15 && gGameConstants.kCanDie)
 	{
 		this->dead = true;
 	}
