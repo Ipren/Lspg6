@@ -50,3 +50,35 @@ public:
 	FireProjectileSpell *active_projectile;
 };
 
+class WindElement : public Element {
+
+public:
+
+	virtual void projectile(Player *player, Map *map) override;
+	virtual void stomp(Player *player, Map *map) override;
+	virtual void wall(Player *player, Map *map) override;
+	virtual void dash(Player *player, Map *map) override;
+
+};
+
+class EarthElement : public Element {
+
+public:
+
+	virtual void projectile(Player *player, Map *map) override;
+	virtual void stomp(Player *player, Map *map) override;
+	virtual void wall(Player *player, Map *map) override;
+	virtual void dash(Player *player, Map *map) override;
+
+};
+
+//class WaterElement : public Element {
+//
+//public:
+//
+//	virtual void projectile(Player *player, Map *map) override;
+//	virtual void stomp(Player *player, Map *map) override;
+//	virtual void wall(Player *player, Map *map) override;
+//	virtual void dash(Player *player, Map *map) override;
+//
+//};

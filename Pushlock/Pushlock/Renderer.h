@@ -13,6 +13,8 @@
 #include "Map.h"
 #include "Menu.h"
 
+#include "DirectXTK.h"
+
 class Renderer
 {
 public:
@@ -71,6 +73,9 @@ private:
 	ID3D11ShaderResourceView *stompSRV;
 	ID3D11Buffer* playerPosBuffer;
 
+	ID3D11ShaderResourceView *particle_srv;
+	ID3D11SamplerState *particle_sampler;
+	ID3D11BlendState *particle_blend;
 
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;

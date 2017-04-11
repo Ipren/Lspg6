@@ -575,6 +575,29 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 
 void Renderer::createParticleShaders()
 {
+	ID3D11Resource *r = nullptr;
+	DXCALL(CreateDDSTextureFromFile(gDevice, L"Particle.dds", &r, &particle_srv, 0, nullptr));
+
+	D3D11_SAMPLER_DESC sdesc;
+	ZeroMemory(&sdesc, sizeof(sdesc));
+	sdesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sdesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sdesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	//sdesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sdesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	DXCALL(gDevice->CreateSamplerState(&sdesc, &particle_sampler));
+
+	D3D11_BLEND_DESC BlendState;
+	ZeroMemory(&BlendState, sizeof(D3D11_BLEND_DESC));
+	BlendState.RenderTarget[0].BlendEnable = TRUE;
+	BlendState.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	BlendState.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	BlendState.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	BlendState.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	BlendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+	BlendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	BlendState.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+	DXCALL(gDevice->CreateBlendState(&BlendState, &particle_blend));
 
 	ID3D10Blob *csBlob = nullptr;
 	HRESULT hr = D3DCompileFromFile(
@@ -816,6 +839,8 @@ void Renderer::renderParticles(Camera *camera)
 	this->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
 	this->gDeviceContext->GSSetShader(this->pGeometry, nullptr, 0);
 	this->gDeviceContext->PSSetShader(this->pPixel, nullptr, 0);
+	this->gDeviceContext->PSSetShaderResources(0, 1, &particle_srv);
+	this->gDeviceContext->PSSetSamplers(0, 1, &particle_sampler);
 	this->gDeviceContext->IASetInputLayout(nullptr);
 	this->gDeviceContext->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 
@@ -823,6 +848,9 @@ void Renderer::renderParticles(Camera *camera)
 	this->gDeviceContext->VSSetShaderResources(0, 1, &this->SRVS[0]);
 	this->gDeviceContext->GSSetConstantBuffers(0, 1, &camera->floatwvpBuffer);
 
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	UINT sampleMask = 0xffffffff;
+	this->gDeviceContext->OMSetBlendState(particle_blend, blendFactor, sampleMask);
 	this->gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
 
 	this->gDeviceContext->DrawInstancedIndirect(this->inderectArgumentBuffer, 0);

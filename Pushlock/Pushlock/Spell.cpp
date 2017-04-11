@@ -109,11 +109,74 @@ bool FireProjectileSpell::on_effect(Map *map)
 	});
 
 	for (auto result : nearby) { //moves all nearby players
-		float falloff = (abs(gSpellConstants.kFireProjectileExplosionRadius - result.distance) / gSpellConstants.kFireProjectileExplosionRadius) * gSpellConstants.kFireStompStrengthFalloff;
+		float falloff = (abs(gSpellConstants.kFireProjectileExplosionRadius - result.distance) / gSpellConstants.kFireProjectileExplosionRadius) * gSpellConstants.kFireProjectileExplosionFalloff;
 
 		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kFireProjectileStrength * falloff);
 		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kFireProjectileStrength * falloff);
 	}
 	
 	return true;
+}
+
+WindProjectileSpell::WindProjectileSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
+	: Spell(owner, position, velocity, radius, 4.5f), strength(1.f)
+{
+}
+
+WindProjectileSpell::~WindProjectileSpell()
+{
+}
+
+void WindProjectileSpell::update(Map * map, float dt)
+{
+	Spell::update(map, dt);
+}
+
+bool WindProjectileSpell::on_effect(Map * map)
+{
+	auto nearby = map->get_entities_in_radius(this, radius, [](Entity *e) {
+		return e->type == EntityType::Player;
+	});
+
+	for (auto result : nearby) {
+		result.entity->velocity.x += cos(result.angle) * gSpellConstants.kWindProjectileStrength;
+		result.entity->velocity.y += sin(result.angle) * gSpellConstants.kWindProjectileStrength;
+	}
+
+	return true;
+}
+
+EarthProjectileSpell::EarthProjectileSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
+	: Spell(owner, position, velocity, radius, 4.5f), effect_radius(1.5f), strength(1.f), alive(0.f)
+{
+}
+
+EarthProjectileSpell::~EarthProjectileSpell()
+{
+}
+
+void EarthProjectileSpell::update(Map * map, float dt)
+{
+	//saves nearby players in a vector
+	if (alive > gSpellConstants.kEarthProjectileEffectArmingTime)
+	{
+		auto nearby = map->get_entities_in_radius(this, gSpellConstants.kEarthProjectileEffectRadius, [](Entity *e) {
+			return e->type == EntityType::Player;
+		});
+
+		for (auto result : nearby) { //moves all nearby players
+			float falloff = (abs(gSpellConstants.kEarthProjectileEffectRadius - result.distance) / gSpellConstants.kEarthProjectileEffectRadius) * gSpellConstants.kEarthProjectileEffectFalloff;
+
+			result.entity->velocity.x -= cos(result.angle) * (gSpellConstants.kEarthProjectileStrength * falloff);
+			result.entity->velocity.y -= sin(result.angle) * (gSpellConstants.kEarthProjectileStrength * falloff);
+		}
+	}
+
+	alive += dt;
+	Spell::update(map, dt);
+}
+
+bool EarthProjectileSpell::on_effect(Map * map)
+{
+	return false;
 }

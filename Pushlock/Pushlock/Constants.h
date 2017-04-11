@@ -39,6 +39,43 @@ struct SpellConstants {
 	int   kFireWallNrOfPillars = 6;
 	float kFireWallPillarDistance = 0.65f;
 	float kFireWallPillarRadius = 0.35f;
+
+	float kWindProjectileStrength = 10.0f;
+	float kWindProjectileSpeed = 30.0f;
+	float kWindProjectileCooldown = 0.1f;
+
+	float kWindStompDistance = 5.3f;
+	float kWindStompStrength = 5.f;
+	float kWindStompStrengthFalloff = 2.f;
+	float kWindStompCooldown = 2.5f;
+
+	float kWindDashSpeed = 30.f;
+	float kWindDashCooldown = 1.5f;
+
+	float kWindWallCooldown = 4.5f;
+	int   kWindWallNrOfPillars = 6;
+	float kWindWallPillarDistance = 0.65f;
+	float kWindWallPillarRadius = 0.35f;
+
+	float kEarthProjectileStrength = 0.25f;
+	float kEarthProjectileSpeed = 10.0f;
+	float kEarthProjectileCooldown = 0.1f;
+	float kEarthProjectileEffectRadius = 5.f;
+	float kEarthProjectileEffectFalloff = 0.5f;
+	float kEarthProjectileEffectArmingTime = 0.5f;
+
+	float kEarthStompDistance = 5.3f;
+	float kEarthStompStrength = 5.f;
+	float kEarthStompStrengthFalloff = 2.f;
+	float kEarthStompCooldown = 2.5f;
+
+	float kEarthDashSpeed = 30.f;
+	float kEarthDashCooldown = 1.5f;
+
+	float kEarthWallCooldown = 4.5f;
+	int   kEarthWallNrOfPillars = 6;
+	float kEarthWallPillarDistance = 0.65f;
+	float kEarthWallPillarRadius = 0.35f;
 };
 
 extern SpellConstants gDefaultSpellConstants;

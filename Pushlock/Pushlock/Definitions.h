@@ -1,5 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
+#include "SoundSingelton.h"
 
 enum class EntityType
 {

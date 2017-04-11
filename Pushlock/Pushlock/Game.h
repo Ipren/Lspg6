@@ -25,6 +25,7 @@ public:
 	Renderer *renderer;
 	int width;
 	int heigth;
+	bool audioDevicePresent;
 	
 	GameState currentState;
 };
