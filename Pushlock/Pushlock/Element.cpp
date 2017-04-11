@@ -30,6 +30,7 @@ void ArcaneElement::stomp(Player *player, Map *map)
 {
 	if (cooldown[2] <= 0.f) {
 
+		player->stomped = true;
 		//saves nearby players in a vector
 		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kArcaneStompDistance, [](Entity *e) {
 			return e->type == EntityType::Player;
@@ -124,20 +125,27 @@ void FireElement::projectile(Player * player, Map * map)
 		}
 	}
 	else {
-		if (active_projectile->on_effect(map)) {
-			cooldown[0] = gSpellConstants.kFireProjectileCooldown;
-			if (active_projectile->dead != true)
-			{
-				player->blowUp = true;
-				active_projectile->dead = true;
+		if (active_projectile->dead != true)
+		{
+
+			if (active_projectile->on_effect(map)) {
+				cooldown[0] = gSpellConstants.kFireProjectileCooldown;
+				//if (active_projectile->dead != true)
+				{
+					player->blowUp = true;
+					active_projectile->dead = true;
+				}
+				/*else
+				{
+					active_projectile->dead = true;
+					active_projectile = nullptr;
+				}*/
 			}
-			else
-			{
-				active_projectile->dead = true;
-				active_projectile = nullptr;
-			}
-			
-			
+		}
+		else
+		{
+			active_projectile->dead = true;
+			active_projectile = nullptr;
 		}
 
 	}
@@ -146,6 +154,8 @@ void FireElement::projectile(Player * player, Map * map)
 void FireElement::stomp(Player * player, Map * map)
 {
 	if (cooldown[2] <= 0.f) {
+
+		player->stomped = true;
 
 		//saves nearby players in a vector
 		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kFireStompDistance, [](Entity *e) {
