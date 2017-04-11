@@ -10,11 +10,15 @@
 #include "Gamepad.h"
 #include "Constants.h"
 #include "Player.h"
+#include <Audio.h>
 
 #include "imgui.h"
 
 
 Gamepad *gGamepads[4];
+
+std::unique_ptr<AudioEngine> audEngine;
+
 
 
 Game::Game(HWND wndHandle, int width, int height)
@@ -31,6 +35,19 @@ Game::Game(HWND wndHandle, int width, int height)
 
 	XInputEnable(true);
 	this->currentState = GameState::MainMenu;
+
+	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
+	
+
+
+		AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
+#ifdef _DEBUG
+		eflags = eflags | AudioEngine_Debug;
+#endif // _DEBUG
+
+		audEngine = std::make_unique<AudioEngine>(eflags);
+
 }
 
 Game::Game()
@@ -100,6 +117,31 @@ void Game::update(float dt)
 				ImGui::SliderInt("number of pillars##f", &gSpellConstants.kFireWallNrOfPillars, 1, 20);
 				ImGui::SliderFloat("distance between pillars##f", &gSpellConstants.kFireWallPillarDistance, 0, 1);
 				ImGui::SliderFloat("pillars radius##f", &gSpellConstants.kFireWallPillarRadius, 0, 5);
+			}
+
+			if (ImGui::CollapsingHeader("Wind")) 
+			{
+				ImGui::TextDisabled("Projectile");
+
+				ImGui::SliderFloat("strength##wind", &gSpellConstants.kWindProjectileStrength, 0.0f, 90.0f);
+				ImGui::SliderFloat("speed##wind", &gSpellConstants.kWindProjectileSpeed, 0.0f, 30.0f);
+				ImGui::SliderFloat("cooldown##wind", &gSpellConstants.kWindProjectileCooldown, 0.0f, 15.0f);
+
+				ImGui::TextDisabled("Stomp");
+				ImGui::SliderFloat("distance##w", &gSpellConstants.kWindStompDistance, 0.0f, 10.0f);
+				ImGui::SliderFloat("strength##wstomp", &gSpellConstants.kWindStompStrength, 0.0f, 10.0f);
+				ImGui::SliderFloat("strength falloff##wstomp", &gSpellConstants.kWindStompStrengthFalloff, 0.0f, 10.0f);
+				ImGui::SliderFloat("cooldown##wstomp", &gSpellConstants.kWindStompCooldown, 0.0f, 20.0f);
+
+				ImGui::TextDisabled("Dash");
+				ImGui::SliderFloat("speed##wdash", &gSpellConstants.kWindDashSpeed, 0.0f, 120.f);
+				ImGui::SliderFloat("cooldown##wdash", &gSpellConstants.kWindDashCooldown, 0.0f, 20.0f);
+
+				ImGui::TextDisabled("Wall");
+				ImGui::SliderFloat("cooldown##wwall", &gSpellConstants.kFireWallCooldown, 0.0f, 20.0f);
+				ImGui::SliderInt("number of pillars##wwall", &gSpellConstants.kFireWallNrOfPillars, 1, 20);
+				ImGui::SliderFloat("distance between pillars##wwall", &gSpellConstants.kFireWallPillarDistance, 0, 1);
+				ImGui::SliderFloat("pillars radius##wwall", &gSpellConstants.kFireWallPillarRadius, 0, 5);
 			}
 		}
 
@@ -214,6 +256,27 @@ void Game::update(float dt)
 	}
 	
 
+	if (audEngine->IsAudioDevicePresent())
+	{
+		std::unique_ptr<SoundEffect> soundEffect;
+		soundEffect = std::make_unique<SoundEffect>(audEngine.get(), L"boom.wav");
+		auto effect = soundEffect->CreateInstance();
+
+		//effect->Play(true);
+
+
+		if (!audEngine->Update())
+		{
+			if (audEngine->IsCriticalError())
+			{
+				MessageBox(0, L"now audio device active", L"error", MB_OK);
+			}
+
+		}
+	}
+
+	
+	
 	camera->update(dt, this->renderer->gDeviceContext);
 	renderer->update(dt, this->currentMap);
 

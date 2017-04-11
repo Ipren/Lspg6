@@ -117,3 +117,31 @@ bool FireProjectileSpell::on_effect(Map *map)
 	
 	return true;
 }
+
+WindProjectileSpell::WindProjectileSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
+	: Spell(owner, position, velocity, radius, 4.5f), strength(1.f)
+{
+}
+
+WindProjectileSpell::~WindProjectileSpell()
+{
+}
+
+void WindProjectileSpell::update(Map * map, float dt)
+{
+	Spell::update(map, dt);
+}
+
+bool WindProjectileSpell::on_effect(Map * map)
+{
+	auto nearby = map->get_entities_in_radius(this, radius, [](Entity *e) {
+		return e->type == EntityType::Player;
+	});
+
+	for (auto result : nearby) {
+		result.entity->velocity.x += cos(result.angle) * gSpellConstants.kWindProjectileStrength;
+		result.entity->velocity.y += sin(result.angle) * gSpellConstants.kWindProjectileStrength;
+	}
+
+	return true;
+}

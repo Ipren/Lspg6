@@ -12,7 +12,8 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	this->velocity.y = 0;
 
 	//element = new ArcaneElement();
-	element = new FireElement();
+	//element = new FireElement();
+	element = new WindElement();
 	for (int i = 0; i < 5; i++)
 	{
 		this->cooldown[i] = 0;
@@ -57,7 +58,7 @@ void Player::update(Map *map, float dt)
 
 	this->element->update(this, map, dt);
 
-	if (gGamepads[index]->get_button_pressed(Gamepad::Rb)) {//projectile
+	if (gGamepads[index]->get_button_down(Gamepad::Rb)) {//projectile
 		this->element->projectile(this, map);
 	}
 
@@ -69,7 +70,6 @@ void Player::update(Map *map, float dt)
 	if (gGamepads[index]->get_button_pressed(Gamepad::Lb))//stomp
 	{
 		this->element->stomp(this, map);
-		stomped = true;
 	}
 
 	if (gGamepads[index]->get_button_pressed(Gamepad::Rt))//wall
