@@ -69,7 +69,7 @@ void Player::update(Map *map, float dt)
 	if (gGamepads[index]->get_button_pressed(Gamepad::Lb))//stomp
 	{
 		this->element->stomp(this, map);
-		stomped = true;
+		//stomped = true;
 	}
 
 	if (gGamepads[index]->get_button_pressed(Gamepad::Rt))//wall
