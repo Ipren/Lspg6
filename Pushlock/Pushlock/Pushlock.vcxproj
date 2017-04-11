@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{91F8C10C-D75A-4734-A9AC-E55F5A8D34DB}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Lilgame</RootNamespace>
+    <RootNamespace>Pushlock</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
