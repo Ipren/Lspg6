@@ -238,7 +238,7 @@ void WindElement::projectile(Player * player, Map * map)
 			0,
 			position.z + sin(angle) * (radius + 0.4f)
 		},
-		{ cos(angle) * gSpellConstants.kArcaneProjectileSpeed, sin(angle) * gSpellConstants.kArcaneProjectileSpeed },
+		{ cos(angle) * gSpellConstants.kWindProjectileSpeed, sin(angle) * gSpellConstants.kWindProjectileSpeed },
 			0.1f
 		);
 
@@ -289,7 +289,7 @@ void WindElement::wall(Player * player, Map * map)
 			XMStoreFloat3(&p, n * ((float)i - gSpellConstants.kWindWallNrOfPillars / 2.f) *
 				gSpellConstants.kWindWallPillarDistance / 2.f + pos);
 
-			// TODO: fire wall
+			// TODO: Wind wall
 			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kWindWallPillarRadius));
 		}
 
@@ -319,3 +319,114 @@ void WindElement::dash(Player * player, Map * map)
 		cooldown[1] = gSpellConstants.kWindDashCooldown;
 	}
 }
+
+void EarthElement::projectile(Player * player, Map * map)
+{
+	if (cooldown[0] <= 0.f) {
+		auto position = player->position;
+		auto angle = player->angle;
+		auto radius = player->radius;
+
+		EarthProjectileSpell *spell = new EarthProjectileSpell(player,
+		{
+			position.x + cos(angle) * (radius + 0.4f),
+			0,
+			position.z + sin(angle) * (radius + 0.4f)
+		},
+		{ cos(angle) * gSpellConstants.kEarthProjectileSpeed, sin(angle) * gSpellConstants.kEarthProjectileSpeed },
+			0.1f
+		);
+
+		map->add_entity(spell);
+		cooldown[0] = gSpellConstants.kEarthProjectileCooldown;
+	}
+}
+
+void EarthElement::stomp(Player * player, Map * map)
+{
+	if (cooldown[2] <= 0.f) {
+
+		player->stomped = true;
+		//saves nearby players in a vector
+		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance, [](Entity *e) {
+			return e->type == EntityType::Player;
+		});
+
+		for (auto result : nearby) { //moves all nearby players
+			result.entity->velocity.x += cos(result.angle) * gSpellConstants.kEarthStompStrength * abs((gSpellConstants.kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff) - result.distance);
+			result.entity->velocity.y += sin(result.angle) * gSpellConstants.kEarthStompStrength * abs((gSpellConstants.kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff) - result.distance);
+		}
+
+		cooldown[2] = gSpellConstants.kEarthStompCooldown;
+	}
+}
+
+void EarthElement::wall(Player * player, Map * map)
+{
+	if (cooldown[3] <= 0.f) {
+		auto position = player->position;
+		auto angle = player->angle;
+		auto radius = player->radius;
+
+		XMVECTOR pos = {
+			position.x + cos(angle) * (radius + 1.5f),
+			0,
+			position.z + sin(angle) * (radius + 1.5f)
+		};
+
+		XMVECTOR dist = pos - XMLoadFloat3(&position);
+		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
+
+		for (int i = 0; i < gSpellConstants.kEarthWallNrOfPillars; i++)
+		{
+
+			XMFLOAT3 p;
+			XMStoreFloat3(&p, n * ((float)i - gSpellConstants.kEarthWallNrOfPillars / 2.f) *
+				gSpellConstants.kEarthWallPillarDistance / 2.f + pos);
+
+			// TODO: Earth wall
+			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kEarthWallPillarRadius));
+		}
+
+		cooldown[3] = gSpellConstants.kEarthWallCooldown;
+	}
+}
+
+void EarthElement::dash(Player * player, Map * map)
+{
+	if (cooldown[1] <= 0.f) {
+		auto index = player->index;
+		XMFLOAT2 leftVector = gGamepads[index]->get_left_thumb();
+
+		//check if left stick is centered
+		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
+		{
+			float left_angle = gGamepads[index]->get_left_thumb_angle();
+			player->velocity.x += cos(left_angle) * gSpellConstants.kEarthDashSpeed;
+			player->velocity.y += sin(left_angle) * gSpellConstants.kEarthDashSpeed;
+		}
+		else //if it is centered: dash to where you are looking
+		{
+			player->velocity.x += cos(player->angle) * gSpellConstants.kEarthDashSpeed;
+			player->velocity.y += sin(player->angle) * gSpellConstants.kEarthDashSpeed;
+		}
+
+		cooldown[1] = gSpellConstants.kEarthDashCooldown;
+	}
+}
+
+//void WaterElement::projectile(Player * player, Map * map)
+//{
+//}
+//
+//void WaterElement::stomp(Player * player, Map * map)
+//{
+//}
+//
+//void WaterElement::wall(Player * player, Map * map)
+//{
+//}
+//
+//void WaterElement::dash(Player * player, Map * map)
+//{
+//}

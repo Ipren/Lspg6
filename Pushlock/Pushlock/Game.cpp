@@ -126,6 +126,34 @@ void Game::update(float dt)
 				ImGui::SliderFloat("distance between pillars##wwall", &gSpellConstants.kFireWallPillarDistance, 0, 1);
 				ImGui::SliderFloat("pillars radius##wwall", &gSpellConstants.kFireWallPillarRadius, 0, 5);
 			}
+
+			if (ImGui::CollapsingHeader("Earth")) {
+				ImGui::TextDisabled("Projectile");
+
+				ImGui::SliderFloat("strength##earth", &gSpellConstants.kEarthProjectileStrength, 0.0f, 90.0f);
+				ImGui::SliderFloat("speed##earth", &gSpellConstants.kEarthProjectileSpeed, 0.0f, 30.0f);
+				ImGui::SliderFloat("cooldown##earth", &gSpellConstants.kEarthProjectileCooldown, 0.0f, 15.0f);
+				ImGui::SliderFloat("effect radius##earth", &gSpellConstants.kEarthProjectileEffectRadius, 0.0f, 6.0f);
+				ImGui::SliderFloat("effect falloff##earth", &gSpellConstants.kEarthProjectileEffectFalloff, 0.0f, 3.0f);
+				ImGui::SliderFloat("effect arming time##earth", &gSpellConstants.kEarthProjectileEffectArmingTime, 0.0f, 1.0f);
+
+
+				ImGui::TextDisabled("Stomp");
+				ImGui::SliderFloat("distance##e", &gSpellConstants.kEarthStompDistance, 0.0f, 10.0f);
+				ImGui::SliderFloat("strength##estomp", &gSpellConstants.kEarthStompStrength, 0.0f, 10.0f);
+				ImGui::SliderFloat("strength falloff##estomp", &gSpellConstants.kEarthStompStrengthFalloff, 0.0f, 10.0f);
+				ImGui::SliderFloat("cooldown##estomp", &gSpellConstants.kEarthStompCooldown, 0.0f, 20.0f);
+
+				ImGui::TextDisabled("Dash");
+				ImGui::SliderFloat("speed##edash", &gSpellConstants.kEarthDashSpeed, 0.0f, 120.f);
+				ImGui::SliderFloat("cooldown##eDash", &gSpellConstants.kEarthDashCooldown, 0.0f, 20.0f);
+
+				ImGui::TextDisabled("Wall");
+				ImGui::SliderFloat("cooldown##ewall", &gSpellConstants.kEarthWallCooldown, 0.0f, 20.0f);
+				ImGui::SliderInt("number of pillars##ewall", &gSpellConstants.kEarthWallNrOfPillars, 1, 20);
+				ImGui::SliderFloat("distance between pillars##ewall", &gSpellConstants.kEarthWallPillarDistance, 0, 1);
+				ImGui::SliderFloat("pillars radius##ewall", &gSpellConstants.kEarthWallPillarRadius, 0, 5);
+			}
 		}
 
 		if (ImGui::CollapsingHeader("Player")) {
