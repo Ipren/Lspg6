@@ -13,7 +13,8 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 
 	//element = new ArcaneElement();
 	//element = new FireElement();
-	element = new WindElement();
+	//element = new WindElement();
+	element = new EarthElement();
 	for (int i = 0; i < 5; i++)
 	{
 		this->cooldown[i] = 0;
@@ -57,8 +58,10 @@ void Player::update(Map *map, float dt)
 	//acceleration.y *= 0.9;
 
 	this->element->update(this, map, dt);
-
-	if (gGamepads[index]->get_button_down(Gamepad::Rb)) {//projectile
+	if ((dynamic_cast<WindElement*>(element) != nullptr || dynamic_cast<ArcaneElement*>(element) != nullptr) && gGamepads[index]->get_button_down(Gamepad::Rb)) {//projectile
+		this->element->projectile(this, map);
+	}
+	else if (gGamepads[index]->get_button_pressed(Gamepad::Rb)) {//projectile
 		this->element->projectile(this, map);
 	}
 
