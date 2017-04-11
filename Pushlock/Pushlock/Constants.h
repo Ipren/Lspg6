@@ -39,6 +39,24 @@ struct SpellConstants {
 	int   kFireWallNrOfPillars = 6;
 	float kFireWallPillarDistance = 0.65f;
 	float kFireWallPillarRadius = 0.35f;
+
+
+	float kWindProjectileStrength = 30.0f;
+	float kWindProjectileSpeed = 10.0f;
+	float kWindProjectileCooldown = 1.f;
+
+	float kWindStompDistance = 5.3f;
+	float kWindStompStrength = 5.f;
+	float kWindStompStrengthFalloff = 2.f;
+	float kWindStompCooldown = 2.5f;
+
+	float kWindDashSpeed = 30.f;
+	float kWindDashCooldown = 1.5f;
+
+	float kWindWallCooldown = 4.5f;
+	int   kWindWallNrOfPillars = 6;
+	float kWindWallPillarDistance = 0.65f;
+	float kWindWallPillarRadius = 0.35f;
 };
 
 extern SpellConstants gDefaultSpellConstants;
