@@ -37,6 +37,9 @@
     <Filter Include="Misc\imgui">
       <UniqueIdentifier>{5e86b3c1-ca0b-4a58-97e7-77d4facd7434}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Paricles">
+      <UniqueIdentifier>{27670356-df50-4270-9965-064acdbb1f1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -169,23 +172,23 @@
     <FxCompile Include="Debug.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="pVertex.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Inserter.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="pGeometry.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="pPixel.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Paricles</Filter>
     </FxCompile>
     <FxCompile Include="ComputeShader.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Paricles</Filter>
+    </FxCompile>
+    <FxCompile Include="pGeometry.hlsl">
+      <Filter>Shaders\Paricles</Filter>
+    </FxCompile>
+    <FxCompile Include="pPixel.hlsl">
+      <Filter>Shaders\Paricles</Filter>
+    </FxCompile>
+    <FxCompile Include="pVertex.hlsl">
+      <Filter>Shaders\Paricles</Filter>
     </FxCompile>
     <FxCompile Include="StompInserter.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Paricles</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
