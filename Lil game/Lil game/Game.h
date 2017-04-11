@@ -8,7 +8,9 @@ private:
 	enum GameState {
 		MainMenu,
 		Playing,
-		UpgradeMenu
+		UpgradeMenu,
+		EndGame,
+		EndRound
 	};
 public:
 	Game(HWND wndHandle, int width, int height);

@@ -10,7 +10,6 @@ Map::Map()
 {
 	this->reset(4);
 	this->nrOfAlivePlayers = 4;
-	this->round = 1;
 
 }
 

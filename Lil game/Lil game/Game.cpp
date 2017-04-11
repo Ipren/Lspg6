@@ -204,6 +204,15 @@ void Game::update(float dt)
 				{
 					Player* p = dynamic_cast<Player*>(this->currentMap->entitys[i]);
 					currentMap->playerPoints[p->index]++;
+				
+					if (currentMap->playerPoints[p->index] == 3)
+					{
+						currentState = GameState::EndGame;
+					}
+					else
+					{
+
+					}
 				}
 			}
 			currentState = GameState::MainMenu;
