@@ -11,12 +11,12 @@ class Mesh
 public:
 	Mesh();
 	~Mesh();
-	bool LoadOBJ(std::string filename);
-	void Draw();
+	bool LoadOBJ(std::string filename, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	void Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
 	///////////////////////
-	static ID3D11Device* device;
-	static ID3D11DeviceContext* deviceContext;
+	ID3D11Device* device;
+	ID3D11DeviceContext* deviceContext;
 	///////////////////////
 private:
 	void CreateBuffers();

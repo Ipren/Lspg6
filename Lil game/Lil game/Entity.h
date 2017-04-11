@@ -22,7 +22,9 @@ public:
 	virtual void update(Map *map, float dt) {}
 
 	void DrawMesh();
-	void AddMesh(std::string filename);
+	void AddMesh(std::string filename, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+
+	Mesh * GetMesh();
 	
 	//private:
 	DirectX::XMFLOAT2 acceleration;

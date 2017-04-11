@@ -10,15 +10,17 @@ Mesh::~Mesh()
 {
 }
 
-bool Mesh::LoadOBJ(std::string filename)
+bool Mesh::LoadOBJ(std::string filename, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
+	this->device = device;
+	this->deviceContext = deviceContext;
 	ObjectLoader loader(filename, *device, *deviceContext);
 	loader.load(filename, *device, *deviceContext, vertexArray, indexArray);
 	CreateBuffers();
 	return false;
 }
 
-void Mesh::Draw()
+void Mesh::Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	if (device == nullptr)
 		return;

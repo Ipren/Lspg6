@@ -3,10 +3,14 @@
 #include "Player.h"
 #include <cstdlib>
 #include <time.h>
+#include "Mesh.h"
 
 const UINT startParticleCount = 0;
 //makes it so the actual amount of particles in the buffers is used
 const UINT UAVFLAG = -1;
+
+ID3D11Device *globalDevice;
+ID3D11DeviceContext *globalDeviceContext;
 
 Renderer::Renderer()
 {
@@ -297,6 +301,9 @@ HRESULT Renderer::createDirect3DContext(HWND wndHandle)
 		&gDevice,
 		NULL,
 		&gDeviceContext);
+	 
+	globalDevice = this->gDevice;
+	globalDeviceContext = this->gDeviceContext;
 
 	if (SUCCEEDED(hr))
 	{
@@ -1003,6 +1010,11 @@ void Renderer::render(Map *map, Camera *camera)
 
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 			gDeviceContext->Draw(129, 0);
+
+			if (entity->GetMesh()) {
+				Mesh* mesh = entity->GetMesh();
+				mesh->Draw(gDevice, gDeviceContext);
+			}
 		}
 	}
 

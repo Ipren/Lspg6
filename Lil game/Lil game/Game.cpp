@@ -23,8 +23,9 @@ Gamepad *gGamepads[4];
 Game::Game(HWND wndHandle, int width, int height)
 {
 	// TODO: memory management
-	this->currentMap = new Map();
+	
 	this->renderer = new Renderer(wndHandle, width, height);
+	this->currentMap = new Map();
 	camera = new Camera({ 0, 15, -5 }, { 0, 0, 0 }, this->renderer->gDevice);
 	for (int i = 0; i < 4; ++i) {
 		gGamepads[i] = new Gamepad(i);

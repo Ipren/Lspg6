@@ -3,7 +3,7 @@
 #include "Player.h"
 #include "Spell.h"
 #include "Constants.h"
-
+#include "Globals.h"
 
 using namespace DirectX;
 
@@ -11,10 +11,9 @@ Map::Map()
 {
 	for (int i = 0; i < 4; ++i) {
 		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
-		e->AddMesh("test.obj");
+		e->AddMesh("test.obj", globalDevice, globalDeviceContext);
 		entitys.push_back(e);
 	}
-	
 }
 
 Map::~Map()

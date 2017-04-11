@@ -19,13 +19,17 @@ Entity::~Entity()
 
 void Entity::DrawMesh()
 {
-	if (this->mesh != nullptr)
-		mesh->Draw();
+	//if (this->mesh != nullptr)
+	//	mesh->Draw();
 
 }
 
-void Entity::AddMesh(std::string filename)
+void Entity::AddMesh(std::string filename, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	mesh = new Mesh();
-	mesh->LoadOBJ(filename);
+	mesh->LoadOBJ(filename, device, deviceContext);
+}
+
+Mesh* Entity::GetMesh() {
+	return mesh;
 }
