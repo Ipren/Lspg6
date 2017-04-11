@@ -262,7 +262,7 @@ void Game::update(float dt)
 		soundEffect = std::make_unique<SoundEffect>(audEngine.get(), L"boom.wav");
 		auto effect = soundEffect->CreateInstance();
 
-		effect->Play(true);
+		//effect->Play(true);
 
 
 		if (!audEngine->Update())
