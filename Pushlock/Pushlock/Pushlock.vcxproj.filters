@@ -158,6 +158,9 @@
     <ClInclude Include="resource.h">
       <Filter>Misc</Filter>
     </ClInclude>
+    <ClInclude Include="DirectXTK.h">
+      <Filter>Header Files\Misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Simple.hlsl">
@@ -194,5 +197,8 @@
     <Image Include="icon.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
