@@ -124,20 +124,27 @@ void FireElement::projectile(Player * player, Map * map)
 		}
 	}
 	else {
-		if (active_projectile->on_effect(map)) {
-			cooldown[0] = gSpellConstants.kFireProjectileCooldown;
-			if (active_projectile->dead != true)
-			{
-				player->blowUp = true;
-				active_projectile->dead = true;
+		if (active_projectile->dead != true)
+		{
+
+			if (active_projectile->on_effect(map)) {
+				cooldown[0] = gSpellConstants.kFireProjectileCooldown;
+				//if (active_projectile->dead != true)
+				{
+					player->blowUp = true;
+					active_projectile->dead = true;
+				}
+				/*else
+				{
+					active_projectile->dead = true;
+					active_projectile = nullptr;
+				}*/
 			}
-			else
-			{
-				active_projectile->dead = true;
-				active_projectile = nullptr;
-			}
-			
-			
+		}
+		else
+		{
+			active_projectile->dead = true;
+			active_projectile = nullptr;
 		}
 
 	}
