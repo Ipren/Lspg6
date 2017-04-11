@@ -90,6 +90,9 @@
     <ClCompile Include="Constants.cpp">
       <Filter>Header Files\Misc</Filter>
     </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dxerr.h">
@@ -157,6 +160,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

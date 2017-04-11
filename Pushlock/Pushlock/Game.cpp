@@ -10,6 +10,7 @@
 #include "Gamepad.h"
 #include "Constants.h"
 #include "Player.h"
+#include "Menu.h"
 
 #include "imgui.h"
 
@@ -218,7 +219,7 @@ void Game::update(float dt)
 				}
 			}
 		}
-	}else if (currentState == GameState::EndRound)
+	}else if (currentState == GameState::EndRound)//här ska upgraderingar hända
 	{
 		ImGui::Begin("End of the round");
 		if (ImGui::Button("start next round")) {
@@ -248,8 +249,8 @@ void Game::update(float dt)
 
 void Game::render()
 {
-
-	this->renderer->render(this->currentMap, this->camera);
+	Menu* menu = nullptr;
+	this->renderer->render(this->currentMap, menu, this->camera);
 	ImGui::Render();
 	this->renderer->present();
 }
