@@ -41,9 +41,9 @@ struct SpellConstants {
 	float kFireWallPillarRadius = 0.35f;
 
 
-	float kWindProjectileStrength = 30.0f;
-	float kWindProjectileSpeed = 10.0f;
-	float kWindProjectileCooldown = 1.f;
+	float kWindProjectileStrength = 10.0f;
+	float kWindProjectileSpeed = 30.0f;
+	float kWindProjectileCooldown = 0.1f;
 
 	float kWindStompDistance = 5.3f;
 	float kWindStompStrength = 5.f;
