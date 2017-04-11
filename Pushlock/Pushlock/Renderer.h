@@ -12,6 +12,8 @@
 #include "Camera.h"
 #include "Map.h"
 
+#include "DirectXTK.h"
+
 class Renderer
 {
 public:
