@@ -8,7 +8,6 @@ private:
 	enum GameState {
 		MainMenu,
 		Playing,
-		UpgradeMenu,
 		EndGame,
 		EndRound
 	};

@@ -25,6 +25,7 @@ void Map::reset(int nrOfPlayers)
 		entitys.push_back(e);
 	}
 	this->nrOfAlivePlayers = nrOfPlayers;
+	this->nrOfPlayers = nrOfPlayers;
 	totalTime = 0.0f;
 	timeSinceLastShrunk = 0.0f;
 	radius = 15.0f;

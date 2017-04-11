@@ -174,6 +174,7 @@ void Game::update(float dt)
 		ImGui::End();
 	}
 
+	int indexWinner = -1;
 	if (currentState == GameState::MainMenu)
 	{
 		ImGui::Begin("Main Menu");
@@ -208,18 +209,34 @@ void Game::update(float dt)
 					if (currentMap->playerPoints[p->index] == 3)
 					{
 						currentState = GameState::EndGame;
+						indexWinner = p->index;
 					}
 					else
 					{
-
+						currentState = GameState::EndRound;
 					}
 				}
 			}
-			currentState = GameState::MainMenu;
 		}
-	}else if (currentState == GameState::UpgradeMenu)
+	}else if (currentState == GameState::EndRound)
 	{
-
+		ImGui::Begin("End of the round");
+		if (ImGui::Button("start next round")) {
+			currentState = GameState::Playing;
+			currentMap->reset(currentMap->nrOfPlayers);
+		}
+		ImGui::End();
+	}
+	else if (currentState == GameState::EndGame)
+	{
+		ImGui::Begin("End of the game");
+		if (ImGui::Button("Go to main menu")) {
+			currentState = GameState::MainMenu;}
+		ImGui::End();
+		for (int i = 0; i < 4; i++)
+		{
+			currentMap->playerPoints[i] = 0;
+		}
 	}
 	
 
