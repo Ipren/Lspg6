@@ -76,6 +76,25 @@ struct SpellConstants {
 	int   kEarthWallNrOfPillars = 6;
 	float kEarthWallPillarDistance = 0.65f;
 	float kEarthWallPillarRadius = 0.35f;
+
+	float kWaterProjectileStrenght = 10.0f;
+	float kWaterProjectileSpeed = 10.0f;
+	float kWaterProjectileCooldown = 1.0f;
+	int kWaterProjectileNrOfShards = 4;
+	float kWaterProjectileSpreadAngle = 5.0f;
+
+	float kWaterStompDistance = 5.3f;
+	float kWaterStompStrenght = 5.0f;
+	float kWaterStompStrenghtFalloff = 2.0f;
+	float kWaterStompCooldown = 2.5f;
+
+	float kWaterDashSpeed = 30.0f;
+	float kWaterDashCooldonw = 1.5f;
+
+	float kWaterWallCooldown = 4.5f;
+	int kWaterWallNrOfPillars = 6;
+	float kWaterWallPillarDistance = 0.65f;
+	float kWaterWallPillarRadius = 0.35f;
 };
 
 extern SpellConstants gDefaultSpellConstants;

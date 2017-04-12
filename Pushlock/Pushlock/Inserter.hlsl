@@ -64,6 +64,15 @@ void main(uint3 GTID : SV_GroupThreadID)
                     newParticle.velocity.y *= -1.0f;
                 }
             }
+            if (emitters[i].eType == 2)
+            {
+                newParticle.velocity = reflect(rv.xyz, reflectVectors[GTID.x]);
+                newParticle.velocity += emitters[i].velocityVector;
+                if (sign(newParticle.velocity.y) == -1)
+                {
+                    newParticle.velocity.y *= -1.0f;
+                }
+            }
 
             particleBuffer.Append(newParticle);
         }

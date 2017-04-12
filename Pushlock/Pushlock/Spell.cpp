@@ -180,3 +180,34 @@ bool EarthProjectileSpell::on_effect(Map * map)
 {
 	return false;
 }
+
+WaterProjectileSpell::WaterProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
+	: Spell(owner, position, velocity, radius, 4.5f), strenght(1.0f)
+{
+	this->pEmitter.position = position;
+	this->pEmitter.particleType = 2;
+	this->pEmitter.randomVector = XMFLOAT4(velocity.x, 0.0f, velocity.y, 1.0f);
+}
+
+WaterProjectileSpell::~WaterProjectileSpell()
+{
+}
+
+void WaterProjectileSpell::update(Map * map, float dt)
+{
+	Spell::update(map, dt);
+}
+
+bool WaterProjectileSpell::on_effect(Map * map)
+{
+
+	auto nearby = map->get_entities_in_radius(this, radius, [](Entity *e) {
+		return e->type == EntityType::Player;
+	});
+
+	for (auto result : nearby) {
+		result.entity->velocity.x += cos(result.angle) * gSpellConstants.kWaterProjectileStrenght;
+		result.entity->velocity.y += sin(result.angle) * gSpellConstants.kWaterProjectileStrenght;
+	}
+	return true;
+}

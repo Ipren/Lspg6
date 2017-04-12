@@ -93,6 +93,9 @@
     <ClCompile Include="Constants.cpp">
       <Filter>Header Files\Misc</Filter>
     </ClCompile>
+    <ClCompile Include="SoundSingelton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dxerr.h">
@@ -163,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="DirectXTK.h">
       <Filter>Header Files\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundSingelton.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

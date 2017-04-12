@@ -48,6 +48,12 @@ Game::Game(HWND wndHandle, int width, int height)
 
 		audEngine = std::make_unique<AudioEngine>(eflags);
 
+		std::unique_ptr<SoundEffect> soundEffect;
+		soundEffect = std::make_unique<SoundEffect>(audEngine.get(), L"boom.wav");
+		auto effect = soundEffect->CreateInstance();
+		effect->Play(true);
+		
+
 }
 
 Game::Game()
@@ -171,6 +177,33 @@ void Game::update(float dt)
 				ImGui::SliderFloat("distance between pillars##ewall", &gSpellConstants.kEarthWallPillarDistance, 0, 1);
 				ImGui::SliderFloat("pillars radius##ewall", &gSpellConstants.kEarthWallPillarRadius, 0, 5);
 			}
+
+			if (ImGui::CollapsingHeader("Water")) {
+				ImGui::TextDisabled("Projectile");
+
+				ImGui::SliderFloat("strength##earth", &gSpellConstants.kWaterProjectileStrenght, 0.0f, 90.0f);
+				ImGui::SliderFloat("speed##earth", &gSpellConstants.kWaterProjectileSpeed, 0.0f, 30.0f);
+				ImGui::SliderFloat("cooldown##earth", &gSpellConstants.kWaterProjectileCooldown, 0.0f, 15.0f);
+				ImGui::SliderInt("nr of shards", &gSpellConstants.kWaterProjectileNrOfShards, 1, 10);
+				ImGui::SliderFloat("spread Angle", &gSpellConstants.kWaterProjectileSpreadAngle, 1.0f, 15.0f);
+
+
+				ImGui::TextDisabled("Stomp");
+				ImGui::SliderFloat("distance##e", &gSpellConstants.kWaterStompDistance, 0.0f, 10.0f);
+				ImGui::SliderFloat("strength##estomp", &gSpellConstants.kWaterStompStrenght, 0.0f, 10.0f);
+				ImGui::SliderFloat("strength falloff##estomp", &gSpellConstants.kWaterStompStrenghtFalloff, 0.0f, 10.0f);
+				ImGui::SliderFloat("cooldown##estomp", &gSpellConstants.kWaterStompCooldown, 0.0f, 20.0f);
+
+				ImGui::TextDisabled("Dash");
+				ImGui::SliderFloat("speed##edash", &gSpellConstants.kWaterDashSpeed, 0.0f, 120.f);
+				ImGui::SliderFloat("cooldown##eDash", &gSpellConstants.kWaterDashCooldonw, 0.0f, 20.0f);
+
+				ImGui::TextDisabled("Wall");
+				ImGui::SliderFloat("cooldown##ewall", &gSpellConstants.kWaterWallCooldown, 0.0f, 20.0f);
+				ImGui::SliderInt("number of pillars##ewall", &gSpellConstants.kWaterWallNrOfPillars, 1, 20);
+				ImGui::SliderFloat("distance between pillars##ewall", &gSpellConstants.kWaterWallPillarDistance, 0, 1);
+				ImGui::SliderFloat("pillars radius##ewall", &gSpellConstants.kWaterWallPillarRadius, 0, 5);
+			}
 		}
 
 		if (ImGui::CollapsingHeader("Player")) {
@@ -258,6 +291,7 @@ void Game::update(float dt)
 		if (ImGui::Button("Start Game 4p")) {//starting the game with 4 players
 			currentState = GameState::Playing;
 			currentMap->reset(4);
+			
 		}
 		ImGui::End();
 	}else if(currentState == GameState::Playing)
@@ -286,18 +320,11 @@ void Game::update(float dt)
 
 	if (audEngine->IsAudioDevicePresent())
 	{
-		std::unique_ptr<SoundEffect> soundEffect;
-		soundEffect = std::make_unique<SoundEffect>(audEngine.get(), L"boom.wav");
-		auto effect = soundEffect->CreateInstance();
-
-		//effect->Play(true);
-
-
 		if (!audEngine->Update())
 		{
 			if (audEngine->IsCriticalError())
 			{
-				MessageBox(0, L"now audio device active", L"error", MB_OK);
+				MessageBox(0, L"no audio device active", L"error", MB_OK);
 			}
 
 		}

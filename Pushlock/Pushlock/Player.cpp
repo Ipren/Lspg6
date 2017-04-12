@@ -14,7 +14,8 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	//element = new ArcaneElement();
 	//element = new FireElement();
 	//element = new WindElement();
-	element = new EarthElement();
+	//element = new EarthElement();
+	element = new WaterElement();
 	for (int i = 0; i < 5; i++)
 	{
 		this->cooldown[i] = 0;
