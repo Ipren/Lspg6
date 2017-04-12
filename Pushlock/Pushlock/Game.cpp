@@ -302,7 +302,7 @@ void Game::update(float dt)
 			gGamepads[i]->update(dt);
 		}
 		currentMap->update(dt, camera);
-		ImGui::Begin("start");
+		ImGui::Begin("Choose elemnts with x, y, a, b, rb");
 		if (ImGui::Button("start"))
 		{
 			currentState = GameState::Playing;
