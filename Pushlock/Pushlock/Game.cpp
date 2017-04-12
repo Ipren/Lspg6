@@ -302,7 +302,19 @@ void Game::update(float dt)
 		ImGui::Begin("Choose elemnts with x, y, a, b, rb");
 		if (ImGui::Button("start"))
 		{
-			currentState = GameState::Playing;
+			int readyCount = 0;
+			for (int i = 0; i < currentMap->nrOfAlivePlayers; i++)
+			{
+				if (dynamic_cast<Player*>(currentMap->entitys[i])->ready)
+				{
+					readyCount++;
+				}	
+			}
+			if (true)
+			{
+				currentState = GameState::Playing;
+			}
+			
 		}
 		ImGui::End();
 	}

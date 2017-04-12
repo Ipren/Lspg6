@@ -19,6 +19,7 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	}
 	stomped = false;
 	blowUp = false;
+	ready = false;
 }
 
 Player::~Player()
@@ -113,6 +114,10 @@ void Player::update(Map *map, float dt)
 		{
 			delete element;
 			element = new WaterElement();
+		}
+		if (gGamepads[index]->get_button_pressed(Gamepad::Start))
+		{
+			this->ready = true;
 		}
 
 	}
