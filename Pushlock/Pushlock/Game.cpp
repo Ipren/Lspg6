@@ -17,9 +17,9 @@
 
 Gamepad *gGamepads[4];
 
+
+bool test = true;
 std::unique_ptr<AudioEngine> audEngine;
-
-
 
 Game::Game(HWND wndHandle, int width, int height)
 {
@@ -49,10 +49,7 @@ Game::Game(HWND wndHandle, int width, int height)
 
 		audEngine = std::make_unique<AudioEngine>(eflags);
 
-		std::unique_ptr<SoundEffect> soundEffect;
-		soundEffect = std::make_unique<SoundEffect>(audEngine.get(), L"boom.wav");
-		auto effect = soundEffect->CreateInstance();
-		effect->Play(true);
+	
 		
 
 }
@@ -331,8 +328,18 @@ void Game::update(float dt)
 	{
 
 	}
-	
 
+	std::unique_ptr<SoundEffect> soundEffect;
+	std::unique_ptr<SoundEffectInstance> effect;
+	if (test)
+	{
+		soundEffect = std::make_unique<SoundEffect>(audEngine.get(), L"boom.wav");
+		effect = soundEffect->CreateInstance();
+		test = false;
+		//soundEffect->Play();
+		effect->Play(true);
+	}
+	
 	if (audEngine->IsAudioDevicePresent())
 	{
 		if (!audEngine->Update())
@@ -345,6 +352,8 @@ void Game::update(float dt)
 		}
 	}
 
+	
+	
 	
 	
 	camera->update(dt, this->renderer->gDeviceContext);
