@@ -24,7 +24,8 @@ std::unique_ptr<AudioEngine> audEngine;
 Game::Game(HWND wndHandle, int width, int height)
 {
 	// TODO: memory management
-	this->currentMap = new Map();
+	this->currentState = GameState::MainMenu;
+	this->currentMap = new Map(&currentState);
 	this->renderer = new Renderer(wndHandle, width, height);
 	camera = new Camera({ 0, 15, -5 }, { 0, 0, 0 }, this->renderer->gDevice);
 	for (int i = 0; i < 4; ++i) {
@@ -34,7 +35,7 @@ Game::Game(HWND wndHandle, int width, int height)
 	this->width = width;
 
 	XInputEnable(true);
-	this->currentState = GameState::MainMenu;
+	
 
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
@@ -281,20 +282,34 @@ void Game::update(float dt)
 	{
 		ImGui::Begin("Main Menu");
 		if (ImGui::Button("Start Game 2p")) {//starting the game with 2 players
-			currentState = GameState::Playing;
+			currentState = GameState::ChoosePowers;
 			currentMap->reset(2);
 		}
 		if (ImGui::Button("Start Game 3p")) {//starting the game with 3 players
-			currentState = GameState::Playing;
+			currentState = GameState::ChoosePowers;
 			currentMap->reset(3);
 		}
 		if (ImGui::Button("Start Game 4p")) {//starting the game with 4 players
-			currentState = GameState::Playing;
+			currentState = GameState::ChoosePowers;
 			currentMap->reset(4);
 			
 		}
 		ImGui::End();
-	}else if(currentState == GameState::Playing)
+	}
+	else if (currentState == GameState::ChoosePowers)
+	{
+		for (int i = 0; i < 4; ++i) {
+			gGamepads[i]->update(dt);
+		}
+		currentMap->update(dt, camera);
+		ImGui::Begin("start");
+		if (ImGui::Button("start"))
+		{
+			currentState = GameState::Playing;
+		}
+		ImGui::End();
+	}
+	else if (currentState == GameState::Playing)
 	{ 
 		for (int i = 0; i < 4; ++i) {
 			gGamepads[i]->update(dt);

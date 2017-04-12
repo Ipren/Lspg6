@@ -5,11 +5,7 @@
 class Game
 {
 private:
-	enum GameState {
-		MainMenu,
-		Playing,
-		UpgradeMenu
-	};
+	
 public:
 	Game(HWND wndHandle, int width, int height);
 	Game();

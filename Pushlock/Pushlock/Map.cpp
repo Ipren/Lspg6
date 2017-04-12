@@ -6,12 +6,12 @@
 
 using namespace DirectX;
 
-Map::Map()
+Map::Map(GameState * currentState)
 {
 	this->reset(4);
 	this->nrOfAlivePlayers = 4;
 	this->round = 1;
-
+	this->currentState = currentState;
 }
 
 Map::~Map()

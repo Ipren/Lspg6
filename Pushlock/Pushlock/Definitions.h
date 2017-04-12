@@ -18,6 +18,13 @@ enum Button
 	Start, Back
 };
 
+enum GameState {
+	MainMenu,
+	ChoosePowers,
+	Playing,
+	UpgradeMenu
+};
+
 struct Particle
 {
 	DirectX::XMFLOAT3 position;
