@@ -19,7 +19,6 @@ public:
 
 		pEmitter.position.x = position.x;
 		pEmitter.position.z = position.z;
-		pEmitter.particleType = 0;
 		this->pEmitter.randomVector = DirectX::XMFLOAT4(velocity.x*0.12, 0, velocity.y*0.12, 1.0f);
 
 		velocity.x -= velocity.x * 0.3f * dt;
@@ -117,4 +116,17 @@ private:
 	float strength;
 	float alive;
 
+};
+
+class WaterProjectileSpell : public Spell
+{
+public:
+	WaterProjectileSpell(Player* owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius);
+	virtual ~WaterProjectileSpell();
+
+	virtual void update(Map *map, float dt) override;
+	virtual bool on_effect(Map *map) override;
+
+private:
+	float strenght;
 };

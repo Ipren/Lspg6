@@ -4,13 +4,6 @@
 #include "Camera.h"
 class Game
 {
-private:
-	enum GameState {
-		MainMenu,
-		Playing,
-		EndGame,
-		EndRound
-	};
 public:
 	Game(HWND wndHandle, int width, int height);
 	Game();

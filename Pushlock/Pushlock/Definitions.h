@@ -18,6 +18,14 @@ enum Button
 	Start, Back
 };
 
+enum GameState {
+	MainMenu,		//choose amount of players
+	ChoosePowers,	//choose with "class" you want to play as
+	Playing,		//main game loop
+	EndRound,		//upgrading abilities
+	EndGame			//showing results (stats maybe) and retun to main menu
+};
+
 struct Particle
 {
 	DirectX::XMFLOAT3 position;

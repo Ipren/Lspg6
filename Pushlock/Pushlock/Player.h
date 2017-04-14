@@ -14,6 +14,7 @@ public:
 	bool stomped;
 	unsigned int index;
 	bool blowUp;
+	bool ready;
 
 //private:
 	Element *element;

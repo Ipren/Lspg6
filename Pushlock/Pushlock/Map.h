@@ -14,7 +14,7 @@ struct EntityQueryResult {
 class Map
 {
 public:
-	Map();
+	Map(GameState * currentState);
 	virtual ~Map();
 
 	void reset(int nrOfPlayers = 4);
@@ -34,6 +34,7 @@ public:
 	bool shrunk;
 	float shrinkAmount;
 	float shrinkTimer;
+	GameState* currentState;
 
 	/*used for starting each round with the same nr of players*/
 	int nrOfPlayers;

@@ -408,18 +408,120 @@ void EarthElement::dash(Player * player, Map * map)
 	}
 }
 
-//void WaterElement::projectile(Player * player, Map * map)
-//{
-//}
-//
-//void WaterElement::stomp(Player * player, Map * map)
-//{
-//}
-//
-//void WaterElement::wall(Player * player, Map * map)
-//{
-//}
-//
-//void WaterElement::dash(Player * player, Map * map)
-//{
-//}
+void WaterElement::projectile(Player * player, Map * map)
+{
+	if (cooldown[0] <= 0.0f)
+	{
+		auto position = player->position;
+		auto angle = player->angle;
+		auto radius = player->radius;
+		WaterProjectileSpell *spell = nullptr;
+		XMFLOAT2 v;
+
+		for (size_t i = 0; i < gSpellConstants.kWaterProjectileNrOfShards + 1; i++)
+		{
+			v = { cos(angle) * gSpellConstants.kWaterProjectileSpeed, sin(angle) * gSpellConstants.kWaterProjectileSpeed };
+			if (i != 0)
+			{
+				if (i % 2 != 0)
+				{
+					v.x = v.x * cos(i * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180) - v.y* sin(i * gSpellConstants.kWaterProjectileSpreadAngle* XM_PI / 180);
+					v.y = v.x * sin(i * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180) + v.y * cos(i * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180);
+
+				}
+				else
+				{
+					v.x = v.x * cos((i - 1)* gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180) + v.y* sin((i - 1) * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180);
+					v.y = v.x * -sin((i - 1) * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180) + v.y * cos((i - 1) * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180);
+				}
+			}
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos(angle) * (radius + 0.4f) ,
+				0,
+				position.z + sin(angle) * (radius + 0.4f)
+			},
+			v,
+				0.1f
+			);
+
+			map->add_entity(spell);
+
+		}
+		
+		cooldown[0] = gSpellConstants.kWaterProjectileCooldown;
+	}
+}
+
+void WaterElement::stomp(Player * player, Map * map)
+{
+	if (cooldown[2] <= 0.0f)
+	{
+		player->stomped = true;
+		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance, [](Entity *e) {
+			return e->type == EntityType::Player;
+		});
+
+		for (auto result : nearby)
+		{
+			result.entity->velocity.x += cos(result.angle) * gSpellConstants.kWaterStompStrenght * abs((gSpellConstants.kWaterStompDistance + gSpellConstants.kWaterStompStrenghtFalloff) - result.distance);
+			result.entity->velocity.y += sin(result.angle) * gSpellConstants.kWaterStompStrenght * abs((gSpellConstants.kWaterStompDistance + gSpellConstants.kWaterStompStrenghtFalloff) - result.distance);
+		}
+
+		cooldown[2] = gSpellConstants.kWaterStompCooldown;
+	}
+}
+
+void WaterElement::wall(Player * player, Map * map)
+{
+	if (cooldown[3] <= 0.f) {
+		auto position = player->position;
+		auto angle = player->angle;
+		auto radius = player->radius;
+
+		XMVECTOR pos = {
+			position.x + cos(angle) * (radius + 1.5f),
+			0,
+			position.z + sin(angle) * (radius + 1.5f)
+		};
+
+		XMVECTOR dist = pos - XMLoadFloat3(&position);
+		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
+
+		for (int i = 0; i < gSpellConstants.kWaterWallNrOfPillars; i++)
+		{
+
+			XMFLOAT3 p;
+			XMStoreFloat3(&p, n * ((float)i - gSpellConstants.kWaterWallNrOfPillars / 2.f) *
+				gSpellConstants.kWaterWallPillarDistance / 2.f + pos);
+
+			// TODO: Earth wall
+			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kWaterWallPillarRadius));
+		}
+
+		cooldown[3] = gSpellConstants.kWaterWallCooldown;
+	}
+}
+
+void WaterElement::dash(Player * player, Map * map)
+{
+	if (cooldown[1] <= 0.f) {
+		auto index = player->index;
+		XMFLOAT2 leftVector = gGamepads[index]->get_left_thumb();
+
+		//check if left stick is centered
+		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
+		{
+			float left_angle = gGamepads[index]->get_left_thumb_angle();
+			player->velocity.x += cos(left_angle) * gSpellConstants.kWaterDashSpeed;
+			player->velocity.y += sin(left_angle) * gSpellConstants.kWaterDashSpeed;
+		}
+		else //if it is centered: dash to where you are looking
+		{
+			player->velocity.x += cos(player->angle) * gSpellConstants.kWaterDashSpeed;
+			player->velocity.y += sin(player->angle) * gSpellConstants.kWaterDashSpeed;
+		}
+
+		cooldown[1] = gSpellConstants.kWaterDashCooldonw;
+	}
+}

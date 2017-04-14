@@ -897,6 +897,14 @@ void Renderer::updateEmitters(Map * map)
 			temp[emitterCount].particleType = test->pEmitter.particleType;
 			emitterCount++;
 		}
+		if (dynamic_cast<WaterProjectileSpell*>(map->entitys[i]) != nullptr)
+		{
+			WaterProjectileSpell* test = dynamic_cast<WaterProjectileSpell*>(map->entitys[i]);
+			temp[emitterCount].position = test->pEmitter.position;
+			temp[emitterCount].randomVector = test->pEmitter.randomVector;
+			temp[emitterCount].particleType = test->pEmitter.particleType;
+			emitterCount++;
+		}
 	}
 	
 	D3D11_MAPPED_SUBRESOURCE data;

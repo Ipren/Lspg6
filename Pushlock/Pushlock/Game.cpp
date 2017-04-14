@@ -18,14 +18,15 @@
 
 Gamepad *gGamepads[4];
 
+
+bool test = true;
 std::unique_ptr<AudioEngine> audEngine;
-
-
 
 Game::Game(HWND wndHandle, int width, int height)
 {
 	// TODO: memory management
-	this->currentMap = new Map();
+	this->currentState = GameState::MainMenu;
+	this->currentMap = new Map(&currentState);
 	this->renderer = new Renderer(wndHandle, width, height);
 	camera = new Camera({ 0, 15, -5 }, { 0, 0, 0 }, this->renderer->gDevice);
 	for (int i = 0; i < 4; ++i) {
@@ -35,7 +36,7 @@ Game::Game(HWND wndHandle, int width, int height)
 	this->width = width;
 
 	XInputEnable(true);
-	this->currentState = GameState::MainMenu;
+	
 
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
@@ -48,6 +49,9 @@ Game::Game(HWND wndHandle, int width, int height)
 #endif // _DEBUG
 
 		audEngine = std::make_unique<AudioEngine>(eflags);
+
+	
+		
 
 }
 
@@ -172,6 +176,33 @@ void Game::update(float dt)
 				ImGui::SliderFloat("distance between pillars##ewall", &gSpellConstants.kEarthWallPillarDistance, 0, 1);
 				ImGui::SliderFloat("pillars radius##ewall", &gSpellConstants.kEarthWallPillarRadius, 0, 5);
 			}
+
+			if (ImGui::CollapsingHeader("Water")) {
+				ImGui::TextDisabled("Projectile");
+
+				ImGui::SliderFloat("strength##earth", &gSpellConstants.kWaterProjectileStrenght, 0.0f, 90.0f);
+				ImGui::SliderFloat("speed##earth", &gSpellConstants.kWaterProjectileSpeed, 0.0f, 30.0f);
+				ImGui::SliderFloat("cooldown##earth", &gSpellConstants.kWaterProjectileCooldown, 0.0f, 15.0f);
+				ImGui::SliderInt("nr of shards", &gSpellConstants.kWaterProjectileNrOfShards, 1, 10);
+				ImGui::SliderFloat("spread Angle", &gSpellConstants.kWaterProjectileSpreadAngle, 1.0f, 15.0f);
+
+
+				ImGui::TextDisabled("Stomp");
+				ImGui::SliderFloat("distance##e", &gSpellConstants.kWaterStompDistance, 0.0f, 10.0f);
+				ImGui::SliderFloat("strength##estomp", &gSpellConstants.kWaterStompStrenght, 0.0f, 10.0f);
+				ImGui::SliderFloat("strength falloff##estomp", &gSpellConstants.kWaterStompStrenghtFalloff, 0.0f, 10.0f);
+				ImGui::SliderFloat("cooldown##estomp", &gSpellConstants.kWaterStompCooldown, 0.0f, 20.0f);
+
+				ImGui::TextDisabled("Dash");
+				ImGui::SliderFloat("speed##edash", &gSpellConstants.kWaterDashSpeed, 0.0f, 120.f);
+				ImGui::SliderFloat("cooldown##eDash", &gSpellConstants.kWaterDashCooldonw, 0.0f, 20.0f);
+
+				ImGui::TextDisabled("Wall");
+				ImGui::SliderFloat("cooldown##ewall", &gSpellConstants.kWaterWallCooldown, 0.0f, 20.0f);
+				ImGui::SliderInt("number of pillars##ewall", &gSpellConstants.kWaterWallNrOfPillars, 1, 20);
+				ImGui::SliderFloat("distance between pillars##ewall", &gSpellConstants.kWaterWallPillarDistance, 0, 1);
+				ImGui::SliderFloat("pillars radius##ewall", &gSpellConstants.kWaterWallPillarRadius, 0, 5);
+			}
 		}
 
 		if (ImGui::CollapsingHeader("Player")) {
@@ -250,19 +281,46 @@ void Game::update(float dt)
 	{
 		ImGui::Begin("Main Menu");
 		if (ImGui::Button("Start Game 2p")) {//starting the game with 2 players
-			currentState = GameState::Playing;
+			currentState = GameState::ChoosePowers;
 			currentMap->reset(2);
 		}
 		if (ImGui::Button("Start Game 3p")) {//starting the game with 3 players
-			currentState = GameState::Playing;
+			currentState = GameState::ChoosePowers;
 			currentMap->reset(3);
 		}
 		if (ImGui::Button("Start Game 4p")) {//starting the game with 4 players
-			currentState = GameState::Playing;
+			currentState = GameState::ChoosePowers;
 			currentMap->reset(4);
+			
 		}
 		ImGui::End();
-	}else if(currentState == GameState::Playing)
+	}
+	else if (currentState == GameState::ChoosePowers)
+	{
+		for (int i = 0; i < 4; ++i) {
+			gGamepads[i]->update(dt);
+		}
+		currentMap->update(dt, camera);
+		ImGui::Begin("Choose elemnts with x, y, a, b, rb");
+		if (ImGui::Button("start"))
+		{
+			int readyCount = 0;
+			for (int i = 0; i < currentMap->nrOfAlivePlayers; i++)
+			{
+				if (dynamic_cast<Player*>(currentMap->entitys[i])->ready)
+				{
+					readyCount++;
+				}	
+			}
+			//if (readyCount == currentMap->nrOfAlivePlayers)
+			{
+				currentState = GameState::Playing;
+			}
+			
+		}
+		ImGui::End();
+	}
+	else if (currentState == GameState::Playing)
 	{ 
 		for (int i = 0; i < 4; ++i) {
 			gGamepads[i]->update(dt);
@@ -309,27 +367,32 @@ void Game::update(float dt)
 			currentMap->playerPoints[i] = 0;
 		}
 	}
-	
 
+	std::unique_ptr<SoundEffect> soundEffect;
+	std::unique_ptr<SoundEffectInstance> effect;
+	if (test)
+	{
+		soundEffect = std::make_unique<SoundEffect>(audEngine.get(), L"boom.wav");
+		effect = soundEffect->CreateInstance();
+		test = false;
+		//soundEffect->Play();
+		effect->Play(true);
+	}
+	
 	if (audEngine->IsAudioDevicePresent())
 	{
-		std::unique_ptr<SoundEffect> soundEffect;
-		soundEffect = std::make_unique<SoundEffect>(audEngine.get(), L"boom.wav");
-		auto effect = soundEffect->CreateInstance();
-
-		//effect->Play(true);
-
-
 		if (!audEngine->Update())
 		{
 			if (audEngine->IsCriticalError())
 			{
-				MessageBox(0, L"now audio device active", L"error", MB_OK);
+				MessageBox(0, L"no audio device active", L"error", MB_OK);
 			}
 
 		}
 	}
 
+	
+	
 	
 	
 	camera->update(dt, this->renderer->gDeviceContext);
