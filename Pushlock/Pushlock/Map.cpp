@@ -16,6 +16,7 @@ Map::Map(GameState * currentState)
 		this->playerElemnts[i] = 0;
 
 	}
+	this->indexWinner = -1;
 }
 
 Map::~Map()
@@ -27,26 +28,28 @@ void Map::reset(int nrOfPlayers)
 	entitys.clear();
 	for (int i = 0; i < nrOfPlayers; ++i) {
 		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
+		Player* p = dynamic_cast<Player*>(e);
 		if (this->playerElemnts[i] == 0)
 		{
-			dynamic_cast<Player*>(e)->element = new ArcaneElement();
+			p->element = new ArcaneElement();
 		}
 		if (this->playerElemnts[i] == 1)
 		{
-			dynamic_cast<Player*>(e)->element = new FireElement();
+			p->element = new FireElement();
 		}
 		if (this->playerElemnts[i] == 2)
 		{
-			dynamic_cast<Player*>(e)->element = new WindElement();
+			p->element = new WindElement();
 		}
 		if (this->playerElemnts[i] == 3)
 		{
-			dynamic_cast<Player*>(e)->element = new EarthElement();
+			p->element = new EarthElement();
 		}
 		if (this->playerElemnts[i] == 4)
 		{
-			dynamic_cast<Player*>(e)->element = new WaterElement();
+			p->element = new WaterElement();
 		}
+		p->health = p->element->startHealth;//set health based on the element choice
 		entitys.push_back(e);
 	}
 	this->nrOfAlivePlayers = nrOfPlayers;

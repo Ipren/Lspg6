@@ -100,6 +100,7 @@ void ArcaneElement::dash(Player * player, Map * map)
 FireElement::FireElement()
 	: active_projectile(nullptr)
 {
+	this->startHealth = 10.f;
 }
 
 void FireElement::projectile(Player * player, Map * map)
