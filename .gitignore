@@ -5,6 +5,6 @@ Release/
 .suo
 Lil game/Lil game/Game.cpp.orig
 *.user
-imgui.ini
+Pushlock/Pushlock/imgui.ini
 *.aps
 Pushlock/packages/

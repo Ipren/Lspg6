@@ -74,24 +74,35 @@ struct ParticleDefinition {
 	XMFLOAT4 end_color = { 1.f, 1.f, 1.f, 0.f };
 
 	int u, v, u2 = 256, v2 = 256;
-
-	ParticleEmitter emitter_type;
-	float emitter_xmin, emitter_xmax;
-
-	ParticleEase spawn_fn;
-	int spawn_start, spawn_end;
 };
 
 struct ParticleEffectEntry {
-	ParticleDefinition *def;
-	float start, end;
+	int idx = -1;
+	float start, end = 1.f;
+
+	ParticleEmitter emitter_type;
+	float emitter_xmin, emitter_xmax;
+	float emitter_ymin, emitter_ymax;
+	float emitter_zmin, emitter_zmax;
+
+	float vel_xmin, vel_xmax;
+	float vel_ymin, vel_ymax;
+	float vel_zmin, vel_zmax;
+
+	ParticleEase spawn_fn;
+	int spawn_start = 1, spawn_end;
 };
 
 struct ParticleEffect {
 	char name[32] = { "Untitled\0" };
 	ParticleEffectEntry fx[MAX_PARTICLE_FX];
+	float children_time = 0.f;
+	float time = 1.f;
+	float age;
 	bool loop;
+	bool clamp_children = false;
 };
+
 
 struct Particle {
 	XMVECTOR pos;
