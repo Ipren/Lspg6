@@ -25,6 +25,7 @@ public:
 	std::vector<EntityQueryResult> get_entities_in_radius(Entity *self, float radius, std::function<bool(Entity*)> predicate);
 	bool get_nearest_entity(Entity *self, float radius, EntityQueryResult *result, std::function<bool (Entity*)> predicate);
 //private:
+	std::vector <Mesh*> map_geometry;
 	std::vector <Entity*> entitys;
 	std::vector <Entity*> entitys_to_add;
 };
