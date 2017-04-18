@@ -17,11 +17,12 @@ public:
 	bool ready;
 
 //private:
+	float health;
 	Element *element;
 	/*0:projectile
 	1:dash
 	2:stomp
 	3:wall
 	4:defence*/
-	float cooldown[5];
+	//float cooldown[5];
 };

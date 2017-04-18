@@ -36,6 +36,7 @@ public:
 	float shrinkAmount;
 	float shrinkTimer;
 	GameState* currentState;
+	int indexWinner;
 
 	/*used for starting each round with the same nr of players*/
 	int nrOfPlayers;

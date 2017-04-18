@@ -25,12 +25,14 @@ public:
 	virtual void dash(Player *player, Map *map) = 0;
 
 	float cooldown[5];
+	float startHealth;
 };
 
 class ArcaneElement : public Element {
 
 public:
-
+	ArcaneElement() {
+		this->startHealth = 10.f;}
 	virtual void projectile(Player *player, Map *map) override;
 	virtual void stomp(Player *player, Map *map) override;
 	virtual void wall(Player *player, Map *map) override;
@@ -53,7 +55,8 @@ public:
 class WindElement : public Element {
 
 public:
-
+	WindElement() {
+		this->startHealth = 10.f;}
 	virtual void projectile(Player *player, Map *map) override;
 	virtual void stomp(Player *player, Map *map) override;
 	virtual void wall(Player *player, Map *map) override;
@@ -64,7 +67,8 @@ public:
 class EarthElement : public Element {
 
 public:
-
+	EarthElement() {
+		this->startHealth = 10.f;}
 	virtual void projectile(Player *player, Map *map) override;
 	virtual void stomp(Player *player, Map *map) override;
 	virtual void wall(Player *player, Map *map) override;
@@ -75,7 +79,8 @@ public:
 class WaterElement : public Element {
 
 public:
-
+	WaterElement() {
+		this->startHealth = 10.f;}
 	virtual void projectile(Player *player, Map *map) override;
 	virtual void stomp(Player *player, Map *map) override;
 	virtual void wall(Player *player, Map *map) override;
