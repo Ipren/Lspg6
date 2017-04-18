@@ -315,6 +315,7 @@ void Game::update(float dt)
 			//if (readyCount == currentMap->nrOfAlivePlayers)
 			{
 				currentState = GameState::Playing;
+				currentMap->reset(currentMap->nrOfAlivePlayers);
 			}
 			
 		}
