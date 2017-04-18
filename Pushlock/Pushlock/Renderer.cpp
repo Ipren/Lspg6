@@ -1108,7 +1108,7 @@ void Renderer::update(float dt, Map * map)
 	this->updateParticles(dt, map);
 	if (map->shrunk == true)
 	{
-		map->shrunk == false;
+		map->shrunk = false;
 		this->shrinkMap(map);
 	}
 }

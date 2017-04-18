@@ -93,13 +93,10 @@
     <ClCompile Include="Constants.cpp">
       <Filter>Header Files\Misc</Filter>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="Menu.cpp">
       <Filter>Source Files\Graphics</Filter>
-=======
     <ClCompile Include="SoundSingelton.cpp">
       <Filter>Source Files</Filter>
->>>>>>> f98d1728dab7c2ad5eaf457abb8f663cf07a9b33
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
