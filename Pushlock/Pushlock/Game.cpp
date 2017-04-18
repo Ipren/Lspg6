@@ -264,6 +264,20 @@ void Game::update(float dt)
 	}
 
 	{
+		if (ImGui::Button("Main Menu")) {
+			currentState = GameState::MainMenu;
+		}
+		for (int i = 0; i < currentMap->nrOfPlayers; i++)
+		{
+			Player* p = nullptr;
+			if (currentMap->nrOfAlivePlayers <= currentMap->nrOfPlayers)
+				p = dynamic_cast<Player*>(currentMap->entitys[i]);
+			if(p != nullptr)
+				ImGui::Text("player %i: %f", i+1, p->health);
+			else
+				ImGui::Text("player %i: dead", i+1);
+		}
+
 		ImGui::Begin("Debug");
 		if (ImGui::Button("Reset to 2p")) {//resetting the map with 2 players
 			currentMap->reset(2);
@@ -273,9 +287,6 @@ void Game::update(float dt)
 		}
 		if (ImGui::Button("Reset to 4p")) {//resetting the map with 4 players
 			currentMap->reset(4);
-		}
-		if (ImGui::Button("Main Menu")) {
-			currentState = GameState::MainMenu;
 		}
 		ImGui::End();
 	}
@@ -305,11 +316,11 @@ void Game::update(float dt)
 		}
 		currentMap->update(dt, camera);
 		ImGui::Begin("Choose elemnts");
-		ImGui::Text("%s", "x - wind");
-		ImGui::Text("%s", "y - earth");
-		ImGui::Text("%s", "a - arcane");
-		ImGui::Text("%s", "b - fire");
-		ImGui::Text("%s", "rb - water");
+		ImGui::Text("x - wind");
+		ImGui::Text("y - earth");
+		ImGui::Text("a - arcane");
+		ImGui::Text("b - fire");
+		ImGui::Text("rb - water");
 
 		for (int i = 0; i < currentMap->nrOfAlivePlayers; i++)
 		{
