@@ -49,7 +49,7 @@ void Map::reset(int nrOfPlayers)
 		{
 			p->element = new WaterElement();
 		}
-		p->health = p->element->startHealth;
+		p->health = p->element->startHealth;//set health based on the element choice
 		entitys.push_back(e);
 	}
 	this->nrOfAlivePlayers = nrOfPlayers;

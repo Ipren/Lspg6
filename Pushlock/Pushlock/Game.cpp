@@ -264,18 +264,19 @@ void Game::update(float dt)
 	}
 
 	{
-		if (ImGui::Button("Main Menu")) {
+		if (ImGui::Button("Main Menu")) {//start the main menu
 			currentState = GameState::MainMenu;
 		}
-		for (int i = 0; i < currentMap->nrOfPlayers; i++)
+		int i = 0;
+		for (i; i < currentMap->nrOfAlivePlayers; i++)//showing players health
 		{
-			Player* p = nullptr;
-			if (currentMap->nrOfAlivePlayers <= currentMap->nrOfPlayers)
-				p = dynamic_cast<Player*>(currentMap->entitys[i]);
+			Player* p = dynamic_cast<Player*>(currentMap->entitys[i]);
 			if(p != nullptr)
 				ImGui::Text("player %i: %f", i+1, p->health);
-			else
-				ImGui::Text("player %i: dead", i+1);
+				
+		}for (i; i < currentMap->nrOfPlayers; i++)
+		{
+			ImGui::Text("player %i: dead", i + 1);
 		}
 
 		ImGui::Begin("Debug");
