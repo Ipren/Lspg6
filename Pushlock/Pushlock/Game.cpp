@@ -302,8 +302,19 @@ void Game::update(float dt)
 			gGamepads[i]->update(dt);
 		}
 		currentMap->update(dt, camera);
-		ImGui::Begin("Choose elemnts with x, y, a, b, rb");
-		if (ImGui::Button("start"))
+		ImGui::Begin("Choose elemnts");
+		ImGui::Text("%s", "x - wind");
+		ImGui::Text("%s", "y - earth");
+		ImGui::Text("%s", "a - arcane");
+		ImGui::Text("%s", "b - fire");
+		ImGui::Text("%s", "rb - water");
+
+		for (int i = 0; i < currentMap->nrOfAlivePlayers; i++)
+		{
+			Player * p = dynamic_cast<Player*>(currentMap->entitys[i]);
+				ImGui::Text("Player %d ready: %d", i, p->ready);
+		}
+		//if (ImGui::Button("start"))
 		{
 			int readyCount = 0;
 			for (int i = 0; i < currentMap->nrOfAlivePlayers; i++)
@@ -313,12 +324,17 @@ void Game::update(float dt)
 					readyCount++;
 				}	
 			}
-			//if (readyCount == currentMap->nrOfAlivePlayers)
+			if (readyCount == currentMap->nrOfAlivePlayers)
 			{
 				currentState = GameState::Playing;
 				currentMap->reset(currentMap->nrOfAlivePlayers);
 			}
 			
+		}
+		if (ImGui::Button("start anyway"))
+		{
+			currentState = GameState::Playing;
+			currentMap->reset(currentMap->nrOfAlivePlayers);
 		}
 		ImGui::End();
 	}
@@ -352,15 +368,20 @@ void Game::update(float dt)
 	}else if (currentState == GameState::EndRound)//här ska upgraderingar hända
 	{
 		ImGui::Begin("End of the round");
+		for (int i = 0; i < currentMap->nrOfPlayers; i++)
+		{
+			ImGui::Text("%s %i %i", "player:", i, currentMap->playerPoints[i]);
+		}
 		if (ImGui::Button("start next round")) {
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
 		}
 		ImGui::End();
 	}
-	else if (currentState == GameState::EndGame)
+	if (currentState == GameState::EndGame)
 	{
 		ImGui::Begin("End of the game");
+		ImGui::Text("%s %i", "Winner player:", indexWinner);
 		if (ImGui::Button("Go to main menu")) {
 			currentState = GameState::MainMenu;}
 		ImGui::End();
