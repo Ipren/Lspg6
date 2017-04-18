@@ -57,7 +57,7 @@ struct SpellConstants {
 	float kWindWallPillarDistance = 0.65f;
 	float kWindWallPillarRadius = 0.35f;
 
-	float kEarthProjectileStrength = 0.37f;
+	float kEarthProjectileStrength = 0.40f;
 	float kEarthProjectileSpeed = 10.0f;
 	float kEarthProjectileCooldown = 0.5f;
 	float kEarthProjectileEffectRadius = 5.f;
