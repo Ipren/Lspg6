@@ -77,6 +77,9 @@ private:
 	ID3D11SamplerState *particle_sampler;
 	ID3D11BlendState *particle_blend;
 
+	ID3D11Buffer *dLightBuffer;
+	ID3D11Buffer *cameraPosBuffer;
+
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
 	ID3D11RenderTargetView* nullRTV;
@@ -102,6 +105,10 @@ private:
 	void createStompParticles(DirectX::XMFLOAT3 pos, int type);
 	void updateParticles(float dt, Map *map);
 	void shrinkMap(Map *map);
+	
+	void createLightBuffers();
+	void createCameraBuffer();
+	void updateCameraPosBuffer(Camera *cam);
 
 	
 };

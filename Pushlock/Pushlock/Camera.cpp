@@ -111,3 +111,7 @@ void Camera::update(float dt, ID3D11DeviceContext *gDeviceContext)
 	memcpy(data.pData, &this->wvpmatrixes, sizeof(DirectX::XMFLOAT4X4) * 3);
 	gDeviceContext->Unmap(this->floatwvpBuffer, 0);
 }
+
+void Camera::updateCamPosBuffer(ID3D11Buffer * rBuffer)
+{
+}

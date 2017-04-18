@@ -31,6 +31,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->debug_entity_layout = nullptr;
 	this->debug_entity_psh = nullptr;
 	this->debug_entity_vsh = nullptr;
+	this->dLightBuffer = nullptr;
 
 	this->nullSRV = nullptr;
 	this->nullUAV = nullptr;
@@ -47,6 +48,8 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createShaders();
 	this->setViewPort(width, height);
 	this->createParticleBuffer(524288);
+	this->createLightBuffers();
+	this->createCameraBuffer();
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
 	{
@@ -93,6 +96,7 @@ Renderer::~Renderer()
 	this->randomVecBufer->Release();
 	this->stompParticles->Release();
 	this->playerPosBuffer->Release();
+	this->dLightBuffer->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -813,6 +817,65 @@ void Renderer::shrinkMap(Map * map)
 
 }
 
+void Renderer::createLightBuffers()
+{
+	dirLight ligth;
+	ligth.lightColor = DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+	ligth.lightDirection = DirectX::XMFLOAT4(0.0f, -13.0f, 0.0f, 1.0f);
+
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(dirLight);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+
+	data.pSysMem = &ligth;
+
+	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &this->dLightBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"light buffer creation failed!", L"error", MB_OK);
+	}
+}
+
+void Renderer::createCameraBuffer()
+{
+	XMFLOAT4 temp = XMFLOAT4(0.0f, 0.0f,0.0f, 0.0f);
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(DirectX::XMFLOAT4);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	data.pSysMem = &temp;
+
+	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &this->cameraPosBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Camera buffer cration failed", L"error", MB_OK);
+	}
+
+
+}
+
+void Renderer::updateCameraPosBuffer(Camera * cam)
+{
+	D3D11_MAPPED_SUBRESOURCE data;
+	ZeroMemory(&data, sizeof(D3D11_MAPPED_SUBRESOURCE));
+
+	this->gDeviceContext->Map(this->cameraPosBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &cam->pos, sizeof(DirectX::XMFLOAT3));
+
+	this->gDeviceContext->Unmap(this->cameraPosBuffer, 0);
+}
+
 void Renderer::swapBuffers()
 {
 	ID3D11UnorderedAccessView *tempUAV;
@@ -995,6 +1058,7 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos, int type)
 
 void Renderer::render(Map *map, Menu* menu, Camera *camera)
 {
+	this->updateCameraPosBuffer(camera);
 	XMFLOAT4 clear = normalize_color(0x93a9bcff);
 
 	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, (float*)&clear);
@@ -1019,8 +1083,10 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 
 		gDeviceContext->VSSetShader(debug_map_vsh, nullptr, 0);
 		gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-		gDeviceContext->PSSetShader(debug_map_psh, nullptr, 0);
+		gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
 		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+		gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
+		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 
 		gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
 
@@ -1036,9 +1102,12 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 		gDeviceContext->IASetVertexBuffers(0, 1, &debug_entity_circle, &size, &offset);
 		gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
+		//sets stuff twice fix if bad prefomance
 		gDeviceContext->VSSetShader(debug_entity_vsh, nullptr, 0);
 		gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
 		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+		gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
+		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 
 		int i = 2;
 		for (auto entity : map->entitys)

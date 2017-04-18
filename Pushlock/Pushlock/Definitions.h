@@ -40,3 +40,9 @@ struct Emitterlocation
 	DirectX::XMFLOAT3 position;
 	int particleType;
 };
+
+struct dirLight
+{
+	DirectX::XMFLOAT4 lightDirection;
+	DirectX::XMFLOAT4 lightColor;
+};

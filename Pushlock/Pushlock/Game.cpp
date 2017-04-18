@@ -264,6 +264,21 @@ void Game::update(float dt)
 	}
 
 	{
+		if (ImGui::Button("Main Menu")) {//start the main menu
+			currentState = GameState::MainMenu;
+		}
+		int i = 0;
+		for (i; i < currentMap->nrOfAlivePlayers; i++)//showing players health
+		{
+			Player* p = dynamic_cast<Player*>(currentMap->entitys[i]);
+			if(p != nullptr)
+				ImGui::Text("player %i: %f", i+1, p->health);
+				
+		}for (i; i < currentMap->nrOfPlayers; i++)
+		{
+			ImGui::Text("player %i: dead", i + 1);
+		}
+
 		ImGui::Begin("Debug");
 		if (ImGui::Button("Reset to 2p")) {//resetting the map with 2 players
 			currentMap->reset(2);
@@ -277,7 +292,6 @@ void Game::update(float dt)
 		ImGui::End();
 	}
 
-	int indexWinner = -1;
 	if (currentState == GameState::MainMenu)
 	{
 		ImGui::Begin("Main Menu");
@@ -303,34 +317,32 @@ void Game::update(float dt)
 		}
 		currentMap->update(dt, camera);
 		ImGui::Begin("Choose elemnts");
-		ImGui::Text("%s", "x - wind");
-		ImGui::Text("%s", "y - earth");
-		ImGui::Text("%s", "a - arcane");
-		ImGui::Text("%s", "b - fire");
-		ImGui::Text("%s", "rb - water");
+		ImGui::Text("x - wind");
+		ImGui::Text("y - earth");
+		ImGui::Text("a - arcane");
+		ImGui::Text("b - fire");
+		ImGui::Text("rb - water");
 
 		for (int i = 0; i < currentMap->nrOfAlivePlayers; i++)
 		{
 			Player * p = dynamic_cast<Player*>(currentMap->entitys[i]);
 				ImGui::Text("Player %d ready: %d", i, p->ready);
 		}
-		//if (ImGui::Button("start"))
+
+		int readyCount = 0;
+		for (int i = 0; i < currentMap->nrOfAlivePlayers; i++)
 		{
-			int readyCount = 0;
-			for (int i = 0; i < currentMap->nrOfAlivePlayers; i++)
+			if (dynamic_cast<Player*>(currentMap->entitys[i])->ready)
 			{
-				if (dynamic_cast<Player*>(currentMap->entitys[i])->ready)
-				{
-					readyCount++;
-				}	
-			}
-			if (readyCount == currentMap->nrOfAlivePlayers)
-			{
-				currentState = GameState::Playing;
-				currentMap->reset(currentMap->nrOfAlivePlayers);
-			}
-			
+				readyCount++;
+			}	
 		}
+		if (readyCount == currentMap->nrOfAlivePlayers)
+		{
+				currentState = GameState::Playing;
+			currentMap->reset(currentMap->nrOfAlivePlayers);
+		}
+
 		if (ImGui::Button("start anyway"))
 		{
 			currentState = GameState::Playing;
@@ -356,7 +368,7 @@ void Game::update(float dt)
 					if (currentMap->playerPoints[p->index] == 3)
 					{
 						currentState = GameState::EndGame;
-						indexWinner = p->index;
+						currentMap->indexWinner = p->index;
 					}
 					else
 					{
@@ -370,7 +382,7 @@ void Game::update(float dt)
 		ImGui::Begin("End of the round");
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
-			ImGui::Text("%s %i %i", "player:", i, currentMap->playerPoints[i]);
+			ImGui::Text("player %i: %i", i+1, currentMap->playerPoints[i]);
 		}
 		if (ImGui::Button("start next round")) {
 			currentState = GameState::Playing;
@@ -381,7 +393,7 @@ void Game::update(float dt)
 	if (currentState == GameState::EndGame)
 	{
 		ImGui::Begin("End of the game");
-		ImGui::Text("%s %i", "Winner player:", indexWinner);
+		ImGui::Text("Winner player: %i", currentMap->indexWinner +1);
 		if (ImGui::Button("Go to main menu")) {
 			currentState = GameState::MainMenu;}
 		ImGui::End();

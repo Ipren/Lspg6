@@ -13,13 +13,14 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 
 	element = new ArcaneElement;
 
-	for (int i = 0; i < 5; i++)
+	/*for (int i = 0; i < 5; i++)
 	{
 		this->cooldown[i] = 0;
-	}
+	}*/
 	stomped = false;
 	blowUp = false;
 	ready = false;
+	this->health = 10.f;
 }
 
 Player::~Player()
@@ -84,8 +85,12 @@ void Player::update(Map *map, float dt)
 
 		if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > map->radius && gGameConstants.kCanDie)
 		{
-			this->dead = true;
-			map->nrOfAlivePlayers--;
+			this->health -= 0.01f;
+			if (this->health <= 0) 
+			{
+				this->dead = true;
+				map->nrOfAlivePlayers--;
+			}
 		}
 	}
 	if (*map->currentState == GameState::ChoosePowers)
