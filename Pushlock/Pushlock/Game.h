@@ -19,6 +19,7 @@ public:
 	int width;
 	int heigth;
 	bool audioDevicePresent;
+	int playerElements;
 	
 	GameState currentState;
 };

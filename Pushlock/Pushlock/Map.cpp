@@ -11,6 +11,11 @@ Map::Map(GameState * currentState)
 	this->reset(4);
 	this->nrOfAlivePlayers = 4;
 	this->currentState = currentState;
+	for (size_t i = 0; i < 4; i++)
+	{
+		this->playerElemnts[i] = 0;
+
+	}
 }
 
 Map::~Map()
@@ -22,6 +27,26 @@ void Map::reset(int nrOfPlayers)
 	entitys.clear();
 	for (int i = 0; i < nrOfPlayers; ++i) {
 		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
+		if (this->playerElemnts[i] == 0)
+		{
+			dynamic_cast<Player*>(e)->element = new ArcaneElement();
+		}
+		if (this->playerElemnts[i] == 1)
+		{
+			dynamic_cast<Player*>(e)->element = new FireElement();
+		}
+		if (this->playerElemnts[i] == 2)
+		{
+			dynamic_cast<Player*>(e)->element = new WindElement();
+		}
+		if (this->playerElemnts[i] == 3)
+		{
+			dynamic_cast<Player*>(e)->element = new EarthElement();
+		}
+		if (this->playerElemnts[i] == 4)
+		{
+			dynamic_cast<Player*>(e)->element = new WaterElement();
+		}
 		entitys.push_back(e);
 	}
 	this->nrOfAlivePlayers = nrOfPlayers;

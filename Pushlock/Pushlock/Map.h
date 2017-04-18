@@ -28,6 +28,7 @@ public:
 	std::vector <Entity*> entitys_to_add;
 	int nrOfAlivePlayers;
 	int playerPoints[4];
+	int playerElemnts[4];
 	float totalTime;
 	float timeSinceLastShrunk;
 	float radius;
