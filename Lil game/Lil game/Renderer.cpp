@@ -976,7 +976,7 @@ void Renderer::render(Map *map, Camera *camera)
 
 		gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
 
-		gDeviceContext->Draw(128*3, 0);
+		///gDeviceContext->Draw(128*3, 0);
 	}
 
 	
@@ -1017,6 +1017,44 @@ void Renderer::render(Map *map, Camera *camera)
 			}
 		}
 	}
+	
+	//Draw arena
+	float i = 0;
+	for (auto& mesh : map->map_geometry)
+	{
+		i += 0.2f;
+		XMFLOAT4 col(0.5f+i, 0.5f + i, 0.5f + i, 1.0f);
+		D3D11_MAPPED_SUBRESOURCE data;
+		DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
+		{
+			CopyMemory(data.pData, &col, sizeof(float) * 4);
+		}
+		gDeviceContext->Unmap(color_buffer, 0);
+
+		XMMATRIX model = XMMatrixIdentity();
+
+		camera->vals.world = model;
+		camera->update(0, gDeviceContext);
+		gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+
+		mesh->Draw(gDevice, gDeviceContext);
+	}
+
+	//{
+	//	XMFLOAT4 col(0.5f, 0.5f, 0.5f, 1.0f);
+	//	D3D11_MAPPED_SUBRESOURCE data;
+	//	DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
+	//	{
+	//		CopyMemory(data.pData, &col, sizeof(float) * 4);
+	//	}
+	//	gDeviceContext->Unmap(color_buffer, 0);
+
+	//	XMMATRIX model = XMMatrixIdentity();
+
+	//	camera->vals.world = model;
+
+	//	map->map_geometry->Draw(gDevice, gDeviceContext);
+	//}
 
 	this->renderParticles(camera);
 }
