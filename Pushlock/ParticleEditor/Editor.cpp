@@ -26,6 +26,7 @@ std::vector<ParticleDefinition> definitions;
 std::vector<Particle> particles;
 
 std::vector<ParticleEffect> effects;
+ParticleEffect *current_effect;
 
 Editor::Settings default_settings;
 Editor::Settings settings;
@@ -49,6 +50,11 @@ ID3D11ShaderResourceView *particle_srv;
 ID3D11SamplerState *particle_sampler;
 
 ID3D11BlendState *particle_blend;
+
+float RandomFloat(float lo, float hi)
+{
+	return ((hi - lo) * ((float)rand() / RAND_MAX)) + lo;
+}
 
 void ComboFunc(const char *label, ParticleEase *ease)
 {
@@ -268,6 +274,8 @@ void Update(float dt)
 		if (ImGui::Selectable(label, current_fx == i)) {
 
 			current_fx = i;
+			effects[current_fx].age = 0.f;
+
 		}
 	}
 	ImGui::EndChild();
@@ -276,18 +284,84 @@ void Update(float dt)
 	ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
 	if (!effects.empty()) {
 		ParticleEffect *fx = &effects[current_fx];
+		current_effect = fx;
 
 		ImGui::Text("%s", fx->name);
 		ImGui::Separator();
-		ImGui::InputText("name", fx->name, 32);
+		ImGui::InputText("name##fx", fx->name, 32);
+
+		ImGui::TextDisabled("Time");
+		if (ImGui::Checkbox("loop", &fx->loop)) {
+			fx->clamp_children = false;
+		}
+		ImGui::SameLine();
+		if (ImGui::Checkbox("clamp to children", &fx->clamp_children)) {
+			fx->loop = false;
+		}
+
+		if (fx->clamp_children) {
+			for (int i = 0; i < MAX_PARTICLE_FX; ++i) {
+				ParticleEffectEntry entry = fx->fx[i];
+				if (entry.idx < 0) continue;
+
+				auto def = definitions[entry.idx];
+
+				fx->children_time = max(fx->children_time, entry.end);
+			}
+		}
+
+		if (!fx->loop && !fx->clamp_children) {
+			ImGui::DragFloat("duration", &fx->time, 0.025f, 0.f, 100000.f, "%.3f seconds");
+		}
+
+		ImGui::Separator();
+		
+		for (int i = 0; i < MAX_PARTICLE_FX; ++i) {
+			ParticleEffectEntry *entry = &fx->fx[i];
+			if (entry->idx < 0) continue;
+
+			auto def = definitions[entry->idx];
+
+			char label[64];
+			sprintf_s(label, 64, "%s##%d", def.name, i);
+			if (ImGui::CollapsingHeader(label, ImGuiTreeNodeFlags_Framed)) {
+				ImGui::TextDisabled("Time");
+				ImGui::DragFloatRange2("time", &entry->start, &entry->end, 0.01, 0.f, 10000.f, "start: %.3f", "end: %.3f");
+				ImGui::TextDisabled("Emitter");
+				ImGui::Combo("type##emitter", (int*)&entry->emitter_type, EMITTER_STRINGS);
+				switch (entry->emitter_type) {
+				case ParticleEmitter::Cube:
+					ImGui::TextDisabled("Spawn area");
+					ImGui::DragFloatRange2("x", &entry->emitter_xmin, &entry->emitter_xmax, 0.01f);
+					ImGui::DragFloatRange2("y", &entry->emitter_ymin, &entry->emitter_ymax, 0.01f);
+					ImGui::DragFloatRange2("z", &entry->emitter_zmin, &entry->emitter_zmax, 0.01f);
+					break;
+				}
+
+				ImGui::TextDisabled("Spawn velocity");
+				ImGui::DragFloatRange2("x##spawn", &entry->vel_xmin, &entry->vel_xmax, 0.01f);
+				ImGui::DragFloatRange2("y##spawn", &entry->vel_ymin, &entry->vel_ymax, 0.01f);
+				ImGui::DragFloatRange2("z##spawn", &entry->vel_zmin, &entry->vel_zmax, 0.01f);
+
+				if (entry->emitter_type != ParticleEmitter::Static) {
+					ImGui::TextDisabled("Spawn rate");
+					ComboFunc("ease##spawn", &entry->spawn_fn);
+
+					ImGui::DragInt("start", &entry->spawn_start);
+					ImGui::DragInt("end", &entry->spawn_end);
+				}
+			}
+		}
+
+
 	}
 	ImGui::EndChild();
 
 	ImGui::BeginChild("buttons");
 	if (ImGui::Button("Add##fx")) {
 		ParticleEffect fx = {};
-		fx.fx[0] = { &definitions[0], 0.12f, 0.45f };
-		fx.fx[1] = { &definitions[0], 0.34f, 0.87f };
+		fx.fx[0] = { };
+		fx.fx[0].idx = 0;
 		effects.push_back(fx);
 	}
 	ImGui::SameLine();
@@ -302,24 +376,76 @@ void Update(float dt)
 
 	ImGui::Begin("Timeline");
 
-		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-		auto cur = ImGui::GetCursorScreenPos();
-		for (int i = 0; i < 32; ++i) {
-			draw_list->AddLine(ImVec2(cur.x + ImGui::GetContentRegionAvailWidth() * (i / 32.f), cur.y), ImVec2(cur.x + ImGui::GetContentRegionAvailWidth() * (i / 32.f), cur.y + ImGui::GetContentRegionAvail().y), ImColor(ImGui::GetStyle().Colors[ImGuiCol_Border]));
+		if (!effects.empty()) {
+			auto fx = effects[current_fx];
+			auto time = fx.clamp_children ? fx.children_time : fx.time;
+
+			ImGui::ProgressBar(fx.age / time);
+			ImGui::NewLine();
+
+			auto hi = (int)ceilf(time);
+
+			for (int i = 0; i < (int)hi; ++i) {
+				if (i <= (int)time) {
+
+					ImGui::SameLine(ImGui::GetContentRegionAvailWidth() * (i / (float)time));
+					ImGui::TextDisabled("%.1f", (float)i);
+				}
+			}
+
+			ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 20);
+			ImGui::TextDisabled("%.1f", time);
+		}
+		else {
+			ImGui::ProgressBar(0.f);
 		}
 
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+
+
+		auto h = ImGui::GetContentRegionAvail().y;
+		auto cur = ImGui::GetCursorScreenPos();
 
 		ImGui::BeginChild("timelineview", ImVec2(0, 0), true);
 
+		auto acur = ImGui::GetCursorScreenPos();
+		auto w = ImGui::GetContentRegionAvailWidth();
 
 		if (!effects.empty()) {
+			auto fx = effects[current_fx];
+			auto time = fx.clamp_children ? fx.children_time : fx.time;
+			auto hi = (int)ceilf(time);
+
+			for (int i = 0; i < (int)hi; ++i) {
+				auto extend = 4.f;
+				if (i <= (int)time) {
+					draw_list->AddLine(
+						ImVec2(acur.x + w * (i / (float)time), cur.y - extend),
+						ImVec2(acur.x + w * (i / (float)time), cur.y + h + extend),
+						ImColor(ImGui::GetStyle().Colors[ImGuiCol_Border]),
+						2.f
+					);
+				}
+
+				for (int j = 0; j < 4; ++j) {
+					draw_list->AddLine(
+						ImVec2(acur.x + w * (((float)i + j / 4.f) / (float)time), cur.y),
+						ImVec2(acur.x + w * (((float)i + j / 4.f) / (float)time), cur.y + h),
+						ImColor(ImGui::GetStyle().Colors[ImGuiCol_Border]),
+						1.f
+					);
+				}
+			}
 
 			for (ParticleEffectEntry entry : effects[current_fx].fx) {
-				if (entry.def == nullptr) continue;
+				if (entry.idx < 0) continue;
 
-				ImGui::SameLine(ImGui::GetContentRegionAvailWidth() * entry.start);
-				ImGui::Button(entry.def->name, ImVec2(ImGui::GetContentRegionAvailWidth() * (entry.end - entry.start), 0));
+				auto def = definitions[entry.idx];
+
+				ImGui::SameLine(w * (entry.start/time));
+				ImGui::Button(def.name, ImVec2(w * (entry.end - entry.start) / time, 0));
 				ImGui::NewLine();
 			}
 		}
@@ -381,25 +507,6 @@ void Update(float dt)
 				ImGui::TextDisabled("Texture");
 				ImGui::InputInt4("uv", &def->u);
 				ImGui::Image((void*)particle_srv, ImVec2(ImGui::CalcItemWidth(), ImGui::CalcItemWidth()), ImVec2(def->u / 2048.f, def->v / 2048.f), ImVec2((def->u + def->u2) / 2048.f, (def->v + def->v2) / 2048.f), ImVec4(def->start_color.x, def->start_color.y, def->start_color.z, def->start_color.w));
-			
-				ImGui::TextDisabled("Emitter");
-				ImGui::Combo("type##emitter", (int*)&def->emitter_type, EMITTER_STRINGS);
-				switch (def->emitter_type) {
-					case ParticleEmitter::Cube:
-						ImGui::DragFloatRange2("x", &def->emitter_xmin, &def->emitter_xmax, 0.01f);
-						ImGui::DragFloatRange2("y", &def->emitter_xmin, &def->emitter_xmax, 0.01f);
-						ImGui::DragFloatRange2("z", &def->emitter_xmin, &def->emitter_xmax, 0.01f);
-						break;
-				}
-
-				if (def->emitter_type != ParticleEmitter::Static) {
-					ImGui::TextDisabled("Spawn rate");
-					ComboFunc("ease##spawn", &def->spawn_fn);
-
-					ImGui::DragInt("start", &def->spawn_start);
-					ImGui::DragInt("end", &def->spawn_end);
-				}
-			
 			}
 			ImGui::EndChild();
 			
@@ -418,6 +525,53 @@ void Update(float dt)
 	ImGui::End();
 
 	auto pdt = dt * settings.ParticleSpeed;
+
+	auto fx = current_effect;
+	if (fx != nullptr) {
+		auto time = fx->clamp_children ? fx->children_time : fx->time;
+
+		fx->age += pdt;
+		if (fx->age >= time) {
+			
+		}
+		else {
+			for (int i = 0; i < MAX_PARTICLE_FX; ++i) {
+				auto entry = fx->fx[i];
+				if (entry.idx < 0) continue;
+
+				auto def = definitions[entry.idx];
+
+				if (fx->age > entry.start && fx->age < entry.end) {
+					auto factor = (fx->age - entry.start) / (entry.end - entry.start);
+
+					auto spawn_ease = GetEaseFunc(entry.spawn_fn);
+					int spawn = (int)spawn_ease((float)entry.spawn_start, (float)entry.spawn_end, factor);
+					
+					for (int j = 0; j < spawn; ++j) {
+						XMVECTOR pos = {
+							RandomFloat(entry.emitter_xmin, entry.emitter_xmax),
+							RandomFloat(entry.emitter_ymin, entry.emitter_ymax),
+							RandomFloat(entry.emitter_zmin, entry.emitter_zmax),
+						};
+
+						XMVECTOR vel = {
+							RandomFloat(entry.vel_xmin, entry.vel_xmax),
+							RandomFloat(entry.vel_ymin, entry.vel_ymax),
+							RandomFloat(entry.vel_zmin, entry.vel_zmax),
+						};
+
+						Particle p = {};
+						p.pos = pos;
+						p.velocity = vel;
+						p.idx = entry.idx;
+						p.type = (int)def.orientation;
+						p.scale = { 1.f, 1.f };
+						particles.push_back(p);
+					}
+				}
+			}
+		}
+	}
 
 	auto it = particles.begin();
 	while (it != particles.end())
