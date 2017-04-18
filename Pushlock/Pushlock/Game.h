@@ -13,6 +13,7 @@ public:
 	void render();
 
 //private: 
+	Menu* currentMenu;
 	Map *currentMap;
 	Camera *camera;
 	Renderer *renderer;

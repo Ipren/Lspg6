@@ -1064,7 +1064,7 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 	//{//rendering the menu
 	//	gDeviceContext->IASetInputLayout(this->menu_layout);
 
-	//	UINT32 size = sizeof(float) * 4;
+	//	UINT32 size = sizeof(float) * 3;
 	//	UINT32 offset = 0u;
 	//	gDeviceContext->IASetVertexBuffers(0, 1, &menu_buffer, &size, &offset);
 	//	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -1085,13 +1085,13 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 	//			}
 	//			gDeviceContext->Unmap(color_buffer, 0);
 
-	//			XMMATRIX model = XMMatrixTranslation(1, 1, 1);
+	//			//XMMATRIX model = XMMatrix;
 
 	//			camera->vals.world = model;
 	//			camera->update(0, gDeviceContext);
 
 	//			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-	//			gDeviceContext->Draw(133, 0);
+	//			gDeviceContext->Draw(233, 0);
 	//		}
 	//	}
 	//}

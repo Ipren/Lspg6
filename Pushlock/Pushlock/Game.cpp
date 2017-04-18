@@ -25,6 +25,7 @@ std::unique_ptr<AudioEngine> audEngine;
 Game::Game(HWND wndHandle, int width, int height)
 {
 	// TODO: memory management
+	this->currentMenu = new Menu();
 	this->currentState = GameState::MainMenu;
 	this->currentMap = new Map(&currentState);
 	this->renderer = new Renderer(wndHandle, width, height);
@@ -403,8 +404,7 @@ void Game::update(float dt)
 
 void Game::render()
 {
-	Menu* menu = nullptr;
-	this->renderer->render(this->currentMap, menu, this->camera);
+	this->renderer->render(this->currentMap, currentMenu, this->camera);
 	ImGui::Render();
 	this->renderer->present();
 }
