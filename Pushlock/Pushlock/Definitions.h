@@ -19,10 +19,11 @@ enum Button
 };
 
 enum GameState {
-	MainMenu,
-	ChoosePowers,
-	Playing,
-	UpgradeMenu
+	MainMenu,		//choose amount of players
+	ChoosePowers,	//choose with "class" you want to play as
+	Playing,		//main game loop
+	EndRound,		//upgrading abilities
+	EndGame			//showing results (stats maybe) and retun to main menu
 };
 
 struct Particle

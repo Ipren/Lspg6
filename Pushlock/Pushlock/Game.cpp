@@ -10,6 +10,7 @@
 #include "Gamepad.h"
 #include "Constants.h"
 #include "Player.h"
+#include "Menu.h"
 #include <Audio.h>
 
 #include "imgui.h"
@@ -24,6 +25,7 @@ std::unique_ptr<AudioEngine> audEngine;
 Game::Game(HWND wndHandle, int width, int height)
 {
 	// TODO: memory management
+	this->currentMenu = new Menu();
 	this->currentState = GameState::MainMenu;
 	this->currentMap = new Map(&currentState);
 	this->renderer = new Renderer(wndHandle, width, height);
@@ -275,6 +277,7 @@ void Game::update(float dt)
 		ImGui::End();
 	}
 
+	int indexWinner = -1;
 	if (currentState == GameState::MainMenu)
 	{
 		ImGui::Begin("Main Menu");
@@ -299,8 +302,19 @@ void Game::update(float dt)
 			gGamepads[i]->update(dt);
 		}
 		currentMap->update(dt, camera);
-		ImGui::Begin("Choose elemnts with x, y, a, b, rb");
-		if (ImGui::Button("start"))
+		ImGui::Begin("Choose elemnts");
+		ImGui::Text("%s", "x - wind");
+		ImGui::Text("%s", "y - earth");
+		ImGui::Text("%s", "a - arcane");
+		ImGui::Text("%s", "b - fire");
+		ImGui::Text("%s", "rb - water");
+
+		for (int i = 0; i < currentMap->nrOfAlivePlayers; i++)
+		{
+			Player * p = dynamic_cast<Player*>(currentMap->entitys[i]);
+				ImGui::Text("Player %d ready: %d", i, p->ready);
+		}
+		//if (ImGui::Button("start"))
 		{
 			int readyCount = 0;
 			for (int i = 0; i < currentMap->nrOfAlivePlayers; i++)
@@ -310,11 +324,17 @@ void Game::update(float dt)
 					readyCount++;
 				}	
 			}
-			//if (readyCount == currentMap->nrOfAlivePlayers)
+			if (readyCount == currentMap->nrOfAlivePlayers)
 			{
 				currentState = GameState::Playing;
+				currentMap->reset(currentMap->nrOfAlivePlayers);
 			}
 			
+		}
+		if (ImGui::Button("start anyway"))
+		{
+			currentState = GameState::Playing;
+			currentMap->reset(currentMap->nrOfAlivePlayers);
 		}
 		ImGui::End();
 	}
@@ -332,13 +352,43 @@ void Game::update(float dt)
 				{
 					Player* p = dynamic_cast<Player*>(this->currentMap->entitys[i]);
 					currentMap->playerPoints[p->index]++;
+				
+					if (currentMap->playerPoints[p->index] == 3)
+					{
+						currentState = GameState::EndGame;
+						indexWinner = p->index;
+					}
+					else
+					{
+						currentState = GameState::EndRound;
+					}
 				}
 			}
-			currentState = GameState::MainMenu;
 		}
-	}else if (currentState == GameState::UpgradeMenu)
+	}else if (currentState == GameState::EndRound)//här ska upgraderingar hända
 	{
-
+		ImGui::Begin("End of the round");
+		for (int i = 0; i < currentMap->nrOfPlayers; i++)
+		{
+			ImGui::Text("%s %i %i", "player:", i, currentMap->playerPoints[i]);
+		}
+		if (ImGui::Button("start next round")) {
+			currentState = GameState::Playing;
+			currentMap->reset(currentMap->nrOfPlayers);
+		}
+		ImGui::End();
+	}
+	if (currentState == GameState::EndGame)
+	{
+		ImGui::Begin("End of the game");
+		ImGui::Text("%s %i", "Winner player:", indexWinner);
+		if (ImGui::Button("Go to main menu")) {
+			currentState = GameState::MainMenu;}
+		ImGui::End();
+		for (int i = 0; i < 4; i++)
+		{
+			currentMap->playerPoints[i] = 0;
+		}
 	}
 
 	std::unique_ptr<SoundEffect> soundEffect;
@@ -376,8 +426,7 @@ void Game::update(float dt)
 
 void Game::render()
 {
-
-	this->renderer->render(this->currentMap, this->camera);
+	this->renderer->render(this->currentMap, currentMenu, this->camera);
 	ImGui::Render();
 	this->renderer->present();
 }

@@ -993,7 +993,7 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos, int type)
 
 }
 
-void Renderer::render(Map *map, Camera *camera)
+void Renderer::render(Map *map, Menu* menu, Camera *camera)
 {
 	XMFLOAT4 clear = normalize_color(0x93a9bcff);
 
@@ -1059,7 +1059,42 @@ void Renderer::render(Map *map, Camera *camera)
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 			gDeviceContext->Draw(129, 0);
 		}
+
 	}
+	//{//rendering the menu
+	//	gDeviceContext->IASetInputLayout(this->menu_layout);
+
+	//	UINT32 size = sizeof(float) * 3;
+	//	UINT32 offset = 0u;
+	//	gDeviceContext->IASetVertexBuffers(0, 1, &menu_buffer, &size, &offset);
+	//	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	//	gDeviceContext->VSSetShader(this->menu_vsh, nullptr, 0);
+	//	gDeviceContext->PSSetShader(this->menu_psh, nullptr, 0);
+	//	gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+
+	//	if (menu != nullptr)
+	//	{
+	//		for (int i = 0; i < 4; i++)
+	//		{
+	//			XMFLOAT4 col = normalize_color(0xffffffff);
+	//			D3D11_MAPPED_SUBRESOURCE data;
+	//			DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
+	//			{
+	//				CopyMemory(data.pData, &col, sizeof(float) * 4);
+	//			}
+	//			gDeviceContext->Unmap(color_buffer, 0);
+
+	//			//XMMATRIX model = XMMatrix;
+
+	//			camera->vals.world = model;
+	//			camera->update(0, gDeviceContext);
+
+	//			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+	//			gDeviceContext->Draw(233, 0);
+	//		}
+	//	}
+	//}
 
 	this->renderParticles(camera);
 }
@@ -1073,7 +1108,7 @@ void Renderer::update(float dt, Map * map)
 	this->updateParticles(dt, map);
 	if (map->shrunk == true)
 	{
-		map->shrunk == false;
+		map->shrunk = false;
 		this->shrinkMap(map);
 	}
 }

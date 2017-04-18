@@ -28,16 +28,13 @@
     <Filter Include="Header Files\Misc">
       <UniqueIdentifier>{14f6551d-2e57-4a79-8a9c-bed69183b079}</UniqueIdentifier>
     </Filter>
-<<<<<<< HEAD
     <Filter Include="Shaders\Paricles">
       <UniqueIdentifier>{f9f3c619-655f-4d28-86b4-c2557aa7cfc1}</UniqueIdentifier>
-=======
     <Filter Include="Header Files\Graphics">
       <UniqueIdentifier>{912753be-ea7a-42de-9901-d0749a31d1b4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{3b1523e7-3c5d-4b6f-975d-74de69bc5c8a}</UniqueIdentifier>
->>>>>>> 9aefea704652a3482845943afa600392842ddce8
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -4,8 +4,6 @@
 #include "Camera.h"
 class Game
 {
-private:
-	
 public:
 	Game(HWND wndHandle, int width, int height);
 	Game();
@@ -15,12 +13,14 @@ public:
 	void render();
 
 //private: 
+	Menu* currentMenu;
 	Map *currentMap;
 	Camera *camera;
 	Renderer *renderer;
 	int width;
 	int heigth;
 	bool audioDevicePresent;
+	int playerElements;
 	
 	GameState currentState;
 };
