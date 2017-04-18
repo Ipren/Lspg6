@@ -4,16 +4,20 @@
 #include "Spell.h"
 #include "Constants.h"
 #include "Globals.h"
-
+#include "Mesh.h"
 using namespace DirectX;
 
 Map::Map()
 {
 	for (int i = 0; i < 4; ++i) {
 		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
-		e->AddMesh("test.obj", globalDevice, globalDeviceContext);
+		e->AddMesh("bony_zen.obj", globalDevice, globalDeviceContext);
 		entitys.push_back(e);
 	}
+	this->map_geometry.push_back(new Mesh());
+	map_geometry.back()->LoadOBJ("arena.obj", globalDevice, globalDeviceContext);
+	this->map_geometry.push_back(new Mesh());
+	map_geometry.back()->LoadOBJ("arena_background.obj", globalDevice, globalDeviceContext);
 }
 
 Map::~Map()
