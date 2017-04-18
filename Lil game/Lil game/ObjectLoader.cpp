@@ -37,6 +37,7 @@ void ObjectLoader::load(std::string filename, ID3D11Device& device, ID3D11Device
 		}
 		file.close();
 	}
+	else EXIT_FAILURE;
 }
 
 //void ObjectLoader::Load(std::string FileName, ID3D11Device& device, ID3D11DeviceContext& deviceContext, XMFLOAT3 vertexArray[], UINT indexArray[])
