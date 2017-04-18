@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{fcf800c8-8c10-4129-8cde-29f4dc28ab75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{94350cb7-703f-4708-acee-d86f7f0d306d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\dxerr.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="External\imgui.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="External\imgui_demo.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="External\imgui_draw.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="External\imgui_impl_dx11.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
+    <ClCompile Include="Editor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Helpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="External\DirectXTK.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\dxerr.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imconfig.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imgui.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imgui_impl_dx11.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imgui_internal.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\stb_rect_pack.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\stb_textedit.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\stb_truetype.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ease.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Plane.dds">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="Resources\nosmoke.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="Resources\Particle.dds">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Resources\Plane.hlsl">
+      <Filter>Resources</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Particle.hlsl">
+      <Filter>Resources</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
