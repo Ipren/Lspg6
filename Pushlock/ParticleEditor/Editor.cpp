@@ -4,6 +4,7 @@
 #include <d3dcompiler.h>
 
 #include <vector>
+#include <algorithm>
 
 #include "External/DirectXTK.h"
 #include "External/imgui.h"
@@ -31,6 +32,7 @@ ParticleEffect *current_effect;
 Editor::Settings default_settings;
 Editor::Settings settings;
 
+// Plane
 ID3D11Buffer *plane_vertex_buffer;
 ID3D11InputLayout *plane_layout;
 
@@ -39,7 +41,7 @@ ID3D11PixelShader *plane_ps;
 ID3D11ShaderResourceView *plane_srv;
 ID3D11SamplerState *plane_sampler;
 
-
+// Particle
 ID3D11Buffer *particle_buffer;
 ID3D11InputLayout *particle_layout;
 
@@ -50,6 +52,17 @@ ID3D11ShaderResourceView *particle_srv;
 ID3D11SamplerState *particle_sampler;
 
 ID3D11BlendState *particle_blend;
+
+// Composite
+ID3D11Buffer *composite_vertex_buffer;
+ID3D11InputLayout *composite_layout;
+
+ID3D11VertexShader *composite_vs;
+ID3D11PixelShader *composite_ps;
+ID3D11SamplerState *composite_sampler;
+
+ID3D11RenderTargetView *hdr_rtv;
+ID3D11ShaderResourceView *hdr_srv;
 
 float RandomFloat(float lo, float hi)
 {
@@ -128,7 +141,7 @@ void InitParticles()
 	D3D11_BUFFER_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.ByteWidth = (UINT)(sizeof(Particle) * 2048);
+	desc.ByteWidth = (UINT)(sizeof(Particle) * 4096);
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
@@ -160,13 +173,13 @@ void InitParticles()
 	ID3D11Resource *r = nullptr;
 	DXCALL(CreateDDSTextureFromFile(gDevice, L"Resources/Particle.dds", &r, &particle_srv, 0, nullptr));
 
-	D3D11_SAMPLER_DESC sdesc;
-	ZeroMemory(&sdesc, sizeof(sdesc));
-	sdesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sdesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sdesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sdesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	DXCALL(gDevice->CreateSamplerState(&sdesc, &particle_sampler));
+	D3D11_SAMPLER_DESC sadesc;
+	ZeroMemory(&sadesc, sizeof(sadesc));
+	sadesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sadesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sadesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sadesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	DXCALL(gDevice->CreateSamplerState(&sadesc, &particle_sampler));
 
 	D3D11_BLEND_DESC state;
 	ZeroMemory(&state, sizeof(D3D11_BLEND_DESC));
@@ -179,6 +192,88 @@ void InitParticles()
 	state.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	state.RenderTarget[0].RenderTargetWriteMask = 0x0f;
 	DXCALL(gDevice->CreateBlendState(&state, &particle_blend));
+}
+
+void InitComposite()
+{
+	float vertices[] = {
+		-1,  1, 0, 0,
+		1, -1, 1, 1,
+		-1, -1, 0, 1,
+
+		1, -1, 1, 1,
+		-1,  1, 0, 0,
+		1,  1, 1, 0
+	};
+
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.ByteWidth = (UINT)(sizeof(vertices));
+	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	data.pSysMem = &vertices[0];
+
+	DXCALL(gDevice->CreateBuffer(&desc, &data, &composite_vertex_buffer));
+
+	ID3DBlob *blob = compile_shader(L"Resources/Composite.hlsl", "VS", "vs_5_0", gDevice);
+	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &composite_vs));
+
+	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	composite_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, gDevice);
+
+	blob = compile_shader(L"Resources/Composite.hlsl", "PS", "ps_5_0", gDevice);
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &composite_ps));
+
+	D3D11_SAMPLER_DESC sampdesc;
+	ZeroMemory(&sampdesc, sizeof(sampdesc));
+	sampdesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampdesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampdesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampdesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	DXCALL(gDevice->CreateSamplerState(&sampdesc, &composite_sampler));
+
+	ID3D11Texture2D *tex;
+	D3D11_TEXTURE2D_DESC rtv_desc;
+	rtv_desc.Width = WIDTH;
+	rtv_desc.Height = HEIGHT;
+	rtv_desc.Usage = D3D11_USAGE_DEFAULT;
+	rtv_desc.MipLevels = 1;
+	rtv_desc.ArraySize = 1;
+	rtv_desc.SampleDesc.Count = 1;
+	rtv_desc.SampleDesc.Quality = 0;
+	rtv_desc.Format = DXGI_FORMAT_R16G16B16A16_TYPELESS;
+	rtv_desc.CPUAccessFlags = 0;
+	rtv_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	rtv_desc.MiscFlags = 0;
+
+	DXCALL(gDevice->CreateTexture2D(&rtv_desc, nullptr, &tex));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC sdesc;
+	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+
+	D3D11_RENDER_TARGET_VIEW_DESC rdesc;
+	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+
+	sdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	sdesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	sdesc.Texture2D.MipLevels = 1;
+	sdesc.Texture2D.MostDetailedMip = 0;
+
+	rdesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rdesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	rdesc.Texture2D.MipSlice = 0;
+
+	DXCALL(gDevice->CreateShaderResourceView(tex, &sdesc, &hdr_srv));
+	DXCALL(gDevice->CreateRenderTargetView(tex, &rdesc, &hdr_rtv));
 }
 
 void RenderPlane()
@@ -197,7 +292,7 @@ void RenderPlane()
 	gDeviceContext->PSSetSamplers(0, 1, &plane_sampler);
 	gDeviceContext->PSSetShaderResources(0, 1, &plane_srv);
 
-	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthbufferDSV);
+	gDeviceContext->OMSetRenderTargets(1, &hdr_rtv, gDepthbufferDSV);
 
 	gDeviceContext->Draw(6, 0);
 }
@@ -224,11 +319,33 @@ void RenderParticles()
 	UINT mask = 0xffffffff;
 	
 	gDeviceContext->OMSetBlendState(particle_blend, factor, mask);
-	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, nullptr);
+	gDeviceContext->OMSetRenderTargets(1, &hdr_rtv, nullptr);
 
 	gDeviceContext->Draw(particles.size(), 0);
 
+	ID3D11RenderTargetView *rtv = nullptr;
+	gDeviceContext->OMSetRenderTargets(1, &rtv, nullptr);
 	gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+}
+
+void RenderComposite()
+{
+	UINT32 stride = sizeof(float) * 4;
+	UINT32 offset = 0u;
+
+	gDeviceContext->IASetInputLayout(composite_layout);
+	gDeviceContext->IASetVertexBuffers(0, 1, &composite_vertex_buffer, &stride, &offset);
+	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	gDeviceContext->VSSetShader(composite_vs, nullptr, 0);
+
+	gDeviceContext->PSSetShader(composite_ps, nullptr, 0);
+	gDeviceContext->PSSetSamplers(0, 1, &composite_sampler);
+	gDeviceContext->PSSetShaderResources(0, 1, &hdr_srv);
+
+	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, nullptr);
+
+	gDeviceContext->Draw(6, 0);
 }
 
 namespace Editor {
@@ -241,6 +358,7 @@ void Init()
 
 	InitPlane();
 	InitParticles();
+	InitComposite();
 }
 
 void Update(float dt)
@@ -608,6 +726,8 @@ void Update(float dt)
 		}
 	}
 
+	std::sort(particles.begin(), particles.end(), [](Particle &a, Particle &b) { return XMVectorGetZ(a.pos) < XMVectorGetZ(b.pos); });
+
 	if (!particles.empty()) {
 		D3D11_MAPPED_SUBRESOURCE data;
 		DXCALL(gDeviceContext->Map(particle_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
@@ -625,13 +745,14 @@ void Render(float dt)
 {
 	XMFLOAT4 clear = normalize_color(0x93a9bcff);
 
-	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, (float*)&clear);
+	gDeviceContext->ClearRenderTargetView(hdr_rtv, (float*)&clear);
 	gDeviceContext->ClearDepthStencilView(gDepthbufferDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	SetViewport();
 
 	RenderPlane();
 	RenderParticles();
+	RenderComposite();
 }
 
 }
