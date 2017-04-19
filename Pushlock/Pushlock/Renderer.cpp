@@ -953,6 +953,13 @@ void Renderer::updatePointLights(Map * map)
 			temp[pointLightCount].range = dynamic_cast<FireProjectileSpell*>(map->entitys[i])->light.range;
 			pointLightCount++;
 		}
+		if (dynamic_cast<EarthProjectileSpell*>(map->entitys[i]) != nullptr)
+		{
+			temp[pointLightCount].lightColor = dynamic_cast<EarthProjectileSpell*>(map->entitys[i])->light.lightColor;
+			temp[pointLightCount].lightPos = dynamic_cast<EarthProjectileSpell*>(map->entitys[i])->light.lightPos;
+			temp[pointLightCount].range = dynamic_cast<EarthProjectileSpell*>(map->entitys[i])->light.range;
+			pointLightCount++;
+		}
 	}
 	D3D11_MAPPED_SUBRESOURCE data;
 	this->gDeviceContext->Map(this->pointLightCountBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);

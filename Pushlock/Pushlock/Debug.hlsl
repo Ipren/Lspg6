@@ -75,7 +75,15 @@ float4 PS(in VS_OUT input) : SV_TARGET
             nDotL = saturate(dot(normal, P2L));
 
             //nDotL should be multiplied here but the light doesnt appear when you do : fix
-            diffuse += pLights[i].lightColor.xyz * attenuation;
+            if(pLights[i].lightColor.w > 0)
+            {
+                diffuse += pLights[i].lightColor.xyz * attenuation;
+            }
+            else
+            {
+                diffuse *= pLights[i].lightColor.xyz * (1.0f - attenuation);
+            }
+           
         }
     }
 

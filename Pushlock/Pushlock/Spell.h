@@ -113,6 +113,7 @@ public:
 
 	virtual void update(Map *map, float dt) override;
 	virtual bool on_effect(Map *map) override;
+	pointLight light;
 private:
 	float effect_radius;
 	float strength;
