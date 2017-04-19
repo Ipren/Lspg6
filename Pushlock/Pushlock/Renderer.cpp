@@ -823,7 +823,7 @@ void Renderer::shrinkMap(Map * map)
 void Renderer::createLightBuffers()
 {
 	dirLight ligth;
-	ligth.lightColor = DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	ligth.lightColor = DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 	ligth.lightDirection = DirectX::XMFLOAT4(0.0f, -13.0f, 0.0f, 1.0f);
 
 	D3D11_BUFFER_DESC desc;
