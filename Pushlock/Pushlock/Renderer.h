@@ -78,7 +78,10 @@ private:
 	ID3D11BlendState *particle_blend;
 
 	ID3D11Buffer *dLightBuffer;
+	ID3D11Buffer *pLightBuffer;
+	ID3D11ShaderResourceView *pLightSRV;
 	ID3D11Buffer *cameraPosBuffer;
+	ID3D11Buffer *pointLightCountBuffer;
 
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
@@ -89,6 +92,7 @@ private:
 	int emitterCount;
 	float totalTime;
 	float lastParticleInsert;
+	int pointLightCount;
 
 	void create_debug_entity();
 	void createShaders();
@@ -109,6 +113,7 @@ private:
 	void createLightBuffers();
 	void createCameraBuffer();
 	void updateCameraPosBuffer(Camera *cam);
+	void updatePointLights(Map *map);
 
 	
 };

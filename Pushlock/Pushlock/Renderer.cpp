@@ -97,6 +97,9 @@ Renderer::~Renderer()
 	this->stompParticles->Release();
 	this->playerPosBuffer->Release();
 	this->dLightBuffer->Release();
+	this->pLightBuffer->Release();
+	this->pLightSRV->Release();
+	this->pointLightCountBuffer->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -574,7 +577,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 	{
 		MessageBox(0, L"stomp srv failed", L"error", MB_OK);
 	}
-
+	
 }
 
 void Renderer::createParticleShaders()
@@ -840,6 +843,60 @@ void Renderer::createLightBuffers()
 	{
 		MessageBox(0, L"light buffer creation failed!", L"error", MB_OK);
 	}
+	desc.ByteWidth = sizeof(UINT) * 4;
+	UINT init[4];
+	for (size_t i = 0; i < 4; i++)
+	{
+		init[i] = 0;
+	}
+
+	data.pSysMem = &init;
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->pointLightCountBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"light count buffer creation failed!", L"error", MB_OK);
+	}
+
+	pointLight pointL[254];
+	for (size_t i = 0; i < 254; i++)
+	{
+		pointL[i].lightColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		pointL[i].lightPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		pointL[i].range = 0.0f;
+			
+	}
+
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.ByteWidth = 254 * sizeof(pointLight);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	desc.StructureByteStride = sizeof(pointLight);
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	data.pSysMem = pointL;
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->pLightBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" point light buffer creation failed!", L"error", MB_OK);
+	}
+
+	D3D11_BUFFER_SRV srv;
+	srv.FirstElement = 0;
+	srv.NumElements = 254;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer = srv;
+
+	hr = this->gDevice->CreateShaderResourceView(this->pLightBuffer, &srvDesc, &this->pLightSRV);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"point light srv failed", L"error", MB_OK);
+	}
 }
 
 void Renderer::createCameraBuffer()
@@ -874,6 +931,40 @@ void Renderer::updateCameraPosBuffer(Camera * cam)
 	memcpy(data.pData, &cam->pos, sizeof(DirectX::XMFLOAT3));
 
 	this->gDeviceContext->Unmap(this->cameraPosBuffer, 0);
+}
+
+void Renderer::updatePointLights(Map * map)
+{
+	this->pointLightCount = 0;
+	pointLight temp[254];
+	for (size_t i = 0; i < map->entitys.size(); i++)
+	{
+		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
+		{
+			temp[pointLightCount].lightColor = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i])->light.lightColor;
+			temp[pointLightCount].lightPos = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i])->light.lightPos;
+			temp[pointLightCount].range = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i])->light.range;
+			pointLightCount++;
+		}
+		if (dynamic_cast<FireProjectileSpell*>(map->entitys[i]) != nullptr)
+		{
+			temp[pointLightCount].lightColor = dynamic_cast<FireProjectileSpell*>(map->entitys[i])->light.lightColor;
+			temp[pointLightCount].lightPos = dynamic_cast<FireProjectileSpell*>(map->entitys[i])->light.lightPos;
+			temp[pointLightCount].range = dynamic_cast<FireProjectileSpell*>(map->entitys[i])->light.range;
+			pointLightCount++;
+		}
+	}
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->pointLightCountBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &this->pointLightCount, sizeof(UINT));
+	this->gDeviceContext->Unmap(this->pointLightCountBuffer, 0);
+
+	if (this->pointLightCount > 0)
+	{
+		this->gDeviceContext->Map(this->pLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+		memcpy(data.pData, &temp, sizeof(pointLight) * this->pointLightCount);
+		this->gDeviceContext->Unmap(this->pLightBuffer, 0);
+	}
 }
 
 void Renderer::swapBuffers()
@@ -1087,6 +1178,8 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 		gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
+		gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
 		gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
 
@@ -1108,6 +1201,8 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 		gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
+		gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
 		int i = 2;
 		for (auto entity : map->entitys)
@@ -1175,6 +1270,7 @@ void Renderer::present() {
 void Renderer::update(float dt, Map * map)
 {
 	this->updateParticles(dt, map);
+	this->updatePointLights(map);
 	if (map->shrunk == true)
 	{
 		map->shrunk = false;
