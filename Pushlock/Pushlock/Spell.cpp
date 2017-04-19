@@ -18,7 +18,7 @@ ArcaneProjectileSpell::ArcaneProjectileSpell(Player *owner, XMFLOAT3 position, X
 	this->pEmitter.randomVector = DirectX::XMFLOAT4(velocity.x, position.x, velocity.y, 1.0f);
 	this->pEmitter.position = position;
 	this->pEmitter.particleType = 0;
-	this->light.lightColor = XMFLOAT4(0.1f, 0.1f, 1.0f, 1.0f);
+	this->light.lightColor = XMFLOAT4(0.28f, 0.1f, 0.56f, 1.0f);
 	this->light.lightPos = position;
 	this->light.range = 0.1f;
 }
@@ -88,9 +88,9 @@ bool ArcaneWallSpell::on_effect(Map *map) {
 FireProjectileSpell::FireProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, velocity, radius, 4.5f), explosion_radius(1.5f), strength(1.f)
 {
-	this->light.lightColor = XMFLOAT4(1.0f, 0.1f, 0.1f, 1.0f);
+	this->light.lightColor = XMFLOAT4(0.6f, 0.1f, 0.1f, 1.0f);
 	this->light.lightPos = position;
-	this->light.range = 2.0f;
+	this->light.range = 0.1f;
 }
 
 FireProjectileSpell::~FireProjectileSpell()

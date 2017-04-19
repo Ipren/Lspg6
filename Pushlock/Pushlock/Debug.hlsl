@@ -70,10 +70,12 @@ float4 PS(in VS_OUT input) : SV_TARGET
         distance = length(P2L);
         if(distance < pLights[i].range)
         {
-            attenuation = max(0, 1.0f - (distance / pLights[i].range));
+            attenuation = saturate(1.0f - (distance / pLights[i].range));
             P2L /= distance;
             nDotL = saturate(dot(normal, P2L));
-            diffuse *= nDotL * pLights[i].lightColor.xyz * attenuation;
+
+            //nDotL should be multiplied here but the light doesnt appear when you do : fix
+            diffuse += pLights[i].lightColor.xyz * attenuation;
         }
     }
 
