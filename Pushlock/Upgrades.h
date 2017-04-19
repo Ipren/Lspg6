@@ -1,23 +1,37 @@
 #pragma once
 
 struct Upgrades {
-	int arcanechoice1 = 0;
-	int arcanechoice2 = 0;
-	int arcanechoice3 = 0;
+	int arcanechoice[] = {0, 0, 0};
 
-	int firechoice1 = 0;
-	int firechoice2 = 0;
-	int firechoice3 = 0;
+	int firechoice[] = { 0, 0, 0 };
 
-	int windchoice1 = 0;
-	int windchoice2 = 0;
-	int windchoice3 = 0;
+	int windchoice[] = { 0, 0, 0 };
 
-	int earthchoice1 = 0;
-	int earthchoice2 = 0;
-	int earthchoice3 = 0;
+	int earthchoice[] = { 0, 0, 0 };
 
-	int waterchoice1 = 0;
-	int earthchoice2 = 0;
-	int earthchoice3 = 0;
+	int waterchoice[] = { 0, 0, 0 };
+
+	void chooseUpgrade(int round, int element, int choice)
+	{
+		if (element == 1)
+		{
+			arcanechoice[round-1] = choice
+		}
+		else if (element == 2)
+		{
+			firechoice[round - 1] = choice
+		}
+		else if (element == 3)
+		{
+			windchoice[round - 1] = choice
+		}
+		else if (element == 4)
+		{
+			earthchoice[round - 1] = choice
+		}
+		else if (element == 5)
+		{
+			waterchoice[round - 1] = choice
+		}
+	}
 };
