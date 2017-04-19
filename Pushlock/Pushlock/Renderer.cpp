@@ -823,7 +823,7 @@ void Renderer::shrinkMap(Map * map)
 void Renderer::createLightBuffers()
 {
 	dirLight ligth;
-	ligth.lightColor = DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+	ligth.lightColor = DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	ligth.lightDirection = DirectX::XMFLOAT4(0.0f, -13.0f, 0.0f, 1.0f);
 
 	D3D11_BUFFER_DESC desc;
@@ -857,8 +857,8 @@ void Renderer::createLightBuffers()
 		MessageBox(0, L"light count buffer creation failed!", L"error", MB_OK);
 	}
 
-	pointLight pointL[254];
-	for (size_t i = 0; i < 254; i++)
+	pointLight pointL[256];
+	for (size_t i = 0; i < 256; i++)
 	{
 		pointL[i].lightColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 		pointL[i].lightPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -868,7 +868,7 @@ void Renderer::createLightBuffers()
 
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.ByteWidth = 254 * sizeof(pointLight);
+	desc.ByteWidth = 256 * sizeof(pointLight);
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 	desc.StructureByteStride = sizeof(pointLight);
@@ -884,7 +884,7 @@ void Renderer::createLightBuffers()
 
 	D3D11_BUFFER_SRV srv;
 	srv.FirstElement = 0;
-	srv.NumElements = 254;
+	srv.NumElements = 256;
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
@@ -936,7 +936,7 @@ void Renderer::updateCameraPosBuffer(Camera * cam)
 void Renderer::updatePointLights(Map * map)
 {
 	this->pointLightCount = 0;
-	pointLight temp[254];
+	pointLight temp[256];
 	for (size_t i = 0; i < map->entitys.size(); i++)
 	{
 		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)

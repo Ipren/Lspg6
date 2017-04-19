@@ -58,7 +58,7 @@ float4 PS(float4 pos : SV_POSITION) : SV_TARGET
         distance = length(P2L);
         if(distance < pLights[i].range)
         {
-            attenuation = max(0, 1.0f - (distance / pLights[i].range));
+            attenuation = saturate(1.0f - (distance / pLights[i].range));
             P2L /= distance;
             nDotL = saturate(dot(normal, P2L));
             diffuse *= nDotL * pLights[i].lightColor * attenuation;

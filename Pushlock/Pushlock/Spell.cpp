@@ -20,7 +20,7 @@ ArcaneProjectileSpell::ArcaneProjectileSpell(Player *owner, XMFLOAT3 position, X
 	this->pEmitter.particleType = 0;
 	this->light.lightColor = XMFLOAT4(0.1f, 0.1f, 1.0f, 1.0f);
 	this->light.lightPos = position;
-	this->light.range = 12.0f;
+	this->light.range = 2.0f;
 }
 
 ArcaneProjectileSpell::~ArcaneProjectileSpell()
@@ -90,7 +90,7 @@ FireProjectileSpell::FireProjectileSpell(Player *owner, XMFLOAT3 position, XMFLO
 {
 	this->light.lightColor = XMFLOAT4(1.0f, 0.1f, 0.1f, 1.0f);
 	this->light.lightPos = position;
-	this->light.range = 12.0f;
+	this->light.range = 2.0f;
 }
 
 FireProjectileSpell::~FireProjectileSpell()
