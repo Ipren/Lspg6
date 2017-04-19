@@ -290,6 +290,7 @@
     <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="cat.png" />
     <Image Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>

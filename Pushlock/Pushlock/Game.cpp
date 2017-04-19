@@ -25,10 +25,11 @@ std::unique_ptr<AudioEngine> audEngine;
 Game::Game(HWND wndHandle, int width, int height)
 {
 	// TODO: memory management
-	this->currentMenu = new Menu();
 	this->currentState = GameState::MainMenu;
 	this->currentMap = new Map(&currentState);
 	this->renderer = new Renderer(wndHandle, width, height);
+	this->mainMenu = new Menu(renderer);
+	this->currentMenu = this->mainMenu;
 	camera = new Camera({ 0, 15, -5 }, { 0, 0, 0 }, this->renderer->gDevice);
 	for (int i = 0; i < 4; ++i) {
 		gGamepads[i] = new Gamepad(i);
@@ -263,6 +264,9 @@ void Game::update(float dt)
 		ImGui::End();
 	}
 
+	//if (this->currentMenu != nullptr)
+	//	this->currentMenu->update();
+
 	{
 		if (ImGui::Button("Main Menu")) {//start the main menu
 			currentState = GameState::MainMenu;
@@ -291,9 +295,9 @@ void Game::update(float dt)
 		}
 		ImGui::End();
 	}
-
 	if (currentState == GameState::MainMenu)
 	{
+		currentMenu = mainMenu;
 		ImGui::Begin("Main Menu");
 		if (ImGui::Button("Start Game 2p")) {//starting the game with 2 players
 			currentState = GameState::ChoosePowers;
@@ -312,6 +316,7 @@ void Game::update(float dt)
 	}
 	else if (currentState == GameState::ChoosePowers)
 	{
+		currentMenu = choosePowers;
 		for (int i = 0; i < 4; ++i) {
 			gGamepads[i]->update(dt);
 		}
@@ -351,7 +356,8 @@ void Game::update(float dt)
 		ImGui::End();
 	}
 	else if (currentState == GameState::Playing)
-	{ 
+	{
+		currentMenu = playing;
 		for (int i = 0; i < 4; ++i) {
 			gGamepads[i]->update(dt);
 		}
@@ -379,6 +385,7 @@ void Game::update(float dt)
 		}
 	}else if (currentState == GameState::EndRound)//här ska upgraderingar hända
 	{
+		currentMenu = endRound;
 		ImGui::Begin("End of the round");
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
@@ -392,6 +399,7 @@ void Game::update(float dt)
 	}
 	if (currentState == GameState::EndGame)
 	{
+		currentMenu = endGame;
 		ImGui::Begin("End of the game");
 		ImGui::Text("Winner player: %i", currentMap->indexWinner +1);
 		if (ImGui::Button("Go to main menu")) {
@@ -438,7 +446,9 @@ void Game::update(float dt)
 
 void Game::render()
 {
-	this->renderer->render(this->currentMap, currentMenu, this->camera);
+	this->renderer->render(this->currentMap, this->camera);
+	if (this->currentMenu != nullptr)
+		this->currentMenu->render(this->renderer);
 	ImGui::Render();
 	this->renderer->present();
 }
