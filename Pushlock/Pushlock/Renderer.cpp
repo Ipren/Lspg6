@@ -58,7 +58,6 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 
 
 	this->create_debug_entity();
-
 }
 
 Renderer::~Renderer()
@@ -151,6 +150,52 @@ void Renderer::create_debug_entity()
 	blob = compile_shader(L"Debug.hlsl", "PS", "ps_5_0", gDevice);
 	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_entity_psh));
 }
+
+//void Renderer::create_menu()
+//{
+//
+//	std::vector<XMFLOAT3> vertices;
+//	for (int i = 0; i < 128; ++i)
+//	{
+//		XMFLOAT3 vert = {
+//			sin(2 * XM_PI * i / 128.f),
+//			0.1f,
+//			cos(2 * XM_PI * i / 128.f)
+//		};
+//		vertices.push_back(vert);
+//	}
+//	XMFLOAT3 start = vertices[0];
+//	start.z += 2.4f;
+//
+//	vertices[0] = start;
+//	vertices.push_back(start);
+//
+//	D3D11_BUFFER_DESC desc;
+//	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+//	desc.Usage = D3D11_USAGE_DYNAMIC;
+//	desc.ByteWidth = (UINT)(sizeof(XMFLOAT3) * vertices.size());
+//	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+//	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+//	desc.MiscFlags = 0;
+//	desc.StructureByteStride = 0;
+//
+//	D3D11_SUBRESOURCE_DATA data;
+//	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+//	data.pSysMem = &vertices[0];
+//
+//	DXCALL(gDevice->CreateBuffer(&desc, &data, &menu_buffer));
+//
+//	ID3DBlob *blob = compile_shader(L"Debug.hlsl", "VS", "vs_5_0", gDevice);
+//	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_entity_vsh));
+//
+//	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
+//		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+//	};
+//	menu_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, gDevice);
+//
+//	blob = compile_shader(L"Debug.hlsl", "PS", "ps_5_0", gDevice);
+//	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_entity_psh));
+//}
 
 void Renderer::createShaders()
 {
@@ -1154,7 +1199,7 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos, int type)
 
 }
 
-void Renderer::render(Map *map, Menu* menu, Camera *camera)
+void Renderer::render(Map *map, Camera *camera)
 {
 	this->updateCameraPosBuffer(camera);
 	XMFLOAT4 clear = normalize_color(0x93a9bcff);
@@ -1242,30 +1287,27 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 	//	gDeviceContext->IASetVertexBuffers(0, 1, &menu_buffer, &size, &offset);
 	//	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	//	gDeviceContext->VSSetShader(this->menu_vsh, nullptr, 0);
-	//	gDeviceContext->PSSetShader(this->menu_psh, nullptr, 0);
+	//	gDeviceContext->VSSetShader(this->debug_entity_vsh, nullptr, 0);
+	//	gDeviceContext->PSSetShader(this->debug_entity_psh, nullptr, 0);
 	//	gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 
 	//	if (menu != nullptr)
 	//	{
-	//		for (int i = 0; i < 4; i++)
+
+	//		XMFLOAT4 col = normalize_color(0xffffffff);
+	//		D3D11_MAPPED_SUBRESOURCE data;
+	//		DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
 	//		{
-	//			XMFLOAT4 col = normalize_color(0xffffffff);
-	//			D3D11_MAPPED_SUBRESOURCE data;
-	//			DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
-	//			{
-	//				CopyMemory(data.pData, &col, sizeof(float) * 4);
-	//			}
-	//			gDeviceContext->Unmap(color_buffer, 0);
-
-	//			//XMMATRIX model = XMMatrix;
-
-	//			camera->vals.world = model;
-	//			camera->update(0, gDeviceContext);
-
-	//			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-	//			gDeviceContext->Draw(233, 0);
+	//			CopyMemory(data.pData, &col, sizeof(float) * 4);
 	//		}
+	//		gDeviceContext->Unmap(color_buffer, 0);
+
+	//		XMMATRIX model = XMMatrixIdentity();
+
+	//		camera->vals.world = model;
+	//		camera->update(0, gDeviceContext);
+	//		gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+	//		gDeviceContext->Draw(233, 0);
 	//	}
 	//}
 

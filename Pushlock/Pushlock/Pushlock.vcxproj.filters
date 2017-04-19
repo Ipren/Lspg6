@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon.ico" />
+    <Image Include="cat.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
