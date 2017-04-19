@@ -95,6 +95,7 @@ struct ParticleEffectEntry {
 
 struct ParticleEffect {
 	char name[32] = { "Untitled\0" };
+	int fx_count = 0;
 	ParticleEffectEntry fx[MAX_PARTICLE_FX];
 	float children_time = 0.f;
 	float time = 1.f;
@@ -102,7 +103,6 @@ struct ParticleEffect {
 	bool loop;
 	bool clamp_children = false;
 };
-
 
 struct Particle {
 	XMVECTOR pos;
@@ -115,3 +115,59 @@ struct Particle {
 	int type;
 	int idx;
 };
+
+#include <cstdio>
+
+inline bool SerializeParticles(const wchar_t *file, std::vector<ParticleEffect> effects, std::vector<ParticleDefinition> definitions)
+{
+	FILE *f;
+	
+	if (_wfopen_s(&f, file, L"wb+") != 0) {
+		return false;
+	}
+
+	auto size = definitions.size();
+	fwrite(&size, sizeof(size_t), 1, f);
+	fwrite(definitions.data(), sizeof(ParticleDefinition), definitions.size(), f);
+
+	size = effects.size();
+	fwrite(&size, sizeof(size_t), 1, f);
+	fwrite(effects.data(), sizeof(ParticleEffect), effects.size(), f);
+
+	fclose(f);
+
+	return true;
+}
+
+inline bool DeserializeParticles(const wchar_t *file, std::vector<ParticleEffect> &effects, std::vector<ParticleDefinition> &definitions)
+{
+	FILE *f;
+	
+	if (_wfopen_s(&f, file, L"rb") != 0) {
+		return false;
+	}
+
+	size_t size;
+	fread(&size, sizeof(size_t), 1, f);
+
+	for (int i = 0; i < size; ++i) {
+		ParticleDefinition e;
+		fread(&e, sizeof(ParticleDefinition), 1, f);
+
+		definitions.push_back(e);
+	}
+
+	fread(&size, sizeof(size_t), 1, f);
+
+	for (int i = 0; i < size; ++i) {
+		ParticleEffect e;
+		fread(&e, sizeof(ParticleEffect), 1, f);
+
+		effects.push_back(e);
+	}
+
+	fclose(f);
+
+	return true;
+}
+

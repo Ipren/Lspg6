@@ -22,7 +22,7 @@ VSOut VS(VSIn input)
 Texture2D HDRTexture : register(t0);
 SamplerState HDRSampler : register(s0);
 
-#define TONEMAP_GAMMA 2.2
+#define TONEMAP_GAMMA 1.0 
 
 // Reinhard Tonemapper
 float4 tonemap_reinhard(in float3 color)

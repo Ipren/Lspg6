@@ -190,7 +190,7 @@ void InitParticles()
 	state.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
 	state.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	state.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	state.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+	state.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	DXCALL(gDevice->CreateBlendState(&state, &particle_blend));
 }
 
@@ -343,6 +343,9 @@ void RenderComposite()
 	gDeviceContext->PSSetSamplers(0, 1, &composite_sampler);
 	gDeviceContext->PSSetShaderResources(0, 1, &hdr_srv);
 
+	float factor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	gDeviceContext->OMSetBlendState(nullptr, factor, 0xffffffff);
 	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, nullptr);
 
 	gDeviceContext->Draw(6, 0);
@@ -366,10 +369,58 @@ void Update(float dt)
 	time += dt * settings.CameraSpeed;
 	ptime += dt * settings.ParticleSpeed;
 
+	static bool menu_open = false;
+
+	ImGui::BeginMainMenuBar();
+	if (ImGui::BeginMenu("File")) {
+		if (ImGui::MenuItem("open", "ctrl+o")) {
+			OPENFILENAME ofn;
+			wchar_t szFileName[MAX_PATH] = L"";
+
+			ZeroMemory(&ofn, sizeof(ofn));
+
+			ofn.lStructSize = sizeof(ofn); 
+			ofn.hwndOwner = wndHandle;
+			ofn.lpstrFilter = L"No Files (*.no)\0*.no\0All Files (*.*)\0*.*\0";
+			ofn.lpstrFile = szFileName;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+			ofn.lpstrDefExt = L"no";
+			
+			if (GetOpenFileName(&ofn)) {
+
+				effects.clear();
+				definitions.clear();
+
+				DeserializeParticles(ofn.lpstrFile, effects, definitions);
+			}
+		}
+		if (ImGui::MenuItem("save", "ctrl+s")) {
+			OPENFILENAME ofn;
+			wchar_t szFileName[MAX_PATH] = L"";
+
+			ZeroMemory(&ofn, sizeof(ofn));
+
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = wndHandle;
+			ofn.lpstrFilter = L"No Files (*.no)\0*.no\0All Files (*.*)\0*.*\0";
+			ofn.lpstrFile = szFileName;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+			ofn.lpstrDefExt = L"no";
+
+			if (GetSaveFileName(&ofn)) {
+				SerializeParticles(ofn.lpstrFile, effects, definitions);
+			}
+		}
+		ImGui::EndMenu();
+	}
+	ImGui::EndMainMenuBar();
+
 	ImGui::Begin("Settings");
 	ImGui::TextDisabled("Camera");
-	ImGui::SliderFloat("distance", &settings.CameraDistance, 0.1f, 3.f);
-	ImGui::SliderFloat("height", &settings.CameraHeight, 0.0f, 3.f);
+	ImGui::SliderFloat("distance", &settings.CameraDistance, 0.1f, 8.f);
+	ImGui::SliderFloat("height", &settings.CameraHeight, 0.0f, 8.f);
 	ImGui::SliderFloat("speed", &settings.CameraSpeed, -1.5f, 1.5f);
 	ImGui::TextDisabled("Simulation");
 	ImGui::SliderFloat("speed##part", &settings.ParticleSpeed, -1.5f, 1.5f);
@@ -442,7 +493,14 @@ void Update(float dt)
 
 			char label[64];
 			sprintf_s(label, 64, "%s##%d", def.name, i);
-			if (ImGui::CollapsingHeader(label, ImGuiTreeNodeFlags_Framed)) {
+
+			bool header = ImGui::TreeNode(label);
+			ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 50);
+			if (ImGui::SmallButton("Remove")) {
+				fx->fx[i] = fx->fx[fx->fx_count-- - 1];
+			}
+
+			if (header) {
 				ImGui::TextDisabled("Time");
 				ImGui::DragFloatRange2("time", &entry->start, &entry->end, 0.01, 0.f, 10000.f, "start: %.3f", "end: %.3f");
 				ImGui::TextDisabled("Emitter");
@@ -468,18 +526,56 @@ void Update(float dt)
 					ImGui::DragInt("start", &entry->spawn_start);
 					ImGui::DragInt("end", &entry->spawn_end);
 				}
+
+				ImGui::TreePop();
 			}
 		}
 
+		ImGui::Separator();
 
+		static int add_pdef = 0;
+
+		if (ImGui::Button("Add##entry")) {
+			ImGui::OpenPopup("Add particle");
+			add_pdef = 0;
+		}
+
+		if (ImGui::BeginPopupModal("Add particle")) {
+			ImGui::BeginGroup();
+			ImGui::BeginChild("list popiup", ImVec2(150, 250), true);
+			for (int i = 0; i < definitions.size(); i++)
+			{
+				char label[64];
+				sprintf_s(label, 64, "%s##asd%d", definitions[i].name, i);
+				if (ImGui::Selectable(label, add_pdef == i)) {
+					add_pdef = i;
+				}
+			}
+			ImGui::EndChild();
+
+
+
+			ImGui::BeginChild("buttons");
+			if (ImGui::Button("Add##pop")) {
+				auto &entry = current_effect->fx[current_effect->fx_count++];
+				entry.idx = add_pdef;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel##popup")) {
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndChild();
+			ImGui::EndGroup();
+			ImGui::EndPopup();
+		}
 	}
+
 	ImGui::EndChild();
 
 	ImGui::BeginChild("buttons");
 	if (ImGui::Button("Add##fx")) {
 		ParticleEffect fx = {};
-		fx.fx[0] = { };
-		fx.fx[0].idx = 0;
 		effects.push_back(fx);
 	}
 	ImGui::SameLine();
@@ -493,8 +589,6 @@ void Update(float dt)
 	
 
 	ImGui::Begin("Timeline");
-
-
 		if (!effects.empty()) {
 			auto fx = effects[current_fx];
 			auto time = fx.clamp_children ? fx.children_time : fx.time;
@@ -645,7 +739,7 @@ void Update(float dt)
 	auto pdt = dt * settings.ParticleSpeed;
 
 	auto fx = current_effect;
-	if (fx != nullptr) {
+	if (fx != nullptr && !settings.ParticlePaused) {
 		auto time = fx->clamp_children ? fx->children_time : fx->time;
 
 		fx->age += pdt;
@@ -653,9 +747,8 @@ void Update(float dt)
 			
 		}
 		else {
-			for (int i = 0; i < MAX_PARTICLE_FX; ++i) {
+			for (int i = 0; i < fx->fx_count; ++i) {
 				auto entry = fx->fx[i];
-				if (entry.idx < 0) continue;
 
 				auto def = definitions[entry.idx];
 
@@ -698,10 +791,12 @@ void Update(float dt)
 
 		ParticleDefinition *def = &definitions[p->idx];
 		
-		auto age = p->age / def->lifetime;	
-		p->pos += p->velocity * pdt;
-		p->velocity -= { 0.f, def->gravity * pdt, 0.f, 0.f };
-		p->age += pdt;
+		auto age = p->age / def->lifetime;
+		if (!settings.ParticlePaused) {
+			p->pos += p->velocity * pdt;
+			p->velocity -= { 0.f, def->gravity * pdt, 0.f, 0.f };
+			p->age += pdt;
+		}
 
 		auto scale_fn = GetEaseFunc(def->scale_fn);
 		p->scale = {
@@ -726,7 +821,7 @@ void Update(float dt)
 		}
 	}
 
-	std::sort(particles.begin(), particles.end(), [](Particle &a, Particle &b) { return XMVectorGetZ(a.pos) < XMVectorGetZ(b.pos); });
+	std::sort(particles.begin(), particles.end(), [](Particle &a, Particle &b) { return XMVectorGetZ(XMVector3Length(camera->pos - a.pos)) > XMVectorGetZ(XMVector3Length(camera->pos - b.pos)); });
 
 	if (!particles.empty()) {
 		D3D11_MAPPED_SUBRESOURCE data;
