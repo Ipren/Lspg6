@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Gamepad.h"
 #include "Constants.h"
+#include "Upgrades.h"
 #include "Player.h"
 #include "Menu.h"
 #include <Audio.h>
@@ -379,10 +380,21 @@ void Game::update(float dt)
 		}
 	}else if (currentState == GameState::EndRound)//här ska upgraderingar hända
 	{
+		//make upgrade choices here
 		ImGui::Begin("End of the round");
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
 			ImGui::Text("player %i: %i", i+1, currentMap->playerPoints[i]);
+		}
+		ImGui::Text("Choose your upgrade");
+		ImGui::Text("x - Upgrade 1");
+		ImGui::Text("y - Upgrade 2");
+		ImGui::Text("a - Upgrade 3");
+		ImGui::Text("b - Upgrade 4");
+
+		for (int i = 0; i < currentMap->nrOfPlayers; i++)
+		{
+			ImGui::Text("player %i choose upgrade %i", i + 1, pUpgrades[i].choice[0]);
 		}
 		if (ImGui::Button("start next round")) {
 			currentState = GameState::Playing;

@@ -178,6 +178,7 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SoundSingelton.cpp" />
     <ClCompile Include="Spell.cpp" />
+    <ClCompile Include="Upgrades.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -205,6 +206,7 @@
     <ClInclude Include="stb_rect_pack.h" />
     <ClInclude Include="stb_textedit.h" />
     <ClInclude Include="stb_truetype.h" />
+    <ClInclude Include="Upgrades.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="ComputeShader.hlsl">
