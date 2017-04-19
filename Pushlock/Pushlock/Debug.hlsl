@@ -34,12 +34,22 @@ StructuredBuffer<pointLight> pLights : register(t0);
 
 static const float3 normal = float3(0.0f, 1.0f, 0.0f);
 
-float4 VS(float3 pos : POSITION) : SV_POSITION
+struct VS_OUT
 {
-	return mul(Proj, mul(View, mul(World, float4(pos, 1.0))));
+    float4 pos : SV_Position;
+    float4 wPos : POSITION;
+};
+
+VS_OUT VS(float3 pos : POSITION)
+{
+    VS_OUT output;
+    output.pos = mul(Proj, mul(View, mul(World, float4(pos, 1.0))));
+    output.wPos = mul(World, float4(pos, 1.0f));
+    return output;
+
 }
 
-float4 PS(float4 pos : SV_POSITION) : SV_TARGET
+float4 PS(in VS_OUT input) : SV_TARGET
 {
     float4 c = Color;
     
@@ -52,16 +62,18 @@ float4 PS(float4 pos : SV_POSITION) : SV_TARGET
     float3 P2L;
     float distance;
     float nDotL;
-    for (int i = 0; i < nrOfPointLights; i++)
+    float4 wLightPos;
+    for (uint i = 0; i < nrOfPointLights; i++)
     {
-        P2L = pLights[i].lightPos - pos.xyz;
+        wLightPos = mul(World, float4(pLights[i].lightPos, 1.0f)); 
+        P2L =  wLightPos.xyz - input.wPos.xyz;
         distance = length(P2L);
         if(distance < pLights[i].range)
         {
-            attenuation = saturate(1.0f - (distance / pLights[i].range));
+            attenuation = max(0, 1.0f - (distance / pLights[i].range));
             P2L /= distance;
             nDotL = saturate(dot(normal, P2L));
-            diffuse *= nDotL * pLights[i].lightColor * attenuation;
+            diffuse *= nDotL * pLights[i].lightColor.xyz * attenuation;
         }
     }
 

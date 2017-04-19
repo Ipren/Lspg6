@@ -823,7 +823,7 @@ void Renderer::shrinkMap(Map * map)
 void Renderer::createLightBuffers()
 {
 	dirLight ligth;
-	ligth.lightColor = DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+	ligth.lightColor = DirectX::XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
 	ligth.lightDirection = DirectX::XMFLOAT4(0.0f, -13.0f, 0.0f, 1.0f);
 
 	D3D11_BUFFER_DESC desc;
@@ -1175,6 +1175,7 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 		gDeviceContext->VSSetShader(debug_map_vsh, nullptr, 0);
 		gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 		gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
+		gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 		gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
@@ -1198,6 +1199,7 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 		//sets stuff twice fix if bad prefomance
 		gDeviceContext->VSSetShader(debug_entity_vsh, nullptr, 0);
 		gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
+		gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 		gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
