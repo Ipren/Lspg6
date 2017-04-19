@@ -7,13 +7,21 @@ cbuffer Camera : register(b0) {
 cbuffer Mat : register(b1) {
 	float4 Color;
 }
-
-float4 VS(float3 pos : POSITION) : SV_POSITION
+struct VS_OUT
 {
-	return mul(Proj, mul(View, float4(pos, 1.0)));
+    float4 pos : SV_Position;
+    float4 wPos : POSITION;
+};
+
+VS_OUT VS(float3 pos : POSITION)
+{
+    VS_OUT output;
+    output.pos = mul(Proj, mul(View, float4(pos, 1.0)));
+    output.wPos = mul(World, float4(pos, 1.0f));
+    return output;
 }
 
-float4 PS(float4 pos : SV_POSITION) : SV_TARGET
+float4 PS(VS_OUT input) : SV_TARGET
 {
 	return Color;
 }

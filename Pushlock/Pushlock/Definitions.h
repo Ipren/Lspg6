@@ -46,3 +46,10 @@ struct dirLight
 	DirectX::XMFLOAT4 lightDirection;
 	DirectX::XMFLOAT4 lightColor;
 };
+
+struct pointLight
+{
+	DirectX::XMFLOAT4 lightColor;
+	DirectX::XMFLOAT3 lightPos;
+	float range;
+};
