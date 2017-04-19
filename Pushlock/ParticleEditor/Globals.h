@@ -12,3 +12,5 @@ extern ID3D11DepthStencilView *gDepthbufferDSV;
 extern ID3D11ShaderResourceView *gDepthbufferSRV;
 extern ID3D11RenderTargetView *gDepthbufferRTV;
 extern ID3D11RenderTargetView *gBackbufferRTV;
+
+extern HWND wndHandle;
