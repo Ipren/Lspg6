@@ -49,11 +49,11 @@ Menu::~Menu()
 
 void Menu::render(Renderer* renderer)
 {
-	m_spriteBatch->Begin();
+	/*m_spriteBatch->Begin();
 
 	m_spriteBatch->Draw(m_texture.Get(), m_screenPos, nullptr, Colors::White, 0.f, m_origin);
 
-	m_spriteBatch->End();
+	m_spriteBatch->End();*/
 
 	//renderer->gDeviceContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	//renderer->gDeviceContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
@@ -63,13 +63,43 @@ void Menu::render(Renderer* renderer)
 
 	//renderer->gDeviceContext->IASetInputLayout(m_inputLayout.Get());
 
-	//m_batch->Begin();
+	m_batch->Begin();
 
-	///*VertexPositionColor v1({ 0.f, 0.5f, 0.5f }, Colors::Red);
-	//VertexPositionColor v2({ 0.5f, -0.5f, 0.5f }, Colors::Green);
-	//VertexPositionColor v3({ -0.5f, -0.5f, 0.5f }, Colors::Blue);*/
+	for (int i = 0; i < this->quads.size(); i++)
+	{
+		DirectX::VertexPositionColor* vpc1;
+		DirectX::VertexPositionColor* vpc2;
+		DirectX::VertexPositionColor* vpc3;
+		DirectX::VertexPositionColor* vpc4;
+		for (int j = 0; j < 4; j++)
+		{
+			vpc1 = new DirectX::VertexPositionColor({ this->quads[i].pos[j].x, this->quads[i].pos[j].y, 0 }, { this->quads[i].color[i].x,this->quads[i].color[j].y,this->quads[i].color[j].z, });
+			vpc2 = new DirectX::VertexPositionColor({ this->quads[i].pos[j].x, this->quads[i].pos[j].y, 0 }, { this->quads[i].color[i].x,this->quads[i].color[j].y,this->quads[i].color[j].z, });
+			vpc3 = new DirectX::VertexPositionColor({ this->quads[i].pos[j].x, this->quads[i].pos[j].y, 0 }, { this->quads[i].color[i].x,this->quads[i].color[j].y,this->quads[i].color[j].z, });
+			vpc4 = new DirectX::VertexPositionColor({ this->quads[i].pos[j].x, this->quads[i].pos[j].y, 0 }, { this->quads[i].color[i].x,this->quads[i].color[j].y,this->quads[i].color[j].z, });
 
-	////m_batch->DrawTriangle(v1, v2, v3);
+		}
 
-	//m_batch->End();
+
+		m_batch->DrawQuad(*vpc1, *vpc2, *vpc3, *vpc4);
+	}
+	
+	m_batch->End();
+}
+
+void Menu::addQuad(XMFLOAT2 pos1, XMFLOAT2 pos2, XMFLOAT2 pos3, XMFLOAT2 pos4, 
+	XMFLOAT3 color1, XMFLOAT3 color2, XMFLOAT3 color3, XMFLOAT3 color4)
+{
+	Quad* q = new Quad();
+	q->pos[0] = pos1;
+	q->pos[1] = pos2;
+	q->pos[2] = pos3;
+	q->pos[3] = pos4;
+	 
+	q->color[0] = color1;
+	q->color[1] = color2;
+	q->color[2] = color3;
+	q->color[3] = color4;
+
+	this->quads.push_back(*q);
 }

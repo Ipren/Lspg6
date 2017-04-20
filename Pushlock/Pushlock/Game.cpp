@@ -29,8 +29,7 @@ Game::Game(HWND wndHandle, int width, int height)
 	this->currentState = GameState::MainMenu;
 	this->currentMap = new Map(&currentState);
 	this->renderer = new Renderer(wndHandle, width, height);
-	this->mainMenu = new Menu(renderer);
-	this->currentMenu = this->mainMenu;
+	
 	camera = new Camera({ 0, 15, -5 }, { 0, 0, 0 }, this->renderer->gDevice);
 	for (int i = 0; i < 4; ++i) {
 		gGamepads[i] = new Gamepad(i);
@@ -39,7 +38,12 @@ Game::Game(HWND wndHandle, int width, int height)
 	this->width = width;
 
 	XInputEnable(true);
-	
+
+	this->mainMenu = new Menu(renderer);
+	this->currentMenu = this->mainMenu;
+	this->playing = new Menu(renderer);
+
+	this->playing->addQuad({ 0,0 }, { 1,0 }, { 1,1 }, { 0,1 }, { 1,1,1 }, { 1,1,1 }, { 1,1,1 }, { 1,1,1 });
 
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 

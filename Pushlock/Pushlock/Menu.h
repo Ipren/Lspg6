@@ -11,13 +11,22 @@ public:
 	virtual ~Menu();
 
 	void render(Renderer* renderer);
+	void addQuad(XMFLOAT2 pos1, XMFLOAT2 pos2, XMFLOAT2 pos3, XMFLOAT2 pos4,
+		XMFLOAT3 color1, XMFLOAT3 color2, XMFLOAT3 color3, XMFLOAT3 color4);
+
+	void addButton(std::string name, XMFLOAT2 pos1, XMFLOAT2 pos2, XMFLOAT2 pos3, XMFLOAT2 pos4,
+		XMFLOAT3 color1, XMFLOAT3 color2, XMFLOAT3 color3, XMFLOAT3 color4);
 
 private:
-	struct Button
+	struct Quad
 	{
-		DirectX::XMVECTOR quad[4];
+		XMFLOAT2 pos[4];
+		XMFLOAT3 color[4];
 	};
-	DirectX::XMVECTOR menuQuad[4];
+
+	std::vector<Quad> buttons;
+	std::vector<Quad> quads;
+
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 	DirectX::SimpleMath::Vector2 m_screenPos;
