@@ -19,7 +19,7 @@
 
 Gamepad *gGamepads[4];
 
-
+bool firsttime = true;
 bool test = true;
 std::unique_ptr<AudioEngine> audEngine;
 
@@ -41,6 +41,7 @@ Game::Game(HWND wndHandle, int width, int height)
 	}
 	this->heigth = height;
 	this->width = width;
+	int currentRound = 0;
 
 	XInputEnable(true);
 
@@ -387,6 +388,17 @@ void Game::update(float dt)
 	}else if (currentState == GameState::EndRound)//här ska upgraderingar hända
 	{
 		//make upgrade choices here
+
+		for (int i = 0; i < 4; ++i) {
+			gGamepads[i]->update(dt);
+		}
+		if (firsttime == true)
+		{
+			currentMap->reset(currentMap->nrOfPlayers);
+			firsttime = false;
+		}
+		currentMap->update(dt, camera);
+
 		ImGui::Begin("End of the round");
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
@@ -400,9 +412,43 @@ void Game::update(float dt)
 
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
-			ImGui::Text("player %i choose upgrade %i", i + 1, pUpgrades[i].choice[0]);
+			ImGui::Text("player %i choose upgrade %i", i + 1, pUpgrades[i].choice[currentRound]);
 		}
+
+		for (int i = 0; i < currentMap->nrOfPlayers; i++)
+		{
+			Player * p = dynamic_cast<Player*>(currentMap->entitys[i]);
+			ImGui::Text("Player %d ready: %d", i, p->ready);
+		}
+
+		int readyCount = 0;
+		for (int i = 0; i < currentMap->nrOfPlayers; i++)
+		{
+			if (dynamic_cast<Player*>(currentMap->entitys[i])->ready)
+			{
+				readyCount++;
+			}
+		}
+
+		if (readyCount == currentMap->nrOfPlayers)
+		{
+			for (int i = 0; i < currentMap->nrOfPlayers; i++)
+			{
+				pUpgrades[i].round++;
+			}
+			currentRound++;
+			firsttime = true;
+			currentState = GameState::Playing;
+			currentMap->reset(currentMap->nrOfPlayers);
+		}
+
 		if (ImGui::Button("start next round")) {
+
+			for (int i = 0; i < currentMap->nrOfPlayers; i++)
+			{
+				pUpgrades[i].round++;
+			}
+			firsttime = true;
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
 		}

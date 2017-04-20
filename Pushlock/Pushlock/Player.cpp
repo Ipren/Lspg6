@@ -4,6 +4,7 @@
 #include "Globals.h"
 #include "Gamepad.h"
 #include "Constants.h"
+#include "Upgrades.h"
 
 Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float radius) :
 	Entity(EntityType::Player, position, velocity, radius), index(index)
@@ -130,6 +131,30 @@ void Player::update(Map *map, float dt)
 			this->ready = true;
 		}
 
+	}
+
+	if (*map->currentState == GameState::EndRound)
+	{
+		if (gGamepads[index]->get_button_pressed(Gamepad::X))
+		{
+			pUpgrades[index].chooseUpgrade(1);
+		}
+		if (gGamepads[index]->get_button_pressed(Gamepad::Y))
+		{
+			pUpgrades[index].chooseUpgrade(2);
+		}
+		if (gGamepads[index]->get_button_pressed(Gamepad::A))
+		{
+			pUpgrades[index].chooseUpgrade(3);
+		}
+		if (gGamepads[index]->get_button_pressed(Gamepad::B))
+		{
+			pUpgrades[index].chooseUpgrade(4);
+		}
+		if (gGamepads[index]->get_button_pressed(Gamepad::Start))
+		{
+			this->ready = true;
+		}
 	}
 
 }

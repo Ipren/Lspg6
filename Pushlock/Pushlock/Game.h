@@ -24,6 +24,7 @@ public:
 	int heigth;
 	bool audioDevicePresent;
 	int playerElements;
+	int currentRound;
 	
 	GameState currentState;
 };
