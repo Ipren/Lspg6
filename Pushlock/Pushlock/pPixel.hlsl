@@ -11,7 +11,15 @@ SamplerState sSampler : register(s0);
 
 float4 main(in GS_OUT input) : SV_TARGET
 {
-	float age = (input.age-1.6)*(1.0/0.4);
+	
+
+    if(input.type == 0)
+    {
+        return float4(0.38f, 0.1f, 0.56f, 1.0f);
+    }
+    if (input.type == 1)
+    {
+        float age = (input.age-1.6)*(1.0/0.4);
 	float start = 1.0 / 16.0 * floor(age * 16.0);
 	float end = 1.0 / 16.0 * ceil(age * 16.0);
 
@@ -23,14 +31,6 @@ float4 main(in GS_OUT input) : SV_TARGET
 		discard;
 	}
     return texel;
-
-    if(input.type == 0)
-    {
-        return float4(1.0f, 0.0f, 0.0f, 1.0f);
-    }
-    if (input.type == 1)
-    {
-        return float4(0.0f, 1.0f, 0.0f, 1.0f);
     }
     if (input.type == 2)
     {

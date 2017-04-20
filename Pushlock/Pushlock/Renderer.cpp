@@ -1090,7 +1090,7 @@ void Renderer::updateEmitters(Map * map)
 			if (dynamic_cast<Player*>(map->entitys[i])->blowUp)
 			{
 				Player *temp = dynamic_cast<Player*>(map->entitys[i]);
-				this->createStompParticles(dynamic_cast<FireElement*>(temp->element)->active_projectile->position, 0);
+				this->createStompParticles(dynamic_cast<FireElement*>(temp->element)->active_projectile->position, 1);
 				temp->blowUp = false;
 				dynamic_cast<FireElement*>(temp->element)->active_projectile = nullptr;
 			}
