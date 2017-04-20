@@ -14,12 +14,9 @@ public:
 	void render();
 
 //private: 
-	Menu* endGame;
-	Menu* endRound;
-	Menu* playing;
-	Menu* choosePowers;
-	Menu* mainMenu;
-	Menu* currentMenu;
+
+	Menu* menu;
+	int currentMenu;
 	Map *currentMap;
 	Camera *camera;
 	Renderer *renderer;

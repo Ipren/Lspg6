@@ -50,6 +50,9 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createParticleBuffer(524288);
 	this->createLightBuffers();
 	this->createCameraBuffer();
+	this->createcpMenuShaders();
+	this->createFullScreenQuad();
+	this->loadTexture();
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
 	{
@@ -99,6 +102,7 @@ Renderer::~Renderer()
 	this->pLightBuffer->Release();
 	this->pLightSRV->Release();
 	this->pointLightCountBuffer->Release();
+	this->quadVertexBuffer->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -1019,6 +1023,132 @@ void Renderer::updatePointLights(Map * map)
 	}
 }
 
+void Renderer::createFullScreenQuad()
+{
+	struct TriangleVertex
+	{
+		float x, y, z;
+		float u, v;
+	};
+
+	TriangleVertex triangleVertices[6] =
+	{
+		1.f, -1.f, 0.0f,	//v0 pos
+		1.0f, 1.0f,
+
+		-1.f, -1.f, 0.0f,	//v1
+		0.0f, 1.0f,
+
+		-1.f, 1.f, 0.0f, //v2
+		0.0f,  0.0f,
+
+		//t2
+		-1.f, 1.f, 0.0f,	//v0 pos
+		0.0f, 0.0f,
+
+		1.f, 1.f, 0.0f,	//v1
+		1.0f, 0.0f,
+
+		1.f, -1.f, 0.0f, //v2
+		1.0f, 1.0f
+	};
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(triangleVertices);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = triangleVertices;
+	this->gDevice->CreateBuffer(&bufferDesc, &data, &this->quadVertexBuffer);
+
+}
+
+void Renderer::createcpMenuShaders()
+{
+	HRESULT hr;
+	ID3DBlob* vsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"cpMenuVS.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&vsBlob,
+		nullptr);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"vsblob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->cpMenuVs);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"vertex shader creation failed", L"error", MB_OK);
+	}
+
+	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->cpQuadLayout);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"input desc creation failed", L"error", MB_OK);
+	}
+
+	vsBlob->Release();
+
+	ID3DBlob *psBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"CpMenuPS.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&psBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"psBlob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->cpmenuPS);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"pixel shader creation failed", L"error", MB_OK);
+	}
+
+	psBlob->Release();
+
+}
+
+void Renderer::loadTexture()
+{
+	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	ID3D11Resource *texture = nullptr;
+	HRESULT hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cpMenuTexture.png ", &texture, &this->cpMenuTexture);
+	if (FAILED(hr)){
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);}
+
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/mainMenu.png ", &texture, &this->mainMenuTexture);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	texture->Release();
+
+}
+
 void Renderer::swapBuffers()
 {
 	ID3D11UnorderedAccessView *tempUAV;
@@ -1313,6 +1443,7 @@ void Renderer::render(Map *map, Camera *camera)
 
 	this->renderParticles(camera);
 }
+
 
 void Renderer::present() {
 	this->gSwapChain->Present(0, 0);

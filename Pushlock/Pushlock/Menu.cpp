@@ -10,6 +10,7 @@ Menu::Menu(Renderer* renderer)
 	DXCALL(CreateDDSTextureFromFile(renderer->gDevice, L"test_main_menu.dds", &r, &m_texture, 0, nullptr));
 
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
+	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(renderer->gDeviceContext);
 
 
 	m_screenPos.x = 100;
@@ -33,7 +34,6 @@ Menu::Menu(Renderer* renderer)
 			shaderByteCode, byteCodeLength,
 			m_inputLayout.ReleaseAndGetAddressOf());
 
-	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(renderer->gDeviceContext);
 }
 
 Menu::~Menu()
@@ -47,13 +47,60 @@ Menu::~Menu()
 	m_inputLayout.Reset();
 }
 
-void Menu::render(Renderer* renderer)
+void Menu::render(Renderer* renderer, GameState currentState)
 {
 	/*m_spriteBatch->Begin();
 
 	m_spriteBatch->Draw(m_texture.Get(), m_screenPos, nullptr, Colors::White, 0.f, m_origin);
 
 	m_spriteBatch->End();*/
+	if (currentState == GameState::ChoosePowers)
+	{
+		float clearColor[] = { 0, 0, 0, 1 };
+		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
+
+		renderer->gDeviceContext->ClearRenderTargetView(renderer->gBackbufferRTV, clearColor);
+
+		UINT vertexSize = sizeof(float) * 5;
+		UINT offset = 0;
+
+		renderer->gDeviceContext->IASetVertexBuffers(0, 1, &renderer->quadVertexBuffer, &vertexSize, &offset);
+		renderer->gDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		renderer->gDeviceContext->IASetInputLayout(renderer->cpQuadLayout);
+
+		renderer->gDeviceContext->VSSetShader(renderer->cpMenuVs, nullptr, 0);
+		renderer->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->PSSetShader(renderer->cpmenuPS, nullptr, 0);
+		renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cpMenuTexture);
+
+		renderer->gDeviceContext->Draw(6, 0);
+	}
+	else if(currentState == GameState::MainMenu)
+	{
+		float clearColor[] = { 0, 0, 0, 1 };
+		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
+
+		renderer->gDeviceContext->ClearRenderTargetView(renderer->gBackbufferRTV, clearColor);
+
+		UINT vertexSize = sizeof(float) * 5;
+		UINT offset = 0;
+
+		renderer->gDeviceContext->IASetVertexBuffers(0, 1, &renderer->quadVertexBuffer, &vertexSize, &offset);
+		renderer->gDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		renderer->gDeviceContext->IASetInputLayout(renderer->cpQuadLayout);
+
+		renderer->gDeviceContext->VSSetShader(renderer->cpMenuVs, nullptr, 0);
+		renderer->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->PSSetShader(renderer->cpmenuPS, nullptr, 0);
+		renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->mainMenuTexture);
+
+		renderer->gDeviceContext->Draw(6, 0);
+	}
+	
 
 	//renderer->gDeviceContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	//renderer->gDeviceContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
@@ -63,43 +110,5 @@ void Menu::render(Renderer* renderer)
 
 	//renderer->gDeviceContext->IASetInputLayout(m_inputLayout.Get());
 
-	m_batch->Begin();
-
-	for (int i = 0; i < this->quads.size(); i++)
-	{
-		DirectX::VertexPositionColor* vpc1;
-		DirectX::VertexPositionColor* vpc2;
-		DirectX::VertexPositionColor* vpc3;
-		DirectX::VertexPositionColor* vpc4;
-		for (int j = 0; j < 4; j++)
-		{
-			vpc1 = new DirectX::VertexPositionColor({ this->quads[i].pos[j].x, this->quads[i].pos[j].y, 0 }, { this->quads[i].color[i].x,this->quads[i].color[j].y,this->quads[i].color[j].z, });
-			vpc2 = new DirectX::VertexPositionColor({ this->quads[i].pos[j].x, this->quads[i].pos[j].y, 0 }, { this->quads[i].color[i].x,this->quads[i].color[j].y,this->quads[i].color[j].z, });
-			vpc3 = new DirectX::VertexPositionColor({ this->quads[i].pos[j].x, this->quads[i].pos[j].y, 0 }, { this->quads[i].color[i].x,this->quads[i].color[j].y,this->quads[i].color[j].z, });
-			vpc4 = new DirectX::VertexPositionColor({ this->quads[i].pos[j].x, this->quads[i].pos[j].y, 0 }, { this->quads[i].color[i].x,this->quads[i].color[j].y,this->quads[i].color[j].z, });
-
-		}
-
-
-		m_batch->DrawQuad(*vpc1, *vpc2, *vpc3, *vpc4);
-	}
 	
-	m_batch->End();
-}
-
-void Menu::addQuad(XMFLOAT2 pos1, XMFLOAT2 pos2, XMFLOAT2 pos3, XMFLOAT2 pos4, 
-	XMFLOAT3 color1, XMFLOAT3 color2, XMFLOAT3 color3, XMFLOAT3 color4)
-{
-	Quad* q = new Quad();
-	q->pos[0] = pos1;
-	q->pos[1] = pos2;
-	q->pos[2] = pos3;
-	q->pos[3] = pos4;
-	 
-	q->color[0] = color1;
-	q->color[1] = color2;
-	q->color[2] = color3;
-	q->color[3] = color4;
-
-	this->quads.push_back(*q);
 }

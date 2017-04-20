@@ -9,6 +9,8 @@
     <FxCompile Include="pVertex.hlsl" />
     <FxCompile Include="Simple.hlsl" />
     <FxCompile Include="StompInserter.hlsl" />
+    <FxCompile Include="cpMenuVS.hlsl" />
+    <FxCompile Include="cpMenuPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
