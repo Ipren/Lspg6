@@ -63,6 +63,7 @@ float4 PS(in VS_OUT input) : SV_TARGET
     float distance;
     float nDotL;
     float4 wLightPos;
+    float4 wNorm = mul(World, float4(normal, 1.0f));
     for (uint i = 0; i < nrOfPointLights; i++)
     {
         wLightPos = mul(World, float4(pLights[i].lightPos, 1.0f)); 
@@ -72,7 +73,7 @@ float4 PS(in VS_OUT input) : SV_TARGET
         {
             attenuation = saturate(1.0f - (distance / pLights[i].range));
             P2L /= distance;
-            nDotL = saturate(dot(normal, P2L));
+            nDotL = saturate(dot(wNorm.xyz, P2L));
 
             //nDotL should be multiplied here but the light doesnt appear when you do : fix
             if(pLights[i].lightColor.w > 0)
