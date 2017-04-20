@@ -458,9 +458,17 @@ void Game::update(float dt)
 
 void Game::render()
 {
-	this->renderer->render(this->currentMap, this->camera);
-	if (this->currentMenu != nullptr)
-		this->currentMenu->render(this->renderer);
+	if (currentState == GameState::ChoosePowers)
+	{
+		this->renderer->renderUpgradesChoiceMenu();
+	}
+	else
+	{
+		this->renderer->render(this->currentMap, this->camera);
+		if (this->currentMenu != nullptr)
+			this->currentMenu->render(this->renderer);
+	}
+	
 	ImGui::Render();
 	this->renderer->present();
 }

@@ -12,7 +12,9 @@
 #include "Camera.h"
 #include "Map.h"
 
+
 #include "DirectXTK.h"
+#include "WICTextureLoader.h"
 
 class Renderer
 {
@@ -22,6 +24,7 @@ public:
 	virtual ~Renderer();
 
 	void render(Map *map, Camera *camera);
+	void renderUpgradesChoiceMenu();
 	void present();
 	void update(float dt, Map *map);
 	
@@ -82,6 +85,12 @@ private:
 	ID3D11Buffer *cameraPosBuffer;
 	ID3D11Buffer *pointLightCountBuffer;
 
+	ID3D11Buffer *quadVertexBuffer;
+	ID3D11VertexShader *cpMenuVs;
+	ID3D11PixelShader *cpmenuPS;
+	ID3D11InputLayout *cpQuadLayout;
+	ID3D11ShaderResourceView *cpMenuTexture;
+
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
 	ID3D11RenderTargetView* nullRTV;
@@ -114,6 +123,9 @@ private:
 	void createCameraBuffer();
 	void updateCameraPosBuffer(Camera *cam);
 	void updatePointLights(Map *map);
+	void createFullScreenQuad();
+	void createcpMenuShaders();
+	void loadTexture();
 
 	
 };
