@@ -24,17 +24,22 @@ public:
 	virtual ~Renderer();
 
 	void render(Map *map, Camera *camera);
-	void renderUpgradesChoiceMenu();
 	void present();
 	void update(float dt, Map *map);
 	
 	ID3D11Device *gDevice;
 	ID3D11DeviceContext *gDeviceContext;
+	ID3D11Buffer *quadVertexBuffer;
+	ID3D11VertexShader *cpMenuVs;
+	ID3D11PixelShader *cpmenuPS;
+	ID3D11InputLayout *cpQuadLayout;
+	ID3D11ShaderResourceView *cpMenuTexture;
+	ID3D11RenderTargetView *gBackbufferRTV;
 
 private:
 	IDXGISwapChain *gSwapChain;
 	
-	ID3D11RenderTargetView *gBackbufferRTV;
+	
 	ID3D11DepthStencilView *gDepthStencil;
 
 	ID3D11Buffer *color_buffer;
@@ -85,11 +90,7 @@ private:
 	ID3D11Buffer *cameraPosBuffer;
 	ID3D11Buffer *pointLightCountBuffer;
 
-	ID3D11Buffer *quadVertexBuffer;
-	ID3D11VertexShader *cpMenuVs;
-	ID3D11PixelShader *cpmenuPS;
-	ID3D11InputLayout *cpQuadLayout;
-	ID3D11ShaderResourceView *cpMenuTexture;
+	
 
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;

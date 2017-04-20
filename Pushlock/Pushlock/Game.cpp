@@ -30,6 +30,8 @@ Game::Game(HWND wndHandle, int width, int height)
 	this->currentMap = new Map(&currentState);
 	this->renderer = new Renderer(wndHandle, width, height);
 	this->mainMenu = new Menu(renderer);
+	this->choosePowers = new Menu(renderer);
+	this->choosePowers->menuType = 1;
 	this->currentMenu = this->mainMenu;
 	camera = new Camera({ 0, 15, -5 }, { 0, 0, 0 }, this->renderer->gDevice);
 	for (int i = 0; i < 4; ++i) {
@@ -458,16 +460,12 @@ void Game::update(float dt)
 
 void Game::render()
 {
-	if (currentState == GameState::ChoosePowers)
-	{
-		this->renderer->renderUpgradesChoiceMenu();
-	}
-	else
-	{
-		this->renderer->render(this->currentMap, this->camera);
-		if (this->currentMenu != nullptr)
-			this->currentMenu->render(this->renderer);
-	}
+
+
+	this->renderer->render(this->currentMap, this->camera);
+	if (this->currentMenu != nullptr)
+		this->currentMenu->render(this->renderer);
+
 	
 	ImGui::Render();
 	this->renderer->present();

@@ -1441,29 +1441,6 @@ void Renderer::render(Map *map, Camera *camera)
 	this->renderParticles(camera);
 }
 
-void Renderer::renderUpgradesChoiceMenu()
-{
-	float clearColor[] = { 0, 0, 0, 1 };
-	this->gDeviceContext->OMSetRenderTargets(1, &this->gBackbufferRTV, nullptr);
-
-	this->gDeviceContext->ClearRenderTargetView(this->gBackbufferRTV, clearColor);
-
-	UINT vertexSize = sizeof(float) * 5;
-	UINT offset = 0;
-
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->quadVertexBuffer, &vertexSize, &offset);
-	this->gDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	this->gDeviceContext->IASetInputLayout(this->cpQuadLayout);
-
-	this->gDeviceContext->VSSetShader(this->cpMenuVs, nullptr, 0);
-	this->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
-	this->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
-	this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
-	this->gDeviceContext->PSSetShader(this->cpmenuPS, nullptr, 0);
-	this->gDeviceContext->PSSetShaderResources(0, 1, &this->cpMenuTexture);
-
-	this->gDeviceContext->Draw(6, 0);
-}
 
 void Renderer::present() {
 	this->gSwapChain->Present(0, 0);
