@@ -11,7 +11,6 @@
 #include "Helpers.h"
 #include "Camera.h"
 #include "Map.h"
-#include "Menu.h"
 
 #include "DirectXTK.h"
 
@@ -22,7 +21,7 @@ public:
 	Renderer(HWND wndHandle, int width, int height);
 	virtual ~Renderer();
 
-	void render(Map *map, Menu* menu, Camera *camera);
+	void render(Map *map, Camera *camera);
 	void present();
 	void update(float dt, Map *map);
 	
@@ -37,10 +36,10 @@ private:
 
 	ID3D11Buffer *color_buffer;
 
-	ID3D11Buffer* menu_buffer;
-	ID3D11InputLayout *menu_layout;
-	ID3D11VertexShader *menu_vsh;
-	ID3D11PixelShader *menu_psh;
+	//ID3D11Buffer* menu_buffer;
+	//ID3D11InputLayout *menu_layout;
+	//ID3D11VertexShader *menu_vsh;
+	//ID3D11PixelShader *menu_psh;
 
 	ID3D11Buffer *debug_map_quad;
 	ID3D11InputLayout *debug_map_layout;
@@ -94,6 +93,7 @@ private:
 	float lastParticleInsert;
 	int pointLightCount;
 
+	//void create_menu();
 	void create_debug_entity();
 	void createShaders();
 	void createDepthBuffers();

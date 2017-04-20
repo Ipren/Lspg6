@@ -386,8 +386,11 @@ void Game::update(float dt)
 		}
 	}else if (currentState == GameState::EndRound)//här ska upgraderingar hända
 	{
+<<<<<<< HEAD
 		//make upgrade choices here
+=======
 		currentMenu = endRound;
+>>>>>>> 6e17e5979c72052783384c7ffcde1694f0fd1c3a
 		ImGui::Begin("End of the round");
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
