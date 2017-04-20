@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdio>
+
 #include <DirectXMath.h>
 #include "Ease.h"
 
@@ -52,7 +54,6 @@ EaseFuncV GetEaseFuncV(ParticleEase ease)
 }
 
 
-
 #define MAX_PARTICLE_FX 16
 
 struct ParticleDefinition {
@@ -66,9 +67,6 @@ struct ParticleDefinition {
 	float scale_start;
 	float scale_end = 1.0;
 
-	float rotation_clamp;
-	float rotation_multiplier;
-
 	ParticleEase color_fn;
 	XMFLOAT4 start_color = { 1.f, 1.f, 1.f, 1.f };
 	XMFLOAT4 end_color = { 1.f, 1.f, 1.f, 0.f };
@@ -79,6 +77,7 @@ struct ParticleDefinition {
 struct ParticleEffectEntry {
 	int idx = -1;
 	float start, end = 1.f;
+	bool loop;
 
 	ParticleEmitter emitter_type;
 	float emitter_xmin, emitter_xmax;
@@ -89,8 +88,12 @@ struct ParticleEffectEntry {
 	float vel_ymin, vel_ymax;
 	float vel_zmin, vel_zmax;
 
+	float rot_min, rot_max;
+	float rot_vmin, rot_vmax;
+
 	ParticleEase spawn_fn;
-	int spawn_start = 1, spawn_end;
+	int spawn_start = 0, spawn_end;
+	float spawned_particles = 1.f;
 };
 
 struct ParticleEffect {
@@ -100,23 +103,25 @@ struct ParticleEffect {
 	float children_time = 0.f;
 	float time = 1.f;
 	float age;
+
 	bool loop;
 	bool clamp_children = false;
 };
 
 struct Particle {
+	XMVECTOR origin;
 	XMVECTOR pos;
 	XMVECTOR velocity;
 	XMVECTOR color;
 	XMFLOAT4 uv;
 	XMFLOAT2 scale;
 
+	float rotation;
+	float rotation_velocity;
 	float age;
 	int type;
 	int idx;
 };
-
-#include <cstdio>
 
 inline bool SerializeParticles(const wchar_t *file, std::vector<ParticleEffect> effects, std::vector<ParticleDefinition> definitions)
 {
@@ -156,6 +161,7 @@ inline bool DeserializeParticles(const wchar_t *file, std::vector<ParticleEffect
 
 		definitions.push_back(e);
 	}
+
 
 	fread(&size, sizeof(size_t), 1, f);
 

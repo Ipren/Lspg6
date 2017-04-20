@@ -19,7 +19,8 @@ VSOut VS(VSIn input)
 	return output;
 }
 
-Texture2D HDRTexture : register(t0);
+Texture2D TargetTexture : register(t0);
+Texture2D HDRTexture : register(t1);
 SamplerState HDRSampler : register(s0);
 
 #define TONEMAP_GAMMA 1.0 
@@ -36,5 +37,7 @@ float4 tonemap_reinhard(in float3 color)
 
 float4 PS(VSOut input) : SV_Target
 {
-	return tonemap_reinhard(HDRTexture.Sample(HDRSampler, input.Uv).xyz);
+	float4 target = TargetTexture.Sample(HDRSampler, input.Uv);
+	float4 hdr = HDRTexture.Sample(HDRSampler, input.Uv);
+	return hdr;
 }

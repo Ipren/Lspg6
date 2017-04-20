@@ -9,6 +9,7 @@ struct Settings {
 
 	float ParticleSpeed = 1.0f;
 	bool ParticlePaused = false;
+	bool ParticleLoop = false;
 };
 
 void Init();

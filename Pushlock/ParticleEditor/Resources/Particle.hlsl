@@ -6,11 +6,14 @@ cbuffer Camera : register(b0)
 };
 
 struct VSIn {
+	float4 origin : ORIGIN;
 	float4 pos : POSITION;
 	float4 vel : VELOCITY;
 	float4 color : COLOR;
 	float4 uv : TEXCOORD;
 	float2 scale : SCALE;
+	float rotation : ROTATION;
+	float rotation_velocity : ROTATIONV;
 	float age : FOG;
 	int type : TYPE;
 	int idx : IDX;
@@ -69,11 +72,19 @@ void BillboardParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 
 	float w = input.scale.x;
 	float h = input.scale.y;
+	float rot = input.rotation;
 
-	float4 N = float4(0, w, 0, 0);
-	float4 S = float4(0, -w, 0, 0);
-	float4 E = float4(-h, 0, 0, 0);
-	float4 W = float4(h, 0, 0, 0);
+	float4x4 rotate = {
+		cos(rot), -sin(rot), 0.0, 0.0,
+		sin(rot), cos(rot),  0.0, 0.0,
+		0.0,        0.0,     1.0, 0.0,
+		0.0,        0.0,     0.0, 1.0
+	};
+
+	float4 N = mul(rotate, float4(0, w, 0, 0));
+	float4 S = mul(rotate, float4(0, -w, 0, 0));
+	float4 E = mul(rotate, float4(-h, 0, 0, 0));
+	float4 W = mul(rotate, float4(h, 0, 0, 0));
 	
 	float4 pos = mul(View, float4(input.pos.xyz, 1.0));
 
@@ -104,7 +115,7 @@ void VelocityParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 	float w = input.scale.x;
 	float h = input.scale.y;
 
-	float3 u = mul(View, input.vel.xyz).xyz;
+	float3 u = mul(View, input.pos.xyz - input.origin.xyz).xyz;
 
 	float t = 0.0;
 	float nz = abs(normalize(u).z);
@@ -127,26 +138,26 @@ void VelocityParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 	float3 c = cross(a, b);
 	float3x3 basis = float3x3(a, b, c);
 
-	float3 N = mul(basis, float3(0, w, 0));
-	float3 S = mul(basis, float3(0, -w, 0));
-	float3 E = mul(basis, float3(-h, 0, 0));
-	float3 W = mul(basis, float3(h, 0, 0));
+	float3 N = mul(float3(0, h, 0), basis);
+	float3 S = mul(float3(0, -h, 0), basis);
+	float3 E = mul(float3(0, 0, 0), basis);
+	float3 W = mul(float3(w*2, 0, 0), basis);
 
-	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + N + W, 1.0)));
-	output.uv = input.uv.xy;
-	outstream.Append(output);
-
-	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + S + W, 1.0)));
-	output.uv = input.uv.xw;
-	outstream.Append(output);
-
-	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + N + E, 1.0)));
-	output.uv = input.uv.zy;
-	outstream.Append(output);
-
-	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + S + E, 1.0)));
+	output.pos = mul(Proj, mul(View, float4(input.origin.xyz + N + W, 1.0)));
+	output.uv = input.uv.xy;					  
+	outstream.Append(output);					  
+												  
+	output.pos = mul(Proj, mul(View, float4(input.origin.xyz + S + W, 1.0)));
+	output.uv = input.uv.xw;					  
+	outstream.Append(output);					  
+												  
+	output.pos = mul(Proj, mul(View, float4(input.origin.xyz + N + E, 1.0)));
+	output.uv = input.uv.zy;					  
+	outstream.Append(output);					  
+												  
+	output.pos = mul(Proj, mul(View, float4(input.origin.xyz + S + E, 1.0)));
 	output.uv = input.uv.zw;
-	outstream.Append(output);;
+	outstream.Append(output);
 }
 [maxvertexcount(4)]
 void GS(point VSIn inp[1], inout TriangleStream<GSOut> outstream)
