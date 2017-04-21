@@ -1305,6 +1305,50 @@ void Renderer::createCooldownShaders()
 	psBlob->Release();
 }
 
+void Renderer::updatecooldownGUI(Map * map)
+{
+	int temp[4][4];
+	for (size_t i = 0; i < map->entitys.size(); i++)
+	{
+		if (dynamic_cast<Player*>(map->entitys[i]) != nullptr)
+		{
+			for (size_t j = 0; j < 4; j++)
+			{
+				if (dynamic_cast<Player*>(map->entitys[i])->element->cooldown[j] < 0.001f)
+				{
+					temp[i][j] = 1;
+				}
+					
+			}
+		}
+	}
+	CooldownStruct cdData;
+	int n = 0;
+	for (size_t i = 0; i < 4; i++)
+	{
+		cdData.p1Cd[i] = temp[n][i];
+	}
+	n++;
+	for (size_t i = 0; i < 4; i++)
+	{
+		cdData.p2Cd[i] = temp[n][i];
+	}
+	n++;
+	for (size_t i = 0; i < 4; i++)
+	{
+		cdData.p3Cd[i] = temp[n][i];
+	}
+	n++;
+	for (size_t i = 0; i < 4; i++)
+	{
+		cdData.p4Cd[i] = temp[n][i];
+	}
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->cooldownBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &cdData, sizeof(CooldownStruct));
+	this->gDeviceContext->Unmap(this->cooldownBuffer, 0);
+}
+
 void Renderer::swapBuffers()
 {
 	ID3D11UnorderedAccessView *tempUAV;
@@ -1609,6 +1653,7 @@ void Renderer::update(float dt, Map * map)
 {
 	this->updateParticles(dt, map);
 	this->updatePointLights(map);
+	this->updatecooldownGUI(map);
 	if (map->shrunk == true)
 	{
 		map->shrunk = false;

@@ -136,6 +136,7 @@ private:
 	void loadTexture();
 	void createCooldownBuffers();
 	void createCooldownShaders();
+	void updatecooldownGUI(Map *map);
 
 	
 };
