@@ -14,7 +14,6 @@ public:
 
 	void addButton(std::string name, XMFLOAT2 pos1, XMFLOAT2 pos2, XMFLOAT2 pos3, XMFLOAT2 pos4,
 		XMFLOAT3 color1, XMFLOAT3 color2, XMFLOAT3 color3, XMFLOAT3 color4);
-	GameState menuType;
 
 private:
 	struct mQuad

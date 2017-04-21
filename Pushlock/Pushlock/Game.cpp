@@ -32,7 +32,6 @@ Game::Game(HWND wndHandle, int width, int height)
 
 
 	this->menu = new Menu(renderer);
-	this->menu->menuType = GameState::MainMenu;
 	this->currentMenu = 0;
 
 	camera = new Camera({ 0, 15, -5 }, { 0, 0, 0 }, this->renderer->gDevice);
