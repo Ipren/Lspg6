@@ -55,6 +55,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->loadTexture();
 
 	this->createCooldownBuffers();
+	this->createCooldownShaders();
 
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
@@ -106,7 +107,15 @@ Renderer::~Renderer()
 	this->pLightSRV->Release();
 	this->pointLightCountBuffer->Release();
 	this->quadVertexBuffer->Release();
+	this->cpMenuTexture->Release();
+	this->cpMenuVs->Release();
+	this->cpQuadLayout->Release();
+	this->cpmenuPS->Release();
 	this->cooldownBuffer->Release();
+	this->cooldownCirclesLayout->Release();
+	this->cooldownCircles->Release();
+	this->cooldownVS->Release();
+	this->cooldownPS->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -1074,7 +1083,7 @@ void Renderer::createcpMenuShaders()
 	HRESULT hr;
 	ID3DBlob* vsBlob = nullptr;
 	hr = D3DCompileFromFile(
-		L"cpMenuVS.hlsl",
+		L"cooldownVS.hlsl",
 		nullptr,
 		nullptr,
 		"main",
@@ -1089,20 +1098,18 @@ void Renderer::createcpMenuShaders()
 		MessageBox(0, L"vsblob creation failed", L"error", MB_OK);
 	}
 
-	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->cpMenuVs);
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->cooldownVS);
 
 	if (FAILED(hr))
 	{
 		MessageBox(0, L"vertex shader creation failed", L"error", MB_OK);
 	}
 
-	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
-	{
+	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->cpQuadLayout);
+	hr = this->gDevice->CreateInputLayout(input_desc, ARRAYSIZE(input_desc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->cooldownCirclesLayout);
 
 	if (FAILED(hr))
 	{
@@ -1113,7 +1120,7 @@ void Renderer::createcpMenuShaders()
 
 	ID3DBlob *psBlob = nullptr;
 	hr = D3DCompileFromFile(
-		L"CpMenuPS.hlsl",
+		L"cooldownPS.hlsl",
 		NULL,
 		NULL,
 		"main",
@@ -1127,7 +1134,7 @@ void Renderer::createcpMenuShaders()
 		MessageBox(0, L"psBlob creation failed", L"error", MB_OK);
 	}
 
-	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->cpmenuPS);
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->cooldownPS);
 	if (FAILED(hr))
 	{
 		MessageBox(0, L"pixel shader creation failed", L"error", MB_OK);
@@ -1225,6 +1232,73 @@ void Renderer::createCooldownBuffers()
 	{
 		MessageBox(0, L"cooldown verex buffer creation failed", L"error", MB_OK);
 	}
+}
+
+void Renderer::createCooldownShaders()
+{
+	HRESULT hr;
+	ID3DBlob* vsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"cpMenuVS.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&vsBlob,
+		nullptr);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"vsblob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->cpMenuVs);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"vertex shader creation failed", L"error", MB_OK);
+	}
+
+	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->cpQuadLayout);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"input desc creation failed", L"error", MB_OK);
+	}
+
+	vsBlob->Release();
+
+	ID3DBlob *psBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"CpMenuPS.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&psBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"psBlob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->cpmenuPS);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"pixel shader creation failed", L"error", MB_OK);
+	}
+
+	psBlob->Release();
 }
 
 void Renderer::swapBuffers()

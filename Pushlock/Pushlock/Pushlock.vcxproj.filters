@@ -11,6 +11,8 @@
     <FxCompile Include="StompInserter.hlsl" />
     <FxCompile Include="cpMenuVS.hlsl" />
     <FxCompile Include="cpMenuPS.hlsl" />
+    <FxCompile Include="cooldownVS.hlsl" />
+    <FxCompile Include="cooldownPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />

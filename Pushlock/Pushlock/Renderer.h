@@ -94,6 +94,8 @@ private:
 	ID3D11Buffer *cooldownBuffer;
 	ID3D11Buffer *cooldownCircles;
 	ID3D11InputLayout *cooldownCirclesLayout;
+	ID3D11VertexShader *cooldownVS;
+	ID3D11PixelShader *cooldownPS;
 	
 
 	ID3D11UnorderedAccessView* nullUAV;
@@ -132,6 +134,7 @@ private:
 	void createcpMenuShaders();
 	void loadTexture();
 	void createCooldownBuffers();
+	void createCooldownShaders();
 
 	
 };
