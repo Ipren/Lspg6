@@ -40,7 +40,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 HWND InitWindow(HINSTANCE hInstance)
 {
 	WNDCLASSEX wcex = { 0 };
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hCursor = LoadCursor(NULL, IDC_NO);
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
 	//wcex.hIcon = ;
@@ -125,7 +125,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 			ImGui_ImplDX11_NewFrame();
 
-			game->update((elapsed) / 1000.f);
+			quit |= game->update((elapsed) / 1000.f);
 			game->render();
 
 			ImGui::Render();

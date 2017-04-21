@@ -12,21 +12,25 @@ public:
 
 	void render(Renderer* renderer, GameState currentState);
 
-	void addButton(std::string name, XMFLOAT2 pos1, XMFLOAT2 pos2, XMFLOAT2 pos3, XMFLOAT2 pos4,
-		XMFLOAT3 color1, XMFLOAT3 color2, XMFLOAT3 color3, XMFLOAT3 color4);
-
+	std::vector<std::vector<bool>> buttons;//ska ändras till nrOfButtons
+	void selectDown(GameState currentState);
+	void selectUp(GameState currentState);
+	int getSelectedButton()const { return this->selectedButton; }
 private:
 	struct mQuad
 	{
 		XMFLOAT2 pos[4];
 		XMFLOAT3 color[4];
 	};
+	int selectedButton;
+	void setSelectedPos(GameState currentState);
 
-	std::vector<mQuad> buttons;
+	
 	std::vector<mQuad> quads;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
 	DirectX::SimpleMath::Vector2 m_screenPos;
 	DirectX::SimpleMath::Vector2 m_origin;
 

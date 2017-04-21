@@ -4,7 +4,7 @@ struct SpellConstants {
 	float kArcaneProjectileSeekStrength = 2.0f;
 	float kArcaneProjectileSeekRadius = 8.0f;
 	float kArcaneProjectileSeekFalloff = 0.08f;
-	float kArcaneProjectileStrength = 40.0f;
+	float kArcaneProjectileStrength = 30.0f;
 	float kArcaneProjectileSpeed = 10.0f;
 	float kArcaneProjectileCooldown = 0.8f;
 
@@ -78,7 +78,7 @@ struct SpellConstants {
 	float kEarthWallPillarRadius = 0.35f;
 
 	float kWaterProjectileStrenght = 10.0f;
-	float kWaterProjectileSpeed = 10.0f;
+	float kWaterProjectileSpeed = 20.0f;
 	float kWaterProjectileCooldown = 1.0f;
 	int kWaterProjectileNrOfShards = 4;
 	float kWaterProjectileSpreadAngle = 5.0f;

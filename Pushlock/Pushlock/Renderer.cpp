@@ -1083,7 +1083,7 @@ void Renderer::createcpMenuShaders()
 	HRESULT hr;
 	ID3DBlob* vsBlob = nullptr;
 	hr = D3DCompileFromFile(
-		L"cooldownVS.hlsl",
+		L"cpMenuVS.hlsl",
 		nullptr,
 		nullptr,
 		"main",
@@ -1095,32 +1095,34 @@ void Renderer::createcpMenuShaders()
 
 	if (FAILED(hr))
 	{
-		MessageBox(0, L"vsblob creation failed", L"error", MB_OK);
+		MessageBox(0, L" cp vsblob creation failed", L"error", MB_OK);
 	}
 
-	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->cooldownVS);
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->cpMenuVs);
 
 	if (FAILED(hr))
 	{
-		MessageBox(0, L"vertex shader creation failed", L"error", MB_OK);
+		MessageBox(0, L" cp vertex shader creation failed", L"error", MB_OK);
 	}
 
-	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
+	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
+	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	hr = this->gDevice->CreateInputLayout(input_desc, ARRAYSIZE(input_desc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->cooldownCirclesLayout);
+	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->cpQuadLayout);
 
 	if (FAILED(hr))
 	{
-		MessageBox(0, L"input desc creation failed", L"error", MB_OK);
+		MessageBox(0, L"cp menu input desc creation failed", L"error", MB_OK);
 	}
 
 	vsBlob->Release();
 
 	ID3DBlob *psBlob = nullptr;
 	hr = D3DCompileFromFile(
-		L"cooldownPS.hlsl",
+		L"CpMenuPS.hlsl",
 		NULL,
 		NULL,
 		"main",
@@ -1131,13 +1133,13 @@ void Renderer::createcpMenuShaders()
 		NULL);
 	if (FAILED(hr))
 	{
-		MessageBox(0, L"psBlob creation failed", L"error", MB_OK);
+		MessageBox(0, L" cp psBlob creation failed", L"error", MB_OK);
 	}
 
-	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->cooldownPS);
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->cpmenuPS);
 	if (FAILED(hr))
 	{
-		MessageBox(0, L"pixel shader creation failed", L"error", MB_OK);
+		MessageBox(0, L" cp pixel shader creation failed", L"error", MB_OK);
 	}
 
 	psBlob->Release();
@@ -1170,17 +1172,14 @@ void Renderer::createCooldownBuffers()
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.ByteWidth = sizeof(CooldownStruct);
+	desc.ByteWidth = sizeof(UINT) * 4;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.Usage = D3D11_USAGE_DYNAMIC;
 
-	CooldownStruct init;
+	UINT init[4];
 	for (size_t i = 0; i < 4; i++)
 	{
-		init.p1Cd[i] = 1;
-		init.p2Cd[i] = 1;
-		init.p3Cd[i] = 1;
-		init.p4Cd[i] = 1;	
+		init[i]= 1;
 	}
 
 
@@ -1195,33 +1194,38 @@ void Renderer::createCooldownBuffers()
 		MessageBox(0, L"cooldown buffer creation failed", L"error", MB_OK);
 	}
 
-	std::vector<XMFLOAT3> vertices;
+	std::vector<XMFLOAT4> vertices;
 
-
-	for (int i = 0; i < 128; i++)
+	for (size_t j = 0; j < 4; j++)
 	{
+		for (int i = 0; i < 128; i++)
+		{
 
-		XMFLOAT3 vert = {
-			sin(2 * XM_PI * i / 128.f) * 1,
-			0.01f,
-			cos(2 * XM_PI * i / 128.f) * 1
-		};
+			XMFLOAT4 vert = {
+				sin(2 * XM_PI * i / 128.f) * 0.1f + 0.3f * (float)j,
+				0.01f,
+				cos(2 * XM_PI * i / 128.f) * 0.1f,
+				(float)j
+			};
 
-		XMFLOAT3 vert2 = {
-			sin(2 * XM_PI * (i + 1) / 128.f) * 1,
-			0.01f,
-			cos(2 * XM_PI * (i + 1) / 128.f) * 1
-		};
-		vertices.push_back({ 0.f, 0.f, 0.f });
-		vertices.push_back(vert);
-		vertices.push_back(vert2);
+			XMFLOAT4 vert2 = {
+				sin(2 * XM_PI * (i + 1) / 128.f) * 0.1f + 0.3f * (float)j,
+				0.01f,
+				cos(2 * XM_PI * (i + 1) / 128.f) * 0.1f,
+				(float)j
+			};
+			vertices.push_back({ 0.3f * (float)j, 0.f, 0.f, (float)j });
+			vertices.push_back(vert);
+			vertices.push_back(vert2);
 
+		}
 	}
+	
 
 
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.ByteWidth = (UINT)(vertices.size() * 3 * sizeof(float));
+	desc.ByteWidth = (UINT)(vertices.size() * 4 * sizeof(float));
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
@@ -1243,7 +1247,7 @@ void Renderer::createCooldownShaders()
 	HRESULT hr;
 	ID3DBlob* vsBlob = nullptr;
 	hr = D3DCompileFromFile(
-		L"cpMenuVS.hlsl",
+		L"cooldownVS.hlsl",
 		nullptr,
 		nullptr,
 		"main",
@@ -1255,34 +1259,33 @@ void Renderer::createCooldownShaders()
 
 	if (FAILED(hr))
 	{
-		MessageBox(0, L"vsblob creation failed", L"error", MB_OK);
+		MessageBox(0, L"cooldown vsblob creation failed", L"error", MB_OK);
 	}
 
-	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->cpMenuVs);
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->cooldownVS);
 
 	if (FAILED(hr))
 	{
-		MessageBox(0, L"vertex shader creation failed", L"error", MB_OK);
+		MessageBox(0, L" cooldown vertex shader creation failed", L"error", MB_OK);
 	}
 
 	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->cpQuadLayout);
+	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->cooldownCirclesLayout);
 
 	if (FAILED(hr))
 	{
-		MessageBox(0, L"input desc creation failed", L"error", MB_OK);
+		MessageBox(0, L"cooldwon input desc creation failed", L"error", MB_OK);
 	}
 
 	vsBlob->Release();
 
 	ID3DBlob *psBlob = nullptr;
 	hr = D3DCompileFromFile(
-		L"CpMenuPS.hlsl",
+		L"cooldownPS.hlsl",
 		NULL,
 		NULL,
 		"main",
@@ -1293,60 +1296,71 @@ void Renderer::createCooldownShaders()
 		NULL);
 	if (FAILED(hr))
 	{
-		MessageBox(0, L"psBlob creation failed", L"error", MB_OK);
+		MessageBox(0, L"cooldown psBlob creation failed", L"error", MB_OK);
 	}
 
-	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->cpmenuPS);
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->cooldownPS);
 	if (FAILED(hr))
 	{
-		MessageBox(0, L"pixel shader creation failed", L"error", MB_OK);
+		MessageBox(0, L" cooldown pixel shader creation failed", L"error", MB_OK);
 	}
 
 	psBlob->Release();
 }
 
-void Renderer::updatecooldownGUI(Map * map)
+void Renderer::updatecooldownGUI(Player *player)
 {
-	int temp[4][4];
-	for (size_t i = 0; i < map->entitys.size(); i++)
+	UINT temp[4];
+	for (size_t i = 0; i < 4; i++)
 	{
-		if (dynamic_cast<Player*>(map->entitys[i]) != nullptr)
+		if (player->element->cooldown[i] < 0.001)
 		{
-			for (size_t j = 0; j < 4; j++)
-			{
-				if (dynamic_cast<Player*>(map->entitys[i])->element->cooldown[j] < 0.001f)
-				{
-					temp[i][j] = 1;
-				}
-					
-			}
+			temp[i] = 1;
+		}
+		else
+		{
+			temp[i] = 0;
 		}
 	}
-	CooldownStruct cdData;
-	int n = 0;
-	for (size_t i = 0; i < 4; i++)
-	{
-		cdData.p1Cd[i] = temp[n][i];
-	}
-	n++;
-	for (size_t i = 0; i < 4; i++)
-	{
-		cdData.p2Cd[i] = temp[n][i];
-	}
-	n++;
-	for (size_t i = 0; i < 4; i++)
-	{
-		cdData.p3Cd[i] = temp[n][i];
-	}
-	n++;
-	for (size_t i = 0; i < 4; i++)
-	{
-		cdData.p4Cd[i] = temp[n][i];
-	}
+	
 	D3D11_MAPPED_SUBRESOURCE data;
 	this->gDeviceContext->Map(this->cooldownBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
-	memcpy(data.pData, &cdData, sizeof(CooldownStruct));
+	memcpy(data.pData, &temp, sizeof(UINT) * 4);
 	this->gDeviceContext->Unmap(this->cooldownBuffer, 0);
+}
+
+void Renderer::renderCooldownGUI(Map * map, Camera * cam)
+{
+	this->gDeviceContext->IASetInputLayout(this->cooldownCirclesLayout);
+	UINT32 size = sizeof(float) * 4;
+	UINT32 offset = 0u;
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->cooldownCircles, &size, &offset);
+	this->gDeviceContext->VSSetShader(this->cooldownVS, nullptr, 0);
+	this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->cooldownPS, nullptr, 0);
+
+	
+
+	for (auto entity : map->entitys)
+	{
+		if (dynamic_cast<Player*>(entity) != nullptr)
+		{
+
+
+			XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 0.01f, entity->position.z + 0.8f);
+
+			cam->vals.world = model;
+			cam->update(0, gDeviceContext);
+
+			gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
+			this->updatecooldownGUI(dynamic_cast<Player*>(entity));
+			this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->cooldownBuffer);
+			gDeviceContext->Draw(4 * 129 * 3, 0);
+		}
+	}
+
+
 }
 
 void Renderer::swapBuffers()
@@ -1568,8 +1582,7 @@ void Renderer::render(Map *map, Camera *camera)
 
 		gDeviceContext->Draw(128*3, 0);
 	}
-
-	
+	this->renderCooldownGUI(map, camera);
 	{
 		gDeviceContext->IASetInputLayout(debug_entity_layout);
 
@@ -1653,7 +1666,6 @@ void Renderer::update(float dt, Map * map)
 {
 	this->updateParticles(dt, map);
 	this->updatePointLights(map);
-	this->updatecooldownGUI(map);
 	if (map->shrunk == true)
 	{
 		map->shrunk = false;
