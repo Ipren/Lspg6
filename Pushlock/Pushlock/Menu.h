@@ -27,6 +27,7 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
 	DirectX::SimpleMath::Vector2 m_screenPos;
 	DirectX::SimpleMath::Vector2 m_origin;
 
