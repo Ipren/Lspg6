@@ -10,7 +10,7 @@ public:
 	Game();
 	~Game();
 
-	void update(float dt);
+	bool update(float dt);
 	void render();
 
 //private: 
