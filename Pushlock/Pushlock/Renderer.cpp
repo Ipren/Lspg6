@@ -53,6 +53,9 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createcpMenuShaders();
 	this->createFullScreenQuad();
 	this->loadTexture();
+
+	this->createCooldownBuffers();
+
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
 	{
@@ -103,6 +106,7 @@ Renderer::~Renderer()
 	this->pLightSRV->Release();
 	this->pointLightCountBuffer->Release();
 	this->quadVertexBuffer->Release();
+	this->cooldownBuffer->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -1147,6 +1151,38 @@ void Renderer::loadTexture()
 	}
 	texture->Release();
 
+}
+
+void Renderer::createCooldownBuffers()
+{
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(CooldownStruct);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	CooldownStruct init;
+	for (size_t i = 0; i < 4; i++)
+	{
+		init.p1Cd[i] = 1;
+		init.p2Cd[i] = 1;
+		init.p3Cd[i] = 1;
+		init.p4Cd[i] = 1;	
+	}
+
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	
+	data.pSysMem = &init;
+
+	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &this->cooldownBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldown buffer creation failed", L"error", MB_OK);
+	}
 }
 
 void Renderer::swapBuffers()

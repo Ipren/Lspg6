@@ -91,6 +91,7 @@ private:
 	ID3D11Buffer *cameraPosBuffer;
 	ID3D11Buffer *pointLightCountBuffer;
 
+	ID3D11Buffer *cooldownBuffer;
 	
 
 	ID3D11UnorderedAccessView* nullUAV;
@@ -128,6 +129,7 @@ private:
 	void createFullScreenQuad();
 	void createcpMenuShaders();
 	void loadTexture();
+	void createCooldownBuffers();
 
 	
 };

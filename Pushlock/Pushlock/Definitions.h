@@ -53,3 +53,11 @@ struct pointLight
 	DirectX::XMFLOAT3 lightPos;
 	float range;
 };
+
+struct CooldownStruct
+{
+	int p1Cd[4];
+	int p2Cd[4];
+	int p3Cd[4];
+	int p4Cd[4];
+};
