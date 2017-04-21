@@ -19,6 +19,7 @@ Menu::Menu(Renderer* renderer)
 	butts->push_back(false);//start game with 2 players	
 	butts->push_back(false);//start game with 3 players
 	butts->push_back(false);//start game with 4 players
+	butts->push_back(false);//quit
 	this->buttons.push_back(*butts);
 
 	//
