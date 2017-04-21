@@ -1356,7 +1356,7 @@ void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 			gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
 			this->updatecooldownGUI(dynamic_cast<Player*>(entity));
 			this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->cooldownBuffer);
-			gDeviceContext->Draw(4 * 129 * 3, 0);
+			gDeviceContext->Draw(4 * 128 * 3, 0);
 		}
 	}
 
