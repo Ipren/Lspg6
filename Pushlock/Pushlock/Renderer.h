@@ -35,6 +35,7 @@ public:
 	ID3D11InputLayout *cpQuadLayout;
 	ID3D11ShaderResourceView *cpMenuTexture;
 	ID3D11ShaderResourceView *mainMenuTexture;
+	ID3D11ShaderResourceView *cuMenuTexture;
 	ID3D11RenderTargetView *gBackbufferRTV;
 
 private:
