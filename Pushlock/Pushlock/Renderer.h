@@ -11,7 +11,7 @@
 #include "Helpers.h"
 #include "Camera.h"
 #include "Map.h"
-
+#include "Player.h"
 
 #include "DirectXTK.h"
 #include "WICTextureLoader.h"
@@ -135,7 +135,8 @@ private:
 	void loadTexture();
 	void createCooldownBuffers();
 	void createCooldownShaders();
-	void updatecooldownGUI(Map *map);
+	void updatecooldownGUI(Player *player);
+	void renderCooldownGUI(Map *map, Camera *cam);
 
 	
 };
