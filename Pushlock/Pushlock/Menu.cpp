@@ -15,13 +15,12 @@ Menu::Menu(Renderer* renderer)
 
 	this->selectedButton = 0;
 
-	//main menu buttons
-	std::vector<bool>* butts = new std::vector<bool>();
-	butts->push_back(false);//start game with 2 players	
-	butts->push_back(false);//start game with 3 players
-	butts->push_back(false);//start game with 4 players
-	butts->push_back(false);//quit
-	this->buttons.push_back(*butts);
+	/*main menu buttons
+	0-start game with 2 players	
+	1-start game with 3 players
+	2-start game with 4 players
+	3-quit*/
+	this->buttons.push_back(4);
 
 	//
 	//this->buttons[GameState::MainMenu][0] = false;//start game with 2 players
@@ -105,7 +104,7 @@ void Menu::render(Renderer* renderer, GameState currentState)
 
 	m_spriteBatch->Begin();
 	if (currentState ==GameState::MainMenu)
-		m_spriteBatch->Draw(m_texture.Get(), m_screenPos, nullptr, Colors::White, 0.f, m_origin);
+		m_spriteBatch->Draw(m_texture.Get(), catPos, nullptr, Colors::White, 0.f, m_origin);
 
 	auto pos = ImGui::GetIO();// .MousePos();
 	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar en mycket fin font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
@@ -125,9 +124,9 @@ void Menu::render(Renderer* renderer, GameState currentState)
 
 void Menu::selectDown(GameState currentState)
 {
-	if (buttons[currentState].size()-1 > selectedButton)
+	if (this->buttons[currentState] - 1 > selectedButton)
 	{
-		selectedButton++;
+		this->selectedButton++;
 	}
 	else
 	{
@@ -144,7 +143,7 @@ void Menu::selectUp(GameState currentState)
 	}
 	else
 	{
-		selectedButton = buttons[currentState].size()-1;
+		selectedButton = buttons[currentState]-1;
 	}
 	setSelectedPos(currentState);
 }
@@ -155,20 +154,20 @@ void Menu::setSelectedPos(GameState currentState)
 	{
 		if (selectedButton == 0)
 		{
-			m_screenPos.x = 375;
-			m_screenPos.y = 200;
+			catPos.x = 375;
+			catPos.y = 200;
 		}
 		else if (selectedButton == 1) {
-			m_screenPos.x = 375;
-			m_screenPos.y = 350;
+			catPos.x = 375;
+			catPos.y = 350;
 		}
 		else if (selectedButton == 2) {
-			m_screenPos.x = 375;
-			m_screenPos.y = 500;
+			catPos.x = 375;
+			catPos.y = 500;
 		}
 		else if (selectedButton == 3) {
-			m_screenPos.x = 375;
-			m_screenPos.y = 650;
+			catPos.x = 375;
+			catPos.y = 650;
 		}
 	}
 }
