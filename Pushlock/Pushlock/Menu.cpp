@@ -6,8 +6,8 @@
 Menu::Menu(Renderer* renderer)
 {
 
-	/*ID3D11Resource *r = nullptr;
-	DXCALL(CreateDDSTextureFromFile(renderer->gDevice, L"test_main_menu.dds", &r, &m_texture, 0, nullptr));*/
+	ID3D11Resource *r = nullptr;
+	DXCALL(CreateDDSTextureFromFile(renderer->gDevice, L"cat.dds", &r, &m_texture, 0, nullptr));
 
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
 	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"comicsans.spritefont");
@@ -41,6 +41,8 @@ Menu::Menu(Renderer* renderer)
 			shaderByteCode, byteCodeLength,
 			m_inputLayout.ReleaseAndGetAddressOf());
 
+	setSelectedPos(GameState::MainMenu);
+
 }
 
 Menu::~Menu()
@@ -58,11 +60,7 @@ Menu::~Menu()
 
 void Menu::render(Renderer* renderer, GameState currentState)
 {
-	/*m_spriteBatch->Begin();
 
-	m_spriteBatch->Draw(m_texture.Get(), m_screenPos, nullptr, Colors::White, 0.f, m_origin);
-
-	m_spriteBatch->End();*/
 
 	if (currentState != GameState::Playing)
 	{
@@ -104,9 +102,11 @@ void Menu::render(Renderer* renderer, GameState currentState)
 		renderer->gDeviceContext->Draw(6, 0);
 
 	}
-	
 
 	m_spriteBatch->Begin();
+
+	m_spriteBatch->Draw(m_texture.Get(), m_screenPos, nullptr, Colors::White, 0.f, m_origin);
+
 	auto pos = ImGui::GetIO();// .MousePos();
 	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar en mycket fin font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
 
@@ -120,7 +120,7 @@ void Menu::render(Renderer* renderer, GameState currentState)
 
 	//renderer->gDeviceContext->IASetInputLayout(m_inputLayout.Get());
 
-	
+
 }
 
 void Menu::selectDown(GameState currentState)
@@ -133,6 +133,7 @@ void Menu::selectDown(GameState currentState)
 	{
 		selectedButton = 0;
 	}
+	setSelectedPos(currentState);
 }
 
 void Menu::selectUp(GameState currentState)
@@ -144,5 +145,30 @@ void Menu::selectUp(GameState currentState)
 	else
 	{
 		selectedButton = buttons[currentState].size()-1;
+	}
+	setSelectedPos(currentState);
+}
+
+void Menu::setSelectedPos(GameState currentState)
+{
+	if (currentState == GameState::MainMenu)
+	{
+		if (selectedButton == 0)
+		{
+			m_screenPos.x = 375;
+			m_screenPos.y = 200;
+		}
+		else if (selectedButton == 1) {
+			m_screenPos.x = 375;
+			m_screenPos.y = 350;
+		}
+		else if (selectedButton == 2) {
+			m_screenPos.x = 375;
+			m_screenPos.y = 500;
+		}
+		else if (selectedButton == 3) {
+			m_screenPos.x = 375;
+			m_screenPos.y = 650;
+		}
 	}
 }

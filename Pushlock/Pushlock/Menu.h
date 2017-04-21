@@ -11,10 +11,8 @@ public:
 	virtual ~Menu();
 
 	void render(Renderer* renderer, GameState currentState);
-	void update();
 
-
-	std::vector<std::vector<bool>> buttons;
+	std::vector<std::vector<bool>> buttons;//ska ändras till nrOfButtons
 	void selectDown(GameState currentState);
 	void selectUp(GameState currentState);
 	int getSelectedButton()const { return this->selectedButton; }
@@ -25,6 +23,7 @@ private:
 		XMFLOAT3 color[4];
 	};
 	int selectedButton;
+	void setSelectedPos(GameState currentState);
 
 	
 	std::vector<mQuad> quads;
