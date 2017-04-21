@@ -360,11 +360,7 @@ bool Game::update(float dt)
 		}
 		currentMap->update(dt, camera);
 		ImGui::Begin("Choose elemnts");
-		ImGui::Text("x - wind");
-		ImGui::Text("y - earth");
-		ImGui::Text("a - arcane");
-		ImGui::Text("b - fire");
-		ImGui::Text("rb - water");
+
 
 		for (int i = 0; i < currentMap->nrOfAlivePlayers; i++)
 		{
