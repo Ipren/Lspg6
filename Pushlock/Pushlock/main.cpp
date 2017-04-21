@@ -40,7 +40,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 HWND InitWindow(HINSTANCE hInstance)
 {
 	WNDCLASSEX wcex = { 0 };
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hCursor = LoadCursor(NULL, IDC_NO);
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
 	//wcex.hIcon = ;
