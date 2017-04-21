@@ -523,6 +523,6 @@ void WaterElement::dash(Player * player, Map * map)
 			player->velocity.y += sin(player->angle) * gSpellConstants.kWaterDashSpeed;
 		}
 
-		cooldown[1] = gSpellConstants.kWaterDashCooldonw;
+		cooldown[1] = gSpellConstants.kWaterDashCooldown;
 	}
 }

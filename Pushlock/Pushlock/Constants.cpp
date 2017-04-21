@@ -3,6 +3,9 @@
 SpellConstants gDefaultSpellConstants;
 SpellConstants gSpellConstants;
 
+PlayerSpellConstants gDefaultPlayerSpellConstants[4];
+PlayerSpellConstants gPlayerSpellConstants[4];
+
 PlayerConstants gDefaultPlayerConstants;
 PlayerConstants gPlayerConstants;
 

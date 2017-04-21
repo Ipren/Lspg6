@@ -31,7 +31,7 @@ ArcaneProjectileSpell::~ArcaneProjectileSpell()
 void ArcaneProjectileSpell::update(Map *map, float dt)
 {
 	EntityQueryResult result;
-	if (map->get_nearest_entity(this, gSpellConstants.kArcaneProjectileSeekRadius, &result, [this](Entity *e) {
+	if (map->get_nearest_entity(this, gSpellConstants.kArcaneProjectileSeekRadius + gPlayerSpellConstants[owner->index].kArcaneProjectileSeekRadius, &result, [this](Entity *e) {
 		return e->type == EntityType::Player && e != (Entity*)this->owner;
 	})) {
 		float magnitude = sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
@@ -40,7 +40,9 @@ void ArcaneProjectileSpell::update(Map *map, float dt)
 		float an = atan2(sin(result.angle - ang), cos(result.angle - ang));
 
 		float new_angle = fmod((ang + an *
-			(gSpellConstants.kArcaneProjectileSeekStrength + abs(gSpellConstants.kArcaneProjectileSeekRadius - result.distance) * gSpellConstants.kArcaneProjectileSeekFalloff) * dt), (XM_PI * 2));
+			(gSpellConstants.kArcaneProjectileSeekStrength + gPlayerSpellConstants[owner->index].kArcaneProjectileSeekStrength 
+				+ abs(gSpellConstants.kArcaneProjectileSeekRadius + gPlayerSpellConstants[owner->index].kArcaneProjectileSeekRadius - result.distance) 
+				* (gSpellConstants.kArcaneProjectileSeekFalloff + gPlayerSpellConstants[owner->index].kArcaneProjectileSeekFalloff)) * dt), (XM_PI * 2));
 		angle = new_angle;
 		
 		XMFLOAT2 new_vel = {
@@ -62,8 +64,8 @@ bool ArcaneProjectileSpell::on_effect(Map *map)
 	});
 
 	for (auto result : nearby) {
-		result.entity->velocity.x += cos(result.angle) * gSpellConstants.kArcaneProjectileStrength * abs(explosion_radius - result.distance);
-		result.entity->velocity.y += sin(result.angle) * gSpellConstants.kArcaneProjectileStrength * abs(explosion_radius - result.distance);
+		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kArcaneProjectileStrength + gPlayerSpellConstants[owner->index].kArcaneProjectileStrength) * abs(explosion_radius - result.distance);
+		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kArcaneProjectileStrength + gPlayerSpellConstants[owner->index].kArcaneProjectileStrength) * abs(explosion_radius - result.distance);
 	}
 
 	return true;
@@ -106,15 +108,17 @@ void FireProjectileSpell::update(Map *map, float dt)
 bool FireProjectileSpell::on_effect(Map *map)
 {
 	//saves nearby players in a vector
-	auto nearby = map->get_entities_in_radius(this, gSpellConstants.kFireProjectileExplosionRadius, [](Entity *e) {
+	auto nearby = map->get_entities_in_radius(this, gSpellConstants.kFireProjectileExplosionRadius + gPlayerSpellConstants[owner->index].kFireProjectileExplosionRadius, [](Entity *e) {
 		return e->type == EntityType::Player;
 	});
 
 	for (auto result : nearby) { //moves all nearby players
-		float falloff = (abs(gSpellConstants.kFireProjectileExplosionRadius - result.distance) / gSpellConstants.kFireProjectileExplosionRadius) * gSpellConstants.kFireProjectileExplosionFalloff;
+		float falloff = (abs(gSpellConstants.kFireProjectileExplosionRadius + gPlayerSpellConstants[owner->index].kFireProjectileExplosionRadius - result.distance)
+			/ (gSpellConstants.kFireProjectileExplosionRadius + gPlayerSpellConstants[owner->index].kFireProjectileExplosionRadius)) 
+			* (gSpellConstants.kFireProjectileExplosionFalloff + gPlayerSpellConstants[owner->index].kFireProjectileExplosionFalloff);
 
-		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kFireProjectileStrength * falloff);
-		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kFireProjectileStrength * falloff);
+		result.entity->velocity.x += cos(result.angle) * ((gSpellConstants.kFireProjectileStrength + gPlayerSpellConstants[owner->index].kFireProjectileStrength) * falloff);
+		result.entity->velocity.y += sin(result.angle) * ((gSpellConstants.kFireProjectileStrength + gPlayerSpellConstants[owner->index].kFireProjectileStrength) * falloff);
 	}
 	
 	return true;
@@ -141,8 +145,8 @@ bool WindProjectileSpell::on_effect(Map * map)
 	});
 
 	for (auto result : nearby) {
-		result.entity->velocity.x += cos(result.angle) * gSpellConstants.kWindProjectileStrength;
-		result.entity->velocity.y += sin(result.angle) * gSpellConstants.kWindProjectileStrength;
+		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWindProjectileStrength + gPlayerSpellConstants[owner->index].kWindProjectileStrength);
+		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWindProjectileStrength + gPlayerSpellConstants[owner->index].kWindProjectileStrength);
 	}
 
 	return true;
@@ -163,17 +167,19 @@ EarthProjectileSpell::~EarthProjectileSpell()
 void EarthProjectileSpell::update(Map * map, float dt)
 {
 	//saves nearby players in a vector
-	if (alive > gSpellConstants.kEarthProjectileEffectArmingTime)
+	if (alive > gSpellConstants.kEarthProjectileEffectArmingTime + gPlayerSpellConstants[owner->index].kEarthProjectileEffectArmingTime)
 	{
-		auto nearby = map->get_entities_in_radius(this, gSpellConstants.kEarthProjectileEffectRadius, [](Entity *e) {
+		auto nearby = map->get_entities_in_radius(this, gSpellConstants.kEarthProjectileEffectRadius + gPlayerSpellConstants[owner->index].kEarthProjectileEffectRadius, [](Entity *e) {
 			return e->type == EntityType::Player;
 		});
 
 		for (auto result : nearby) { //moves all nearby players
-			float falloff = (abs(gSpellConstants.kEarthProjectileEffectRadius - result.distance) / gSpellConstants.kEarthProjectileEffectRadius) * gSpellConstants.kEarthProjectileEffectFalloff;
+			float falloff = (abs(gSpellConstants.kEarthProjectileEffectRadius + gPlayerSpellConstants[owner->index].kEarthProjectileEffectRadius - result.distance)
+				/ (gSpellConstants.kEarthProjectileEffectRadius + gPlayerSpellConstants[owner->index].kEarthProjectileEffectRadius))
+				* (gSpellConstants.kEarthProjectileEffectFalloff + gPlayerSpellConstants[owner->index].kEarthProjectileEffectFalloff);
 
-			result.entity->velocity.x -= cos(result.angle) * (gSpellConstants.kEarthProjectileStrength * falloff);
-			result.entity->velocity.y -= sin(result.angle) * (gSpellConstants.kEarthProjectileStrength * falloff);
+			result.entity->velocity.x -= cos(result.angle) * ((gSpellConstants.kEarthProjectileStrength + gPlayerSpellConstants[owner->index].kEarthProjectileStrength) * falloff);
+			result.entity->velocity.y -= sin(result.angle) * ((gSpellConstants.kEarthProjectileStrength + gPlayerSpellConstants[owner->index].kEarthProjectileStrength) * falloff);
 		}
 	}
 
@@ -212,8 +218,8 @@ bool WaterProjectileSpell::on_effect(Map * map)
 	});
 
 	for (auto result : nearby) {
-		result.entity->velocity.x += cos(result.angle) * gSpellConstants.kWaterProjectileStrenght;
-		result.entity->velocity.y += sin(result.angle) * gSpellConstants.kWaterProjectileStrenght;
+		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWaterProjectileStrenght + gPlayerSpellConstants[owner->index].kWaterProjectileStrenght);
+		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWaterProjectileStrenght + gPlayerSpellConstants[owner->index].kWaterProjectileStrenght);
 	}
 	return true;
 }

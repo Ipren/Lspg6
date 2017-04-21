@@ -201,7 +201,7 @@ void Game::update(float dt)
 
 				ImGui::TextDisabled("Dash");
 				ImGui::SliderFloat("speed##edash", &gSpellConstants.kWaterDashSpeed, 0.0f, 120.f);
-				ImGui::SliderFloat("cooldown##eDash", &gSpellConstants.kWaterDashCooldonw, 0.0f, 20.0f);
+				ImGui::SliderFloat("cooldown##eDash", &gSpellConstants.kWaterDashCooldown, 0.0f, 20.0f);
 
 				ImGui::TextDisabled("Wall");
 				ImGui::SliderFloat("cooldown##ewall", &gSpellConstants.kWaterWallCooldown, 0.0f, 20.0f);
@@ -447,6 +447,7 @@ void Game::update(float dt)
 			{
 				pUpgrades[i].round++;
 			}
+			currentRound++;
 			firsttime = true;
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
