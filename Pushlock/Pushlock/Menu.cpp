@@ -10,6 +10,7 @@ Menu::Menu(Renderer* renderer)
 	DXCALL(CreateDDSTextureFromFile(renderer->gDevice, L"test_main_menu.dds", &r, &m_texture, 0, nullptr));*/
 
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
+	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"comicsans.spritefont");
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(renderer->gDeviceContext);
 
 	this->selectedButton = 0;
@@ -52,6 +53,8 @@ Menu::~Menu()
 	m_batch.reset();
 	m_inputLayout.Reset();
 }
+
+#include "imgui.h"
 
 void Menu::render(Renderer* renderer, GameState currentState)
 {
@@ -102,6 +105,12 @@ void Menu::render(Renderer* renderer, GameState currentState)
 
 	}
 	
+
+	m_spriteBatch->Begin();
+	auto pos = ImGui::GetIO();// .MousePos();
+	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar en mycket fin font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
+
+	m_spriteBatch->End();
 
 	//renderer->gDeviceContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	//renderer->gDeviceContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
