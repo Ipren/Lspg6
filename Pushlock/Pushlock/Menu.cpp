@@ -104,8 +104,8 @@ void Menu::render(Renderer* renderer, GameState currentState)
 	}
 
 	m_spriteBatch->Begin();
-
-	m_spriteBatch->Draw(m_texture.Get(), m_screenPos, nullptr, Colors::White, 0.f, m_origin);
+	if (currentState ==GameState::MainMenu)
+		m_spriteBatch->Draw(m_texture.Get(), m_screenPos, nullptr, Colors::White, 0.f, m_origin);
 
 	auto pos = ImGui::GetIO();// .MousePos();
 	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar en mycket fin font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
