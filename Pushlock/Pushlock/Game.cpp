@@ -449,7 +449,8 @@ bool Game::update(float dt)
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
 			Player * p = dynamic_cast<Player*>(currentMap->entitys[i]);
-			ImGui::Text("Player %d ready: %d", i, p->ready);
+			if (p != nullptr)
+				ImGui::Text("Player %d ready: %d", i, p->ready);
 		}
 
 		int readyCount = 0;
