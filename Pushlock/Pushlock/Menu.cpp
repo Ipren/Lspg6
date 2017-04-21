@@ -100,6 +100,29 @@ void Menu::render(Renderer* renderer, GameState currentState)
 
 		renderer->gDeviceContext->Draw(6, 0);
 	}
+	else if (currentState == GameState::EndRound)
+	{
+		float clearColor[] = { 0, 0, 0, 1 };
+		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
+
+		renderer->gDeviceContext->ClearRenderTargetView(renderer->gBackbufferRTV, clearColor);
+
+		UINT vertexSize = sizeof(float) * 5;
+		UINT offset = 0;
+
+		renderer->gDeviceContext->IASetVertexBuffers(0, 1, &renderer->quadVertexBuffer, &vertexSize, &offset);
+		renderer->gDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		renderer->gDeviceContext->IASetInputLayout(renderer->cpQuadLayout);
+
+		renderer->gDeviceContext->VSSetShader(renderer->cpMenuVs, nullptr, 0);
+		renderer->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->PSSetShader(renderer->cpmenuPS, nullptr, 0);
+		renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cuMenuTexture);
+
+		renderer->gDeviceContext->Draw(6, 0);
+	}
 	
 
 	//renderer->gDeviceContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);

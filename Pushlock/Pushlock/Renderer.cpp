@@ -1148,11 +1148,15 @@ void Renderer::loadTexture()
 {
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 	ID3D11Resource *texture = nullptr;
-	HRESULT hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cpMenuTexture.png ", &texture, &this->cpMenuTexture);
+	HRESULT hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cpMenuTexture2.png ", &texture, &this->cpMenuTexture);
 	if (FAILED(hr)){
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);}
 
 	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/mainMenu.png ", &texture, &this->mainMenuTexture);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuMenuTexture.png ", &texture, &this->cuMenuTexture);
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
