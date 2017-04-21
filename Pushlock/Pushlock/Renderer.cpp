@@ -1183,6 +1183,48 @@ void Renderer::createCooldownBuffers()
 	{
 		MessageBox(0, L"cooldown buffer creation failed", L"error", MB_OK);
 	}
+
+	std::vector<XMFLOAT3> vertices;
+
+
+	for (int i = 0; i < 128; i++)
+	{
+
+		XMFLOAT3 vert = {
+			sin(2 * XM_PI * i / 128.f) * 1,
+			0.01f,
+			cos(2 * XM_PI * i / 128.f) * 1
+		};
+
+		XMFLOAT3 vert2 = {
+			sin(2 * XM_PI * (i + 1) / 128.f) * 1,
+			0.01f,
+			cos(2 * XM_PI * (i + 1) / 128.f) * 1
+		};
+		vertices.push_back({ 0.f, 0.f, 0.f });
+		vertices.push_back(vert);
+		vertices.push_back(vert2);
+
+	}
+
+
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.ByteWidth = (UINT)(vertices.size() * 3 * sizeof(float));
+	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+
+
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	data.pSysMem = &vertices[0];
+
+	this->gDevice->CreateBuffer(&desc, &data, &this->cooldownCircles);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldown verex buffer creation failed", L"error", MB_OK);
+	}
 }
 
 void Renderer::swapBuffers()

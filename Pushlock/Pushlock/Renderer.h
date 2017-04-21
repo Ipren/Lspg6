@@ -92,6 +92,8 @@ private:
 	ID3D11Buffer *pointLightCountBuffer;
 
 	ID3D11Buffer *cooldownBuffer;
+	ID3D11Buffer *cooldownCircles;
+	ID3D11InputLayout *cooldownCirclesLayout;
 	
 
 	ID3D11UnorderedAccessView* nullUAV;
