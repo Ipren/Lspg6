@@ -72,8 +72,9 @@ Game::~Game()
 	delete this->camera;
 }
 
-void Game::update(float dt)
+bool Game::update(float dt)
 {
+	bool quit = false;
 	{
 		ImGui::Begin("Constants");
 		
@@ -301,7 +302,42 @@ void Game::update(float dt)
 	}
 	if (currentState == GameState::MainMenu)
 	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (gGamepads[i]->get_button_pressed(Gamepad::Down))
+			{
+				menu->selectDown(currentState);
+			}
+			else if (gGamepads[i]->get_button_pressed(Gamepad::Up))
+			{
+				menu->selectUp(currentState);
+			}
+
+			if  (menu->getSelectedButton() == 0 && gGamepads[i]->get_button_pressed(Gamepad::A)) {//starting the game with 2 players
+				currentState = GameState::ChoosePowers;
+				currentMap->reset(2);
+			}
+			if (menu->getSelectedButton() == 1 && gGamepads[i]->get_button_pressed(Gamepad::A)) {//starting the game with 3 players
+				currentState = GameState::ChoosePowers;
+				currentMap->reset(3);
+			}
+			if (menu->getSelectedButton() == 2 && gGamepads[i]->get_button_pressed(Gamepad::A)) {//starting the game with 4 players
+				currentState = GameState::ChoosePowers;
+				currentMap->reset(4);
+
+			}
+			if (menu->getSelectedButton() == 3 && gGamepads[i]->get_button_pressed(Gamepad::A)) {//starting the game with 4 players
+				quit = true;
+			}
+		}
+		
+
+
 		ImGui::Begin("Main Menu");
+		if (menu->getSelectedButton() == 3)
+			ImGui::Text("Quit");
+		else
+			ImGui::Text("start with %i players", menu->getSelectedButton()+2);
 		if (ImGui::Button("Start Game 2p")) {//starting the game with 2 players
 			currentState = GameState::ChoosePowers;
 			currentMap->reset(2);
@@ -488,7 +524,7 @@ void Game::update(float dt)
 	camera->update(dt, this->renderer->gDeviceContext);
 	renderer->update(dt, this->currentMap);
 
-	
+	return quit;
 }
 
 void Game::render()

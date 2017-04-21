@@ -11,18 +11,22 @@ public:
 	virtual ~Menu();
 
 	void render(Renderer* renderer, GameState currentState);
+	void update();
 
-	void addButton(std::string name, XMFLOAT2 pos1, XMFLOAT2 pos2, XMFLOAT2 pos3, XMFLOAT2 pos4,
-		XMFLOAT3 color1, XMFLOAT3 color2, XMFLOAT3 color3, XMFLOAT3 color4);
 
+	std::vector<std::vector<bool>> buttons;
+	void selectDown(GameState currentState);
+	void selectUp(GameState currentState);
+	int getSelectedButton()const { return this->selectedButton; }
 private:
 	struct mQuad
 	{
 		XMFLOAT2 pos[4];
 		XMFLOAT3 color[4];
 	};
+	int selectedButton;
 
-	std::vector<mQuad> buttons;
+	
 	std::vector<mQuad> quads;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;

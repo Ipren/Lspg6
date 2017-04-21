@@ -12,12 +12,18 @@ Menu::Menu(Renderer* renderer)
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(renderer->gDeviceContext);
 
+	this->selectedButton = 0;
 
-	m_screenPos.x = 100;
-	m_screenPos.y = 100;
-	m_origin.x = 0;
-	m_origin.y = 0;
+	//main menu buttons
+	std::vector<bool>* butts = new std::vector<bool>();
+	butts->push_back(false);//start game with 2 players	
+	butts->push_back(false);//start game with 3 players
+	butts->push_back(false);//start game with 4 players
+	butts->push_back(false);//quit
+	this->buttons.push_back(*butts);
 
+	//
+	//this->buttons[GameState::MainMenu][0] = false;//start game with 2 players
 
 	m_states = std::make_unique<CommonStates>(renderer->gDevice);
 
@@ -54,9 +60,11 @@ void Menu::render(Renderer* renderer, GameState currentState)
 	m_spriteBatch->Draw(m_texture.Get(), m_screenPos, nullptr, Colors::White, 0.f, m_origin);
 
 	m_spriteBatch->End();*/
-	if (currentState == GameState::ChoosePowers)
+
+	if (currentState != GameState::Playing)
 	{
 		float clearColor[] = { 0, 0, 0, 1 };
+
 		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
 
 		renderer->gDeviceContext->ClearRenderTargetView(renderer->gBackbufferRTV, clearColor);
@@ -73,55 +81,25 @@ void Menu::render(Renderer* renderer, GameState currentState)
 		renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
 		renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 		renderer->gDeviceContext->PSSetShader(renderer->cpmenuPS, nullptr, 0);
-		renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cpMenuTexture);
 
+		if (currentState == GameState::ChoosePowers)
+		{
+			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cpMenuTexture);
+		}
+		else if (currentState == GameState::MainMenu)
+		{
+			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->mainMenuTexture);
+		}
+		else if (currentState == GameState::EndRound)
+		{
+			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cuMenuTexture);
+		}
+		else if (currentState == GameState::EndGame)
+		{
+			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->mainMenuTexture);
+		}
 		renderer->gDeviceContext->Draw(6, 0);
-	}
-	else if(currentState == GameState::MainMenu)
-	{
-		float clearColor[] = { 0, 0, 0, 1 };
-		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
 
-		renderer->gDeviceContext->ClearRenderTargetView(renderer->gBackbufferRTV, clearColor);
-
-		UINT vertexSize = sizeof(float) * 5;
-		UINT offset = 0;
-
-		renderer->gDeviceContext->IASetVertexBuffers(0, 1, &renderer->quadVertexBuffer, &vertexSize, &offset);
-		renderer->gDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		renderer->gDeviceContext->IASetInputLayout(renderer->cpQuadLayout);
-
-		renderer->gDeviceContext->VSSetShader(renderer->cpMenuVs, nullptr, 0);
-		renderer->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
-		renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
-		renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
-		renderer->gDeviceContext->PSSetShader(renderer->cpmenuPS, nullptr, 0);
-		renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->mainMenuTexture);
-
-		renderer->gDeviceContext->Draw(6, 0);
-	}
-	else if (currentState == GameState::EndRound)
-	{
-		float clearColor[] = { 0, 0, 0, 1 };
-		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
-
-		renderer->gDeviceContext->ClearRenderTargetView(renderer->gBackbufferRTV, clearColor);
-
-		UINT vertexSize = sizeof(float) * 5;
-		UINT offset = 0;
-
-		renderer->gDeviceContext->IASetVertexBuffers(0, 1, &renderer->quadVertexBuffer, &vertexSize, &offset);
-		renderer->gDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		renderer->gDeviceContext->IASetInputLayout(renderer->cpQuadLayout);
-
-		renderer->gDeviceContext->VSSetShader(renderer->cpMenuVs, nullptr, 0);
-		renderer->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
-		renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
-		renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
-		renderer->gDeviceContext->PSSetShader(renderer->cpmenuPS, nullptr, 0);
-		renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cuMenuTexture);
-
-		renderer->gDeviceContext->Draw(6, 0);
 	}
 	
 
@@ -134,4 +112,28 @@ void Menu::render(Renderer* renderer, GameState currentState)
 	//renderer->gDeviceContext->IASetInputLayout(m_inputLayout.Get());
 
 	
+}
+
+void Menu::selectDown(GameState currentState)
+{
+	if (buttons[currentState].size()-1 > selectedButton)
+	{
+		selectedButton++;
+	}
+	else
+	{
+		selectedButton = 0;
+	}
+}
+
+void Menu::selectUp(GameState currentState)
+{
+	if (0 < selectedButton)
+	{
+		selectedButton--;
+	}
+	else
+	{
+		selectedButton = buttons[currentState].size()-1;
+	}
 }
