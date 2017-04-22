@@ -19,6 +19,7 @@ public:
 
 	void focus(std::vector<XMVECTOR> positions);
 	void update(float dt, ID3D11DeviceContext *gDeviceContext);
+	void updateCamPosBuffer(ID3D11Buffer *rBuffer);
 
 	struct BufferVals {
 		XMMATRIX world;

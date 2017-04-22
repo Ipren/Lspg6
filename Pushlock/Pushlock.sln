@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pushlock", "Pushlock\Pushlock.vcxproj", "{91F8C10C-D75A-4734-A9AC-E55F5A8D34DB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{111E0B0D-A944-43EF-BBC7-B62FBC635CF6}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParticleEditor", "ParticleEditor\ParticleEditor.vcxproj", "{DEE3F507-022D-4823-B2D9-E25413E4AAEC}"
 EndProject
 Global

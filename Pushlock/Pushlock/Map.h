@@ -28,6 +28,7 @@ public:
 	std::vector <Entity*> entitys_to_add;
 	int nrOfAlivePlayers;
 	int playerPoints[4];
+	int playerElemnts[4];
 	float totalTime;
 	float timeSinceLastShrunk;
 	float radius;
@@ -35,6 +36,7 @@ public:
 	float shrinkAmount;
 	float shrinkTimer;
 	GameState* currentState;
+	int indexWinner;
 
 	/*used for starting each round with the same nr of players*/
 	int nrOfPlayers;

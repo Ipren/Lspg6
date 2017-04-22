@@ -27,6 +27,13 @@ static const float4 quadCorners[4] =
     float4(-0.030f, -0.030f, 0.0f, 0.0f),
     float4(0.030f, -0.030f, 0.0f, 0.0f)
 };
+static const float4 arcanequadCorners[4] =
+{
+    float4(-0.016f, 0.016f, 0.0f, 0.0f),
+    float4(0.016f, 0.016f, 0.0f, 0.0f),
+    float4(-0.016f, -0.016f, 0.0f, 0.0f),
+    float4(0.016f, -0.016f, 0.0f, 0.0f)
+};
 
 
 static const float2 quadTexCoords[4] =
@@ -47,14 +54,29 @@ void main(point VS_OUT input[1], inout TriangleStream<GS_OUT> tStream)
     pos = mul(pos, View);
     pos = mul(pos, Proj);
     
-    for (int i = 0; i < 4; i++)
+    if(input[0].type == 1)
     {
-        output.pos = pos + quadCorners[i] * 10.f;
+        for (int i = 0; i < 4; i++)
+        {
+            output.pos = pos + quadCorners[i] * 10.f;
        
-        output.uv = quadTexCoords[i] / 16.0;
-		output.age = input[0].age;
-        output.type = input[0].type;
-        tStream.Append(output);
+            output.uv = quadTexCoords[i] / 16.0;
+            output.age = input[0].age;
+            output.type = input[0].type;
+            tStream.Append(output);
        
+        }
+    }else
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            output.pos = pos + arcanequadCorners[i];
+       
+            output.uv = quadTexCoords[i] / 16.0;
+            output.age = input[0].age;
+            output.type = input[0].type;
+            tStream.Append(output);
+       
+        }
     }
 }

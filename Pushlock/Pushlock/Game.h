@@ -2,6 +2,7 @@
 #include "Map.h"
 #include "Renderer.h"
 #include "Camera.h"
+#include "Menu.h"
 class Game
 {
 public:
@@ -13,12 +14,17 @@ public:
 	void render();
 
 //private: 
+
+	Menu* menu;
+	int currentMenu;
 	Map *currentMap;
 	Camera *camera;
 	Renderer *renderer;
 	int width;
 	int heigth;
 	bool audioDevicePresent;
+	int playerElements;
+	int currentRound;
 	
 	GameState currentState;
 };

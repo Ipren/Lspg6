@@ -11,9 +11,10 @@
 #include "Helpers.h"
 #include "Camera.h"
 #include "Map.h"
-#include "Menu.h"
+
 
 #include "DirectXTK.h"
+#include "WICTextureLoader.h"
 
 class Renderer
 {
@@ -22,25 +23,32 @@ public:
 	Renderer(HWND wndHandle, int width, int height);
 	virtual ~Renderer();
 
-	void render(Map *map, Menu* menu, Camera *camera);
+	void render(Map *map, Camera *camera);
 	void present();
 	void update(float dt, Map *map);
 	
 	ID3D11Device *gDevice;
 	ID3D11DeviceContext *gDeviceContext;
+	ID3D11Buffer *quadVertexBuffer;
+	ID3D11VertexShader *cpMenuVs;
+	ID3D11PixelShader *cpmenuPS;
+	ID3D11InputLayout *cpQuadLayout;
+	ID3D11ShaderResourceView *cpMenuTexture;
+	ID3D11ShaderResourceView *mainMenuTexture;
+	ID3D11RenderTargetView *gBackbufferRTV;
 
 private:
 	IDXGISwapChain *gSwapChain;
 	
-	ID3D11RenderTargetView *gBackbufferRTV;
+	
 	ID3D11DepthStencilView *gDepthStencil;
 
 	ID3D11Buffer *color_buffer;
 
-	ID3D11Buffer* menu_buffer;
-	ID3D11InputLayout *menu_layout;
-	ID3D11VertexShader *menu_vsh;
-	ID3D11PixelShader *menu_psh;
+	//ID3D11Buffer* menu_buffer;
+	//ID3D11InputLayout *menu_layout;
+	//ID3D11VertexShader *menu_vsh;
+	//ID3D11PixelShader *menu_psh;
 
 	ID3D11Buffer *debug_map_quad;
 	ID3D11InputLayout *debug_map_layout;
@@ -77,6 +85,15 @@ private:
 	ID3D11SamplerState *particle_sampler;
 	ID3D11BlendState *particle_blend;
 
+	ID3D11Buffer *dLightBuffer;
+	ID3D11Buffer *pLightBuffer;
+	ID3D11ShaderResourceView *pLightSRV;
+	ID3D11Buffer *cameraPosBuffer;
+	ID3D11Buffer *pointLightCountBuffer;
+
+	ID3D11Buffer *cooldownBuffer;
+	
+
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
 	ID3D11RenderTargetView* nullRTV;
@@ -86,7 +103,9 @@ private:
 	int emitterCount;
 	float totalTime;
 	float lastParticleInsert;
+	int pointLightCount;
 
+	//void create_menu();
 	void create_debug_entity();
 	void createShaders();
 	void createDepthBuffers();
@@ -102,6 +121,15 @@ private:
 	void createStompParticles(DirectX::XMFLOAT3 pos, int type);
 	void updateParticles(float dt, Map *map);
 	void shrinkMap(Map *map);
+	
+	void createLightBuffers();
+	void createCameraBuffer();
+	void updateCameraPosBuffer(Camera *cam);
+	void updatePointLights(Map *map);
+	void createFullScreenQuad();
+	void createcpMenuShaders();
+	void loadTexture();
+	void createCooldownBuffers();
 
 	
 };

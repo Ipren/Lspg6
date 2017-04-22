@@ -4,6 +4,7 @@
 #include "Globals.h"
 #include "Gamepad.h"
 #include "Constants.h"
+#include "Upgrades.h"
 
 Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float radius) :
 	Entity(EntityType::Player, position, velocity, radius), index(index)
@@ -13,13 +14,14 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 
 	element = new ArcaneElement;
 
-	for (int i = 0; i < 5; i++)
+	/*for (int i = 0; i < 5; i++)
 	{
 		this->cooldown[i] = 0;
-	}
+	}*/
 	stomped = false;
 	blowUp = false;
 	ready = false;
+	this->health = 10.f;
 }
 
 Player::~Player()
@@ -84,8 +86,12 @@ void Player::update(Map *map, float dt)
 
 		if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > map->radius && gGameConstants.kCanDie)
 		{
-			this->dead = true;
-			map->nrOfAlivePlayers--;
+			this->health -= 0.01f;
+			if (this->health <= 0) 
+			{
+				this->dead = true;
+				map->nrOfAlivePlayers--;
+			}
 		}
 	}
 	if (*map->currentState == GameState::ChoosePowers)
@@ -94,32 +100,61 @@ void Player::update(Map *map, float dt)
 		{
 			delete element;
 			element = new ArcaneElement();
+			map->playerElemnts[index] = 0;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::B))
 		{
 			delete element;
 			element = new FireElement();
+			map->playerElemnts[index] = 1;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::X))
 		{
 			delete element;
 			element = new WindElement();
+			map->playerElemnts[index] = 2;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::Y))
 		{
 			delete element;
 			element = new EarthElement();
+			map->playerElemnts[index] = 3;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::Rb))
 		{
 			delete element;
 			element = new WaterElement();
+			map->playerElemnts[index] = 4;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::Start))
 		{
 			this->ready = true;
 		}
 
+	}
+
+	if (*map->currentState == GameState::EndRound)
+	{
+		if (gGamepads[index]->get_button_pressed(Gamepad::X))
+		{
+			pUpgrades[index].chooseUpgrade(1);
+		}
+		if (gGamepads[index]->get_button_pressed(Gamepad::Y))
+		{
+			pUpgrades[index].chooseUpgrade(2);
+		}
+		if (gGamepads[index]->get_button_pressed(Gamepad::A))
+		{
+			pUpgrades[index].chooseUpgrade(3);
+		}
+		if (gGamepads[index]->get_button_pressed(Gamepad::B))
+		{
+			pUpgrades[index].chooseUpgrade(4);
+		}
+		if (gGamepads[index]->get_button_pressed(Gamepad::Start))
+		{
+			this->ready = true;
+		}
 	}
 
 }

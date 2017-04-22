@@ -31,6 +31,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->debug_entity_layout = nullptr;
 	this->debug_entity_psh = nullptr;
 	this->debug_entity_vsh = nullptr;
+	this->dLightBuffer = nullptr;
 
 	this->nullSRV = nullptr;
 	this->nullUAV = nullptr;
@@ -47,6 +48,14 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createShaders();
 	this->setViewPort(width, height);
 	this->createParticleBuffer(524288);
+	this->createLightBuffers();
+	this->createCameraBuffer();
+	this->createcpMenuShaders();
+	this->createFullScreenQuad();
+	this->loadTexture();
+
+	this->createCooldownBuffers();
+
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
 	{
@@ -55,7 +64,6 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 
 
 	this->create_debug_entity();
-
 }
 
 Renderer::~Renderer()
@@ -93,6 +101,12 @@ Renderer::~Renderer()
 	this->randomVecBufer->Release();
 	this->stompParticles->Release();
 	this->playerPosBuffer->Release();
+	this->dLightBuffer->Release();
+	this->pLightBuffer->Release();
+	this->pLightSRV->Release();
+	this->pointLightCountBuffer->Release();
+	this->quadVertexBuffer->Release();
+	this->cooldownBuffer->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -144,6 +158,52 @@ void Renderer::create_debug_entity()
 	blob = compile_shader(L"Debug.hlsl", "PS", "ps_5_0", gDevice);
 	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_entity_psh));
 }
+
+//void Renderer::create_menu()
+//{
+//
+//	std::vector<XMFLOAT3> vertices;
+//	for (int i = 0; i < 128; ++i)
+//	{
+//		XMFLOAT3 vert = {
+//			sin(2 * XM_PI * i / 128.f),
+//			0.1f,
+//			cos(2 * XM_PI * i / 128.f)
+//		};
+//		vertices.push_back(vert);
+//	}
+//	XMFLOAT3 start = vertices[0];
+//	start.z += 2.4f;
+//
+//	vertices[0] = start;
+//	vertices.push_back(start);
+//
+//	D3D11_BUFFER_DESC desc;
+//	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+//	desc.Usage = D3D11_USAGE_DYNAMIC;
+//	desc.ByteWidth = (UINT)(sizeof(XMFLOAT3) * vertices.size());
+//	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+//	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+//	desc.MiscFlags = 0;
+//	desc.StructureByteStride = 0;
+//
+//	D3D11_SUBRESOURCE_DATA data;
+//	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+//	data.pSysMem = &vertices[0];
+//
+//	DXCALL(gDevice->CreateBuffer(&desc, &data, &menu_buffer));
+//
+//	ID3DBlob *blob = compile_shader(L"Debug.hlsl", "VS", "vs_5_0", gDevice);
+//	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_entity_vsh));
+//
+//	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
+//		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+//	};
+//	menu_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, gDevice);
+//
+//	blob = compile_shader(L"Debug.hlsl", "PS", "ps_5_0", gDevice);
+//	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_entity_psh));
+//}
 
 void Renderer::createShaders()
 {
@@ -570,7 +630,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 	{
 		MessageBox(0, L"stomp srv failed", L"error", MB_OK);
 	}
-
+	
 }
 
 void Renderer::createParticleShaders()
@@ -813,6 +873,318 @@ void Renderer::shrinkMap(Map * map)
 
 }
 
+void Renderer::createLightBuffers()
+{
+	dirLight ligth;
+	ligth.lightColor = DirectX::XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
+	ligth.lightDirection = DirectX::XMFLOAT4(0.0f, -13.0f, 0.0f, 1.0f);
+
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(dirLight);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+
+	data.pSysMem = &ligth;
+
+	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &this->dLightBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"light buffer creation failed!", L"error", MB_OK);
+	}
+	desc.ByteWidth = sizeof(UINT) * 4;
+	UINT init[4];
+	for (size_t i = 0; i < 4; i++)
+	{
+		init[i] = 0;
+	}
+
+	data.pSysMem = &init;
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->pointLightCountBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"light count buffer creation failed!", L"error", MB_OK);
+	}
+
+	pointLight pointL[256];
+	for (size_t i = 0; i < 256; i++)
+	{
+		pointL[i].lightColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		pointL[i].lightPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		pointL[i].range = 0.0f;
+			
+	}
+
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.ByteWidth = 256 * sizeof(pointLight);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	desc.StructureByteStride = sizeof(pointLight);
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	data.pSysMem = pointL;
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->pLightBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" point light buffer creation failed!", L"error", MB_OK);
+	}
+
+	D3D11_BUFFER_SRV srv;
+	srv.FirstElement = 0;
+	srv.NumElements = 256;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer = srv;
+
+	hr = this->gDevice->CreateShaderResourceView(this->pLightBuffer, &srvDesc, &this->pLightSRV);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"point light srv failed", L"error", MB_OK);
+	}
+}
+
+void Renderer::createCameraBuffer()
+{
+	XMFLOAT4 temp = XMFLOAT4(0.0f, 0.0f,0.0f, 0.0f);
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(DirectX::XMFLOAT4);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	data.pSysMem = &temp;
+
+	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &this->cameraPosBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"Camera buffer cration failed", L"error", MB_OK);
+	}
+
+
+}
+
+void Renderer::updateCameraPosBuffer(Camera * cam)
+{
+	D3D11_MAPPED_SUBRESOURCE data;
+	ZeroMemory(&data, sizeof(D3D11_MAPPED_SUBRESOURCE));
+
+	this->gDeviceContext->Map(this->cameraPosBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &cam->pos, sizeof(DirectX::XMFLOAT3));
+
+	this->gDeviceContext->Unmap(this->cameraPosBuffer, 0);
+}
+
+void Renderer::updatePointLights(Map * map)
+{
+	this->pointLightCount = 0;
+	pointLight temp[256];
+	for (size_t i = 0; i < map->entitys.size(); i++)
+	{
+		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
+		{
+			temp[pointLightCount].lightColor = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i])->light.lightColor;
+			temp[pointLightCount].lightPos = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i])->light.lightPos;
+			temp[pointLightCount].range = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i])->light.range;
+			pointLightCount++;
+		}
+		if (dynamic_cast<FireProjectileSpell*>(map->entitys[i]) != nullptr)
+		{
+			temp[pointLightCount].lightColor = dynamic_cast<FireProjectileSpell*>(map->entitys[i])->light.lightColor;
+			temp[pointLightCount].lightPos = dynamic_cast<FireProjectileSpell*>(map->entitys[i])->light.lightPos;
+			temp[pointLightCount].range = dynamic_cast<FireProjectileSpell*>(map->entitys[i])->light.range;
+			pointLightCount++;
+		}
+		if (dynamic_cast<EarthProjectileSpell*>(map->entitys[i]) != nullptr)
+		{
+			temp[pointLightCount].lightColor = dynamic_cast<EarthProjectileSpell*>(map->entitys[i])->light.lightColor;
+			temp[pointLightCount].lightPos = dynamic_cast<EarthProjectileSpell*>(map->entitys[i])->light.lightPos;
+			temp[pointLightCount].range = dynamic_cast<EarthProjectileSpell*>(map->entitys[i])->light.range;
+			pointLightCount++;
+		}
+	}
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->pointLightCountBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &this->pointLightCount, sizeof(UINT));
+	this->gDeviceContext->Unmap(this->pointLightCountBuffer, 0);
+
+	if (this->pointLightCount > 0)
+	{
+		this->gDeviceContext->Map(this->pLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+		memcpy(data.pData, &temp, sizeof(pointLight) * this->pointLightCount);
+		this->gDeviceContext->Unmap(this->pLightBuffer, 0);
+	}
+}
+
+void Renderer::createFullScreenQuad()
+{
+	struct TriangleVertex
+	{
+		float x, y, z;
+		float u, v;
+	};
+
+	TriangleVertex triangleVertices[6] =
+	{
+		1.f, -1.f, 0.0f,	//v0 pos
+		1.0f, 1.0f,
+
+		-1.f, -1.f, 0.0f,	//v1
+		0.0f, 1.0f,
+
+		-1.f, 1.f, 0.0f, //v2
+		0.0f,  0.0f,
+
+		//t2
+		-1.f, 1.f, 0.0f,	//v0 pos
+		0.0f, 0.0f,
+
+		1.f, 1.f, 0.0f,	//v1
+		1.0f, 0.0f,
+
+		1.f, -1.f, 0.0f, //v2
+		1.0f, 1.0f
+	};
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(triangleVertices);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = triangleVertices;
+	this->gDevice->CreateBuffer(&bufferDesc, &data, &this->quadVertexBuffer);
+
+}
+
+void Renderer::createcpMenuShaders()
+{
+	HRESULT hr;
+	ID3DBlob* vsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"cpMenuVS.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&vsBlob,
+		nullptr);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"vsblob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->cpMenuVs);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"vertex shader creation failed", L"error", MB_OK);
+	}
+
+	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->cpQuadLayout);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"input desc creation failed", L"error", MB_OK);
+	}
+
+	vsBlob->Release();
+
+	ID3DBlob *psBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"CpMenuPS.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&psBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"psBlob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->cpmenuPS);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"pixel shader creation failed", L"error", MB_OK);
+	}
+
+	psBlob->Release();
+
+}
+
+void Renderer::loadTexture()
+{
+	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	ID3D11Resource *texture = nullptr;
+	HRESULT hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cpMenuTexture.png ", &texture, &this->cpMenuTexture);
+	if (FAILED(hr)){
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);}
+
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/mainMenu.png ", &texture, &this->mainMenuTexture);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	texture->Release();
+
+}
+
+void Renderer::createCooldownBuffers()
+{
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(CooldownStruct);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	CooldownStruct init;
+	for (size_t i = 0; i < 4; i++)
+	{
+		init.p1Cd[i] = 1;
+		init.p2Cd[i] = 1;
+		init.p3Cd[i] = 1;
+		init.p4Cd[i] = 1;	
+	}
+
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	
+	data.pSysMem = &init;
+
+	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &this->cooldownBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldown buffer creation failed", L"error", MB_OK);
+	}
+}
+
 void Renderer::swapBuffers()
 {
 	ID3D11UnorderedAccessView *tempUAV;
@@ -884,7 +1256,7 @@ void Renderer::updateEmitters(Map * map)
 			if (dynamic_cast<Player*>(map->entitys[i])->blowUp)
 			{
 				Player *temp = dynamic_cast<Player*>(map->entitys[i]);
-				this->createStompParticles(dynamic_cast<FireElement*>(temp->element)->active_projectile->position, 0);
+				this->createStompParticles(dynamic_cast<FireElement*>(temp->element)->active_projectile->position, 1);
 				temp->blowUp = false;
 				dynamic_cast<FireElement*>(temp->element)->active_projectile = nullptr;
 			}
@@ -993,8 +1365,9 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos, int type)
 
 }
 
-void Renderer::render(Map *map, Menu* menu, Camera *camera)
+void Renderer::render(Map *map, Camera *camera)
 {
+	this->updateCameraPosBuffer(camera);
 	XMFLOAT4 clear = normalize_color(0x93a9bcff);
 
 	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, (float*)&clear);
@@ -1019,8 +1392,13 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 
 		gDeviceContext->VSSetShader(debug_map_vsh, nullptr, 0);
 		gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-		gDeviceContext->PSSetShader(debug_map_psh, nullptr, 0);
+		gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
+		gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+		gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
+		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
+		gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
 		gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
 
@@ -1036,9 +1414,15 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 		gDeviceContext->IASetVertexBuffers(0, 1, &debug_entity_circle, &size, &offset);
 		gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
+		//sets stuff twice fix if bad prefomance
 		gDeviceContext->VSSetShader(debug_entity_vsh, nullptr, 0);
 		gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
+		gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+		gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
+		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
+		gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
 		int i = 2;
 		for (auto entity : map->entitys)
@@ -1064,40 +1448,38 @@ void Renderer::render(Map *map, Menu* menu, Camera *camera)
 	//{//rendering the menu
 	//	gDeviceContext->IASetInputLayout(this->menu_layout);
 
-	//	UINT32 size = sizeof(float) * 4;
+	//	UINT32 size = sizeof(float) * 3;
 	//	UINT32 offset = 0u;
 	//	gDeviceContext->IASetVertexBuffers(0, 1, &menu_buffer, &size, &offset);
 	//	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	//	gDeviceContext->VSSetShader(this->menu_vsh, nullptr, 0);
-	//	gDeviceContext->PSSetShader(this->menu_psh, nullptr, 0);
+	//	gDeviceContext->VSSetShader(this->debug_entity_vsh, nullptr, 0);
+	//	gDeviceContext->PSSetShader(this->debug_entity_psh, nullptr, 0);
 	//	gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 
 	//	if (menu != nullptr)
 	//	{
-	//		for (int i = 0; i < 4; i++)
+
+	//		XMFLOAT4 col = normalize_color(0xffffffff);
+	//		D3D11_MAPPED_SUBRESOURCE data;
+	//		DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
 	//		{
-	//			XMFLOAT4 col = normalize_color(0xffffffff);
-	//			D3D11_MAPPED_SUBRESOURCE data;
-	//			DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
-	//			{
-	//				CopyMemory(data.pData, &col, sizeof(float) * 4);
-	//			}
-	//			gDeviceContext->Unmap(color_buffer, 0);
-
-	//			XMMATRIX model = XMMatrixTranslation(1, 1, 1);
-
-	//			camera->vals.world = model;
-	//			camera->update(0, gDeviceContext);
-
-	//			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-	//			gDeviceContext->Draw(133, 0);
+	//			CopyMemory(data.pData, &col, sizeof(float) * 4);
 	//		}
+	//		gDeviceContext->Unmap(color_buffer, 0);
+
+	//		XMMATRIX model = XMMatrixIdentity();
+
+	//		camera->vals.world = model;
+	//		camera->update(0, gDeviceContext);
+	//		gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+	//		gDeviceContext->Draw(233, 0);
 	//	}
 	//}
 
 	this->renderParticles(camera);
 }
+
 
 void Renderer::present() {
 	this->gSwapChain->Present(0, 0);
@@ -1106,9 +1488,10 @@ void Renderer::present() {
 void Renderer::update(float dt, Map * map)
 {
 	this->updateParticles(dt, map);
+	this->updatePointLights(map);
 	if (map->shrunk == true)
 	{
-		map->shrunk == false;
+		map->shrunk = false;
 		this->shrinkMap(map);
 	}
 }
