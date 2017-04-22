@@ -44,6 +44,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="External\imgui_dock.cpp">
+      <Filter>External</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\DirectXTK.h">
@@ -93,6 +96,9 @@
     </ClInclude>
     <ClInclude Include="Ease.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="External\imgui_dock.h">
+      <Filter>External</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

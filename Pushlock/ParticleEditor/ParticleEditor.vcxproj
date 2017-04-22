@@ -122,6 +122,7 @@
     <ClCompile Include="External\Helpers.cpp" />
     <ClCompile Include="External\imgui.cpp" />
     <ClCompile Include="External\imgui_demo.cpp" />
+    <ClCompile Include="External\imgui_dock.cpp" />
     <ClCompile Include="External\imgui_draw.cpp" />
     <ClCompile Include="External\imgui_impl_dx11.cpp" />
     <ClCompile Include="main.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="External\Helpers.h" />
     <ClInclude Include="External\imconfig.h" />
     <ClInclude Include="External\imgui.h" />
+    <ClInclude Include="External\imgui_dock.h" />
     <ClInclude Include="External\imgui_impl_dx11.h" />
     <ClInclude Include="External\imgui_internal.h" />
     <ClInclude Include="External\stb_rect_pack.h" />

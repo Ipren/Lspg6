@@ -17,7 +17,7 @@ public:
 	Camera(XMVECTOR pos, XMVECTOR look);
 	~Camera();
 
-	void update(float dt);
+	void update(float dt, float width, float height);
 
 	struct BufferVals {
 		XMMATRIX world;

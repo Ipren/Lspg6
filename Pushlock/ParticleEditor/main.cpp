@@ -224,7 +224,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			Editor::Update(dt);
 			Editor::Render(dt);
 
-			ImGui::Render();
+			//ImGui::Render();
 
 			gSwapChain->Present(1, 0);
 			prev = newtime;

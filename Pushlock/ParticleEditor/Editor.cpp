@@ -8,6 +8,8 @@
 
 #include "External/DirectXTK.h"
 #include "External/imgui.h"
+#include "External/imgui_dock.h"
+
 #include "External/Helpers.h"
 #include "External/dxerr.h"
 
@@ -31,6 +33,10 @@ ParticleEffect *current_effect;
 
 Editor::Settings default_settings;
 Editor::Settings settings;
+
+D3D11_VIEWPORT viewport;
+bool viewport_render;
+bool viewport_dirty = true;
 
 // Plane
 ID3D11Buffer *plane_vertex_buffer;
@@ -411,6 +417,60 @@ static bool menu_open = false;
 static int current_fx = 0;
 static int current_def = 0;
 
+void Style()
+{
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.Colors[ImGuiCol_Text] = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
+	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.33f, 0.33f, 0.33f, 1.00f);
+	style.Colors[ImGuiCol_WindowBg] = ImVec4(0.18f, 0.18f, 0.19f, 0.95f);
+	style.Colors[ImGuiCol_ChildWindowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	style.Colors[ImGuiCol_PopupBg] = ImVec4(0.18f, 0.18f, 0.19f, 0.95f);
+	style.Colors[ImGuiCol_Border] = ImVec4(0.25f, 0.25f, 0.27f, 1.00f);
+	style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.41f);
+	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.25f, 0.25f, 0.27f, 1.00f);
+	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.11f, 0.59f, 0.92f, 1.00f);
+	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.00f, 0.47f, 0.78f, 1.00f);
+	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.00f, 0.47f, 0.78f, 1.00f);
+	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.48f, 0.78f, 0.32f);
+	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.11f, 0.59f, 0.92f, 1.00f);
+	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.00f, 0.48f, 0.80f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.24f, 0.24f, 0.26f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.62f, 0.62f, 0.62f, 1.00f);
+	style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.95f, 0.92f, 0.94f, 1.00f);
+	style.Colors[ImGuiCol_ComboBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.99f);
+	style.Colors[ImGuiCol_CheckMark] = ImVec4(0.90f, 0.90f, 0.90f, 0.50f);
+	style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+	style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.95f, 0.92f, 0.94f, 1.00f);
+	style.Colors[ImGuiCol_Button] = ImVec4(0.67f, 0.40f, 0.40f, 0.00f);
+	style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.11f, 0.59f, 0.92f, 1.00f);
+	style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.00f, 0.47f, 0.78f, 1.00f);
+	style.Colors[ImGuiCol_Header] = ImVec4(0.25f, 0.25f, 0.27f, 1.00f);
+	style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.28f, 0.28f, 0.31f, 1.00f);
+	style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.53f, 0.53f, 0.87f, 0.80f);
+	style.Colors[ImGuiCol_Column] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+	style.Colors[ImGuiCol_ColumnHovered] = ImVec4(0.70f, 0.60f, 0.60f, 1.00f);
+	style.Colors[ImGuiCol_ColumnActive] = ImVec4(0.90f, 0.70f, 0.70f, 1.00f);
+	style.Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.30f);
+	style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
+	style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
+	style.Colors[ImGuiCol_CloseButton] = ImVec4(0.50f, 0.50f, 0.90f, 0.50f);
+	style.Colors[ImGuiCol_CloseButtonHovered] = ImVec4(0.70f, 0.70f, 0.90f, 0.60f);
+	style.Colors[ImGuiCol_CloseButtonActive] = ImVec4(0.70f, 0.70f, 0.70f, 1.00f);
+	style.Colors[ImGuiCol_PlotLines] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+	style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.00f, 0.48f, 0.80f, 1.00f);
+	style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
+	style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+
+	style.AntiAliasedLines = false;
+
+	style.WindowRounding = 0.f;
+	style.ScrollbarRounding = 0.f;
+	style.ScrollbarSize = 15;
+}
+
 void MenuBar()
 {
 	ImGui::BeginMainMenuBar();
@@ -455,6 +515,23 @@ void MenuBar()
 				SerializeParticles(ofn.lpstrFile, effects, definitions);
 			}
 		}
+		if (ImGui::MenuItem("save editor layout")) {
+			ImGui::SaveDock();
+		}
+		ImGui::EndMenu();
+	}
+	if (ImGui::BeginMenu("Settings")) {
+		ImGui::TextDisabled("Camera");
+		ImGui::SliderFloat("distance", &settings.CameraDistance, 0.1f, 8.f);
+		ImGui::SliderFloat("height", &settings.CameraHeight, 0.0f, 8.f);
+		ImGui::SliderFloat("speed", &settings.CameraSpeed, -1.5f, 1.5f);
+		ImGui::TextDisabled("Simulation");
+		ImGui::SliderFloat("speed##part", &settings.ParticleSpeed, -1.5f, 1.5f);
+		ImGui::Checkbox("paused", &settings.ParticlePaused);
+
+		if (ImGui::Button("reset")) {
+			settings = default_settings;
+		}
 		ImGui::EndMenu();
 	}
 	ImGui::EndMainMenuBar();
@@ -462,363 +539,367 @@ void MenuBar()
 
 void ParticleEditor()
 {
-	ImGui::Begin("Particles");
-	ImGui::BeginGroup();
-	ImGui::BeginChild("list", ImVec2(150, -ImGui::GetItemsLineHeightWithSpacing()), true);
-	for (int i = 0; i < definitions.size(); i++)
-	{
-		char label[64];
-		sprintf_s(label, 64, "%s##%d", definitions[i].name, i);
-		if (ImGui::Selectable(label, current_def == i)) {
-			current_def = i;
+	if (ImGui::BeginDock("Particles")) {
+		ImGui::BeginGroup();
+		ImGui::BeginChild("list", ImVec2(120, -ImGui::GetItemsLineHeightWithSpacing()), true);
+		for (int i = 0; i < definitions.size(); i++)
+		{
+			char label[64];
+			sprintf_s(label, 64, "%s##%d", definitions[i].name, i);
+			if (ImGui::Selectable(label, current_def == i)) {
+				current_def = i;
+			}
 		}
+		ImGui::EndChild();
+		ImGui::SameLine();
+
+		ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
+		if (!definitions.empty()) {
+			ParticleDefinition *def = &definitions[current_def];
+
+			ImGui::Text("%s", def->name);
+			ImGui::Separator();
+			ImGui::InputText("name", def->name, 32);
+			ImGui::Combo("type", (int*)&def->orientation, "Planar\0Clip\0Velocity\0");
+
+
+			ImGui::InputFloat("gravity", &def->gravity);
+			ImGui::InputFloat("lifetime", &def->lifetime);
+
+			ImGui::TextDisabled("Scale");
+			ComboFunc("ease##scale", &def->scale_fn);
+			ImGui::DragFloat("start##scale", &def->scale_start, 0.001f);
+			ImGui::DragFloat("end##scale", &def->scale_end, 0.001f);
+
+			ImGui::TextDisabled("Color");
+			ComboFunc("ease##color", &def->color_fn);
+			ImGui::ColorEdit4("start##color", (float*)&def->start_color);
+			ImGui::ColorEdit4("end##color", (float*)&def->end_color);
+
+			ImGui::TextDisabled("Texture");
+			ImGui::InputInt4("uv", &def->u);
+
+			float limit = ImGui::CalcItemWidth();
+
+			auto size = (1 > (def->u2 / def->v2)) ?
+				ImVec2(def->u2 * (limit / (float)def->v2), limit) :
+				ImVec2(limit, def->v2 * (limit / (float)def->u2));
+
+			ImGui::Image((void*)particle_srv, size, ImVec2(def->u / 2048.f, def->v / 2048.f), ImVec2((def->u + def->u2) / 2048.f, (def->v + def->v2) / 2048.f), ImVec4(def->start_color.x, def->start_color.y, def->start_color.z, def->start_color.w));
+		}
+		ImGui::EndChild();
+
+		ImGui::BeginChild("buttons");
+		if (ImGui::Button("Add")) {
+			definitions.push_back({});
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Remove")) {
+
+		}
+		ImGui::EndChild();
+		ImGui::EndGroup();
 	}
-	ImGui::EndChild();
-	ImGui::SameLine();
+	ImGui::EndDock();
 
-	ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
-	if (!definitions.empty()) {
-		ParticleDefinition *def = &definitions[current_def];
-
-		ImGui::Text("%s", def->name);
-		ImGui::Separator();
-		ImGui::InputText("name", def->name, 32);
-		ImGui::Combo("type", (int*)&def->orientation, "Planar\0Clip\0Velocity\0");
-
-
-		ImGui::InputFloat("gravity", &def->gravity);
-		ImGui::InputFloat("lifetime", &def->lifetime);
-
-		ImGui::TextDisabled("Scale");
-		ComboFunc("ease##scale", &def->scale_fn);
-		ImGui::DragFloat("start##scale", &def->scale_start, 0.001f);
-		ImGui::DragFloat("end##scale", &def->scale_end, 0.001f);
-
-		ImGui::TextDisabled("Color");
-		ComboFunc("ease##color", &def->color_fn);
-		ImGui::ColorEdit4("start##color", (float*)&def->start_color);
-		ImGui::ColorEdit4("end##color", (float*)&def->end_color);
-
-		ImGui::TextDisabled("Texture");
-		ImGui::InputInt4("uv", &def->u);
-
-		float limit = ImGui::CalcItemWidth();
-
-		auto size = (1 > (def->u2 / def->v2)) ?
-			ImVec2(def->u2 * (limit / (float)def->v2), limit) :
-			ImVec2(limit, def->v2 * (limit/(float)def->u2));
-
-		ImGui::Image((void*)particle_srv, size, ImVec2(def->u / 2048.f, def->v / 2048.f), ImVec2((def->u + def->u2) / 2048.f, (def->v + def->v2) / 2048.f), ImVec4(def->start_color.x, def->start_color.y, def->start_color.z, def->start_color.w));
-	}
-	ImGui::EndChild();
-
-	ImGui::BeginChild("buttons");
-	if (ImGui::Button("Add")) {
-		definitions.push_back({});
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Remove")) {
-
-	}
-	ImGui::EndChild();
-	ImGui::EndGroup();
-
-
-	ImGui::End();
 }
 
 void FXEditor()
 {
-	ImGui::Begin("FX");
-	ImGui::BeginGroup();
-	ImGui::BeginChild("list", ImVec2(150, -ImGui::GetItemsLineHeightWithSpacing()), true);
-	for (int i = 0; i < effects.size(); i++)
-	{
-		char label[64];
-		sprintf_s(label, 64, "%s##%d", effects[i].name, i);
-		if (ImGui::Selectable(label, current_fx == i)) {
+	if (ImGui::BeginDock("FX")) {
+		ImGui::BeginGroup();
+		ImGui::BeginChild("list", ImVec2(120, -ImGui::GetItemsLineHeightWithSpacing()), true);
+		for (int i = 0; i < effects.size(); i++)
+		{
+			char label[64];
+			sprintf_s(label, 64, "%s##%d", effects[i].name, i);
+			if (ImGui::Selectable(label, current_fx == i)) {
 
-			current_fx = i;
-			effects[current_fx].age = 0.f;
+				current_fx = i;
+				effects[current_fx].age = 0.f;
 
+			}
 		}
-	}
-	ImGui::EndChild();
-	ImGui::SameLine();
+		ImGui::EndChild();
+		ImGui::SameLine();
 
-	ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
-	if (!effects.empty()) {
-		ParticleEffect *fx = &effects[current_fx];
-		current_effect = fx;
+		ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
+		if (!effects.empty()) {
+			ParticleEffect *fx = &effects[current_fx];
+			current_effect = fx;
 
-		ImGui::Text("%s", fx->name);
-		ImGui::Separator();
-		ImGui::InputText("name##fx", fx->name, 32);
+			ImGui::Text("%s", fx->name);
+			ImGui::Separator();
+			ImGui::InputText("name##fx", fx->name, 32);
 
-		ImGui::TextDisabled("Time");
-		if (ImGui::Checkbox("loop", &fx->loop)) {
-			fx->clamp_children = false;
+			ImGui::TextDisabled("Time");
+			if (ImGui::Checkbox("loop", &fx->loop)) {
+				fx->clamp_children = false;
+			}
+			ImGui::SameLine();
+			if (ImGui::Checkbox("clamp to children", &fx->clamp_children)) {
+				fx->loop = false;
+			}
+
+			if (fx->clamp_children) {
+				for (int i = 0; i < MAX_PARTICLE_FX; ++i) {
+					ParticleEffectEntry entry = fx->fx[i];
+					if (entry.idx < 0) continue;
+
+					auto def = definitions[entry.idx];
+
+					fx->children_time = max(fx->children_time, entry.end);
+				}
+			}
+
+			if (!fx->loop && !fx->clamp_children) {
+				ImGui::DragFloat("duration", &fx->time, 0.025f, 0.f, 100000.f, "%.3f seconds");
+			}
+
+			ImGui::Separator();
+
+			for (int i = 0; i < MAX_PARTICLE_FX; ++i) {
+				ParticleEffectEntry *entry = &fx->fx[i];
+				if (entry->idx < 0) continue;
+
+				auto def = definitions[entry->idx];
+
+				char label[64];
+				sprintf_s(label, 64, "%s##%d", def.name, i);
+
+				bool header = ImGui::TreeNode(label);
+				ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 50);
+				if (ImGui::SmallButton("Remove")) {
+					fx->fx[i] = fx->fx[fx->fx_count-- - 1];
+				}
+
+				if (header) {
+					ImGui::TextDisabled("Time");
+					ImGui::Checkbox("loop##psoda", &entry->loop);
+
+					if (entry->loop) {
+						ImGui::DragFloat("start", &entry->start, 0.01, 0.f, 10000.f, "%.3f sec");
+					}
+					else {
+						ImGui::DragFloat("start", &entry->start, 0.01, 0.f, 10000.f, "%.3f sec");
+						ImGui::DragFloat("duration", &entry->end, 0.01, 0.f, 10000.f, "%.3f sec");
+					}
+
+					ImGui::TextDisabled("Emitter");
+					ImGui::Combo("type##emitter", (int*)&entry->emitter_type, EMITTER_STRINGS);
+					switch (entry->emitter_type) {
+					case ParticleEmitter::Cube:
+						ImGui::TextDisabled("Spawn area");
+						ImGui::DragFloatRange2("x", &entry->emitter_xmin, &entry->emitter_xmax, 0.01f);
+						ImGui::DragFloatRange2("y", &entry->emitter_ymin, &entry->emitter_ymax, 0.01f);
+						ImGui::DragFloatRange2("z", &entry->emitter_zmin, &entry->emitter_zmax, 0.01f);
+
+						ImGui::TextDisabled("Spawn velocity");
+						ImGui::DragFloatRange2("x##spawn", &entry->vel_xmin, &entry->vel_xmax, 0.01f);
+						ImGui::DragFloatRange2("y##spawn", &entry->vel_ymin, &entry->vel_ymax, 0.01f);
+						ImGui::DragFloatRange2("z##spawn", &entry->vel_zmin, &entry->vel_zmax, 0.01f);
+						break;
+					}
+
+					ImGui::TextDisabled("Rotation");
+					ImGui::DragFloatRange2("start##rotsp", &entry->rot_min, &entry->rot_max, 0.01f);
+					ImGui::DragFloatRange2("velocity##rotps", &entry->rot_vmin, &entry->rot_vmax, 0.01f);
+
+					if (entry->emitter_type != ParticleEmitter::Static) {
+						ImGui::TextDisabled("Spawn rate");
+						ComboFunc("ease##spawn", &entry->spawn_fn);
+
+						ImGui::DragInt("start##sffffs", &entry->spawn_start, 1.0f, 0, 500, "%.0f particles/s");
+						ImGui::DragInt("end##sdasd", &entry->spawn_end, 1.0f, 0, 500, "%.0f particles/s");
+					}
+
+					ImGui::TreePop();
+				}
+			}
+
+			ImGui::Separator();
+
+			static int add_pdef = 0;
+
+			if (ImGui::Button("Add##entry")) {
+				ImGui::OpenPopup("Add particle");
+				add_pdef = 0;
+			}
+
+			if (ImGui::BeginPopupModal("Add particle")) {
+
+				ImGui::BeginChild("list popiup", ImVec2(150, 200), true);
+				for (int i = 0; i < definitions.size(); i++)
+				{
+					char label[64];
+					sprintf_s(label, 64, "%s##asd%d", definitions[i].name, i);
+					if (ImGui::Selectable(label, add_pdef == i)) {
+						add_pdef = i;
+					}
+				}
+				ImGui::EndChild();
+				ImGui::SameLine();
+				if (ImGui::Button("Add##pop")) {
+					auto &entry = current_effect->fx[current_effect->fx_count++];
+					entry.idx = add_pdef;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel##popup")) {
+					ImGui::CloseCurrentPopup();
+				}
+
+
+
+				ImGui::EndPopup();
+			}
+		}
+
+		ImGui::EndChild();
+
+		ImGui::BeginChild("buttons");
+		if (ImGui::Button("Add##fx")) {
+			ParticleEffect fx = {};
+			effects.push_back(fx);
 		}
 		ImGui::SameLine();
-		if (ImGui::Checkbox("clamp to children", &fx->clamp_children)) {
-			fx->loop = false;
+		if (ImGui::Button("Remove")) {
+
 		}
-
-		if (fx->clamp_children) {
-			for (int i = 0; i < MAX_PARTICLE_FX; ++i) {
-				ParticleEffectEntry entry = fx->fx[i];
-				if (entry.idx < 0) continue;
-
-				auto def = definitions[entry.idx];
-
-				fx->children_time = max(fx->children_time, entry.end);
-			}
-		}
-
-		if (!fx->loop && !fx->clamp_children) {
-			ImGui::DragFloat("duration", &fx->time, 0.025f, 0.f, 100000.f, "%.3f seconds");
-		}
-
-		ImGui::Separator();
-
-		for (int i = 0; i < MAX_PARTICLE_FX; ++i) {
-			ParticleEffectEntry *entry = &fx->fx[i];
-			if (entry->idx < 0) continue;
-
-			auto def = definitions[entry->idx];
-
-			char label[64];
-			sprintf_s(label, 64, "%s##%d", def.name, i);
-
-			bool header = ImGui::TreeNode(label);
-			ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 50);
-			if (ImGui::SmallButton("Remove")) {
-				fx->fx[i] = fx->fx[fx->fx_count-- - 1];
-			}
-
-			if (header) {
-				ImGui::TextDisabled("Time");
-				ImGui::Checkbox("loop##psoda", &entry->loop);
-				
-				if (entry->loop) {
-					ImGui::DragFloat("start", &entry->start, 0.01, 0.f, 10000.f, "%.3f sec");
-				} 
-				else {
-					ImGui::DragFloat("start", &entry->start, 0.01, 0.f, 10000.f, "%.3f sec");
-					ImGui::DragFloat("duration", &entry->end, 0.01, 0.f, 10000.f, "%.3f sec");
-				}
-
-				ImGui::TextDisabled("Emitter");
-				ImGui::Combo("type##emitter", (int*)&entry->emitter_type, EMITTER_STRINGS);
-				switch (entry->emitter_type) {
-				case ParticleEmitter::Cube:
-					ImGui::TextDisabled("Spawn area");
-					ImGui::DragFloatRange2("x", &entry->emitter_xmin, &entry->emitter_xmax, 0.01f);
-					ImGui::DragFloatRange2("y", &entry->emitter_ymin, &entry->emitter_ymax, 0.01f);
-					ImGui::DragFloatRange2("z", &entry->emitter_zmin, &entry->emitter_zmax, 0.01f);
-
-					ImGui::TextDisabled("Spawn velocity");
-					ImGui::DragFloatRange2("x##spawn", &entry->vel_xmin, &entry->vel_xmax, 0.01f);
-					ImGui::DragFloatRange2("y##spawn", &entry->vel_ymin, &entry->vel_ymax, 0.01f);
-					ImGui::DragFloatRange2("z##spawn", &entry->vel_zmin, &entry->vel_zmax, 0.01f);
-					break;
-				}
-
-				ImGui::TextDisabled("Rotation");
-				ImGui::DragFloatRange2("start##rotsp", &entry->rot_min, &entry->rot_max, 0.01f);
-				ImGui::DragFloatRange2("velocity##rotps", &entry->rot_vmin, &entry->rot_vmax, 0.01f);
-
-				if (entry->emitter_type != ParticleEmitter::Static) {
-					ImGui::TextDisabled("Spawn rate");
-					ComboFunc("ease##spawn", &entry->spawn_fn);
-
-					ImGui::DragInt("start##sffffs", &entry->spawn_start, 1.0f, 0, 500, "%.0f particles/s");
-					ImGui::DragInt("end##sdasd", &entry->spawn_end, 1.0f, 0, 500, "%.0f particles/s");
-				}
-
-				ImGui::TreePop();
-			}
-		}
-
-		ImGui::Separator();
-
-		static int add_pdef = 0;
-
-		if (ImGui::Button("Add##entry")) {
-			ImGui::OpenPopup("Add particle");
-			add_pdef = 0;
-		}
-
-		if (ImGui::BeginPopupModal("Add particle")) {
-
-			ImGui::BeginChild("list popiup", ImVec2(150, 200), true);
-			for (int i = 0; i < definitions.size(); i++)
-			{
-				char label[64];
-				sprintf_s(label, 64, "%s##asd%d", definitions[i].name, i);
-				if (ImGui::Selectable(label, add_pdef == i)) {
-					add_pdef = i;
-				}
-			}
-			ImGui::EndChild();
-			ImGui::SameLine();
-			if (ImGui::Button("Add##pop")) {
-				auto &entry = current_effect->fx[current_effect->fx_count++];
-				entry.idx = add_pdef;
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel##popup")) {
-				ImGui::CloseCurrentPopup();
-			}
-
-
-
-			ImGui::EndPopup();
-		}
+		ImGui::EndChild();
+		ImGui::EndGroup();
 	}
-
-	ImGui::EndChild();
-
-	ImGui::BeginChild("buttons");
-	if (ImGui::Button("Add##fx")) {
-		ParticleEffect fx = {};
-		effects.push_back(fx);
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Remove")) {
-
-	}
-	ImGui::EndChild();
-	ImGui::EndGroup();
-
-	ImGui::End();
+	ImGui::EndDock();
 }
 
 void Timeline()
 {
-	ImGui::Begin("Timeline");
+	if (ImGui::BeginDock("Timeline")) {
 
-	ImGui::BeginGroup();
+		ImGui::BeginGroup();
 
-	ImGui::BeginChild("playstuff", ImVec2(150, 0), true);
+		ImGui::BeginChild("playstuff", ImVec2(150, 0), true);
 
-	ImGui::Checkbox("paused##controls", &settings.ParticlePaused);
-	ImGui::SameLine();
-	ImGui::Checkbox("loop##controls", &settings.ParticleLoop);
+		ImGui::Checkbox("paused##controls", &settings.ParticlePaused);
+		ImGui::SameLine();
+		ImGui::Checkbox("loop##controls", &settings.ParticleLoop);
 
-	ImGui::SliderFloat("speed##part", &settings.ParticleSpeed, -1.5f, 1.5f);
-
-
-
-	ImGui::EndChild();
-
-	ImGui::EndGroup();
-
-	ImGui::SameLine();
-
-	ImGui::BeginGroup();
-	if (!effects.empty()) {
-		auto fx = effects[current_fx];
-		auto time = fx.clamp_children ? fx.children_time : fx.time;
-
-		ImGui::ProgressBar(fx.age / time);
-		ImGui::NewLine();
-
-		auto hi = (int)ceilf(time);
-
-		for (int i = 0; i < (int)hi; ++i) {
-			if (i <= (int)time) {
-
-				ImGui::SameLine(ImGui::GetContentRegionAvailWidth() * (i / (float)time));
-				ImGui::TextDisabled("%.1f", (float)i);
-			}
-		}
-
-		ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 20);
-		ImGui::TextDisabled("%.1f", time);
-	}
-	else {
-		ImGui::ProgressBar(0.f);
-	}
-
-	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+		ImGui::SliderFloat("speed##part", &settings.ParticleSpeed, -1.5f, 1.5f);
 
 
 
-	auto h = ImGui::GetContentRegionAvail().y;
-	auto cur = ImGui::GetCursorScreenPos();
+		ImGui::EndChild();
 
-	ImGui::BeginChild("timelineview", ImVec2(0, 0), true);
+		ImGui::EndGroup();
 
-	auto acur = ImGui::GetCursorScreenPos();
-	auto w = ImGui::GetContentRegionAvailWidth();
+		ImGui::SameLine();
 
-	if (!effects.empty()) {
-		auto fx = effects[current_fx];
-		auto time = fx.clamp_children ? fx.children_time : fx.time;
-		auto hi = (int)ceilf(time);
+		ImGui::BeginGroup();
+		if (!effects.empty()) {
+			auto fx = effects[current_fx];
+			auto time = fx.clamp_children ? fx.children_time : fx.time;
 
-		for (int i = 0; i < (int)hi; ++i) {
-			auto extend = 4.f;
-			if (i <= (int)time) {
-				draw_list->AddLine(
-					ImVec2(acur.x + w * (i / (float)time), cur.y - extend),
-					ImVec2(acur.x + w * (i / (float)time), cur.y + h + extend),
-					ImColor(ImGui::GetStyle().Colors[ImGuiCol_Border]),
-					2.f
-				);
-			}
-
-			for (int j = 0; j < 4; ++j) {
-				draw_list->AddLine(
-					ImVec2(acur.x + w * (((float)i + j / 4.f) / (float)time), cur.y),
-					ImVec2(acur.x + w * (((float)i + j / 4.f) / (float)time), cur.y + h),
-					ImColor(ImGui::GetStyle().Colors[ImGuiCol_Border]),
-					1.f
-				);
-			}
-		}
-
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 3));
-
-
-		for (ParticleEffectEntry entry : effects[current_fx].fx) {
-			if (entry.idx < 0) continue;
-
-			auto def = definitions[entry.idx];
-			ImGui::SameLine(w * (entry.start / time));
-			
-			if (entry.loop)
-				ImGui::Button(def.name, ImVec2(w, 0));
-			else
-				ImGui::Button(def.name, ImVec2(w * (entry.end) / time, 0));
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0, 1.0, 1.0, 0.4));
-			if (!entry.loop) {
-				ImGui::SameLine();
-				ImGui::Button("lifetime", ImVec2(w * (def.lifetime) / time, 0));
-			}
-			ImGui::PopStyleColor(1);
-			
-			ImGui::Separator();
+			ImGui::ProgressBar(fx.age / time);
 			ImGui::NewLine();
+
+			auto hi = (int)ceilf(time);
+
+			for (int i = 0; i < (int)hi; ++i) {
+				if (i <= (int)time) {
+
+					ImGui::SameLine(ImGui::GetContentRegionAvailWidth() * (i / (float)time));
+					ImGui::TextDisabled("%.1f", (float)i);
+				}
+			}
+
+			ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 20);
+			ImGui::TextDisabled("%.1f", time);
+		}
+		else {
+			ImGui::ProgressBar(0.f);
 		}
 
-		ImGui::PopStyleVar(1);
-	}
-	ImGui::EndChild();
-	ImGui::EndGroup();
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-	ImGui::End();
+
+
+		auto h = ImGui::GetContentRegionAvail().y;
+		auto cur = ImGui::GetCursorScreenPos();
+
+		ImGui::BeginChild("timelineview", ImVec2(0, 0), true);
+
+		auto acur = ImGui::GetCursorScreenPos();
+		auto w = ImGui::GetContentRegionAvailWidth();
+
+		if (!effects.empty()) {
+			auto fx = effects[current_fx];
+			auto time = fx.clamp_children ? fx.children_time : fx.time;
+			auto hi = (int)ceilf(time);
+
+			for (int i = 0; i < (int)hi; ++i) {
+				auto extend = 4.f;
+				if (i <= (int)time) {
+					draw_list->AddLine(
+						ImVec2(acur.x + w * (i / (float)time), cur.y - extend),
+						ImVec2(acur.x + w * (i / (float)time), cur.y + h + extend),
+						ImColor(ImGui::GetStyle().Colors[ImGuiCol_Border]),
+						2.f
+					);
+				}
+
+				for (int j = 0; j < 4; ++j) {
+					draw_list->AddLine(
+						ImVec2(acur.x + w * (((float)i + j / 4.f) / (float)time), cur.y),
+						ImVec2(acur.x + w * (((float)i + j / 4.f) / (float)time), cur.y + h),
+						ImColor(ImGui::GetStyle().Colors[ImGuiCol_Border]),
+						1.f
+					);
+				}
+			}
+
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 3));
+
+
+			for (ParticleEffectEntry entry : effects[current_fx].fx) {
+				if (entry.idx < 0) continue;
+
+				auto def = definitions[entry.idx];
+				ImGui::SameLine(w * (entry.start / time));
+
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0, 1.0, 1.0, 0.23));
+				if (entry.loop)
+					ImGui::Button(def.name, ImVec2(w, 0));
+				else
+					ImGui::Button(def.name, ImVec2(w * (entry.end) / time, 0));
+				ImGui::PopStyleColor(1);
+
+
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0, 1.0, 1.0, 0.1));
+				if (!entry.loop) {
+					ImGui::SameLine();
+					ImGui::Button("lifetime", ImVec2(w * (def.lifetime) / time, 0));
+				}
+				ImGui::PopStyleColor(1);
+
+				ImGui::Separator();
+				ImGui::NewLine();
+			}
+
+			ImGui::PopStyleVar(1);
+		}
+		ImGui::EndChild();
+		ImGui::EndGroup();
+	}
+	ImGui::EndDock();
 }
 
 void Init()
 {
+	ImGui::LoadDock();
+
 	camera = new Camera({0.f, 0.5f, 0.f}, {});
 
-	ImGui::GetStyle().WindowRounding = 0.f;
+	Style();
 
 	InitPlane();
 	InitParticles();
@@ -831,23 +912,51 @@ void Update(float dt)
 	ptime += dt * settings.ParticleSpeed;
 
 	MenuBar();
+
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+	ImGui::RootDock(ImVec2(0, 18), ImVec2(WIDTH, HEIGHT - 18));
 	ParticleEditor();
 	FXEditor();
 	Timeline();
 
-	ImGui::Begin("Settings");
-	ImGui::TextDisabled("Camera");
-	ImGui::SliderFloat("distance", &settings.CameraDistance, 0.1f, 8.f);
-	ImGui::SliderFloat("height", &settings.CameraHeight, 0.0f, 8.f);
-	ImGui::SliderFloat("speed", &settings.CameraSpeed, -1.5f, 1.5f);
-	ImGui::TextDisabled("Simulation");
-	ImGui::SliderFloat("speed##part", &settings.ParticleSpeed, -1.5f, 1.5f);
-	ImGui::Checkbox("paused", &settings.ParticlePaused);
+	viewport_render = false;
 
-	if (ImGui::Button("reset")) {
-		settings = default_settings;
+	if (ImGui::BeginDock("Viewport")) {
+		viewport_render = true;
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2, 2));
+
+		ImGui::BeginChild("vp render", ImVec2(0, 0), true);
+
+		auto cur = ImGui::GetCursorScreenPos();
+		auto sz = ImGui::GetContentRegionAvail();
+
+		if (cur.x != viewport.TopLeftX ||
+			cur.y != viewport.TopLeftY ||
+			sz.x != viewport.Width ||
+			sz.y != viewport.Height)
+		{
+			viewport_dirty = true;
+
+			viewport.Width = sz.x;
+			viewport.Height = sz.y;
+			viewport.MaxDepth = 1.0f;
+			viewport.MinDepth = 0.0f;
+			viewport.TopLeftX = cur.x;
+			viewport.TopLeftY = cur.y;
+		}
+
+		if (viewport_dirty && !ImGui::IsMouseDragging()) {
+			viewport_dirty = false;
+
+			gDeviceContext->RSSetViewports(1, &viewport);
+		}
+
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
 	}
-	ImGui::End();
+	ImGui::EndDock();
+	ImGui::PopStyleColor();
 
 	auto pdt = dt * settings.ParticleSpeed;
 
@@ -964,23 +1073,41 @@ void Update(float dt)
 	}
 
 	camera->pos = { sin(time) * settings.CameraDistance, settings.CameraHeight, cos(time) * settings.CameraDistance };
-	camera->update(dt);
+	camera->update(dt, viewport.Width, viewport.Height);
 }
 
 void Render(float dt)
 {
 	XMFLOAT4 clear = normalize_color(0x93a9bcff);
-	XMFLOAT4 bclear = normalize_color(0x0);
+	auto col = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
+	col.w = 1.0f;
+	XMFLOAT4 bclear = normalize_color(ImGui::GetColorU32(col));
 
 	gDeviceContext->ClearRenderTargetView(default_rtv, (float*)&clear);
-	gDeviceContext->ClearRenderTargetView(hdr_rtv, (float*)&bclear);
+	gDeviceContext->ClearRenderTargetView(hdr_rtv, (float*)&clear);
+	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, (float*)&col);
 	gDeviceContext->ClearDepthStencilView(gDepthbufferDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	SetViewport();
 
-	RenderPlane();
-	RenderParticles();
-	RenderComposite();
+	auto vp = viewport;
+	//vp.TopLeftX = 0;
+	//vp.TopLeftY = 0;
+
+
+	ImGui::ShowStyleEditor();
+	if (viewport_render) {
+		SetViewport();
+
+		RenderPlane();
+		RenderParticles();
+		gDeviceContext->RSSetViewports(1, &vp);
+
+		RenderComposite();
+	}
+
+	ImGui::Render();
+
+
 }
 
 }
