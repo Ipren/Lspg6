@@ -3,6 +3,7 @@
 #include "Player.h"
 #include <cstdlib>
 #include <time.h>
+#include "Constants.h"
 
 const UINT startParticleCount = 0;
 //makes it so the actual amount of particles in the buffers is used
@@ -1182,25 +1183,25 @@ void Renderer::createHPBuffers()
 	XMFLOAT4 hpBar[12];
 	//bar 1
 	//t1
-	hpBar[0] = { 0.2f, -0.2f, 0.0f, 1.0f };
-	hpBar[1] = { -0.2f, -0.2f, 0.0f, 1.0f };
-	hpBar[2] = { -0.2f, 0.2f, 0.0f, 1.0f };
+	hpBar[0] = { 1.18f, 0.01f, -0.1f, 1.0f };
+	hpBar[1] = { -0.29f, 0.01f, -0.1f,  1.0f };
+	hpBar[2] = { -0.29f, 0.01f, 0.13f, 1.0f };
 
 	//t2
-	hpBar[3] = { -0.2f, 0.2f, 0.0f, 1.0f };
-	hpBar[4] = { 0.2f, 0.2f, 0.0f, 1.0f };
-	hpBar[5] = { 0.2f, -0.2f, 0.0f, 1.0f };
+	hpBar[3] = { -0.29f, 0.01f, 0.13f, 1.0f };
+	hpBar[4] = { 1.18f, 0.01f, 0.13f, 1.0f };
+	hpBar[5] = { 1.18f, 0.01f, -0.1f, 1.0f };
 
 	//bar 2
 	//t1
-	hpBar[6] = { 0.2f, -0.2f, 0.0f, -1.0f };
-	hpBar[7] = { -0.2f, -02.f, 0.0f, -1.0f };
-	hpBar[8] = { -0.2f, 0.2f, 0.0f, -1.0f };
+	hpBar[6] = { 1.18f, 0.0f, -0.1f, -1.0f };
+	hpBar[7] = { -0.29f, 0.0f, -0.1f, -1.0f };
+	hpBar[8] = { -0.29f, 0.0f, 0.13f, -1.0f };
 
 	//t2
-	hpBar[9] = { -0.2f, 0.2f, 0.0f, -1.0f };
-	hpBar[10] = { 0.2f, 0.2f, 0.0f, -1.0f };
-	hpBar[11] = { 0.2f, -0.2f, 0.0f, -1.0f };
+	hpBar[9] = { -0.29f, 0.0f, 0.13f, -1.0f };
+	hpBar[10] = { 1.18f, 0.0f, 0.13f, -1.0f };
+	hpBar[11] = { 1.18f, 0.0f, -0.1f, -1.0f };
 
 	D3D11_BUFFER_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
@@ -1467,8 +1468,17 @@ void Renderer::updatecooldownGUI(Player *player)
 	this->gDeviceContext->Unmap(this->cooldownBuffer, 0);
 }
 
-void Renderer::updateHPBuffers(Map * map)
+void Renderer::updateHPBuffers(Player *player)
 {
+	float temp;
+
+	temp = player->health / player->maxHealth;
+
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->HPBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &temp, sizeof(float));
+	this->gDeviceContext->Unmap(this->HPBuffer, 0);
+
 }
 
 void Renderer::renderCooldownGUI(Map * map, Camera * cam)
@@ -1507,6 +1517,39 @@ void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 
 void Renderer::renderHPGUI(Map * map, Camera * cam)
 {
+	this->gDeviceContext->IASetInputLayout(this->HPInputLayout);
+	UINT32 size = sizeof(float) * 4;
+	UINT32 offset = 0u;
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->HPVertexBuffer, &size, &offset);
+	this->gDeviceContext->VSSetShader(this->HPVS, nullptr, 0);
+	this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->HPPS, nullptr, 0);
+
+
+
+	for (auto entity : map->entitys)
+	{
+
+		Player* p = dynamic_cast<Player*>(entity);
+		if (p != nullptr)
+		{
+
+			if ((p->maxHealth - p->health) > 0.001f)
+			{
+				XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 0.01f, entity->position.z + 1.09f);
+
+				cam->vals.world = model;
+				cam->update(0, gDeviceContext);
+
+				gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
+				this->updateHPBuffers(p);
+				this->gDeviceContext->VSSetConstantBuffers(1, 1, &this->HPBuffer);
+				gDeviceContext->Draw(12, 0);
+			}
+			
+		}
+	}
 }
 
 void Renderer::swapBuffers()
@@ -1729,6 +1772,7 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->Draw(128*3, 0);
 	}
 	this->renderCooldownGUI(map, camera);
+	this->renderHPGUI(map, camera);
 	{
 		gDeviceContext->IASetInputLayout(debug_entity_layout);
 
