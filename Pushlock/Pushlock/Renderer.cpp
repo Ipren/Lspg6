@@ -1183,25 +1183,25 @@ void Renderer::createHPBuffers()
 	XMFLOAT4 hpBar[12];
 	//bar 1
 	//t1
-	hpBar[0] = { 0.2f, -0.2f, 0.0f, 1.0f };
-	hpBar[1] = { -0.2f, -0.2f, 0.0f, 1.0f };
-	hpBar[2] = { -0.2f, 0.2f, 0.0f, 1.0f };
+	hpBar[0] = { 1.18f, 0.01f, -0.1f, 1.0f };
+	hpBar[1] = { -0.29f, 0.01f, -0.1f,  1.0f };
+	hpBar[2] = { -0.29f, 0.01f, 0.13f, 1.0f };
 
 	//t2
-	hpBar[3] = { -0.2f, 0.2f, 0.0f, 1.0f };
-	hpBar[4] = { 0.2f, 0.2f, 0.0f, 1.0f };
-	hpBar[5] = { 0.2f, -0.2f, 0.0f, 1.0f };
+	hpBar[3] = { -0.29f, 0.01f, 0.13f, 1.0f };
+	hpBar[4] = { 1.18f, 0.01f, 0.13f, 1.0f };
+	hpBar[5] = { 1.18f, 0.01f, -0.1f, 1.0f };
 
 	//bar 2
 	//t1
-	hpBar[6] = { 0.2f, -0.2f, 0.0f, -1.0f };
-	hpBar[7] = { -0.2f, -02.f, 0.0f, -1.0f };
-	hpBar[8] = { -0.2f, 0.2f, 0.0f, -1.0f };
+	hpBar[6] = { 1.18f, 0.0f, -0.1f, -1.0f };
+	hpBar[7] = { -0.29f, 0.0f, -0.1f, -1.0f };
+	hpBar[8] = { -0.29f, 0.0f, 0.13f, -1.0f };
 
 	//t2
-	hpBar[9] = { -0.2f, 0.2f, 0.0f, -1.0f };
-	hpBar[10] = { 0.2f, 0.2f, 0.0f, -1.0f };
-	hpBar[11] = { 0.2f, -0.2f, 0.0f, -1.0f };
+	hpBar[9] = { -0.29f, 0.0f, 0.13f, -1.0f };
+	hpBar[10] = { 1.18f, 0.0f, 0.13f, -1.0f };
+	hpBar[11] = { 1.18f, 0.0f, -0.1f, -1.0f };
 
 	D3D11_BUFFER_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
@@ -1530,19 +1530,24 @@ void Renderer::renderHPGUI(Map * map, Camera * cam)
 
 	for (auto entity : map->entitys)
 	{
-		if (dynamic_cast<Player*>(entity) != nullptr)
+
+		Player* p = dynamic_cast<Player*>(entity);
+		if (p != nullptr)
 		{
 
+			if ((p->maxHealth - p->health) > 0.001f)
+			{
+				XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 0.01f, entity->position.z + 1.09f);
 
-			XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 0.01f, entity->position.z + 0.9f);
+				cam->vals.world = model;
+				cam->update(0, gDeviceContext);
 
-			cam->vals.world = model;
-			cam->update(0, gDeviceContext);
-
-			gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
-			this->updateHPBuffers(dynamic_cast<Player*>(entity));
-			this->gDeviceContext->VSSetConstantBuffers(0, 1, &this->HPBuffer);
-			gDeviceContext->Draw(12, 0);
+				gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
+				this->updateHPBuffers(p);
+				this->gDeviceContext->VSSetConstantBuffers(1, 1, &this->HPBuffer);
+				gDeviceContext->Draw(12, 0);
+			}
+			
 		}
 	}
 }
