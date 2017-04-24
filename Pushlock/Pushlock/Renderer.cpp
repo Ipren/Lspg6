@@ -3,6 +3,7 @@
 #include "Player.h"
 #include <cstdlib>
 #include <time.h>
+#include "Constants.h"
 
 const UINT startParticleCount = 0;
 //makes it so the actual amount of particles in the buffers is used
@@ -58,6 +59,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createCooldownShaders();
 
 	this->createHPBuffers();
+	this->createHPShaders();
 
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
@@ -119,6 +121,9 @@ Renderer::~Renderer()
 	this->cooldownVS->Release();
 	this->cooldownPS->Release();
 	this->HPVertexBuffer->Release();
+	this->HPInputLayout->Release();
+	this->HPVS->Release();
+	this->HPPS->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -1235,6 +1240,69 @@ void Renderer::createHPBuffers()
 
 void Renderer::createHPShaders()
 {
+
+	HRESULT hr;
+	ID3DBlob* vsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"HPVS.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&vsBlob,
+		nullptr);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldown vsblob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->HPVS);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" cooldown vertex shader creation failed", L"error", MB_OK);
+	}
+
+	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->HPInputLayout);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldwon input desc creation failed", L"error", MB_OK);
+	}
+
+	vsBlob->Release();
+
+	ID3DBlob *psBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"HPPS.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&psBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldown psBlob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->HPPS);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" cooldown pixel shader creation failed", L"error", MB_OK);
+	}
+
+	psBlob->Release();
 }
 
 void Renderer::createCooldownBuffers()
@@ -1400,8 +1468,17 @@ void Renderer::updatecooldownGUI(Player *player)
 	this->gDeviceContext->Unmap(this->cooldownBuffer, 0);
 }
 
-void Renderer::updateHPBuffers(Map * map)
+void Renderer::updateHPBuffers(Player *player)
 {
+	float temp;
+
+	temp = player->health / player->maxHealth;
+
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->HPBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &temp, sizeof(float));
+	this->gDeviceContext->Unmap(this->HPBuffer, 0);
+
 }
 
 void Renderer::renderCooldownGUI(Map * map, Camera * cam)
@@ -1438,8 +1515,36 @@ void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 
 }
 
-void Renderer::rnederHPGUI(Map * map, Camera * cam)
+void Renderer::renderHPGUI(Map * map, Camera * cam)
 {
+	this->gDeviceContext->IASetInputLayout(this->HPInputLayout);
+	UINT32 size = sizeof(float) * 4;
+	UINT32 offset = 0u;
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->HPVertexBuffer, &size, &offset);
+	this->gDeviceContext->VSSetShader(this->HPVS, nullptr, 0);
+	this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->HPPS, nullptr, 0);
+
+
+
+	for (auto entity : map->entitys)
+	{
+		if (dynamic_cast<Player*>(entity) != nullptr)
+		{
+
+
+			XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 0.01f, entity->position.z + 0.9f);
+
+			cam->vals.world = model;
+			cam->update(0, gDeviceContext);
+
+			gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
+			this->updateHPBuffers(dynamic_cast<Player*>(entity));
+			this->gDeviceContext->VSSetConstantBuffers(0, 1, &this->HPBuffer);
+			gDeviceContext->Draw(12, 0);
+		}
+	}
 }
 
 void Renderer::swapBuffers()
@@ -1662,6 +1767,7 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->Draw(128*3, 0);
 	}
 	this->renderCooldownGUI(map, camera);
+	this->renderHPGUI(map, camera);
 	{
 		gDeviceContext->IASetInputLayout(debug_entity_layout);
 

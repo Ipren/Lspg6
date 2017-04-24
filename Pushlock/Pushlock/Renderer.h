@@ -145,11 +145,11 @@ private:
 	void updateCameraPosBuffer(Camera *cam);
 	void updatePointLights(Map *map);
 	void updatecooldownGUI(Player *player);
-	void updateHPBuffers(Map *map);
+	void updateHPBuffers(Player *player);
 
 
 	void renderCooldownGUI(Map *map, Camera *cam);
-	void rnederHPGUI(Map *map, Camera *cam);
+	void renderHPGUI(Map *map, Camera *cam);
 	void renderParticles(Camera *camera);
 
 	
