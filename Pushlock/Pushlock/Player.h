@@ -18,6 +18,7 @@ public:
 
 //private:
 	float health;
+	float maxHealth;
 	Element *element;
 	/*0:projectile
 	1:dash

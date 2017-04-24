@@ -118,26 +118,31 @@ private:
 	void setViewPort(int width, int height);
 	void createParticleBuffer(int nrOfParticles);
 	void createParticleShaders();
-	
-	void swapBuffers();
-	void renderParticles(Camera *camera);
-	void updateDTimeBuffer(float dt);
-	void updateEmitters(Map *map);
-	void createStompParticles(DirectX::XMFLOAT3 pos, int type);
-	void updateParticles(float dt, Map *map);
-	void shrinkMap(Map *map);
-	
-	void createLightBuffers();
-	void createCameraBuffer();
-	void updateCameraPosBuffer(Camera *cam);
-	void updatePointLights(Map *map);
-	void createFullScreenQuad();
-	void createcpMenuShaders();
-	void loadTexture();
 	void createCooldownBuffers();
 	void createCooldownShaders();
+	void createStompParticles(DirectX::XMFLOAT3 pos, int type);
+	void createLightBuffers();
+	void createCameraBuffer();
+	void createcpMenuShaders();
+	void createFullScreenQuad();
+	void loadTexture();
+	void createHPBuffers();
+	
+	void swapBuffers();
+
+	void updateDTimeBuffer(float dt);
+	void updateEmitters(Map *map);
+	void updateParticles(float dt, Map *map);
+	void shrinkMap(Map *map);
+	void updateCameraPosBuffer(Camera *cam);
+	void updatePointLights(Map *map);
 	void updatecooldownGUI(Player *player);
+	void updateHPBuffers(Map *map);
+
+
 	void renderCooldownGUI(Map *map, Camera *cam);
+	void rnederHPGUI(Map *map, Camera *cam);
+	void renderParticles(Camera *camera);
 
 	
 };

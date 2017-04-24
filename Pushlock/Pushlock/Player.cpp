@@ -21,7 +21,8 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	stomped = false;
 	blowUp = false;
 	ready = false;
-	this->health = 10.f;
+	this->health = gPlayerConstants.maxHealth;
+	this->maxHealth = gPlayerConstants.maxHealth;
 }
 
 Player::~Player()
