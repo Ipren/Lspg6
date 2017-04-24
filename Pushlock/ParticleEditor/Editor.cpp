@@ -981,6 +981,11 @@ void Update(float dt)
 		auto time = fx->clamp_children ? fx->children_time : fx->time;
 
 		if (fx->age >= time) {
+			for (int i = 0; i < fx->fx_count; ++i) {
+				auto &entry = fx->fx[i];
+				if (entry.emitter_type == ParticleEmitter::Static)
+					entry.spawned_particles = 1.f;
+			}
 			fx->age = 0;
 		}
 	}
