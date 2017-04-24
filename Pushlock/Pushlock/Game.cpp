@@ -431,15 +431,12 @@ bool Game::update(float dt)
 		currentMap->update(dt, camera);
 
 		ImGui::Begin("End of the round");
+		ImGui::Text("Score:");
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
 			ImGui::Text("player %i: %i", i+1, currentMap->playerPoints[i]);
 		}
 		ImGui::Text("Choose your upgrade");
-		ImGui::Text("x - Upgrade 1");
-		ImGui::Text("y - Upgrade 2");
-		ImGui::Text("a - Upgrade 3");
-		ImGui::Text("b - Upgrade 4");
 
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
