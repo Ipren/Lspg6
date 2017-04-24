@@ -1,7 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include "Definitions.h"
-
+#include "Mesh.h"
 class Map;
 using namespace DirectX;
 
@@ -24,5 +24,7 @@ public:
 	float angle;
 	EntityType type;
 	bool dead;
+
+	Mesh* pMesh;
 private:
 };

@@ -11,8 +11,8 @@ class Camera;
 #define HEIGHT 800
 
 extern IDXGISwapChain *gSwapChain;
-extern ID3D11Device *gDevice;//use the one in renderer
-extern ID3D11DeviceContext *gDeviceContext;
+extern ID3D11Device *globalDevice;//use the one in renderer
+extern ID3D11DeviceContext *globalDeviceContext;
 extern ID3D11RenderTargetView *gBackbufferRTV;
 extern ID3D11DepthStencilView *gDepthStencil;
 

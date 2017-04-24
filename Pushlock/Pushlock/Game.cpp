@@ -27,8 +27,8 @@ Game::Game(HWND wndHandle, int width, int height)
 {
 	// TODO: memory management
 	this->currentState = GameState::MainMenu;
-	this->currentMap = new Map(&currentState);
 	this->renderer = new Renderer(wndHandle, width, height);
+	this->currentMap = new Map(&currentState);
 
 	this->menu = new Menu(renderer);
 	this->currentMenu = 0;
