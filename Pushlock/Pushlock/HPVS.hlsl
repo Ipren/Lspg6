@@ -1,4 +1,19 @@
-float4 main( float4 pos : POSITION ) : SV_POSITION
+struct VS_OUT
 {
-	return pos;
+    float4 pos : SV_Position;
+    float barNr : NR;
+};
+cbuffer Camera : register(b0)
+{
+    float4x4 World;
+    float4x4 View;
+    float4x4 Proj;
+};
+VS_OUT main(float4 pos : POSITION)
+{
+    VS_OUT output;
+    output.barNr = pos.w;
+    pos.w = 1.0f;
+    output.pos = mul(Proj, mul(View, mul(World, pos)));
+    return output;
 }

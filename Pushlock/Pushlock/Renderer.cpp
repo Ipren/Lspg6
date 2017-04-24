@@ -1767,6 +1767,7 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->Draw(128*3, 0);
 	}
 	this->renderCooldownGUI(map, camera);
+	this->renderHPGUI(map, camera);
 	{
 		gDeviceContext->IASetInputLayout(debug_entity_layout);
 
