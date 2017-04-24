@@ -58,6 +58,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createCooldownShaders();
 
 	this->createHPBuffers();
+	this->createHPShaders();
 
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
@@ -119,6 +120,9 @@ Renderer::~Renderer()
 	this->cooldownVS->Release();
 	this->cooldownPS->Release();
 	this->HPVertexBuffer->Release();
+	this->HPInputLayout->Release();
+	this->HPVS->Release();
+	this->HPPS->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -1215,10 +1219,89 @@ void Renderer::createHPBuffers()
 		MessageBox(0, L"hp vertex buffer creation failed", L"error", MB_OK);
 	}
 
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(XMFLOAT4);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	XMFLOAT4 temp = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	data.pSysMem = &temp;
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->HPBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"hp buffer creation failed", L"error", MB_OK);
+	}
+
 }
 
 void Renderer::createHPShaders()
 {
+
+	HRESULT hr;
+	ID3DBlob* vsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"HPVS.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&vsBlob,
+		nullptr);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldown vsblob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->HPVS);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" cooldown vertex shader creation failed", L"error", MB_OK);
+	}
+
+	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->HPInputLayout);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldwon input desc creation failed", L"error", MB_OK);
+	}
+
+	vsBlob->Release();
+
+	ID3DBlob *psBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"HPPS.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&psBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldown psBlob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->HPPS);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" cooldown pixel shader creation failed", L"error", MB_OK);
+	}
+
+	psBlob->Release();
 }
 
 void Renderer::createCooldownBuffers()
@@ -1422,7 +1505,7 @@ void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 
 }
 
-void Renderer::rnederHPGUI(Map * map, Camera * cam)
+void Renderer::renderHPGUI(Map * map, Camera * cam)
 {
 }
 
