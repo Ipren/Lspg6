@@ -3,6 +3,7 @@
 #include "Player.h"
 #include <cstdlib>
 #include <time.h>
+#include "Constants.h"
 
 const UINT startParticleCount = 0;
 //makes it so the actual amount of particles in the buffers is used
@@ -1467,8 +1468,17 @@ void Renderer::updatecooldownGUI(Player *player)
 	this->gDeviceContext->Unmap(this->cooldownBuffer, 0);
 }
 
-void Renderer::updateHPBuffers(Map * map)
+void Renderer::updateHPBuffers(Player *player)
 {
+	float temp;
+
+	temp = player->health / player->maxHealth;
+
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->HPBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &temp, sizeof(float));
+	this->gDeviceContext->Unmap(this->HPBuffer, 0);
+
 }
 
 void Renderer::renderCooldownGUI(Map * map, Camera * cam)
@@ -1507,6 +1517,34 @@ void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 
 void Renderer::renderHPGUI(Map * map, Camera * cam)
 {
+	this->gDeviceContext->IASetInputLayout(this->HPInputLayout);
+	UINT32 size = sizeof(float) * 4;
+	UINT32 offset = 0u;
+
+	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->HPVertexBuffer, &size, &offset);
+	this->gDeviceContext->VSSetShader(this->HPVS, nullptr, 0);
+	this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+	this->gDeviceContext->PSSetShader(this->HPPS, nullptr, 0);
+
+
+
+	for (auto entity : map->entitys)
+	{
+		if (dynamic_cast<Player*>(entity) != nullptr)
+		{
+
+
+			XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 0.01f, entity->position.z + 0.9f);
+
+			cam->vals.world = model;
+			cam->update(0, gDeviceContext);
+
+			gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
+			this->updateHPBuffers(dynamic_cast<Player*>(entity));
+			this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->HPBuffer);
+			gDeviceContext->Draw(12, 0);
+		}
+	}
 }
 
 void Renderer::swapBuffers()
