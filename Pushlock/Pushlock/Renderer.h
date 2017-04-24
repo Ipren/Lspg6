@@ -127,6 +127,7 @@ private:
 	void createFullScreenQuad();
 	void loadTexture();
 	void createHPBuffers();
+	void createHPShaders();
 	
 	void swapBuffers();
 

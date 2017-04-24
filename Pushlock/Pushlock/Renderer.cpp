@@ -1166,6 +1166,16 @@ void Renderer::loadTexture()
 
 }
 
+void Renderer::createHPBuffers()
+{
+
+
+}
+
+void Renderer::createHPShaders()
+{
+}
+
 void Renderer::createCooldownBuffers()
 {
 	D3D11_BUFFER_DESC desc;
@@ -1329,6 +1339,10 @@ void Renderer::updatecooldownGUI(Player *player)
 	this->gDeviceContext->Unmap(this->cooldownBuffer, 0);
 }
 
+void Renderer::updateHPBuffers(Map * map)
+{
+}
+
 void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 {
 	this->gDeviceContext->IASetInputLayout(this->cooldownCirclesLayout);
@@ -1361,6 +1375,10 @@ void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 	}
 
 
+}
+
+void Renderer::rnederHPGUI(Map * map, Camera * cam)
+{
 }
 
 void Renderer::swapBuffers()
