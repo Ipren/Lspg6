@@ -8,6 +8,7 @@ Menu::Menu(Renderer* renderer)
 
 	ID3D11Resource *r = nullptr;
 	DXCALL(CreateDDSTextureFromFile(renderer->gDevice, L"cat.dds", &r, &m_texture, 0, nullptr));
+	DXCALL(CreateDDSTextureFromFile(renderer->gDevice, L"../Resources/textures/player1.dds", &r, &m_winner, 0, nullptr));
 	r->Release();
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
 	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"comicsans.spritefont");
@@ -57,7 +58,7 @@ Menu::~Menu()
 
 #include "imgui.h"
 
-void Menu::render(Renderer* renderer, GameState currentState)
+void Menu::render(Renderer* renderer, GameState currentState, int winner)
 {
 
 
@@ -103,11 +104,16 @@ void Menu::render(Renderer* renderer, GameState currentState)
 	}
 
 	m_spriteBatch->Begin();
-	if (currentState ==GameState::MainMenu)
+	if (currentState == GameState::MainMenu)
 		m_spriteBatch->Draw(m_texture.Get(), catPos, nullptr, Colors::White, 0.f, m_origin);
-
+	else if (currentState == GameState::EndGame)
+	{
+		/*std::wstring s = L"Player: " + (winner + 1);
+		wchar_t* c = new wchar_t(&s.c_str());*/
+		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player: ") + std::to_wstring(winner+1)).c_str(), XMFLOAT2(375, 300), Colors::HotPink);
+	}
 	auto pos = ImGui::GetIO();// .MousePos();
-	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar en mycket fin font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
+	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar inte en fin font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
 
 	m_spriteBatch->End();
 

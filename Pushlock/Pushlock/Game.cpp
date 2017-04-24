@@ -30,7 +30,6 @@ Game::Game(HWND wndHandle, int width, int height)
 	this->currentMap = new Map(&currentState);
 	this->renderer = new Renderer(wndHandle, width, height);
 
-
 	this->menu = new Menu(renderer);
 	this->currentMenu = 0;
 
@@ -540,7 +539,7 @@ void Game::render()
 
 	this->renderer->render(this->currentMap, this->camera);
 	if (this->menu != nullptr)
-		this->menu->render(this->renderer, this->currentState);
+		this->menu->render(this->renderer, this->currentState, currentMap->indexWinner);
 
 	
 	ImGui::Render();

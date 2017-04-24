@@ -10,9 +10,9 @@ public:
 	Menu(Renderer* renderer);
 	virtual ~Menu();
 
-	void render(Renderer* renderer, GameState currentState);
+	void render(Renderer* renderer, GameState currentState, int winner);
 
-	std::vector<int> buttons;//ska ändras till nrOfButtons
+	std::vector<int> buttons;
 	void selectDown(GameState currentState);
 	void selectUp(GameState currentState);
 	int getSelectedButton()const { return this->selectedButton; }
@@ -29,6 +29,7 @@ private:
 	std::vector<mQuad> quads;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_winner;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
 	DirectX::SimpleMath::Vector2 catPos;
