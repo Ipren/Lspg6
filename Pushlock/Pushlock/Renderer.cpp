@@ -1162,6 +1162,10 @@ void Renderer::loadTexture()
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/endMenuTexture.png ", &texture, &this->endMenuTexture);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
 	texture->Release();
 
 }
