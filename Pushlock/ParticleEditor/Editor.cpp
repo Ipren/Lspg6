@@ -376,7 +376,7 @@ void RenderParticles()
 	
 	gDeviceContext->OMSetBlendState(particle_blend, factor, mask);
 	gDeviceContext->OMSetDepthStencilState(gDepthRead, 0xff);
-	gDeviceContext->OMSetRenderTargets(1, &hdr_rtv, gDepthbufferDSV);
+	gDeviceContext->OMSetRenderTargets(1, &hdr_rtv, nullptr);
 
 	gDeviceContext->Draw(particles.size(), 0);
 
