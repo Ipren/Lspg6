@@ -487,6 +487,13 @@ bool Game::update(float dt)
 	}
 	if (currentState == GameState::EndGame)
 	{
+		for (int i = 0; i < 4; i++)
+		{
+			if (gGamepads[i]->get_button_pressed(Gamepad::A))
+			{
+				currentState = GameState::MainMenu;
+			}
+		}
 		ImGui::Begin("End of the game");
 		ImGui::Text("Winner player: %i", currentMap->indexWinner +1);
 		if (ImGui::Button("Go to main menu")) {
