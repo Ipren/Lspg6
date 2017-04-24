@@ -96,7 +96,7 @@ void Menu::render(Renderer* renderer, GameState currentState)
 		}
 		else if (currentState == GameState::EndGame)
 		{
-			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->mainMenuTexture);
+			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->endMenuTexture);
 		}
 		renderer->gDeviceContext->Draw(6, 0);
 
