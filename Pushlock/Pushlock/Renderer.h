@@ -97,6 +97,11 @@ private:
 	ID3D11InputLayout *cooldownCirclesLayout;
 	ID3D11VertexShader *cooldownVS;
 	ID3D11PixelShader *cooldownPS;
+
+	ID3D11Buffer *HPVertexBuffer;
+	ID3D11InputLayout *HPInputLayout;
+	ID3D11VertexShader *HPVS;
+	ID3D11PixelShader *HPPS;
 	
 
 	ID3D11UnorderedAccessView* nullUAV;

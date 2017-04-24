@@ -57,6 +57,8 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createCooldownBuffers();
 	this->createCooldownShaders();
 
+	this->createHPBuffers();
+
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
 	{
@@ -116,6 +118,7 @@ Renderer::~Renderer()
 	this->cooldownCircles->Release();
 	this->cooldownVS->Release();
 	this->cooldownPS->Release();
+	this->HPVertexBuffer->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -1168,7 +1171,45 @@ void Renderer::loadTexture()
 
 void Renderer::createHPBuffers()
 {
+	XMFLOAT4 hpBar[12];
+	//bar 1
+	//t1
+	hpBar[0] = { 0.2f, -0.2f, 0.0f, 1.0f };
+	hpBar[1] = { -0.2f, -0.2f, 0.0f, 1.0f };
+	hpBar[2] = { -0.2f, 0.2f, 0.0f, 1.0f };
 
+	//t2
+	hpBar[3] = { -0.2f, 0.2f, 0.0f, 1.0f };
+	hpBar[4] = { 0.2f, 0.2f, 0.0f, 1.0f };
+	hpBar[5] = { 0.2f, -0.2f, 0.0f, 1.0f };
+
+	//bar 2
+	//t1
+	hpBar[6] = { 0.2f, -0.2f, 0.0f, -1.0f };
+	hpBar[7] = { -0.2f, -02.f, 0.0f, -1.0f };
+	hpBar[8] = { -0.2f, 0.2f, 0.0f, -1.0f };
+
+	//t2
+	hpBar[9] = { -0.2f, 0.2f, 0.0f, -1.0f };
+	hpBar[10] = { 0.2f, 0.2f, 0.0f, -1.0f };
+	hpBar[11] = { 0.2f, -0.2f, 0.0f, -1.0f };
+
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.ByteWidth = sizeof(XMFLOAT4 ) * 12;
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	data.pSysMem = hpBar;
+
+	HRESULT hr = this->gDevice->CreateBuffer(&desc, &data, &this->HPVertexBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"hp vertex buffer creation failed", L"error", MB_OK);
+	}
 
 }
 
