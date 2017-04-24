@@ -17,12 +17,13 @@ void ArcaneElement::projectile(Player *player, Map *map)
 			0,
 			position.z + sin(angle) * (radius + 0.4f)
 		},
-		{ cos(angle) * gSpellConstants.kArcaneProjectileSpeed, sin(angle) * gSpellConstants.kArcaneProjectileSpeed },
+		{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
+			sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
 			0.1f
 		);
 
 		map->add_entity(spell);
-		cooldown[0] = gSpellConstants.kArcaneProjectileCooldown;
+		cooldown[0] = gSpellConstants.kArcaneProjectileCooldown + gPlayerSpellConstants[player->index].kArcaneProjectileCooldown;
 	}
 }
 
@@ -32,16 +33,16 @@ void ArcaneElement::stomp(Player *player, Map *map)
 
 		player->stomped = true;
 		//saves nearby players in a vector
-		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kArcaneStompDistance, [](Entity *e) {
+		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kArcaneStompDistance + gPlayerSpellConstants[player->index].kArcaneStompDistance, [](Entity *e) {
 			return e->type == EntityType::Player;
 		});
 
 		for (auto result : nearby) { //moves all nearby players
-			result.entity->velocity.x += cos(result.angle) * gSpellConstants.kArcaneStompStrength * abs((gSpellConstants.kArcaneStompDistance + gSpellConstants.kArcaneStompStrengthFalloff) - result.distance);
-			result.entity->velocity.y += sin(result.angle) * gSpellConstants.kArcaneStompStrength * abs((gSpellConstants.kArcaneStompDistance + gSpellConstants.kArcaneStompStrengthFalloff) - result.distance);
+			result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kArcaneStompStrength + gPlayerSpellConstants[player->index].kArcaneStompStrength) * abs((gSpellConstants.kArcaneStompDistance + gPlayerSpellConstants[player->index].kArcaneStompDistance + gSpellConstants.kArcaneStompStrengthFalloff + gPlayerSpellConstants[player->index].kArcaneStompStrengthFalloff) - result.distance);
+			result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kArcaneStompStrength + gPlayerSpellConstants[player->index].kArcaneStompStrength) * abs((gSpellConstants.kArcaneStompDistance + gPlayerSpellConstants[player->index].kArcaneStompDistance + gSpellConstants.kArcaneStompStrengthFalloff + gPlayerSpellConstants[player->index].kArcaneStompStrengthFalloff) - result.distance);
 		}
 
-		cooldown[2] = gSpellConstants.kArcaneStompCooldown;
+		cooldown[2] = gSpellConstants.kArcaneStompCooldown + gPlayerSpellConstants[player->index].kArcaneStompCooldown;
 	}
 }
 
@@ -61,16 +62,16 @@ void ArcaneElement::wall(Player *player, Map *map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kArcaneWallNrOfPillars; i++)
+		for (int i = 0; i < gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - gSpellConstants.kArcaneWallNrOfPillars / 2.f) *
-				gSpellConstants.kArcaneWallPillarDistance / 2.f + pos);
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kArcaneWallPillarRadius));
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kArcaneWallPillarDistance + gPlayerSpellConstants[player->index].kArcaneWallPillarDistance)/ 2.f + pos);
+			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
 		}
 
-		cooldown[3] = gSpellConstants.kArcaneWallCooldown;
+		cooldown[3] = gSpellConstants.kArcaneWallCooldown + gPlayerSpellConstants[player->index].kArcaneWallCooldown;
 	}
 }
 
@@ -84,16 +85,16 @@ void ArcaneElement::dash(Player * player, Map * map)
 		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
 		{
 			float left_angle = gGamepads[index]->get_left_thumb_angle();
-			player->velocity.x += cos(left_angle) * gSpellConstants.kArcaneDashSpeed;
-			player->velocity.y += sin(left_angle) * gSpellConstants.kArcaneDashSpeed;
+			player->velocity.x += cos(left_angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
+			player->velocity.y += sin(left_angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
 		}
 		else //if it is centered: dash to where you are looking
 		{
-			player->velocity.x += cos(player->angle) * gSpellConstants.kArcaneDashSpeed;
-			player->velocity.y += sin(player->angle) * gSpellConstants.kArcaneDashSpeed;
+			player->velocity.x += cos(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
+			player->velocity.y += sin(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
 		}
 
-		cooldown[1] = gSpellConstants.kArcaneDashCooldown;
+		cooldown[1] = gSpellConstants.kArcaneDashCooldown + gPlayerSpellConstants[player->index].kArcaneDashCooldown;
 	}
 }
 
@@ -117,7 +118,8 @@ void FireElement::projectile(Player * player, Map * map)
 				0,
 				position.z + sin(angle) * (radius + 0.4f)
 			},
-			{ cos(angle) * gSpellConstants.kArcaneProjectileSpeed, sin(angle) * gSpellConstants.kArcaneProjectileSpeed },
+			{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
+				sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
 				0.1f
 			);
 
@@ -129,7 +131,7 @@ void FireElement::projectile(Player * player, Map * map)
 		if (active_projectile->dead != true)
 		{
 			if (active_projectile->on_effect(map)) {
-				cooldown[0] = gSpellConstants.kFireProjectileCooldown;
+				cooldown[0] = gSpellConstants.kFireProjectileCooldown + gPlayerSpellConstants[player->index].kFireProjectileCooldown;
 				{
 					player->blowUp = true;
 					active_projectile->dead = true;
@@ -152,16 +154,16 @@ void FireElement::stomp(Player * player, Map * map)
 		player->stomped = true;
 
 		//saves nearby players in a vector
-		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kFireStompDistance, [](Entity *e) {
+		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kFireStompDistance + gPlayerSpellConstants[player->index].kFireStompDistance, [](Entity *e) {
 			return e->type == EntityType::Player;
 		});
 
 		for (auto result : nearby) { //moves all nearby players
-			result.entity->velocity.x += cos(result.angle) * gSpellConstants.kFireStompStrength * abs((gSpellConstants.kFireStompDistance + gSpellConstants.kFireStompStrengthFalloff) - result.distance);
-			result.entity->velocity.y += sin(result.angle) * gSpellConstants.kFireStompStrength * abs((gSpellConstants.kFireStompDistance + gSpellConstants.kFireStompStrengthFalloff) - result.distance);
+			result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kFireStompStrength + gPlayerSpellConstants[player->index].kFireStompStrength) * abs((gSpellConstants.kFireStompDistance + gPlayerSpellConstants[player->index].kFireStompDistance + gSpellConstants.kFireStompStrengthFalloff + gPlayerSpellConstants[player->index].kFireStompStrengthFalloff) - result.distance);
+			result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kFireStompStrength + gPlayerSpellConstants[player->index].kFireStompStrength) * abs((gSpellConstants.kFireStompDistance + gPlayerSpellConstants[player->index].kFireStompDistance + gSpellConstants.kFireStompStrengthFalloff + gPlayerSpellConstants[player->index].kFireStompStrengthFalloff) - result.distance);
 		}
 
-		cooldown[2] = gSpellConstants.kFireStompCooldown;
+		cooldown[2] = gSpellConstants.kFireStompCooldown + gPlayerSpellConstants[player->index].kFireStompCooldown;
 	}
 }
 
@@ -181,18 +183,18 @@ void FireElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kFireWallNrOfPillars; i++)
+		for (int i = 0; i < gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - gSpellConstants.kFireWallNrOfPillars / 2.f) *
-				gSpellConstants.kFireWallPillarDistance / 2.f + pos);
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
 
 			// TODO: fire wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kFireWallPillarRadius));
+			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kFireWallPillarRadius + gPlayerSpellConstants[player->index].kFireWallPillarRadius));
 		}
 
-		cooldown[3] = gSpellConstants.kFireWallCooldown;
+		cooldown[3] = gSpellConstants.kFireWallCooldown + gPlayerSpellConstants[player->index].kFireWallCooldown;
 	}
 }
 
@@ -206,19 +208,20 @@ void FireElement::dash(Player * player, Map * map)
 		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
 		{
 			float left_angle = gGamepads[index]->get_left_thumb_angle();
-			player->velocity.x += cos(left_angle) * gSpellConstants.kFireDashSpeed;
-			player->velocity.y += sin(left_angle) * gSpellConstants.kFireDashSpeed;
+			player->velocity.x += cos(left_angle) * (gSpellConstants.kFireDashSpeed + gPlayerSpellConstants[player->index].kFireDashSpeed);
+			player->velocity.y += sin(left_angle) * (gSpellConstants.kFireDashSpeed + gPlayerSpellConstants[player->index].kFireDashSpeed);
 		}
 		else //if it is centered: dash to where you are looking
 		{
-			player->velocity.x += cos(player->angle) * gSpellConstants.kFireDashSpeed;
-			player->velocity.y += sin(player->angle) * gSpellConstants.kFireDashSpeed;
+			player->velocity.x += cos(player->angle) * (gSpellConstants.kFireDashSpeed + gPlayerSpellConstants[player->index].kFireDashSpeed);
+			player->velocity.y += sin(player->angle) * (gSpellConstants.kFireDashSpeed + gPlayerSpellConstants[player->index].kFireDashSpeed);
 		}
 
-		cooldown[1] = gSpellConstants.kFireDashCooldown;
+		cooldown[1] = gSpellConstants.kFireDashCooldown + gPlayerSpellConstants[player->index].kFireDashCooldown;
 	}
 }
 
+//continue from here Andreas
 void WindElement::projectile(Player * player, Map * map)
 {
 	if (cooldown[0] <= 0.f) {
