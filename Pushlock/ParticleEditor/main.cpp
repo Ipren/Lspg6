@@ -28,6 +28,9 @@ ID3D11ShaderResourceView *gDepthbufferSRV;
 ID3D11RenderTargetView *gDepthbufferRTV;
 ID3D11RenderTargetView *gBackbufferRTV;
 
+ID3D11DepthStencilState *gDepthReadWrite;
+ID3D11DepthStencilState *gDepthRead;
+
 void createDepthBuffer()
 {
 	ID3D11Texture2D* pDepthStencil = NULL;
@@ -36,11 +39,11 @@ void createDepthBuffer()
 	descDepth.Height = HEIGHT;
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
-	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
+	descDepth.Format = DXGI_FORMAT_R24G8_TYPELESS;
 	descDepth.SampleDesc.Count = 1;
 	descDepth.SampleDesc.Quality = 0;
 	descDepth.Usage = D3D11_USAGE_DEFAULT;
-	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 	descDepth.CPUAccessFlags = 0;
 	descDepth.MiscFlags = 0;
 	DXCALL(gDevice->CreateTexture2D(&descDepth, NULL, &pDepthStencil));
@@ -61,16 +64,27 @@ void createDepthBuffer()
 	dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-	ID3D11DepthStencilState * pDSState;
-	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &pDSState));
-	gDeviceContext->OMSetDepthStencilState(pDSState, 1);
+	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &gDepthReadWrite));
+	gDeviceContext->OMSetDepthStencilState(gDepthReadWrite, 1);
+
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &gDepthRead));
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 	ZeroMemory(&descDSV, sizeof(descDSV));
-	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+	descDSV.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC sdesc;
+	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+
+	sdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	sdesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	sdesc.Texture2D.MipLevels = 1;
+	sdesc.Texture2D.MostDetailedMip = 0;
+
+	DXCALL(gDevice->CreateShaderResourceView(pDepthStencil, &sdesc, &gDepthbufferSRV));
 	DXCALL(gDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &gDepthbufferDSV));
 }
 

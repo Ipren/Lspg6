@@ -7,17 +7,19 @@
 
 using namespace DirectX;
 
-const char *EMITTER_STRINGS = "Static\0Cube\0";
+const char *EMITTER_STRINGS = "Static\0Box\0Sphere\0";
 
 enum class ParticleEmitter {
 	Static = 0,
 	Cube,
+	Sphere
 };
 
 enum class ParticleOrientation {
 	Planar = 0,
 	Clip,
-	Velocity
+	Velocity,
+	VelocityAnchored
 };
 
 enum class ParticleEase {

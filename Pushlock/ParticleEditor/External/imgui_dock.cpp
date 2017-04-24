@@ -707,10 +707,10 @@ struct DockContext
 				
 				tab_base = pos.y;
 
-				draw_list->AddRectFilled(pos+ImVec2(0, 0.0),
-										 pos+size,
+				draw_list->AddRectFilled(pos+ImVec2(-8.f, 0.0),
+										 pos+size + ImVec2(8.f, 0.0),
 										 hovered ? color_hovered : (dock_tab->active ? color_active : color));
-				draw_list->AddText(pos + ImVec2(8, 2) , text_color, dock_tab->label, text_end);
+				draw_list->AddText(pos + ImVec2(4, 2) , text_color, dock_tab->label, text_end);
 
 				if (dock_tab->active && close_button)
                     {

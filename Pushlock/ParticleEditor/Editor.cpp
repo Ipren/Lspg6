@@ -366,20 +366,26 @@ void RenderParticles()
 	gDeviceContext->GSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 
 	gDeviceContext->PSSetShader(particle_ps, nullptr, 0);
+	gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 	gDeviceContext->PSSetSamplers(0, 1, &particle_sampler);
 	gDeviceContext->PSSetShaderResources(0, 1, &particle_srv);
+	gDeviceContext->PSSetShaderResources(1, 1, &gDepthbufferSRV);
 
 	float factor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	UINT mask = 0xffffffff;
 	
 	gDeviceContext->OMSetBlendState(particle_blend, factor, mask);
-	gDeviceContext->OMSetRenderTargets(1, &hdr_rtv, nullptr);
+	gDeviceContext->OMSetDepthStencilState(gDepthRead, 0xff);
+	gDeviceContext->OMSetRenderTargets(1, &hdr_rtv, gDepthbufferDSV);
 
 	gDeviceContext->Draw(particles.size(), 0);
 
 	ID3D11RenderTargetView *rtv = nullptr;
+	ID3D11ShaderResourceView *srv = nullptr;
+	gDeviceContext->PSSetShaderResources(1, 1, &srv);
 	gDeviceContext->OMSetRenderTargets(1, &rtv, nullptr);
 	gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+	gDeviceContext->OMSetDepthStencilState(gDepthReadWrite, 0xff);
 
 	
 }
@@ -560,7 +566,7 @@ void ParticleEditor()
 			ImGui::Text("%s", def->name);
 			ImGui::Separator();
 			ImGui::InputText("name", def->name, 32);
-			ImGui::Combo("type", (int*)&def->orientation, "Planar\0Clip\0Velocity\0");
+			ImGui::Combo("type", (int*)&def->orientation, "Planar\0Clip\0Velocity\0VelocityAnchored\0");
 
 
 			ImGui::InputFloat("gravity", &def->gravity);
@@ -642,7 +648,7 @@ void FXEditor()
 			}
 
 			if (fx->clamp_children) {
-				for (int i = 0; i < MAX_PARTICLE_FX; ++i) {
+				for (int i = 0; i < current_effect->fx_count; ++i) {
 					ParticleEffectEntry entry = fx->fx[i];
 					if (entry.idx < 0) continue;
 
@@ -658,7 +664,7 @@ void FXEditor()
 
 			ImGui::Separator();
 
-			for (int i = 0; i < MAX_PARTICLE_FX; ++i) {
+			for (int i = 0; i < current_effect->fx_count; ++i) {
 				ParticleEffectEntry *entry = &fx->fx[i];
 				if (entry->idx < 0) continue;
 
@@ -669,9 +675,15 @@ void FXEditor()
 
 				bool header = ImGui::TreeNode(label);
 				ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 50);
+				ImGui::PushID(i);
 				if (ImGui::SmallButton("Remove")) {
-					fx->fx[i] = fx->fx[fx->fx_count-- - 1];
+					for (int j = i; j < current_effect->fx_count - 1; j++) {
+						fx->fx[i] = fx->fx[j + 1];
+					}
+					fx->fx[current_effect->fx_count - 1] = {};
+					fx->fx_count--;
 				}
+				ImGui::PopID();
 
 				if (header) {
 					ImGui::TextDisabled("Time");
@@ -698,6 +710,8 @@ void FXEditor()
 						ImGui::DragFloatRange2("x##spawn", &entry->vel_xmin, &entry->vel_xmax, 0.01f);
 						ImGui::DragFloatRange2("y##spawn", &entry->vel_ymin, &entry->vel_ymax, 0.01f);
 						ImGui::DragFloatRange2("z##spawn", &entry->vel_zmin, &entry->vel_zmax, 0.01f);
+						break;
+					case ParticleEmitter::Sphere:
 						break;
 					}
 
@@ -860,7 +874,8 @@ void Timeline()
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 3));
 
 
-			for (ParticleEffectEntry entry : effects[current_fx].fx) {
+			for (int i = 0; i < current_effect->fx_count; ++i) {
+				ParticleEffectEntry entry = current_effect->fx[i];
 				if (entry.idx < 0) continue;
 
 				auto def = definitions[entry.idx];
@@ -1038,6 +1053,10 @@ void Update(float dt)
 			p->age += pdt;
 		}
 
+		if (def->orientation == ParticleOrientation::Velocity) {
+			p->origin = p->pos;
+		}
+
 		auto scale_fn = GetEaseFunc(def->scale_fn);
 		p->scale = {
 			scale_fn(def->scale_start, def->scale_end, age) * (def->u2 / 2048.f),
@@ -1093,8 +1112,6 @@ void Render(float dt)
 	//vp.TopLeftX = 0;
 	//vp.TopLeftY = 0;
 
-
-	ImGui::ShowStyleEditor();
 	if (viewport_render) {
 		SetViewport();
 

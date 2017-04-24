@@ -3,8 +3,8 @@
 namespace Editor {
 
 struct Settings {
-	float CameraDistance = 4.785f;
-	float CameraHeight = 4.875f;
+	float CameraDistance = 2.5f;
+	float CameraHeight = 2.5f;
 	float CameraSpeed = 0.075f;
 
 	float ParticleSpeed = 1.0f;

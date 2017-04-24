@@ -63,7 +63,7 @@ void Camera::update(float dt, float width, float height)
 	pos = XMVectorSelect(pos, temp, XMVectorSelectControl(XM_SELECT_1, XM_SELECT_0, XM_SELECT_1, XM_SELECT_0));
 	look = XMVectorSelect(look, temp, XMVectorSelectControl(XM_SELECT_1, XM_SELECT_0, XM_SELECT_1, XM_SELECT_0));
 
-	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, width / height, 0.01f, 50.f);
+	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, width / height, 0.1f, 30.f);
 	vals.view = XMMatrixLookAtLH(pos + temp, look + temp, { 0, 1, 0 });
 
 	D3D11_MAPPED_SUBRESOURCE data;

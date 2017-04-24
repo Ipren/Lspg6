@@ -107,15 +107,13 @@ void BillboardParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 
 void VelocityParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 {
-	
-	
 	GSOut output;
 	output.color = input.color;
 
 	float w = input.scale.x;
 	float h = input.scale.y;
 
-	float3 u = mul(View, input.pos.xyz - input.origin.xyz).xyz;
+	float3 u = mul(View, input.vel.xyz - input.origin.xyz).xyz;
 
 	float t = 0.0;
 	float nz = abs(normalize(u).z);
@@ -159,48 +157,12 @@ void VelocityParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 	output.uv = input.uv.zw;
 	outstream.Append(output);
 }
+
 [maxvertexcount(4)]
 void GS(point VSIn inp[1], inout TriangleStream<GSOut> outstream)
 {
 	VSIn input = inp[0];
-	GSOut output;
 
-	output.color = input.color;
-
-	float w = input.scale.x;
-	float h = input.scale.y;
-	float3 u = mul(View, input.vel.xyz).xyz;
-
-	float t = 0.0;
-	float nz = abs(normalize(u).z);
-	if (nz > 1.0 - Epsilon) {
-		t = (nz - (1.0 - Epsilon)) / Epsilon;
-	} else if (dot(u, u) < Epsilon) {
-		t = (Epsilon - dot(u, u)) / Epsilon;
-	}
-
-	u.z = 0.0;
-	u = normalize(u);
-
-	u = normalize(lerp(u, float3(1, 0, 0), t));
-	h = lerp(h, w, t);
-
-	float3 v = float3(-u.y, u.x, 0);
-	float3 a = mul(u, View).xyz;
-	float3 b = mul(v, View).xyz;
-	float3 c = cross(a, b);
-	float3x3 basis = float3x3(a, b, c);
-
-	float3 N;
-	float3 S;
-	float3 E;
-	float3 W;
-		
-	N = mul(basis, float3(0, w, 0));
-	S = mul(basis, float3(0, -w, 0));
-	E = mul(basis, float3(-h, 0, 0));
-	W = mul(basis, float3(h, 0, 0));
-	
 	if (input.type == PTYPE_PLANAR) {
 		PlanarParticle(input, outstream);
 	}
@@ -215,8 +177,11 @@ void GS(point VSIn inp[1], inout TriangleStream<GSOut> outstream)
 
 SamplerState ParticleSampler : register(s0);
 Texture2D ParticleTexture : register(t0);
+Texture2D DepthTexture : register(t1);
 
 float4 PS(GSOut input) : SV_TARGET
 {
-	return ParticleTexture.Sample(ParticleSampler, input.uv) * input.color;
+	float4 col = ParticleTexture.Sample(ParticleSampler, input.uv) * input.color;
+
+	return col;
 }
