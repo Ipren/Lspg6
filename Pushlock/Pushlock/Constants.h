@@ -399,6 +399,7 @@ struct PlayerConstants {
 	float kRadius = 0.5f;
 	float kSpeed = 30.0f;
 	float kFriction = 5.0f;
+	float maxHealth = 10.0f;
 };
 
 extern PlayerConstants gDefaultPlayerConstants;

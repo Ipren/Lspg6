@@ -216,6 +216,7 @@ bool Game::update(float dt)
 			ImGui::SliderFloat("radius", &gPlayerConstants.kRadius, 0.0f, 5.f);
 			ImGui::SliderFloat("speed##player", &gPlayerConstants.kSpeed, 0.0f, 240);
 			ImGui::SliderFloat("friction factor", &gPlayerConstants.kFriction, 0.0f, 30.0f);
+			ImGui::SliderFloat("health", &gPlayerConstants.maxHealth, 1.0f, 20.0f);
 		}
 		if (ImGui::CollapsingHeader("Game")) {
 			ImGui::TextDisabled("Camera");
