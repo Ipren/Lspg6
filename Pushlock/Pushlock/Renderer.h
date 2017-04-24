@@ -149,7 +149,7 @@ private:
 
 
 	void renderCooldownGUI(Map *map, Camera *cam);
-	void rnederHPGUI(Map *map, Camera *cam);
+	void renderHPGUI(Map *map, Camera *cam);
 	void renderParticles(Camera *camera);
 
 	
