@@ -1211,6 +1211,22 @@ void Renderer::createHPBuffers()
 		MessageBox(0, L"hp vertex buffer creation failed", L"error", MB_OK);
 	}
 
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(XMFLOAT4);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	XMFLOAT4 temp = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	data.pSysMem = &temp;
+
+	hr = this->gDevice->CreateBuffer(&desc, &data, &this->HPBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"hp buffer creation failed", L"error", MB_OK);
+	}
+
 }
 
 void Renderer::createHPShaders()

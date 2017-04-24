@@ -99,6 +99,7 @@ private:
 	ID3D11PixelShader *cooldownPS;
 
 	ID3D11Buffer *HPVertexBuffer;
+	ID3D11Buffer *HPBuffer;
 	ID3D11InputLayout *HPInputLayout;
 	ID3D11VertexShader *HPVS;
 	ID3D11PixelShader *HPPS;
