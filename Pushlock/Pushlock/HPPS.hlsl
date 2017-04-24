@@ -4,13 +4,6 @@ struct VS_OUT
     float barNr : NR;
 };
 
-cbuffer hp : register(b0)
-{
-    float HP;
-}
-
-
-
 float4 main(in VS_OUT input) : SV_TARGET
 {
 

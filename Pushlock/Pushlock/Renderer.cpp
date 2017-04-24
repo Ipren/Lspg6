@@ -1541,7 +1541,7 @@ void Renderer::renderHPGUI(Map * map, Camera * cam)
 
 			gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
 			this->updateHPBuffers(dynamic_cast<Player*>(entity));
-			this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->HPBuffer);
+			this->gDeviceContext->VSSetConstantBuffers(0, 1, &this->HPBuffer);
 			gDeviceContext->Draw(12, 0);
 		}
 	}

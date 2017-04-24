@@ -9,6 +9,10 @@ cbuffer Camera : register(b0)
     float4x4 View;
     float4x4 Proj;
 };
+cbuffer hp : register(b1)
+{
+    float HP;
+}
 VS_OUT main(float4 pos : POSITION)
 {
     VS_OUT output;
