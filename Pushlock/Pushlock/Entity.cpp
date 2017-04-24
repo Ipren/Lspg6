@@ -11,4 +11,6 @@ Entity::Entity(EntityType type, XMFLOAT3 position, XMFLOAT2 velocity, float radi
 
 Entity::~Entity()
 {
+	if (this->pMesh != nullptr)
+		delete pMesh;
 }

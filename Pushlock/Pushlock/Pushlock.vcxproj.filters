@@ -102,9 +102,6 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectLoader.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dxerr.h">
@@ -188,9 +185,6 @@
     <ClInclude Include="Mesh.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectLoader.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Simple.hlsl">
@@ -219,6 +213,8 @@
     <FxCompile Include="cpMenuPS.hlsl" />
     <FxCompile Include="cpMenuVS.hlsl" />
     <FxCompile Include="StompInserter.hlsl" />
+    <FxCompile Include="HPPS.hlsl" />
+    <FxCompile Include="HPVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">

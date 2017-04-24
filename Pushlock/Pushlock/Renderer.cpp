@@ -4,10 +4,15 @@
 #include <cstdlib>
 #include <time.h>
 #include "Constants.h"
+#include "Globals.h"
 
 const UINT startParticleCount = 0;
 //makes it so the actual amount of particles in the buffers is used
 const UINT UAVFLAG = -1;
+
+ID3D11Device *globalDevice;
+ID3D11DeviceContext *globalDeviceContext;
+
 
 Renderer::Renderer()
 {
@@ -66,6 +71,8 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	{
 		MessageBox(0, L"debug device failed", L"error", MB_OK);
 	}
+	globalDevice = this->gDevice;
+	globalDeviceContext = this->gDeviceContext;
 
 
 	this->create_debug_entity();
@@ -384,6 +391,7 @@ HRESULT Renderer::createDirect3DContext(HWND wndHandle)
 		pBackBuffer->Release();
 
 		this->createDepthBuffers();
+
 	}
 
 	return hr;
@@ -1804,6 +1812,8 @@ void Renderer::render(Map *map, Camera *camera)
 
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 			gDeviceContext->Draw(129, 0);
+
+			entity->pMesh->Draw(globalDevice, globalDeviceContext);
 		}
 
 	}
