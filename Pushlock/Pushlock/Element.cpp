@@ -252,6 +252,7 @@ void WindElement::projectile(Player * player, Map * map)
 
 		map->add_entity(spell);
 		cooldown[0] = gSpellConstants.kWindProjectileCooldown;
+		map->sounds.play(spellSounds::windDash, 0.0f, 2.0f);
 	}
 }
 
