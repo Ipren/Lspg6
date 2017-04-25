@@ -114,6 +114,14 @@ private:
 	ID3D11PixelShader *cuPS;
 	ID3D11ShaderResourceView *r1CUTextures[5];
 	
+	XMFLOAT3 directionalLightPos;
+	XMFLOAT3 directionalLightFocus;
+
+	ID3D11SamplerState *shadowMapSampler;
+	ID3D11RenderTargetView *shadowMapRTV;
+	ID3D11ShaderResourceView *shadowMapSRV;
+	ID3D11VertexShader *shadowMapVS;
+	ID3D11PixelShader *shadowMapPS;
 
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
@@ -128,6 +136,7 @@ private:
 
 	//void create_menu();
 	void create_debug_entity();
+	void createShadowMap();
 	void createShaders();
 	void createDepthBuffers();
 	HRESULT createDirect3DContext(HWND wndHandle);
@@ -159,6 +168,7 @@ private:
 	void updatecooldownGUI(Player *player);
 	void updateHPBuffers(Player *player);
 
+	void renderShadowMap(Map *map, Camera *cam);
 
 	void renderCooldownGUI(Map *map, Camera *cam);
 	void renderHPGUI(Map *map, Camera *cam);

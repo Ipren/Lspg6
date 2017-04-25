@@ -171,7 +171,7 @@ void Renderer::create_debug_entity()
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
 	desc.StructureByteStride = 0;
-
+	
 	D3D11_SUBRESOURCE_DATA data;
 	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
 	data.pSysMem = &vertices[0];
@@ -188,6 +188,61 @@ void Renderer::create_debug_entity()
 
 	blob = compile_shader(L"Debug.hlsl", "PS", "ps_5_0", gDevice);
 	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_entity_psh));
+}
+
+void Renderer::createShadowMap()
+{
+	ID3D11Texture2D* pDepthStencil = NULL;
+	D3D11_TEXTURE2D_DESC descDepth;
+	descDepth.Width = WIDTH;
+	descDepth.Height = HEIGHT;
+	descDepth.MipLevels = 1;
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_R32_TYPELESS;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Quality = 0;
+	descDepth.Usage = D3D11_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	descDepth.CPUAccessFlags = 0;
+	descDepth.MiscFlags = 0;
+	DXCALL(gDevice->CreateTexture2D(&descDepth, NULL, &pDepthStencil));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC sdesc;
+	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	sdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	sdesc.Format = DXGI_FORMAT_R32_FLOAT;
+	sdesc.Texture2D.MipLevels = 1;
+	sdesc.Texture2D.MostDetailedMip = 0;
+
+	D3D11_RENDER_TARGET_VIEW_DESC rdesc;
+	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	rdesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rdesc.Format = DXGI_FORMAT_R32_FLOAT;
+	rdesc.Texture2D.MipSlice = 0;
+
+	DXCALL(gDevice->CreateShaderResourceView(pDepthStencil, &sdesc, &shadowMapSRV));
+	DXCALL(gDevice->CreateRenderTargetView(pDepthStencil, &rdesc, &shadowMapRTV));
+
+
+	D3D11_SAMPLER_DESC sampdesc;
+	ZeroMemory(&sampdesc, sizeof(sampdesc));
+	sampdesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampdesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampdesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampdesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	DXCALL(gDevice->CreateSamplerState(&sampdesc, &shadowMapSampler));
+
+
+	ID3DBlob *blob = compile_shader(L"Shadow.hlsl", "VS", "vs_5_0", gDevice);
+	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &shadowMapVS));
+
+	/*D3D11_INPUT_ELEMENT_DESC input_desc[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	debug_entity_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, gDevice);*/
+
+	blob = compile_shader(L"Shadow.hlsl", "PS", "ps_5_0", gDevice);
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &shadowMapPS));
 }
 
 //void Renderer::create_menu()
@@ -1667,6 +1722,31 @@ void Renderer::updateHPBuffers(Player *player)
 	this->gDeviceContext->Map(this->HPBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
 	memcpy(data.pData, &temp, sizeof(float));
 	this->gDeviceContext->Unmap(this->HPBuffer, 0);
+
+}
+
+void Renderer::renderShadowMap(Map * map, Camera * camera)
+{
+	float clear[] = { 0.f, 0.f, 0.f, 1.0f };
+	gDeviceContext->ClearRenderTargetView(shadowMapRTV, clear);
+	gDeviceContext->ClearDepthStencilView(gDepthStencil, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	//sets stuff twice fix if bad prefomance
+	gDeviceContext->VSSetShader(debug_entity_vsh, nullptr, 0);
+	gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
+	gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+	gDeviceContext->OMSetRenderTargets(1, &shadowMapRTV, gDepthStencil);
+
+	for (auto entity : map->entitys)
+	{
+		XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, 1, entity->radius) * XMMatrixTranslation(entity->position.x, 0, entity->position.z);
+
+		camera->vals.world = model;
+		camera->update(0, gDeviceContext);
+
+		if (entity->pMesh)
+			entity->pMesh->Draw(globalDevice, globalDeviceContext);
+	}
 
 }
 
