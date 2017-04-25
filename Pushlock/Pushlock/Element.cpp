@@ -138,6 +138,7 @@ void FireElement::projectile(Player * player, Map * map)
 
 			map->add_entity(spell);
 			active_projectile = spell;
+			map->sounds.play(spellSounds::fireProjectile, 0.0f);
 		}
 	}
 	else {
@@ -148,7 +149,7 @@ void FireElement::projectile(Player * player, Map * map)
 				{
 					player->blowUp = true;
 					active_projectile->dead = true;
-					map->sounds.play(spellSounds::fireExplotion);
+					
 				}
 			}
 		}

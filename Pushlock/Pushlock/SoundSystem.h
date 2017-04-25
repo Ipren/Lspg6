@@ -9,11 +9,11 @@ public:
 	SoundSystem();
 	~SoundSystem();
 
-	void play(spellSounds s);
+	void play(spellSounds s, float offset);
 	void startBGM();
 
 private:
 	sf::SoundBuffer *buffers;
-	sf::Sound sound;
+	sf::Sound *sound;
 	sf::Music music;
 };
