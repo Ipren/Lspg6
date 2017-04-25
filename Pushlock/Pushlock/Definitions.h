@@ -1,6 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
-#include "SoundSingelton.h"
+
 
 enum class EntityType
 {
@@ -60,4 +60,29 @@ struct CooldownStruct
 	int p2Cd[4];
 	int p3Cd[4];
 	int p4Cd[4];
+};
+
+enum spellSounds
+{
+	fireProjectile,
+	fireExplotion,
+	arcaneProjectile,
+	earthProjectile,
+	windProjectile,
+	waterProjectile,
+	fireStomp,
+	arcaneStomp, 
+	earthStomp,
+	windStomp,
+	waterStomp,
+	fireDash,
+	arcaneDash,
+	earthDash,
+	windDash,
+	waterDash,
+	fireWall,
+	arcaneWall, 
+	earthWall,
+	windWall,
+	waterWall
 };

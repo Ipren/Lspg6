@@ -381,12 +381,14 @@ bool Game::update(float dt)
 		{
 				currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfAlivePlayers);
+			currentMap->sounds.startBGM();
 		}
 
 		if (ImGui::Button("start anyway"))
 		{
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfAlivePlayers);
+			currentMap->sounds.startBGM();
 		}
 		ImGui::End();
 	}

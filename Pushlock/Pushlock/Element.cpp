@@ -148,6 +148,7 @@ void FireElement::projectile(Player * player, Map * map)
 				{
 					player->blowUp = true;
 					active_projectile->dead = true;
+					map->sounds.play(spellSounds::fireExplotion);
 				}
 			}
 		}

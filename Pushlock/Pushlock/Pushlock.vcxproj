@@ -181,7 +181,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="SoundSingelton.cpp" />
+    <ClCompile Include="SoundSystem.cpp" />
     <ClCompile Include="Spell.cpp" />
     <ClCompile Include="Upgrades.cpp" />
   </ItemGroup>
@@ -207,7 +207,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SoundSingelton.h" />
+    <ClInclude Include="SoundSystem.h" />
     <ClInclude Include="Spell.h" />
     <ClInclude Include="stb_rect_pack.h" />
     <ClInclude Include="stb_textedit.h" />

@@ -39,7 +39,7 @@ public:
 	GameState* currentState;
 	int indexWinner;
 
-	SoundSystem *sounds;
+	SoundSystem sounds;
 	/*used for starting each round with the same nr of players*/
 	int nrOfPlayers;
 };
