@@ -327,7 +327,7 @@ void Renderer::createDepthBuffers()
 	dsDesc.DepthEnable = true;
 	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
-	dsDesc.StencilEnable = true;
+	dsDesc.StencilEnable = false;
 	dsDesc.StencilReadMask = 0xFF;
 	dsDesc.StencilWriteMask = 0xFF;
 	dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
@@ -339,10 +339,8 @@ void Renderer::createDepthBuffers()
 	dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-	ID3D11DepthStencilState * pDSState;
-	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &pDSState));
-	this->gDeviceContext->OMSetDepthStencilState(pDSState, 1);
-	pDSState->Release();
+	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &DepthStateReadWrite));
+	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &DepthStateRead));
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 	ZeroMemory(&descDSV, sizeof(descDSV));
@@ -1775,6 +1773,7 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
 		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
+		gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0xff);
 		gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, gDepthStencil);
 
 		gDeviceContext->Draw(128*3, 0);
