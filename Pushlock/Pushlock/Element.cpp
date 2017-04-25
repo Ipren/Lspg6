@@ -73,6 +73,17 @@ void ArcaneElement::wall(Player *player, Map *map)
 
 		cooldown[3] = gSpellConstants.kArcaneWallCooldown + gPlayerSpellConstants[player->index].kArcaneWallCooldown;
 	}
+	ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
+	{
+		-105.0f,
+		-15.0f,
+		-15.0f
+	},
+	{ cos(2.0f) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
+		sin(2.0f) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
+		0.1f
+	);
+	map->add_entity(spell);
 }
 
 void ArcaneElement::dash(Player * player, Map * map)
