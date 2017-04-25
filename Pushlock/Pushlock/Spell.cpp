@@ -120,7 +120,7 @@ bool FireProjectileSpell::on_effect(Map *map)
 		result.entity->velocity.x += cos(result.angle) * ((gSpellConstants.kFireProjectileStrength + gPlayerSpellConstants[owner->index].kFireProjectileStrength) * falloff);
 		result.entity->velocity.y += sin(result.angle) * ((gSpellConstants.kFireProjectileStrength + gPlayerSpellConstants[owner->index].kFireProjectileStrength) * falloff);
 	}
-	map->sounds.play(spellSounds::fireExplotion, 0.0f);
+	map->sounds.play(spellSounds::fireExplotion, 0.0f, 50.0f);
 	return true;
 }
 

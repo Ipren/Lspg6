@@ -9,7 +9,7 @@ public:
 	SoundSystem();
 	~SoundSystem();
 
-	void play(spellSounds s, float offset);
+	void play(spellSounds s, float offset, float volume);
 	void startBGM();
 
 private:

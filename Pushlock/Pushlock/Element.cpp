@@ -24,6 +24,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 
 		map->add_entity(spell);
 		cooldown[0] = gSpellConstants.kArcaneProjectileCooldown + gPlayerSpellConstants[player->index].kArcaneProjectileCooldown;
+		map->sounds.play(spellSounds::arcaneProjectile, 0.0f, 50.0f);
 	}
 }
 
@@ -43,6 +44,7 @@ void ArcaneElement::stomp(Player *player, Map *map)
 		}
 
 		cooldown[2] = gSpellConstants.kArcaneStompCooldown + gPlayerSpellConstants[player->index].kArcaneStompCooldown;
+		
 	}
 }
 
@@ -138,7 +140,7 @@ void FireElement::projectile(Player * player, Map * map)
 
 			map->add_entity(spell);
 			active_projectile = spell;
-			map->sounds.play(spellSounds::fireProjectile, 0.0f);
+			map->sounds.play(spellSounds::fireProjectile, 0.0f, 50.0f);
 		}
 	}
 	else {

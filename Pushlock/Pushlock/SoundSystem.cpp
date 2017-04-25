@@ -6,6 +6,7 @@ SoundSystem::SoundSystem()
 	this->sound = new sf::Sound[32];
 	this->buffers[0].loadFromFile("../Resources/Sounds/fireball.wav");
 	this->buffers[1].loadFromFile("../Resources/Sounds/boom.wav");
+	this->buffers[2].loadFromFile("../Resources/Sounds/arcaneball.wav");
 
 
 
@@ -17,7 +18,7 @@ SoundSystem::~SoundSystem()
 	delete [] buffers;
 }
 
-void SoundSystem::play(spellSounds s, float offset)
+void SoundSystem::play(spellSounds s, float offset, float volume)
 {
 	int i = 0;
 	bool cont = true;
@@ -34,7 +35,7 @@ void SoundSystem::play(spellSounds s, float offset)
 		}
 	}
 	
-
+	this->sound[i].setVolume(volume);
 	this->sound[i].setPlayingOffset(t);
 	this->sound[i].setBuffer(this->buffers[s]);
 	this->sound[i].play();
