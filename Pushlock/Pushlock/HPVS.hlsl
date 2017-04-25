@@ -21,7 +21,7 @@ VS_OUT main(float4 pos : POSITION)
     pos.w = 1.0f;
     if(output.barNr < 0 && pos.x - 0.29f > 0.001)
     {
-            pos.x *= HP;
+            pos.x *= HP - 0.17f;
         
     }
 
