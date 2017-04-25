@@ -9,6 +9,12 @@ SoundSystem::SoundSystem()
 	this->buffers[2].loadFromFile("../Resources/Sounds/arcaneball.wav");
 
 
+	this->buffers[7].loadFromFile("../Resources/Sounds/arcanestomp.wav");
+
+
+
+	this->buffers[14].loadFromFile("../Resources/Sounds/winddash.flac");
+
 
 	this->music.openFromFile("../Resources/Sounds/BGM.wav");
 }
