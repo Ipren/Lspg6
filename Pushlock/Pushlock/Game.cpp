@@ -12,7 +12,7 @@
 #include "Upgrades.h"
 #include "Player.h"
 #include "Menu.h"
-#include <Audio.h>
+
 
 #include "imgui.h"
 
@@ -20,8 +20,7 @@
 Gamepad *gGamepads[4];
 
 bool firsttime = true;
-bool test = true;
-std::unique_ptr<AudioEngine> audEngine;
+
 
 Game::Game(HWND wndHandle, int width, int height)
 {
@@ -45,18 +44,6 @@ Game::Game(HWND wndHandle, int width, int height)
 
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-	
-
-
-		AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
-#ifdef _DEBUG
-		eflags = eflags | AudioEngine_Debug;
-#endif // _DEBUG
-
-		audEngine = std::make_unique<AudioEngine>(eflags);
-
-	
-		
 
 }
 
@@ -504,28 +491,7 @@ bool Game::update(float dt)
 		}
 	}
 
-	std::unique_ptr<SoundEffect> soundEffect;
-	std::unique_ptr<SoundEffectInstance> effect;
-	if (test)
-	{
-		soundEffect = std::make_unique<SoundEffect>(audEngine.get(), L"boom.wav");
-		effect = soundEffect->CreateInstance();
-		test = false;
-		//soundEffect->Play();
-		effect->Play(true);
-	}
 	
-	if (audEngine->IsAudioDevicePresent())
-	{
-		if (!audEngine->Update())
-		{
-			if (audEngine->IsCriticalError())
-			{
-				MessageBox(0, L"no audio device active", L"error", MB_OK);
-			}
-
-		}
-	}
 	
 	camera->update(dt, this->renderer->gDeviceContext);
 	renderer->update(dt, this->currentMap);
