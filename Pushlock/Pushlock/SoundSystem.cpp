@@ -15,6 +15,8 @@ SoundSystem::SoundSystem()
 
 	this->buffers[14].loadFromFile("../Resources/Sounds/winddash.flac");
 
+	this->buffers[18].loadFromFile("../Resources/Sounds/earthwall.wav");
+
 
 	this->music.openFromFile("../Resources/Sounds/BGM.wav");
 }

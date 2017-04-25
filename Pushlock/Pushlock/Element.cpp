@@ -75,20 +75,9 @@ void ArcaneElement::wall(Player *player, Map *map)
 		}
 
 		cooldown[3] = gSpellConstants.kArcaneWallCooldown + gPlayerSpellConstants[player->index].kArcaneWallCooldown;
+		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
 	}
 
-	//fulhax don't touch!
-	ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
-	{
-		-105.0f,
-		-15.0f,
-		-15.0f
-	},
-	{ cos(2.0f) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
-		sin(2.0f) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
-		0.1f
-	);
-	map->add_entity(spell);
 }
 
 void ArcaneElement::dash(Player * player, Map * map)
@@ -215,6 +204,7 @@ void FireElement::wall(Player * player, Map * map)
 		}
 
 		cooldown[3] = gSpellConstants.kFireWallCooldown + gPlayerSpellConstants[player->index].kFireWallCooldown;
+		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
 	}
 }
 
@@ -313,6 +303,7 @@ void WindElement::wall(Player * player, Map * map)
 		}
 
 		cooldown[3] = gSpellConstants.kWindWallCooldown;
+		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
 	}
 }
 
@@ -411,6 +402,7 @@ void EarthElement::wall(Player * player, Map * map)
 		}
 
 		cooldown[3] = gSpellConstants.kEarthWallCooldown;
+		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
 	}
 }
 
@@ -531,6 +523,7 @@ void WaterElement::wall(Player * player, Map * map)
 		}
 
 		cooldown[3] = gSpellConstants.kWaterWallCooldown;
+		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
 	}
 }
 
