@@ -351,6 +351,7 @@ void EarthElement::projectile(Player * player, Map * map)
 
 		map->add_entity(spell);
 		cooldown[0] = gSpellConstants.kEarthProjectileCooldown;
+		map->sounds.play(spellSounds::earthProjectile, 0.0f, 100.0f);
 
 	}
 }

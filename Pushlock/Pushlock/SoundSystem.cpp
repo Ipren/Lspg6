@@ -7,7 +7,7 @@ SoundSystem::SoundSystem()
 	this->buffers[0].loadFromFile("../Resources/Sounds/fireball.wav");
 	this->buffers[1].loadFromFile("../Resources/Sounds/boom.wav");
 	this->buffers[2].loadFromFile("../Resources/Sounds/arcaneball.wav");
-
+	this->buffers[3].loadFromFile("../Resources/Sounds/earthball.wav");
 	this->buffers[5].loadFromFile("../Resources/Sounds/iceball.wav");
 
 
