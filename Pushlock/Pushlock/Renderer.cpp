@@ -1045,7 +1045,7 @@ void Renderer::updatePointLights(Map * map)
 	if (this->pointLightCount > 0)
 	{
 		this->gDeviceContext->Map(this->pLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
-		memcpy(data.pData, &temp, sizeof(pointLight) * this->pointLightCount);
+		memcpy(data.pData, temp, sizeof(pointLight) * this->pointLightCount);
 		this->gDeviceContext->Unmap(this->pLightBuffer, 0);
 	}
 }
@@ -1825,6 +1825,9 @@ void Renderer::render(Map *map, Camera *camera)
 		}
 
 	}
+	
+	camera->vals.world = XMMatrixIdentity();
+	camera->update(0, gDeviceContext);
 	//{//rendering the menu
 	//	gDeviceContext->IASetInputLayout(this->menu_layout);
 
