@@ -1837,37 +1837,6 @@ void Renderer::render(Map *map, Camera *camera)
 	
 	camera->vals.world = XMMatrixIdentity();
 	camera->update(0, gDeviceContext);
-	//{//rendering the menu
-	//	gDeviceContext->IASetInputLayout(this->menu_layout);
-
-	//	UINT32 size = sizeof(float) * 3;
-	//	UINT32 offset = 0u;
-	//	gDeviceContext->IASetVertexBuffers(0, 1, &menu_buffer, &size, &offset);
-	//	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	//	gDeviceContext->VSSetShader(this->debug_entity_vsh, nullptr, 0);
-	//	gDeviceContext->PSSetShader(this->debug_entity_psh, nullptr, 0);
-	//	gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
-
-	//	if (menu != nullptr)
-	//	{
-
-	//		XMFLOAT4 col = normalize_color(0xffffffff);
-	//		D3D11_MAPPED_SUBRESOURCE data;
-	//		DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
-	//		{
-	//			CopyMemory(data.pData, &col, sizeof(float) * 4);
-	//		}
-	//		gDeviceContext->Unmap(color_buffer, 0);
-
-	//		XMMATRIX model = XMMatrixIdentity();
-
-	//		camera->vals.world = model;
-	//		camera->update(0, gDeviceContext);
-	//		gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-	//		gDeviceContext->Draw(233, 0);
-	//	}
-	//}
 
 	this->renderParticles(camera);
 }
