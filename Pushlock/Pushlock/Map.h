@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include "SoundSystem.h"
 
 struct EntityQueryResult {
 	Entity *entity;
@@ -38,6 +39,7 @@ public:
 	GameState* currentState;
 	int indexWinner;
 
+	SoundSystem *sounds;
 	/*used for starting each round with the same nr of players*/
 	int nrOfPlayers;
 };

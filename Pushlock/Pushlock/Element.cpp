@@ -73,6 +73,8 @@ void ArcaneElement::wall(Player *player, Map *map)
 
 		cooldown[3] = gSpellConstants.kArcaneWallCooldown + gPlayerSpellConstants[player->index].kArcaneWallCooldown;
 	}
+
+	//fulhax don't touch!
 	ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
 	{
 		-105.0f,
