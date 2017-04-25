@@ -44,6 +44,7 @@ private:
 	
 	ID3D11DepthStencilState *DepthStateReadWrite;
 	ID3D11DepthStencilState *DepthStateRead;
+	ID3D11DepthStencilState *DepthStateDisable;
 
 	ID3D11DepthStencilView *gDepthStencil;
 

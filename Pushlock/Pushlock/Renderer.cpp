@@ -315,7 +315,7 @@ void Renderer::createDepthBuffers()
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
 	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
-	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Count = 4;
 	descDepth.SampleDesc.Quality = 0;
 	descDepth.Usage = D3D11_USAGE_DEFAULT;
 	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
@@ -340,12 +340,15 @@ void Renderer::createDepthBuffers()
 	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &DepthStateReadWrite));
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &DepthStateRead));
+	dsDesc.DepthEnable = false;
+	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &DepthStateDisable));
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 	ZeroMemory(&descDSV, sizeof(descDSV));
 	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
-	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	descDSV.Texture2D.MipSlice = 0;
 
 	DXCALL(gDevice->CreateDepthStencilView(pDepthStencil, &descDSV, &gDepthStencil));
@@ -364,7 +367,7 @@ HRESULT Renderer::createDirect3DContext(HWND wndHandle)
 	scd.BufferDesc.RefreshRate.Denominator = 1;
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	scd.OutputWindow = wndHandle;
-	scd.SampleDesc.Count = 1;
+	scd.SampleDesc.Count = 4;
 	scd.Windowed = true;
 
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL,
@@ -1778,8 +1781,14 @@ void Renderer::render(Map *map, Camera *camera)
 
 		gDeviceContext->Draw(128*3, 0);
 	}
+	
+	gDeviceContext->OMSetDepthStencilState(DepthStateDisable, 0xff);
+
 	this->renderCooldownGUI(map, camera);
 	this->renderHPGUI(map, camera);
+	
+	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0xff);
+	
 	{
 		gDeviceContext->IASetInputLayout(debug_entity_layout);
 
