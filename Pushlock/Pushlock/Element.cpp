@@ -472,6 +472,7 @@ void WaterElement::projectile(Player * player, Map * map)
 		}
 		
 		cooldown[0] = gSpellConstants.kWaterProjectileCooldown;
+		map->sounds.play(spellSounds::waterProjectile, 0.0f, 45.0f);
 	}
 }
 

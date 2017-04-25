@@ -8,6 +8,8 @@ SoundSystem::SoundSystem()
 	this->buffers[1].loadFromFile("../Resources/Sounds/boom.wav");
 	this->buffers[2].loadFromFile("../Resources/Sounds/arcaneball.wav");
 
+	this->buffers[5].loadFromFile("../Resources/Sounds/iceball.wav");
+
 
 	this->buffers[7].loadFromFile("../Resources/Sounds/arcanestomp.wav");
 
