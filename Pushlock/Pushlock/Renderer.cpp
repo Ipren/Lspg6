@@ -1802,6 +1802,9 @@ void Renderer::render(Map *map, Camera *camera)
 		int i = 2;
 		for (auto entity : map->entitys)
 		{
+			gDeviceContext->IASetVertexBuffers(0, 1, &debug_entity_circle, &size, &offset);
+			gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+			gDeviceContext->IASetInputLayout(debug_entity_layout);
 			XMFLOAT4 col = normalize_color(0xfff6b2ff * (++i));
 			D3D11_MAPPED_SUBRESOURCE data;
 			DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
