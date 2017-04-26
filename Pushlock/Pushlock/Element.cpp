@@ -66,14 +66,14 @@ void ArcaneElement::wall(Player *player, Map *map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars; i++)
-		{
+		/*for (int i = 0; i < gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars; i++)
+		{*/
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars) / 2.f) *
+			XMStoreFloat3(&p, n * ((float) - (gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars) / 2.f) *
 				(gSpellConstants.kArcaneWallPillarDistance + gPlayerSpellConstants[player->index].kArcaneWallPillarDistance)/ 2.f + pos);
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
-		}
+			map->add_entity(new ArcaneWallSpell(player, p, XMFLOAT2(p.x + player->angle, p.z + player->angle), gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+		//}
 
 		cooldown[3] = gSpellConstants.kArcaneWallCooldown + gPlayerSpellConstants[player->index].kArcaneWallCooldown;
 		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
@@ -201,7 +201,7 @@ void FireElement::wall(Player * player, Map * map)
 				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
 
 			// TODO: fire wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kFireWallPillarRadius + gPlayerSpellConstants[player->index].kFireWallPillarRadius));
+			map->add_entity(new ArcaneWallSpell(player, p, XMFLOAT2(p.x + 1.f, p.z + 1.f), gSpellConstants.kFireWallPillarRadius + gPlayerSpellConstants[player->index].kFireWallPillarRadius));
 		}
 
 		cooldown[3] = gSpellConstants.kFireWallCooldown + gPlayerSpellConstants[player->index].kFireWallCooldown;
@@ -300,7 +300,7 @@ void WindElement::wall(Player * player, Map * map)
 				(gSpellConstants.kWindWallPillarDistance + gPlayerSpellConstants[player->index].kWindWallPillarDistance) / 2.f + pos);
 
 			// TODO: Wind wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kWindWallPillarRadius + gPlayerSpellConstants[player->index].kWindWallPillarRadius));
+			map->add_entity(new ArcaneWallSpell(player, p, XMFLOAT2(p.x + 1.f, p.z + 1.f), gSpellConstants.kWindWallPillarRadius + gPlayerSpellConstants[player->index].kWindWallPillarRadius));
 		}
 
 		cooldown[3] = gSpellConstants.kWindWallCooldown  + gPlayerSpellConstants[player->index].kWindWallCooldown;
@@ -400,7 +400,7 @@ void EarthElement::wall(Player * player, Map * map)
 				(gSpellConstants.kEarthWallPillarDistance + gPlayerSpellConstants[player->index].kEarthWallPillarDistance) / 2.f + pos);
 
 			// TODO: Earth wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kEarthWallPillarRadius + gPlayerSpellConstants[player->index].kEarthWallPillarRadius));
+			map->add_entity(new ArcaneWallSpell(player, p, XMFLOAT2(p.x + 1.f, p.z + 1.f), gSpellConstants.kEarthWallPillarRadius + gPlayerSpellConstants[player->index].kEarthWallPillarRadius));
 		}
 
 		cooldown[3] = gSpellConstants.kEarthWallCooldown + gPlayerSpellConstants[player->index].kEarthWallCooldown;
@@ -602,7 +602,7 @@ void WaterElement::wall(Player * player, Map * map)
 				(gSpellConstants.kWaterWallPillarDistance + gPlayerSpellConstants[player->index].kWaterWallPillarDistance) / 2.f + pos);
 
 			// TODO: Earth wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kWaterWallPillarRadius + gPlayerSpellConstants[player->index].kWaterWallPillarRadius));
+			map->add_entity(new ArcaneWallSpell(player, p, XMFLOAT2(p.x + 1.f, p.z + 1.f), gSpellConstants.kWaterWallPillarRadius + gPlayerSpellConstants[player->index].kWaterWallPillarRadius));
 		}
 
 		cooldown[3] = gSpellConstants.kWaterWallCooldown + gPlayerSpellConstants[player->index].kWaterWallCooldown;

@@ -59,8 +59,9 @@ private:
 class ArcaneWallSpell : public Spell
 {
 public:
-	ArcaneWallSpell(Player *owner, XMFLOAT3 position, float radius)
+	ArcaneWallSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 endPos, float radius)
 		:Spell(owner, position, { 0,0 }, radius, 10.f) {
+		this->endPos = endPos;
 		this->type = EntityType::Wall;}
 	virtual ~ArcaneWallSpell() {}
 
@@ -73,9 +74,10 @@ public:
 	}
 
 	virtual bool on_effect(Map *map) override;// { return false; };
+	XMFLOAT2 endPos;
 private:
-	float explosion_radius;
-	float strength;
+	/*float explosion_radius;
+	float strength;*/
 };
 
 class FireProjectileSpell : public Spell
