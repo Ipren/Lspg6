@@ -37,6 +37,30 @@
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{3b1523e7-3c5d-4b6f-975d-74de69bc5c8a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Imgui">
+      <UniqueIdentifier>{281f6db7-ce16-4a4b-9cf2-6fab15d81c1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\libs">
+      <UniqueIdentifier>{b5f32765-4d4b-4b04-a5e0-cffb695da7eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GameLogic\spells">
+      <UniqueIdentifier>{739b0cdb-0361-4bf6-8178-8772a0339f8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\other">
+      <UniqueIdentifier>{97e72e1a-f82d-472b-b677-0aad3182ba65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\gui">
+      <UniqueIdentifier>{1fa58026-9792-4776-93f4-efb7db441eb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\imgui">
+      <UniqueIdentifier>{74bc0b59-b620-474f-bced-c50dfe7f9dc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\other">
+      <UniqueIdentifier>{3af7f7be-5362-4612-b188-2cf968640854}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GameLogic\spell">
+      <UniqueIdentifier>{be82b1dd-2cdd-429c-b031-758bf783e27b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,16 +72,10 @@
     <ClCompile Include="Helpers.cpp">
       <Filter>Misc</Filter>
     </ClCompile>
-    <ClCompile Include="Gamepad.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files\GameLogic</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
-      <Filter>Source Files\GameLogic</Filter>
-    </ClCompile>
-    <ClCompile Include="Spell.cpp">
       <Filter>Source Files\GameLogic</Filter>
     </ClCompile>
     <ClCompile Include="Map.cpp">
@@ -72,35 +90,41 @@
     <ClCompile Include="Game.cpp">
       <Filter>Source Files\GameLogic</Filter>
     </ClCompile>
-    <ClCompile Include="Constants.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Element.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_demo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_draw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_impl_dx11.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Menu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Upgrades.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="imgui_demo.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_draw.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_dx11.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Gamepad.cpp">
+      <Filter>Source Files\other</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Source Files\other</Filter>
+    </ClCompile>
     <ClCompile Include="SoundSystem.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\other</Filter>
+    </ClCompile>
+    <ClCompile Include="Constants.cpp">
+      <Filter>Source Files\GameLogic\spell</Filter>
+    </ClCompile>
+    <ClCompile Include="Element.cpp">
+      <Filter>Source Files\GameLogic\spell</Filter>
+    </ClCompile>
+    <ClCompile Include="Upgrades.cpp">
+      <Filter>Source Files\GameLogic\spell</Filter>
+    </ClCompile>
+    <ClCompile Include="Spell.cpp">
+      <Filter>Source Files\GameLogic\spell</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,9 +134,6 @@
     <ClInclude Include="Helpers.h">
       <Filter>Misc</Filter>
     </ClInclude>
-    <ClInclude Include="Gamepad.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Entity.h">
       <Filter>Header Files\GameLogic</Filter>
     </ClInclude>
@@ -120,9 +141,6 @@
       <Filter>Header Files\GameLogic</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
-      <Filter>Header Files\GameLogic</Filter>
-    </ClInclude>
-    <ClInclude Include="Spell.h">
       <Filter>Header Files\GameLogic</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
@@ -140,50 +158,56 @@
     <ClInclude Include="Game.h">
       <Filter>Header Files\GameLogic</Filter>
     </ClInclude>
-    <ClInclude Include="Constants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectXTK.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Element.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="imconfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui_impl_dx11.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui_internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Menu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_rect_pack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_textedit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_truetype.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Upgrades.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="imconfig.h">
+      <Filter>Header Files\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui.h">
+      <Filter>Header Files\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_dx11.h">
+      <Filter>Header Files\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_internal.h">
+      <Filter>Header Files\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXTK.h">
+      <Filter>Header Files\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_rect_pack.h">
+      <Filter>Header Files\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_textedit.h">
+      <Filter>Header Files\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_truetype.h">
+      <Filter>Header Files\libs</Filter>
+    </ClInclude>
+    <ClInclude Include="Element.h">
+      <Filter>Header Files\GameLogic\spells</Filter>
+    </ClInclude>
+    <ClInclude Include="Spell.h">
+      <Filter>Header Files\GameLogic\spells</Filter>
+    </ClInclude>
+    <ClInclude Include="Upgrades.h">
+      <Filter>Header Files\GameLogic\spells</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Header Files\GameLogic\spells</Filter>
+    </ClInclude>
+    <ClInclude Include="Gamepad.h">
+      <Filter>Header Files\other</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Header Files\other</Filter>
+    </ClInclude>
     <ClInclude Include="SoundSystem.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\other</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -208,13 +232,27 @@
     <FxCompile Include="Inserter.hlsl">
       <Filter>Shaders\Paricles</Filter>
     </FxCompile>
-    <FxCompile Include="cooldownPS.hlsl" />
-    <FxCompile Include="cooldownVS.hlsl" />
-    <FxCompile Include="cpMenuPS.hlsl" />
-    <FxCompile Include="cpMenuVS.hlsl" />
-    <FxCompile Include="StompInserter.hlsl" />
-    <FxCompile Include="HPPS.hlsl" />
-    <FxCompile Include="HPVS.hlsl" />
+    <FxCompile Include="StompInserter.hlsl">
+      <Filter>Shaders\Paricles</Filter>
+    </FxCompile>
+    <FxCompile Include="HPPS.hlsl">
+      <Filter>Shaders\gui</Filter>
+    </FxCompile>
+    <FxCompile Include="cpMenuPS.hlsl">
+      <Filter>Shaders\gui</Filter>
+    </FxCompile>
+    <FxCompile Include="cpMenuVS.hlsl">
+      <Filter>Shaders\gui</Filter>
+    </FxCompile>
+    <FxCompile Include="cooldownPS.hlsl">
+      <Filter>Shaders\gui</Filter>
+    </FxCompile>
+    <FxCompile Include="cooldownVS.hlsl">
+      <Filter>Shaders\gui</Filter>
+    </FxCompile>
+    <FxCompile Include="HPVS.hlsl">
+      <Filter>Shaders\gui</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
