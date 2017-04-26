@@ -1,4 +1,10 @@
 #include "SoundSystem.h"
+#include <tchar.h>
+#include <windows.h>
+#include "mmsystem.h"
+
+#pragma comment(lib, "winmm.lib")
+
 
 SoundSystem::SoundSystem()
 {
@@ -19,8 +25,6 @@ SoundSystem::SoundSystem()
 
 	this->buffers[18].loadFromFile("../Resources/Sounds/earthwall.wav");
 
-
-	this->music.openFromFile("../Resources/Sounds/BGM.wav");
 }
 
 SoundSystem::~SoundSystem()
@@ -30,25 +34,29 @@ SoundSystem::~SoundSystem()
 
 void SoundSystem::play(spellSounds s, float offset, float volume)
 {
-	int i = 0;
-	bool cont = true;
-	sf::Time t = sf::seconds(offset);
-	while (cont)
+	if (waveOutGetNumDevs()) 
 	{
-		if (this->sound[i].getStatus() == sf::Sound::Status::Playing)
+		int i = 0;
+		bool cont = true;
+		sf::Time t = sf::seconds(offset);
+		while (cont)
 		{
-			i++;
+			if (this->sound[i].getStatus() == sf::Sound::Status::Playing)
+			{
+				i++;
+			}
+			else
+			{
+				cont = false;
+			}
 		}
-		else
-		{
-			cont = false;
-		}
+
+		this->sound[i].setVolume(volume);
+		this->sound[i].setPlayingOffset(t);
+		this->sound[i].setBuffer(this->buffers[s]);
+		this->sound[i].play();
 	}
 	
-	this->sound[i].setVolume(volume);
-	this->sound[i].setPlayingOffset(t);
-	this->sound[i].setBuffer(this->buffers[s]);
-	this->sound[i].play();
 }
 
 void SoundSystem::startBGM()
