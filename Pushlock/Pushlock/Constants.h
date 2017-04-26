@@ -198,6 +198,11 @@ struct PlayerSpellConstants {
 	float kWaterWallPillarDistance = 0.0f;
 	float kWaterWallPillarRadius = 0.0f;
 
+	float kRadius = 0.0f;
+	float kSpeed = 0.0f;
+	float kFriction = 0.0f;
+	float kHealth = 0.0f;
+
 	//void addDefault(SpellConstants def)
 	//{
 	//	kArcaneProjectileSeekStrength += def.kArcaneProjectileSeekStrength;

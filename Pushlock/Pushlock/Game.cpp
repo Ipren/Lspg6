@@ -519,15 +519,15 @@ void Game::updateUpgradeStats()
 			}
 			if (currentMap->playerElemnts[i] == 1)//fire
 			{
-
+				gPlayerSpellConstants[i].kFireProjectileExplosionRadius += 3.0f;
 			}
 			if (currentMap->playerElemnts[i] == 2) //wind
 			{
-
+				gPlayerSpellConstants[i].kWindProjectileStrength += 1.0f;
 			}
 			if (currentMap->playerElemnts[i] == 3) //earth
 			{
-
+				gPlayerSpellConstants[i].kFriction += 3.0f;
 			}
 			if (currentMap->playerElemnts[i] == 4)//water
 			{
@@ -542,15 +542,15 @@ void Game::updateUpgradeStats()
 			}
 			if (currentMap->playerElemnts[i] == 1)
 			{
-
+				gPlayerSpellConstants[i].kHealth += 5.0f;
 			}
 			if (currentMap->playerElemnts[i] == 2)
 			{
-
+				gPlayerSpellConstants[i].kWindDashCooldown -= 1.0f;
 			}
 			if (currentMap->playerElemnts[i] == 3)
 			{
-
+				gPlayerSpellConstants[i].kEarthStompStrength += 5.0f;
 			}
 			if (currentMap->playerElemnts[i] == 4)
 			{
