@@ -518,7 +518,7 @@ void Game::updateUpgradeStats()
 			}
 			if (currentMap->playerElemnts[i] == 1)
 			{
-
+				gPlayerSpellConstants[i].kFireProjectileExplosionRadius += 3.0f;
 			}
 			if (currentMap->playerElemnts[i] == 2)
 			{
@@ -541,7 +541,7 @@ void Game::updateUpgradeStats()
 			}
 			if (currentMap->playerElemnts[i] == 1)
 			{
-
+				gPlayerSpellConstants[i].kHealth += 5.0f;
 			}
 			if (currentMap->playerElemnts[i] == 2)
 			{
