@@ -113,46 +113,51 @@ FireElement::FireElement()
 
 void FireElement::projectile(Player * player, Map * map)
 {
-	if (active_projectile == nullptr) {
-		if (cooldown[0] <= 0.f) {
-			auto position = player->position;
-			auto angle = player->angle;
-			auto radius = player->radius;
+	if (cooldown[0] <= 0.f || active_projectile != nullptr)
+	{
+		if (active_projectile == nullptr) {
+			 {
+				auto position = player->position;
+				auto angle = player->angle;
+				auto radius = player->radius;
 
-			FireProjectileSpell *spell = new FireProjectileSpell(player,
-			{
-				position.x + cos(angle) * (radius + 0.4f),
-				0,
-				position.z + sin(angle) * (radius + 0.4f)
-			},
-			{ cos(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed),
-				sin(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed) },
-				0.1f
-			);
-
-			map->add_entity(spell);
-			active_projectile = spell;
-			map->sounds.play(spellSounds::fireProjectile, 0.0f, 50.0f);
-		}
-	}
-	else {
-		if (active_projectile->dead != true)
-		{
-			if (active_projectile->on_effect(map)) {
-				cooldown[0] = gSpellConstants.kFireProjectileCooldown + gPlayerSpellConstants[player->index].kFireProjectileCooldown;
+				FireProjectileSpell *spell = new FireProjectileSpell(player,
 				{
-					player->blowUp = true;
-					active_projectile->dead = true;
-					
-				}
+					position.x + cos(angle) * (radius + 0.4f),
+					0,
+					position.z + sin(angle) * (radius + 0.4f)
+				},
+				{ cos(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed),
+					sin(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed) },
+					0.1f
+				);
+
+				map->add_entity(spell);
+				active_projectile = spell;
+				map->sounds.play(spellSounds::fireProjectile, 0.0f, 50.0f);
+				cooldown[0] = gSpellConstants.kFireProjectileCooldown + gPlayerSpellConstants[player->index].kFireProjectileCooldown;
 			}
 		}
-		else
-		{
-			active_projectile->dead = true;
-			active_projectile = nullptr;
-		}
+		else {
+			if (active_projectile->dead != true)
+			{
+				player->blowUp = true;
+				if (active_projectile->on_effect(map)) {
+					//cooldown[0] = gSpellConstants.kFireProjectileCooldown + gPlayerSpellConstants[player->index].kFireProjectileCooldown;
+					{
+						
+						active_projectile->dead = true;
 
+					}
+				}
+			}
+			else
+			{
+				active_projectile->dead = true;
+				active_projectile = nullptr;
+			}
+
+		}
 	}
 }
 

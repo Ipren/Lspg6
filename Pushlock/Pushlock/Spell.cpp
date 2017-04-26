@@ -121,6 +121,11 @@ bool FireProjectileSpell::on_effect(Map *map)
 		result.entity->velocity.y += sin(result.angle) * ((gSpellConstants.kFireProjectileStrength + gPlayerSpellConstants[owner->index].kFireProjectileStrength) * falloff);
 	}
 	map->sounds.play(spellSounds::fireExplotion, 0.0f, 50.0f);
+	if (this->owner->blowUp == false)
+	{
+		dynamic_cast<FireElement*>(this->owner->element)->active_projectile->dead = true;
+		dynamic_cast<FireElement*>(this->owner->element)->active_projectile = nullptr;
+	}
 	return true;
 }
 
