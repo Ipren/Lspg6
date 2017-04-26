@@ -136,10 +136,10 @@ bool Game::update(float dt)
 				ImGui::SliderFloat("cooldown##wdash", &gSpellConstants.kWindDashCooldown, 0.0f, 20.0f);
 
 				ImGui::TextDisabled("Wall");
-				ImGui::SliderFloat("cooldown##wwall", &gSpellConstants.kFireWallCooldown, 0.0f, 20.0f);
-				ImGui::SliderInt("number of pillars##wwall", &gSpellConstants.kFireWallNrOfPillars, 1, 20);
-				ImGui::SliderFloat("distance between pillars##wwall", &gSpellConstants.kFireWallPillarDistance, 0, 1);
-				ImGui::SliderFloat("pillars radius##wwall", &gSpellConstants.kFireWallPillarRadius, 0, 5);
+				ImGui::SliderFloat("cooldown##wwall", &gSpellConstants.kWindWallCooldown, 0.0f, 20.0f);
+				ImGui::SliderInt("number of pillars##wwall", &gSpellConstants.kWindWallNrOfPillars, 1, 20);
+				ImGui::SliderFloat("distance between pillars##wwall", &gSpellConstants.kWindWallPillarDistance, 0, 1);
+				ImGui::SliderFloat("pillars radius##wwall", &gSpellConstants.kWindWallPillarRadius, 0, 5);
 			}
 
 			if (ImGui::CollapsingHeader("Earth")) {
@@ -255,9 +255,6 @@ bool Game::update(float dt)
 
 		ImGui::End();
 	}
-
-	//if (this->currentMenu != nullptr)
-	//	this->currentMenu->update();
 
 	{
 		if (ImGui::Button("Main Menu")) {//start the main menu

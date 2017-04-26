@@ -42,7 +42,10 @@ public:
 private:
 	IDXGISwapChain *gSwapChain;
 	
-	
+	ID3D11DepthStencilState *DepthStateReadWrite;
+	ID3D11DepthStencilState *DepthStateRead;
+	ID3D11DepthStencilState *DepthStateDisable;
+
 	ID3D11DepthStencilView *gDepthStencil;
 
 	ID3D11Buffer *color_buffer;

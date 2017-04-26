@@ -221,7 +221,6 @@ void FireElement::dash(Player * player, Map * map)
 	}
 }
 
-//continue from here Andreas
 void WindElement::projectile(Player * player, Map * map)
 {
 	if (cooldown[0] <= 0.f) {
@@ -235,12 +234,12 @@ void WindElement::projectile(Player * player, Map * map)
 			0,
 			position.z + sin(angle) * (radius + 0.4f)
 		},
-		{ cos(angle) * gSpellConstants.kWindProjectileSpeed, sin(angle) * gSpellConstants.kWindProjectileSpeed },
+		{ cos(angle) * (gSpellConstants.kWindProjectileSpeed + gPlayerSpellConstants[player->index].kWindProjectileSpeed), sin(angle) * (gSpellConstants.kWindProjectileSpeed + gPlayerSpellConstants[player->index].kWindProjectileSpeed) },
 			0.1f
 		);
 
 		map->add_entity(spell);
-		cooldown[0] = gSpellConstants.kWindProjectileCooldown;
+		cooldown[0] = gSpellConstants.kWindProjectileCooldown + gPlayerSpellConstants[player->index].kWindProjectileCooldown;
 	}
 }
 
@@ -250,16 +249,16 @@ void WindElement::stomp(Player * player, Map * map)
 
 		player->stomped = true;
 		//saves nearby players in a vector
-		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kWindStompDistance, [](Entity *e) {
+		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance, [](Entity *e) {
 			return e->type == EntityType::Player;
 		});
 
 		for (auto result : nearby) { //moves all nearby players
-			result.entity->velocity.x += cos(result.angle) * gSpellConstants.kWindStompStrength * abs((gSpellConstants.kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff) - result.distance);
-			result.entity->velocity.y += sin(result.angle) * gSpellConstants.kWindStompStrength * abs((gSpellConstants.kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff) - result.distance);
+			result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[player->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[player->index].kWindStompStrengthFalloff) - result.distance);
+			result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[player->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[player->index].kWindStompStrengthFalloff) - result.distance);
 		}
 
-		cooldown[2] = gSpellConstants.kWindStompCooldown;
+		cooldown[2] = gSpellConstants.kWindStompCooldown + gPlayerSpellConstants[player->index].kWindStompCooldown;
 	}
 }
 
@@ -279,18 +278,18 @@ void WindElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kWindWallNrOfPillars; i++)
+		for (int i = 0; i < gSpellConstants.kWindWallNrOfPillars + gPlayerSpellConstants[player->index].kWindWallNrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - gSpellConstants.kWindWallNrOfPillars / 2.f) *
-				gSpellConstants.kWindWallPillarDistance / 2.f + pos);
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kWindWallNrOfPillars + gPlayerSpellConstants[player->index].kWindWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kWindWallPillarDistance + gPlayerSpellConstants[player->index].kWindWallPillarDistance) / 2.f + pos);
 
 			// TODO: Wind wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kWindWallPillarRadius));
+			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kWindWallPillarRadius + gPlayerSpellConstants[player->index].kWindWallPillarRadius));
 		}
 
-		cooldown[3] = gSpellConstants.kWindWallCooldown;
+		cooldown[3] = gSpellConstants.kWindWallCooldown  + gPlayerSpellConstants[player->index].kWindWallCooldown;
 	}
 }
 
@@ -304,16 +303,16 @@ void WindElement::dash(Player * player, Map * map)
 		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
 		{
 			float left_angle = gGamepads[index]->get_left_thumb_angle();
-			player->velocity.x += cos(left_angle) * gSpellConstants.kWindDashSpeed;
-			player->velocity.y += sin(left_angle) * gSpellConstants.kWindDashSpeed;
+			player->velocity.x += cos(left_angle) * (gSpellConstants.kWindDashSpeed + gPlayerSpellConstants[player->index].kWindDashSpeed);
+			player->velocity.y += sin(left_angle) * (gSpellConstants.kWindDashSpeed + gPlayerSpellConstants[player->index].kWindDashSpeed);
 		}
 		else //if it is centered: dash to where you are looking
 		{
-			player->velocity.x += cos(player->angle) * gSpellConstants.kWindDashSpeed;
-			player->velocity.y += sin(player->angle) * gSpellConstants.kWindDashSpeed;
+			player->velocity.x += cos(player->angle) * (gSpellConstants.kWindDashSpeed + gPlayerSpellConstants[player->index].kWindDashSpeed);
+			player->velocity.y += sin(player->angle) * (gSpellConstants.kWindDashSpeed + gPlayerSpellConstants[player->index].kWindDashSpeed);
 		}
 
-		cooldown[1] = gSpellConstants.kWindDashCooldown;
+		cooldown[1] = gSpellConstants.kWindDashCooldown + gPlayerSpellConstants[player->index].kWindDashCooldown;
 	}
 }
 
@@ -330,12 +329,12 @@ void EarthElement::projectile(Player * player, Map * map)
 			0,
 			position.z + sin(angle) * (radius + 0.4f)
 		},
-		{ cos(angle) * gSpellConstants.kEarthProjectileSpeed, sin(angle) * gSpellConstants.kEarthProjectileSpeed },
+		{ cos(angle) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed), sin(angle) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
 			0.1f
 		);
 
 		map->add_entity(spell);
-		cooldown[0] = gSpellConstants.kEarthProjectileCooldown;
+		cooldown[0] = gSpellConstants.kEarthProjectileCooldown + gPlayerSpellConstants[player->index].kEarthProjectileSpeed;
 	}
 }
 
@@ -345,16 +344,16 @@ void EarthElement::stomp(Player * player, Map * map)
 
 		player->stomped = true;
 		//saves nearby players in a vector
-		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance, [](Entity *e) {
+		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
 			return e->type == EntityType::Player;
 		});
 
 		for (auto result : nearby) { //moves all nearby players
-			result.entity->velocity.x += cos(result.angle) * gSpellConstants.kEarthStompStrength * abs((gSpellConstants.kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff) - result.distance);
-			result.entity->velocity.y += sin(result.angle) * gSpellConstants.kEarthStompStrength * abs((gSpellConstants.kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff) - result.distance);
+			result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+			result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
 		}
 
-		cooldown[2] = gSpellConstants.kEarthStompCooldown;
+		cooldown[2] = gSpellConstants.kEarthStompCooldown + gPlayerSpellConstants[player->index].kEarthStompCooldown;
 	}
 }
 
@@ -374,18 +373,18 @@ void EarthElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kEarthWallNrOfPillars; i++)
+		for (int i = 0; i < gSpellConstants.kEarthWallNrOfPillars + gPlayerSpellConstants[player->index].kEarthWallNrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - gSpellConstants.kEarthWallNrOfPillars / 2.f) *
-				gSpellConstants.kEarthWallPillarDistance / 2.f + pos);
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kEarthWallNrOfPillars + gPlayerSpellConstants[player->index].kEarthWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kEarthWallPillarDistance + gPlayerSpellConstants[player->index].kEarthWallPillarDistance) / 2.f + pos);
 
 			// TODO: Earth wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kEarthWallPillarRadius));
+			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kEarthWallPillarRadius + gPlayerSpellConstants[player->index].kEarthWallPillarRadius));
 		}
 
-		cooldown[3] = gSpellConstants.kEarthWallCooldown;
+		cooldown[3] = gSpellConstants.kEarthWallCooldown + gPlayerSpellConstants[player->index].kEarthWallCooldown;
 	}
 }
 
@@ -399,16 +398,16 @@ void EarthElement::dash(Player * player, Map * map)
 		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
 		{
 			float left_angle = gGamepads[index]->get_left_thumb_angle();
-			player->velocity.x += cos(left_angle) * gSpellConstants.kEarthDashSpeed;
-			player->velocity.y += sin(left_angle) * gSpellConstants.kEarthDashSpeed;
+			player->velocity.x += cos(left_angle) * (gSpellConstants.kEarthDashSpeed + gPlayerSpellConstants[player->index].kEarthDashSpeed);
+			player->velocity.y += sin(left_angle) * (gSpellConstants.kEarthDashSpeed + gPlayerSpellConstants[player->index].kEarthDashSpeed);
 		}
 		else //if it is centered: dash to where you are looking
 		{
-			player->velocity.x += cos(player->angle) * gSpellConstants.kEarthDashSpeed;
-			player->velocity.y += sin(player->angle) * gSpellConstants.kEarthDashSpeed;
+			player->velocity.x += cos(player->angle) * (gSpellConstants.kEarthDashSpeed + gPlayerSpellConstants[player->index].kEarthDashSpeed);
+			player->velocity.y += sin(player->angle) * (gSpellConstants.kEarthDashSpeed + gPlayerSpellConstants[player->index].kEarthDashSpeed);
 		}
 
-		cooldown[1] = gSpellConstants.kEarthDashCooldown;
+		cooldown[1] = gSpellConstants.kEarthDashCooldown + gPlayerSpellConstants[player->index].kEarthDashCooldown;
 	}
 }
 
@@ -422,21 +421,21 @@ void WaterElement::projectile(Player * player, Map * map)
 		WaterProjectileSpell *spell = nullptr;
 		XMFLOAT2 v;
 
-		for (size_t i = 0; i < gSpellConstants.kWaterProjectileNrOfShards + 1; i++)
+		for (size_t i = 0; i < gSpellConstants.kWaterProjectileNrOfShards + gPlayerSpellConstants[player->index].kWaterProjectileNrOfShards + 1; i++)
 		{
-			v = { cos(angle) * gSpellConstants.kWaterProjectileSpeed, sin(angle) * gSpellConstants.kWaterProjectileSpeed };
+			v = { cos(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed), sin(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed) };
 			if (i != 0)
 			{
 				if (i % 2 != 0)
 				{
-					v.x = v.x * cos(i * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180) - v.y* sin(i * gSpellConstants.kWaterProjectileSpreadAngle* XM_PI / 180);
-					v.y = v.x * sin(i * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180) + v.y * cos(i * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180);
+					v.x = v.x * cos(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) - v.y* sin(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+					v.y = v.x * sin(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y * cos(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
 
 				}
 				else
 				{
-					v.x = v.x * cos((i - 1)* gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180) + v.y* sin((i - 1) * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180);
-					v.y = v.x * -sin((i - 1) * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180) + v.y * cos((i - 1) * gSpellConstants.kWaterProjectileSpreadAngle * XM_PI / 180);
+					v.x = v.x * cos((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y* sin((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+					v.y = v.x * -sin((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y * cos((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
 				}
 			}
 			spell = new WaterProjectileSpell(player,
@@ -453,7 +452,7 @@ void WaterElement::projectile(Player * player, Map * map)
 
 		}
 		
-		cooldown[0] = gSpellConstants.kWaterProjectileCooldown;
+		cooldown[0] = gSpellConstants.kWaterProjectileCooldown + gPlayerSpellConstants[player->index].kWaterProjectileCooldown;
 	}
 }
 
@@ -462,17 +461,17 @@ void WaterElement::stomp(Player * player, Map * map)
 	if (cooldown[2] <= 0.0f)
 	{
 		player->stomped = true;
-		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance, [](Entity *e) {
+		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
 			return e->type == EntityType::Player;
 		});
 
 		for (auto result : nearby)
 		{
-			result.entity->velocity.x += cos(result.angle) * gSpellConstants.kWaterStompStrenght * abs((gSpellConstants.kWaterStompDistance + gSpellConstants.kWaterStompStrenghtFalloff) - result.distance);
-			result.entity->velocity.y += sin(result.angle) * gSpellConstants.kWaterStompStrenght * abs((gSpellConstants.kWaterStompDistance + gSpellConstants.kWaterStompStrenghtFalloff) - result.distance);
+			result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWaterStompStrenght + gPlayerSpellConstants[player->index].kWaterStompStrenght) * abs((gSpellConstants.kWaterStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kWaterStompStrenghtFalloff + gPlayerSpellConstants[player->index].kWaterStompStrenghtFalloff) - result.distance);
+			result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWaterStompStrenght + gPlayerSpellConstants[player->index].kWaterStompStrenght) * abs((gSpellConstants.kWaterStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kWaterStompStrenghtFalloff + gPlayerSpellConstants[player->index].kWaterStompStrenghtFalloff) - result.distance);
 		}
 
-		cooldown[2] = gSpellConstants.kWaterStompCooldown;
+		cooldown[2] = gSpellConstants.kWaterStompCooldown + gPlayerSpellConstants[player->index].kWaterStompCooldown;
 	}
 }
 
@@ -492,18 +491,18 @@ void WaterElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kWaterWallNrOfPillars; i++)
+		for (int i = 0; i < gSpellConstants.kWaterWallNrOfPillars + gPlayerSpellConstants[player->index].kWaterWallNrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - gSpellConstants.kWaterWallNrOfPillars / 2.f) *
-				gSpellConstants.kWaterWallPillarDistance / 2.f + pos);
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kWaterWallNrOfPillars + gPlayerSpellConstants[player->index].kWaterWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kWaterWallPillarDistance + gPlayerSpellConstants[player->index].kWaterWallPillarDistance) / 2.f + pos);
 
 			// TODO: Earth wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kWaterWallPillarRadius));
+			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kWaterWallPillarRadius + gPlayerSpellConstants[player->index].kWaterWallPillarRadius));
 		}
 
-		cooldown[3] = gSpellConstants.kWaterWallCooldown;
+		cooldown[3] = gSpellConstants.kWaterWallCooldown + gPlayerSpellConstants[player->index].kWaterWallCooldown;
 	}
 }
 
@@ -517,15 +516,15 @@ void WaterElement::dash(Player * player, Map * map)
 		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
 		{
 			float left_angle = gGamepads[index]->get_left_thumb_angle();
-			player->velocity.x += cos(left_angle) * gSpellConstants.kWaterDashSpeed;
-			player->velocity.y += sin(left_angle) * gSpellConstants.kWaterDashSpeed;
+			player->velocity.x += cos(left_angle) * (gSpellConstants.kWaterDashSpeed + gPlayerSpellConstants[player->index].kWaterDashSpeed);
+			player->velocity.y += sin(left_angle) * (gSpellConstants.kWaterDashSpeed + gPlayerSpellConstants[player->index].kWaterDashSpeed);
 		}
 		else //if it is centered: dash to where you are looking
 		{
-			player->velocity.x += cos(player->angle) * gSpellConstants.kWaterDashSpeed;
-			player->velocity.y += sin(player->angle) * gSpellConstants.kWaterDashSpeed;
+			player->velocity.x += cos(player->angle) * (gSpellConstants.kWaterDashSpeed + gPlayerSpellConstants[player->index].kWaterDashSpeed);
+			player->velocity.y += sin(player->angle) * (gSpellConstants.kWaterDashSpeed + gPlayerSpellConstants[player->index].kWaterDashSpeed);
 		}
 
-		cooldown[1] = gSpellConstants.kWaterDashCooldown;
+		cooldown[1] = gSpellConstants.kWaterDashCooldown + gPlayerSpellConstants[player->index].kWaterDashCooldown;
 	}
 }

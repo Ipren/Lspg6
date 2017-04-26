@@ -137,8 +137,26 @@ void Map::update(float dt, Camera *cam)
 					//Spell vs. Wall
 					else if (a->type == EntityType::Wall && b->type == EntityType::Spell)
 					{
-						b->velocity.x = -b->velocity.x;
-						b->velocity.y = -b->velocity.y;
+						XMVECTOR aPos;
+						XMVECTOR bPos;
+						XMVECTOR bVel;
+						aPos = XMVectorSet(a->position.x, a->position.z, 0.f, 0.f);
+						bPos = XMVectorSet(b->position.x, b->position.z, 0.f, 0.f);
+						bVel = XMVectorSet(b->velocity.x, b->velocity.y, 0.f, 0.f);
+
+						XMVECTOR norm = bPos - aPos;
+						norm = XMVector2Normalize(norm);
+						//bVel = bVel - 2 * XMVector4Dot(norm, bVel) * norm;
+						bVel = XMVector2Reflect(bVel, norm);
+						b->velocity.x = XMVectorGetX(bVel);
+						b->velocity.y = XMVectorGetY(bVel);
+
+						b->position.x = a->position.x + (XMVectorGetX(norm) * (a->radius + b->radius));
+						b->position.y = a->position.y + (XMVectorGetY(norm) * (a->radius + b->radius));
+
+
+						/*b->velocity.x = -b->velocity.x;
+						b->velocity.y = -b->velocity.y;*/
 					}
 
 				}
