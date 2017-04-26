@@ -24,6 +24,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 
 		map->add_entity(spell);
 		cooldown[0] = gSpellConstants.kArcaneProjectileCooldown + gPlayerSpellConstants[player->index].kArcaneProjectileCooldown;
+		map->sounds.play(spellSounds::arcaneProjectile, 0.0f, 50.0f);
 	}
 }
 
@@ -43,6 +44,8 @@ void ArcaneElement::stomp(Player *player, Map *map)
 		}
 
 		cooldown[2] = gSpellConstants.kArcaneStompCooldown + gPlayerSpellConstants[player->index].kArcaneStompCooldown;
+		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
+		
 	}
 }
 
@@ -72,7 +75,9 @@ void ArcaneElement::wall(Player *player, Map *map)
 		}
 
 		cooldown[3] = gSpellConstants.kArcaneWallCooldown + gPlayerSpellConstants[player->index].kArcaneWallCooldown;
+		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
 	}
+
 }
 
 void ArcaneElement::dash(Player * player, Map * map)
@@ -95,6 +100,7 @@ void ArcaneElement::dash(Player * player, Map * map)
 		}
 
 		cooldown[1] = gSpellConstants.kArcaneDashCooldown + gPlayerSpellConstants[player->index].kArcaneDashCooldown;
+		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
 }
 
@@ -125,6 +131,7 @@ void FireElement::projectile(Player * player, Map * map)
 
 			map->add_entity(spell);
 			active_projectile = spell;
+			map->sounds.play(spellSounds::fireProjectile, 0.0f, 50.0f);
 		}
 	}
 	else {
@@ -135,6 +142,7 @@ void FireElement::projectile(Player * player, Map * map)
 				{
 					player->blowUp = true;
 					active_projectile->dead = true;
+					
 				}
 			}
 		}
@@ -164,6 +172,7 @@ void FireElement::stomp(Player * player, Map * map)
 		}
 
 		cooldown[2] = gSpellConstants.kFireStompCooldown + gPlayerSpellConstants[player->index].kFireStompCooldown;
+		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 	}
 }
 
@@ -195,6 +204,7 @@ void FireElement::wall(Player * player, Map * map)
 		}
 
 		cooldown[3] = gSpellConstants.kFireWallCooldown + gPlayerSpellConstants[player->index].kFireWallCooldown;
+		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
 	}
 }
 
@@ -218,6 +228,7 @@ void FireElement::dash(Player * player, Map * map)
 		}
 
 		cooldown[1] = gSpellConstants.kFireDashCooldown + gPlayerSpellConstants[player->index].kFireDashCooldown;
+		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
 }
 
@@ -240,6 +251,7 @@ void WindElement::projectile(Player * player, Map * map)
 
 		map->add_entity(spell);
 		cooldown[0] = gSpellConstants.kWindProjectileCooldown + gPlayerSpellConstants[player->index].kWindProjectileCooldown;
+		map->sounds.play(spellSounds::windDash, 0.0f, 2.0f);
 	}
 }
 
@@ -259,6 +271,7 @@ void WindElement::stomp(Player * player, Map * map)
 		}
 
 		cooldown[2] = gSpellConstants.kWindStompCooldown + gPlayerSpellConstants[player->index].kWindStompCooldown;
+		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 	}
 }
 
@@ -290,6 +303,7 @@ void WindElement::wall(Player * player, Map * map)
 		}
 
 		cooldown[3] = gSpellConstants.kWindWallCooldown  + gPlayerSpellConstants[player->index].kWindWallCooldown;
+		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
 	}
 }
 
@@ -313,6 +327,7 @@ void WindElement::dash(Player * player, Map * map)
 		}
 
 		cooldown[1] = gSpellConstants.kWindDashCooldown + gPlayerSpellConstants[player->index].kWindDashCooldown;
+		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
 }
 
@@ -335,6 +350,8 @@ void EarthElement::projectile(Player * player, Map * map)
 
 		map->add_entity(spell);
 		cooldown[0] = gSpellConstants.kEarthProjectileCooldown + gPlayerSpellConstants[player->index].kEarthProjectileSpeed;
+		map->sounds.play(spellSounds::earthProjectile, 0.0f, 100.0f);
+
 	}
 }
 
@@ -354,6 +371,7 @@ void EarthElement::stomp(Player * player, Map * map)
 		}
 
 		cooldown[2] = gSpellConstants.kEarthStompCooldown + gPlayerSpellConstants[player->index].kEarthStompCooldown;
+		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 	}
 }
 
@@ -385,6 +403,7 @@ void EarthElement::wall(Player * player, Map * map)
 		}
 
 		cooldown[3] = gSpellConstants.kEarthWallCooldown + gPlayerSpellConstants[player->index].kEarthWallCooldown;
+		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
 	}
 }
 
@@ -408,6 +427,7 @@ void EarthElement::dash(Player * player, Map * map)
 		}
 
 		cooldown[1] = gSpellConstants.kEarthDashCooldown + gPlayerSpellConstants[player->index].kEarthDashCooldown;
+		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
 }
 
@@ -453,6 +473,7 @@ void WaterElement::projectile(Player * player, Map * map)
 		}
 		
 		cooldown[0] = gSpellConstants.kWaterProjectileCooldown + gPlayerSpellConstants[player->index].kWaterProjectileCooldown;
+		map->sounds.play(spellSounds::waterProjectile, 0.0f, 45.0f);
 	}
 }
 
@@ -472,6 +493,7 @@ void WaterElement::stomp(Player * player, Map * map)
 		}
 
 		cooldown[2] = gSpellConstants.kWaterStompCooldown + gPlayerSpellConstants[player->index].kWaterStompCooldown;
+		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 	}
 }
 
@@ -503,6 +525,7 @@ void WaterElement::wall(Player * player, Map * map)
 		}
 
 		cooldown[3] = gSpellConstants.kWaterWallCooldown + gPlayerSpellConstants[player->index].kWaterWallCooldown;
+		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
 	}
 }
 
@@ -526,5 +549,6 @@ void WaterElement::dash(Player * player, Map * map)
 		}
 
 		cooldown[1] = gSpellConstants.kWaterDashCooldown + gPlayerSpellConstants[player->index].kWaterDashCooldown;
+		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
 }

@@ -67,7 +67,7 @@ bool ArcaneProjectileSpell::on_effect(Map *map)
 		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kArcaneProjectileStrength + gPlayerSpellConstants[owner->index].kArcaneProjectileStrength) * abs(explosion_radius - result.distance);
 		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kArcaneProjectileStrength + gPlayerSpellConstants[owner->index].kArcaneProjectileStrength) * abs(explosion_radius - result.distance);
 	}
-
+	
 	return true;
 }
 
@@ -120,7 +120,7 @@ bool FireProjectileSpell::on_effect(Map *map)
 		result.entity->velocity.x += cos(result.angle) * ((gSpellConstants.kFireProjectileStrength + gPlayerSpellConstants[owner->index].kFireProjectileStrength) * falloff);
 		result.entity->velocity.y += sin(result.angle) * ((gSpellConstants.kFireProjectileStrength + gPlayerSpellConstants[owner->index].kFireProjectileStrength) * falloff);
 	}
-	
+	map->sounds.play(spellSounds::fireExplotion, 0.0f, 50.0f);
 	return true;
 }
 
