@@ -120,6 +120,12 @@ bool FireProjectileSpell::on_effect(Map *map)
 
 		result.entity->velocity.x += cos(result.angle) * ((gSpellConstants.kFireProjectileStrength + gPlayerSpellConstants[owner->index].kFireProjectileStrength) * falloff);
 		result.entity->velocity.y += sin(result.angle) * ((gSpellConstants.kFireProjectileStrength + gPlayerSpellConstants[owner->index].kFireProjectileStrength) * falloff);
+
+		if (pUpgrades[this->owner->index].choice[0] == 1 && dynamic_cast<Player *>(result.entity) != this->owner)
+		{
+			dynamic_cast<Player *>(result.entity)->debuffs.dot = -0.5f;
+			dynamic_cast<Player *>(result.entity)->debuffs.duration = 2;
+		}
 	}
 	map->sounds.play(spellSounds::fireExplotion, 0.0f, 50.0f);
 	if (this->owner->blowUp == false)

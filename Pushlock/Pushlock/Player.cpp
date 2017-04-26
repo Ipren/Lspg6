@@ -44,9 +44,17 @@ void Player::update(Map *map, float dt)
 	acceleration.x += left.x * (gPlayerConstants.kSpeed + gPlayerSpellConstants[index].kSpeed + (debuffs.speed * debuffs.duration));
 	acceleration.y += left.y * (gPlayerConstants.kSpeed + gPlayerSpellConstants[index].kSpeed + (debuffs.speed * debuffs.duration));
 
+
+	
 	if (debuffs.duration  - dt > 0)
 	{
 		debuffs.duration -= dt;
+		this->health += (debuffs.dot * dt);
+	}
+	else
+	{
+		this->debuffs.dot = 0.0f;
+		this->debuffs.speed = 0.0f;
 	}
 	velocity.x += acceleration.x * dt;
 	velocity.y += acceleration.y * dt;
