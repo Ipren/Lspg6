@@ -8,22 +8,29 @@
 void ArcaneElement::projectile(Player *player, Map *map)
 {
 	if (cooldown[0] <= 0.f) {
-		auto position = player->position;
-		auto angle = player->angle;
-		auto radius = player->radius;
-
-		ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
+		if (pUpgrades[player->index].choice[0] = 1)
 		{
-			position.x + cos(angle) * (radius + 0.4f),
-			0,
-			position.z + sin(angle) * (radius + 0.4f)
-		},
-		{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
-			sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
-			0.1f
-		);
+			//skapa en split funktion där varje misil är 50% så stark som orignalet
+		}
+		else 
+		{
+			auto position = player->position;
+			auto angle = player->angle;
+			auto radius = player->radius;
 
-		map->add_entity(spell);
+			ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
+			{
+				position.x + cos(angle) * (radius + 0.4f),
+				0,
+				position.z + sin(angle) * (radius + 0.4f)
+			},
+			{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
+				sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
+				0.1f
+			);
+
+			map->add_entity(spell);
+		}
 		cooldown[0] = gSpellConstants.kArcaneProjectileCooldown + gPlayerSpellConstants[player->index].kArcaneProjectileCooldown;
 		map->sounds.play(spellSounds::arcaneProjectile, 0.0f, 50.0f);
 	}
