@@ -512,23 +512,24 @@ void Game::updateUpgradeStats()
 	{
 		if (pUpgrades[i].choice[this->currentRound - 1] == 3)
 		{
-			if (currentMap->playerElemnts[i] == 0)
+			if (currentMap->playerElemnts[i] == 0) //arcane
+			{
+				gPlayerSpellConstants[i].kArcaneProjectileSeekStrength += 0.5f;
+				gPlayerSpellConstants[i].kArcaneProjectileSeekRadius += 2;
+			}
+			if (currentMap->playerElemnts[i] == 1)//fire
 			{
 
 			}
-			if (currentMap->playerElemnts[i] == 1)
+			if (currentMap->playerElemnts[i] == 2) //wind
 			{
 
 			}
-			if (currentMap->playerElemnts[i] == 2)
+			if (currentMap->playerElemnts[i] == 3) //earth
 			{
 
 			}
-			if (currentMap->playerElemnts[i] == 3)
-			{
-
-			}
-			if (currentMap->playerElemnts[i] == 4)
+			if (currentMap->playerElemnts[i] == 4)//water
 			{
 				gPlayerSpellConstants[i].kWaterProjectileStrenght += 5.0f;
 			}
@@ -537,7 +538,7 @@ void Game::updateUpgradeStats()
 		{
 			if (currentMap->playerElemnts[i] == 0)
 			{
-
+				gPlayerSpellConstants[i].kArcaneProjectileLifeTime += 2.25f;
 			}
 			if (currentMap->playerElemnts[i] == 1)
 			{

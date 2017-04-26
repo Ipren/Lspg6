@@ -13,7 +13,7 @@ Spell::~Spell()
 }
 
 ArcaneProjectileSpell::ArcaneProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
-	: Spell(owner, position, velocity, radius, 4.5f), explosion_radius(1.5f), strength(1.f)
+	: Spell(owner, position, velocity, radius, 4.5f + gPlayerSpellConstants[owner->index].kArcaneProjectileLifeTime), explosion_radius(1.5f), strength(1.f)
 {
 	this->pEmitter.randomVector = DirectX::XMFLOAT4(velocity.x, position.x, velocity.y, 1.0f);
 	this->pEmitter.position = position;
