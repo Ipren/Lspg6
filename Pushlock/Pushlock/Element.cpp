@@ -3,6 +3,7 @@
 #include "Spell.h"
 #include "Player.h"
 #include "Constants.h"
+#include "Upgrades.h"
 
 void ArcaneElement::projectile(Player *player, Map *map)
 {
@@ -124,8 +125,8 @@ void FireElement::projectile(Player * player, Map * map)
 				0,
 				position.z + sin(angle) * (radius + 0.4f)
 			},
-			{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
-				sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
+			{ cos(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed),
+				sin(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed) },
 				0.1f
 			);
 
@@ -433,7 +434,8 @@ void EarthElement::dash(Player * player, Map * map)
 
 void WaterElement::projectile(Player * player, Map * map)
 {
-	if (cooldown[0] <= 0.0f)
+	
+	if (cooldown[0] <= 0.0f || this->active_projectile != nullptr)
 	{
 		auto position = player->position;
 		auto angle = player->angle;
@@ -441,39 +443,118 @@ void WaterElement::projectile(Player * player, Map * map)
 		WaterProjectileSpell *spell = nullptr;
 		XMFLOAT2 v;
 
-		for (size_t i = 0; i < gSpellConstants.kWaterProjectileNrOfShards + gPlayerSpellConstants[player->index].kWaterProjectileNrOfShards + 1; i++)
+		if (pUpgrades[player->index].choice[0] == 2)
 		{
-			v = { cos(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed), sin(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed) };
-			if (i != 0)
+			if (this->active_projectile == nullptr)
 			{
-				if (i % 2 != 0)
+				WaterProjectileSpell *spell = new WaterProjectileSpell(player,
 				{
-					v.x = v.x * cos(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) - v.y* sin(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
-					v.y = v.x * sin(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y * cos(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+					position.x + cos(angle) * (radius + 0.4f),
+					0,
+					position.z + sin(angle) * (radius + 0.4f)
+				},
+				{ cos(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed),
+					sin(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed) },
+					0.1f
+				);
+				spell->angle = angle;
+				map->add_entity(spell);
+				active_projectile = spell;
+				map->sounds.play(spellSounds::waterProjectile, 0.0f, 50.0f);
+				cooldown[0] = gSpellConstants.kWaterProjectileCooldown + gPlayerSpellConstants[player->index].kWaterProjectileCooldown;
+			}
+			else
+			{
+				if (this->active_projectile->dead != true)
+				{
+					position = this->active_projectile->position;
+					angle = this->active_projectile->angle;
+					radius = this->active_projectile->radius;
 
+					for (size_t i = 0; i < gSpellConstants.kWaterProjectileNrOfShards + gPlayerSpellConstants[player->index].kWaterProjectileNrOfShards + 1; i++)
+					{
+						v = { cos(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed), sin(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed) };
+
+						if (i != 0)
+						{
+							if (i % 2 != 0)
+							{
+								v.x = v.x * cos(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) - v.y* sin(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+								v.y = v.x * sin(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y * cos(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+							}
+							else
+							{
+								v.x = v.x * cos((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y* sin((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+								v.y = v.x * -sin((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y * cos((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+							}
+						}
+						spell = new WaterProjectileSpell(player,
+						{
+							position.x + cos(angle) * (radius + 0.4f) ,
+							0,
+							position.z + sin(angle) * (radius + 0.4f)
+						},
+							v,
+							0.1f
+						);
+
+						map->add_entity(spell);
+					}
+					this->active_projectile->dead = true; 
+					this->active_projectile = nullptr;
 				}
 				else
 				{
-					v.x = v.x * cos((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y* sin((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
-					v.y = v.x * -sin((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y * cos((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+					this->active_projectile->dead = true;
+					this->active_projectile = nullptr;
 				}
-			}
-			spell = new WaterProjectileSpell(player,
-			{
-				position.x + cos(angle) * (radius + 0.4f) ,
-				0,
-				position.z + sin(angle) * (radius + 0.4f)
-			},
-			v,
-				0.1f
-			);
 
-			map->add_entity(spell);
+
+				//cooldown[0] = gSpellConstants.kWaterProjectileCooldown + gPlayerSpellConstants[player->index].kWaterProjectileCooldown;
+				map->sounds.play(spellSounds::waterProjectile, 0.0f, 45.0f);
+			}
+			
 
 		}
+		else
+		{
+			for (size_t i = 0; i < gSpellConstants.kWaterProjectileNrOfShards + gPlayerSpellConstants[player->index].kWaterProjectileNrOfShards + 1; i++)
+			{
+				v = { cos(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed), sin(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed) };
+				if (i != 0)
+				{
+					if (i % 2 != 0)
+					{
+						v.x = v.x * cos(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) - v.y* sin(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+						v.y = v.x * sin(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y * cos(i * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+
+					}
+					else
+					{
+						v.x = v.x * cos((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y* sin((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+						v.y = v.x * -sin((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180) + v.y * cos((i - 1) * (gSpellConstants.kWaterProjectileSpreadAngle + gPlayerSpellConstants[player->index].kWaterProjectileSpreadAngle) * XM_PI / 180);
+					}
+				}
+				spell = new WaterProjectileSpell(player,
+				{
+					position.x + cos(angle) * (radius + 0.4f) ,
+					0,
+					position.z + sin(angle) * (radius + 0.4f)
+				},
+					v,
+					0.1f
+				);
+
+				map->add_entity(spell);
+
+			}
+
+			cooldown[0] = gSpellConstants.kWaterProjectileCooldown + gPlayerSpellConstants[player->index].kWaterProjectileCooldown;
+			map->sounds.play(spellSounds::waterProjectile, 0.0f, 45.0f);
+		}
 		
-		cooldown[0] = gSpellConstants.kWaterProjectileCooldown + gPlayerSpellConstants[player->index].kWaterProjectileCooldown;
-		map->sounds.play(spellSounds::waterProjectile, 0.0f, 45.0f);
+
+		
 	}
 }
 

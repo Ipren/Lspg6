@@ -3,6 +3,7 @@
 #include "Map.h"
 
 class FireProjectileSpell;
+class WaterProjectileSpell;
 class Player;
 
 class Element {
@@ -85,5 +86,7 @@ public:
 	virtual void stomp(Player *player, Map *map) override;
 	virtual void wall(Player *player, Map *map) override;
 	virtual void dash(Player *player, Map *map) override;
+
+	WaterProjectileSpell *active_projectile;
 
 };

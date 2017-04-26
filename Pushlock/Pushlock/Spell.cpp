@@ -221,5 +221,6 @@ bool WaterProjectileSpell::on_effect(Map * map)
 		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWaterProjectileStrenght + gPlayerSpellConstants[owner->index].kWaterProjectileStrenght);
 		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWaterProjectileStrenght + gPlayerSpellConstants[owner->index].kWaterProjectileStrenght);
 	}
+	dynamic_cast<WaterElement*>(this->owner->element)->active_projectile = nullptr;
 	return true;
 }
