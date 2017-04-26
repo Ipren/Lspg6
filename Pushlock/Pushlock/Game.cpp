@@ -12,7 +12,7 @@
 #include "Upgrades.h"
 #include "Player.h"
 #include "Menu.h"
-#include <SFML\Audio.hpp>
+
 
 
 #include "imgui.h"
@@ -23,8 +23,6 @@ Gamepad *gGamepads[4];
 bool firsttime = true;
 
 
-sf::SoundBuffer buffer;
-sf::Sound sound;
 
 Game::Game(HWND wndHandle, int width, int height)
 {
@@ -48,13 +46,7 @@ Game::Game(HWND wndHandle, int width, int height)
 
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-	if (!buffer.loadFromFile("../Resources/Sounds/boom.wav"))
-	{
-		MessageBox(0, L"shits fucked", L"error", MB_OK);
-	}
 	
-
-
 
 }
 
@@ -302,9 +294,6 @@ bool Game::update(float dt)
 			if (gGamepads[i]->get_button_pressed(Gamepad::Down))
 			{
 				menu->selectDown(currentState);
-
-				sound.setBuffer(buffer);
-				sound.play();
 			}
 			else if (gGamepads[i]->get_button_pressed(Gamepad::Up))
 			{

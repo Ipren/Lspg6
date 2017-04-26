@@ -9,3 +9,4 @@ imgui.ini
 *.aps
 Pushlock/packages/
 Pushlock/Pushlock/Element.cpp~RF1f086ac0.TMP
+Pushlock/Pushlock/Element.cpp.orig
