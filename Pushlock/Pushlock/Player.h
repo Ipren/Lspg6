@@ -20,6 +20,7 @@ public:
 	float health;
 	float maxHealth;
 	Element *element;
+	debuf debuffs;
 	/*0:projectile
 	1:dash
 	2:stomp

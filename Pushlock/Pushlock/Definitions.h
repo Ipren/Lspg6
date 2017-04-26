@@ -86,3 +86,10 @@ enum spellSounds
 	windWall,
 	waterWall
 };
+
+struct debuf
+{
+	float speed;
+	float dot;
+	float duration;
+};

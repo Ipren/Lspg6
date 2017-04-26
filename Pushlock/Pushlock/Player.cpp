@@ -23,6 +23,10 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	ready = false;
 	this->health = gPlayerConstants.maxHealth + gPlayerSpellConstants[index].kHealth;
 	this->maxHealth = gPlayerConstants.maxHealth + gPlayerSpellConstants[index].kHealth;
+
+	this->debuffs.dot = 0.0f;
+	this->debuffs.speed = 0.0f;
+	this->debuffs.duration = 0;
 }
 
 Player::~Player()
@@ -37,9 +41,13 @@ void Player::update(Map *map, float dt)
 	auto right_angle = gGamepads[index]->get_right_thumb_angle();
 	angle = right_angle;
 
-	acceleration.x += left.x * (gPlayerConstants.kSpeed + gPlayerSpellConstants[index].kSpeed);
-	acceleration.y += left.y * (gPlayerConstants.kSpeed + gPlayerSpellConstants[index].kSpeed);
+	acceleration.x += left.x * (gPlayerConstants.kSpeed + gPlayerSpellConstants[index].kSpeed + (debuffs.speed * debuffs.duration));
+	acceleration.y += left.y * (gPlayerConstants.kSpeed + gPlayerSpellConstants[index].kSpeed + (debuffs.speed * debuffs.duration));
 
+	if (debuffs.duration  - dt > 0)
+	{
+		debuffs.duration -= dt;
+	}
 	velocity.x += acceleration.x * dt;
 	velocity.y += acceleration.y * dt;
 

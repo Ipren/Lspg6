@@ -2,6 +2,7 @@
 
 #include "Constants.h"
 #include "Player.h"
+#include "Upgrades.h"
 
 Spell::Spell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius, float life)
 	: Entity(EntityType::Spell, position, velocity, radius), owner(owner), life(life)
@@ -225,6 +226,13 @@ bool WaterProjectileSpell::on_effect(Map * map)
 	for (auto result : nearby) {
 		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWaterProjectileStrenght + gPlayerSpellConstants[owner->index].kWaterProjectileStrenght);
 		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWaterProjectileStrenght + gPlayerSpellConstants[owner->index].kWaterProjectileStrenght);
+		if (pUpgrades[this->owner->index].choice[0] == 1)
+		{
+			dynamic_cast<Player *>(result.entity)->debuffs.speed = -1.0f;
+			dynamic_cast<Player *>(result.entity)->debuffs.duration = 5;
+		}
+		
+
 	}
 	dynamic_cast<WaterElement*>(this->owner->element)->active_projectile = nullptr;
 	return true;
