@@ -12,6 +12,7 @@
 #include "Upgrades.h"
 #include "Player.h"
 #include "Menu.h"
+#include "Upgrades.h"
 
 
 
@@ -458,6 +459,7 @@ bool Game::update(float dt)
 			firsttime = true;
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
+			updateUpgradeStats();
 		}
 
 		if (ImGui::Button("start next round")) {
@@ -470,6 +472,7 @@ bool Game::update(float dt)
 			firsttime = true;
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
+			updateUpgradeStats();
 		}
 		ImGui::End();
 	}
@@ -501,6 +504,59 @@ bool Game::update(float dt)
 	
 
 	return quit;
+}
+
+void Game::updateUpgradeStats()
+{
+	for (size_t i = 0; i < this->currentMap->nrOfPlayers; i++)
+	{
+		if (pUpgrades[i].choice[this->currentRound - 1] == 3)
+		{
+			if (currentMap->playerElemnts[i] == 0)
+			{
+
+			}
+			if (currentMap->playerElemnts[i] == 1)
+			{
+
+			}
+			if (currentMap->playerElemnts[i] == 2)
+			{
+
+			}
+			if (currentMap->playerElemnts[i] == 3)
+			{
+
+			}
+			if (currentMap->playerElemnts[i] == 4)
+			{
+				gPlayerSpellConstants[i].kWaterProjectileStrenght += 5.0f;
+			}
+		}
+		if (pUpgrades[i].choice[this->currentRound - 1] == 4)
+		{
+			if (currentMap->playerElemnts[i] == 0)
+			{
+
+			}
+			if (currentMap->playerElemnts[i] == 1)
+			{
+
+			}
+			if (currentMap->playerElemnts[i] == 2)
+			{
+
+			}
+			if (currentMap->playerElemnts[i] == 3)
+			{
+
+			}
+			if (currentMap->playerElemnts[i] == 4)
+			{
+				gPlayerSpellConstants[i].kWaterWallCooldown -= 1.0f;
+			}
+		}
+	}
 }
 
 void Game::render()
