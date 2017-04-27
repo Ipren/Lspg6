@@ -107,6 +107,12 @@ private:
 	ID3D11InputLayout *HPInputLayout;
 	ID3D11VertexShader *HPVS;
 	ID3D11PixelShader *HPPS;
+
+	ID3D11Buffer *cuVertexBuffer;
+	ID3D11InputLayout *cuLayout;
+	ID3D11VertexShader *cuVS;
+	ID3D11PixelShader *cuPS;
+	ID3D11ShaderResourceView *r1CUTextures[5];
 	
 
 	ID3D11UnorderedAccessView* nullUAV;
@@ -138,6 +144,9 @@ private:
 	void loadTexture();
 	void createHPBuffers();
 	void createHPShaders();
+	void createCuBuffers();
+	void createCUShaders();
+	
 	
 	void swapBuffers();
 
