@@ -248,7 +248,7 @@ bool WaterProjectileSpell::on_effect(Map * map)
 	return true;
 }
 
-WindFartCloudSpell::WindFartCloudSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius) 
+WindFartCloudSpell::WindFartCloudSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, velocity, radius, 4.5f)
 {
 }
