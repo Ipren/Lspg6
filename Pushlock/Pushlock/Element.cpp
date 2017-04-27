@@ -10,7 +10,65 @@ void ArcaneElement::projectile(Player *player, Map *map)
 	if (cooldown[0] <= 0.f) {
 		if (pUpgrades[player->index].choice[0] == 1)
 		{
-			//skapa en split funktion där varje misil är 50% så stark som orignalet
+			if (gPlayerSpellConstants[player->index].kArcaneProjectileStrength > -15.0f)
+			{
+				
+				gPlayerSpellConstants[player->index].kArcaneProjectileStrength = -15.0f;
+				gPlayerSpellConstants[player->index].kArcaneProjectileCooldown = 1.2f;
+			}
+
+			auto position = player->position;
+			auto angle = player->angle;
+			auto radius = player->radius;
+			XMFLOAT2 v = {0.0f, 0.0f};
+
+			ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
+			{
+				position.x + cos(angle) * (radius + 0.4f),
+				0,
+				position.z + sin(angle) * (radius + 0.4f)
+			},
+			{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
+				sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
+				0.1f
+			);
+			map->add_entity(spell);
+
+			for (size_t i = 1; i < 3; i++)
+			{
+				v = { cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed), sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) };
+				if (i % 2 != 0)
+				{
+					v.x = v.x * cos(i * 20 * XM_PI / 180) - v.y * sin(i * 20 * XM_PI / 180);
+					v.y = v.x * sin(i * 20 * XM_PI / 180) + v.y * cos(i * 20 * XM_PI / 180);
+					spell = new ArcaneProjectileSpell(player,
+					{
+						position.x + cos(angle) * (radius + 0.4f),
+						0,
+						position.z + sin(angle) * (radius + 0.4f)
+					},
+						v,
+						0.1f
+					);
+					map->add_entity(spell);
+				}
+				else
+				{
+					v.x = v.x * cos((i-1) * 15 * XM_PI / 180) + v.y * sin((i - 1) * 15 * XM_PI / 180);
+					v.y = -v.x * sin((i - 1) * 15 * XM_PI / 180) + v.y * cos((i - 1) * 15 * XM_PI / 180);
+					spell = new ArcaneProjectileSpell(player,
+					{
+						position.x + cos(angle) * (radius + 0.4f),
+						0,
+						position.z + sin(angle) * (radius + 0.4f)
+					},
+						v,
+						0.1f
+					);
+					map->add_entity(spell);
+				}
+				
+			}
 		}
 		else 
 		{
