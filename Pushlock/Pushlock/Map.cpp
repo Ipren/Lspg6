@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Spell.h"
 #include "Constants.h"
+#include "Upgrades.h"
 
 using namespace DirectX;
 
@@ -129,8 +130,12 @@ void Map::update(float dt, Camera *cam)
 
 						if (b->acceleration.x > 4 || b->acceleration.y > 4)//prevents dashing through the wall
 						{
-							b->velocity.x = -b->velocity.x;
-							b->velocity.y = -b->velocity.y;
+							if ((this->playerElemnts[dynamic_cast<Player*>(b)->index] && pUpgrades[dynamic_cast<Player*>(b)->index].choice[0] == 1) == false)
+							{
+								b->velocity.x = -b->velocity.x;
+								b->velocity.y = -b->velocity.y;
+							}
+							
 						}
 
 					}
