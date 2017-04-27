@@ -46,7 +46,13 @@ private:
 	ID3D11DepthStencilState *DepthStateRead;
 	ID3D11DepthStencilState *DepthStateDisable;
 
-	ID3D11DepthStencilView *gDepthStencil;
+	ID3D11DepthStencilView *DepthBufferMS;
+	ID3D11DepthStencilView *DepthBuffer;
+	ID3D11ShaderResourceView* DepthBufferSRV;
+
+	ID3D11RasterizerState *ShadowRaster;
+	ID3D11RasterizerState *DefaultRaster;
+
 
 	ID3D11Buffer *color_buffer;
 
@@ -117,6 +123,8 @@ private:
 	XMFLOAT3 directionalLightPos;
 	XMFLOAT3 directionalLightFocus;
 
+	Camera::BufferVals shadow_camera;
+	ID3D11Buffer *shadow_wvp_buffer;
 	ID3D11SamplerState *shadowMapSampler;
 	ID3D11RenderTargetView *shadowMapRTV;
 	ID3D11ShaderResourceView *shadowMapSRV;

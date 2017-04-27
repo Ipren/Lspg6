@@ -14,7 +14,7 @@ VS_OUT VS(float3 pos : POSITION)
 {
 	VS_OUT output;
 	output.pos = mul(Proj, mul(View, mul(World, float4(pos, 1.0))));
-	output.wPos =  mul(View, mul(World, float4(pos, 1.0f)));
+	output.wPos = mul(View, mul(World, float4(pos, 1.0f)));
 	return output;
 
 }
