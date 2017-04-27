@@ -66,6 +66,9 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createHPBuffers();
 	this->createHPShaders();
 
+	this->createCuBuffers();
+	this->createCUShaders();
+
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
 	{
@@ -131,6 +134,10 @@ Renderer::~Renderer()
 	this->HPInputLayout->Release();
 	this->HPVS->Release();
 	this->HPPS->Release();
+	this->cuVertexBuffer->Release();
+	this->cuVS->Release();
+	this->cuLayout->Release();
+	this->cuPS->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -1306,6 +1313,179 @@ void Renderer::createHPShaders()
 	}
 
 	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->HPPS);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" cooldown pixel shader creation failed", L"error", MB_OK);
+	}
+
+	psBlob->Release();
+}
+
+void Renderer::createCuBuffers()
+{
+	chooseUpgradesVertex v[24];
+	v[0].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
+	v[1].pos = { -1.0f, 0.0f, 0.0f ,0.0f };
+	v[2].pos = { -1.0f, 1.0f, 0.0f ,0.0f };
+	v[3].pos = { -1.0f, 1.0f, 0.0f ,0.0f };
+	v[4].pos = { 0.0f, 1.0f, 0.0f ,0.0f };
+	v[5].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
+
+	v[6].pos = { 1.0f, 0.0f, 0.0f ,0.0f };
+	v[7].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
+	v[8].pos = { 0.0f, 1.0f, 0.0f ,0.0f };
+	v[9].pos = { 0.0f, 1.0f, 0.0f ,0.0f };
+	v[10].pos = { 1.0f, 1.0f, 0.0f ,0.0f };
+	v[11].pos = { 1.0f, 0.0f, 0.0f ,0.0f };
+
+	v[12].pos = { 0.0f, -1.0f, 0.0f ,0.0f };
+	v[13].pos = { -1.0f, -1.0f, 0.0f ,0.0f };
+	v[14].pos = { -1.0f, 0.0f, 0.0f ,0.0f };
+	v[15].pos = { -1.0f, 0.0f, 0.0f ,0.0f };
+	v[16].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
+	v[17].pos = { 0.0f, -1.0f, 0.0f ,0.0f };
+
+	v[0].pos = { 1.0f, -1.0f, 0.0f ,0.0f };
+	v[0].pos = { 0.0f, -1.0f, 0.0f ,0.0f };
+	v[0].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
+	v[0].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
+	v[0].pos = { 1.0f, 0.0f, 0.0f ,0.0f };
+	v[0].pos = { 1.0f, -1.0f, 0.0f ,0.0f };
+
+
+	v[0].uv = { 1.0f, 1.0f };
+	v[1].uv = { 0.0f, 1.0f };
+	v[2].uv = { 0.0f, 0.0f };
+	v[3].uv = { 0.0f, 0.0f };
+	v[4].uv = { 1.0f, 0.0f };
+	v[5].uv = { 1.0f ,1.0f };
+
+	v[6].uv = { 1.0f, 1.0f };
+	v[7].uv = { 0.0f, 1.0f };
+	v[8].uv = { 0.0f, 0.0f };
+	v[9].uv = { 0.0f, 0.0f };
+	v[10].uv = { 1.0f, 0.0f };
+	v[11].uv = { 1.0f ,1.0f };
+
+	v[12].uv = { 1.0f, 1.0f };
+	v[13].uv = { 0.0f, 1.0f };
+	v[14].uv = { 0.0f, 0.0f };
+	v[15].uv = { 0.0f, 0.0f };
+	v[16].uv = { 1.0f, 0.0f };
+	v[17].uv = { 1.0f ,1.0f };
+
+	v[18].uv = { 1.0f, 1.0f };
+	v[19].uv = { 0.0f, 1.0f };
+	v[20].uv = { 0.0f, 0.0f };
+	v[21].uv = { 0.0f, 0.0f };
+	v[22].uv = { 1.0f, 0.0f };
+	v[23].uv = { 1.0f ,1.0f };
+
+
+	v[0].index = 0;
+	v[1].index = 0;
+	v[2].index = 0;
+	v[3].index = 0;
+	v[4].index = 0;
+	v[5].index = 0;
+
+	v[6].index = 1;
+	v[7].index = 1;
+	v[8].index = 1;
+	v[9].index = 1;
+	v[10].index = 1;
+	v[11].index = 1;
+
+	v[12].index = 2;
+	v[13].index = 2;
+	v[14].index = 2;
+	v[15].index = 2;
+	v[16].index = 2;
+	v[17].index = 2;
+
+	v[18].index = 3;
+	v[19].index = 3;
+	v[20].index = 3;
+	v[21].index = 3;
+	v[22].index = 3;
+	v[23].index = 3;
+
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(v);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = v;
+	HRESULT hr = this->gDevice->CreateBuffer(&bufferDesc, &data, &this->cuVertexBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"upgrades menu vertex buffer failed", L"error", MB_OK);
+	}
+}
+
+void Renderer::createCUShaders()
+{
+	HRESULT hr;
+	ID3DBlob* vsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"CUVS.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&vsBlob,
+		nullptr);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldown vsblob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->cuVS);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" cooldown vertex shader creation failed", L"error", MB_OK);
+	}
+
+	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "INDEX", 0, DXGI_FORMAT_R32_UINT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+
+	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->cuLayout);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldwon input desc creation failed", L"error", MB_OK);
+	}
+
+	vsBlob->Release();
+
+	ID3DBlob *psBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"CUPS.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&psBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"cooldown psBlob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->cuPS);
 	if (FAILED(hr))
 	{
 		MessageBox(0, L" cooldown pixel shader creation failed", L"error", MB_OK);

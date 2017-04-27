@@ -94,3 +94,10 @@ struct debuf
 	float dot;
 	float duration;
 };
+
+struct chooseUpgradesVertex
+{
+	DirectX::XMFLOAT4 pos;
+	DirectX::XMFLOAT2 uv;
+	int index;
+};
