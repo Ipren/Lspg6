@@ -1645,7 +1645,7 @@ void Renderer::updateEmitters(Map * map)
 			temp[emitterCount].particleType = test->pEmitter.particleType;
 			emitterCount++;
 		}
-		if (dynamic_cast<WaterProjectileSpell*>(map->entitys[i]) != nullptr)
+		if (dynamic_cast<WaterProjectileSpell*>(map->entitys[i]) != nullptr && dynamic_cast<WaterProjectileSpell*>(map->entitys[i])->pEmitter.particleType != -1)
 		{
 			WaterProjectileSpell* test = dynamic_cast<WaterProjectileSpell*>(map->entitys[i]);
 			temp[emitterCount].position = test->pEmitter.position;

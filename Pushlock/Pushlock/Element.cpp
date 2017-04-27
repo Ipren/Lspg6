@@ -458,7 +458,7 @@ void EarthElement::projectile(Player * player, Map * map)
 void EarthElement::stomp(Player * player, Map * map)
 {
 	if (cooldown[2] <= 0.f) {
-		if (pUpgrades[player->index].choice[0] = 1)
+		if (pUpgrades[player->index].choice[0] == 1)
 		{
 			auto position = player->position;
 			auto angle = player->angle;
@@ -482,6 +482,124 @@ void EarthElement::stomp(Player * player, Map * map)
 				}
 			}
 		}
+		else if(pUpgrades[player->index].choice[0] == 2)
+		{
+			player->stomped = true;
+			//saves nearby players in a vector
+			auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
+				return e->type == EntityType::Player;
+			});
+
+			for (auto result : nearby) { //moves all nearby players
+				result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+				result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+			}
+			auto position = player->position;
+			auto radius = player->radius;
+
+			WaterProjectileSpell *spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)0) * (radius + 0.4f),
+				0,
+				position.z + sin((float)0) * (radius + 0.4f)
+			},
+			{ cos((float)0) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)0) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)2.45f) * (radius + 0.4f),
+				0,
+				position.z + sin((float)2.45f) * (radius + 0.4f)
+			},
+			{ cos((float)2.45f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)2.45f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)0.9f) * (radius + 0.4f),
+				0,
+				position.z + sin((float)0.9f) * (radius + 0.4f)
+			},
+			{ cos((float)0.9f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)0.9f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+			
+
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)4.1f) * (radius + 0.4f),
+				0,
+				position.z + sin((float)4.1f) * (radius + 0.4f)
+			},
+			{ cos((float)4.1f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)4.1f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)5.6f) * (radius + 0.4f),
+				0,
+				position.z + sin((float)5.6f) * (radius + 0.4f)
+			},
+			{ cos((float)5.6f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)5.6f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)(XM_PI/2)) * (radius + 0.4f),
+				0,
+				position.z + sin((float)(XM_PI / 2)) * (radius + 0.4f)
+			},
+			{ cos((float)XM_PI / 2) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)XM_PI / 2) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)XM_PI) * (radius + 0.4f),
+				0,
+				position.z + sin((float)XM_PI) * (radius + 0.4f)
+			},
+			{ cos((float)XM_PI) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)XM_PI) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos(270 * XM_PI / 180) * (radius + 0.4f),
+				0,
+				position.z + sin(270 * XM_PI / 180) * (radius + 0.4f)
+			},
+			{ cos(270 * XM_PI / 180) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin(270 * XM_PI / 180) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+		
+		}
 		else
 		{
 			player->stomped = true;
@@ -495,9 +613,10 @@ void EarthElement::stomp(Player * player, Map * map)
 				result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
 			}
 
-			cooldown[2] = gSpellConstants.kEarthStompCooldown + gPlayerSpellConstants[player->index].kEarthStompCooldown;
-			map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
+			
 		}
+		cooldown[2] = gSpellConstants.kEarthStompCooldown + gPlayerSpellConstants[player->index].kEarthStompCooldown;
+		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 	}
 }
 

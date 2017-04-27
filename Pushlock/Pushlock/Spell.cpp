@@ -240,6 +240,10 @@ bool WaterProjectileSpell::on_effect(Map * map)
 		
 
 	}
-	dynamic_cast<WaterElement*>(this->owner->element)->active_projectile = nullptr;
+	if (map->playerElemnts[this->owner->index] == 4)
+	{
+		dynamic_cast<WaterElement*>(this->owner->element)->active_projectile = nullptr;
+	}
+	
 	return true;
 }
