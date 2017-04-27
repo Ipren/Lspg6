@@ -8,7 +8,7 @@
 void ArcaneElement::projectile(Player *player, Map *map)
 {
 	if (cooldown[0] <= 0.f) {
-		if (pUpgrades[player->index].choice[0] = 1)
+		if (pUpgrades[player->index].choice[0] == 1)
 		{
 			//skapa en split funktion där varje misil är 50% så stark som orignalet
 		}
