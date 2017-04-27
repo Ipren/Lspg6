@@ -133,8 +133,12 @@ void Map::update(float dt, Camera *cam)
 					else if (a->type == EntityType::Wall && b->type == EntityType::Player)
 					{
 						//changing the acceleration to negative to create a small bounce effect
-						b->acceleration.x = -(a->position.x - b->position.x) * 150;
-						b->acceleration.y = -(a->position.z - b->position.z) * 150;
+						if (!dynamic_cast<Player*>(b)->dashing)
+						{
+							b->acceleration.x = -(a->position.x - b->position.x) * 150;
+							b->acceleration.y = -(a->position.z - b->position.z) * 150;
+						}
+						
 
 						if (b->acceleration.x > 4 || b->acceleration.y > 4)//prevents dashing through the wall
 						{

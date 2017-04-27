@@ -94,19 +94,38 @@ void ArcaneElement::dash(Player * player, Map * map)
 		auto index = player->index;
 		XMFLOAT2 leftVector = gGamepads[index]->get_left_thumb();
 
-		//check if left stick is centered
-		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
+		if (pUpgrades[player->index].choice[0] == 2)
 		{
-			float left_angle = gGamepads[index]->get_left_thumb_angle();
-			player->velocity.x += cos(left_angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
-			player->velocity.y += sin(left_angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
-		}
-		else //if it is centered: dash to where you are looking
-		{
-			player->velocity.x += cos(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
-			player->velocity.y += sin(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
-		}
 
+			if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
+			{
+				float left_angle = gGamepads[index]->get_left_thumb_angle();
+				player->position.x += cos(left_angle) * 5.0f;
+				player->position.z += sin(left_angle) * 5.0f;
+			}
+			else
+			{
+				player->position.x += cos(player->angle) * 5.0f;
+				player->position.z += sin(player->angle) * 5.0f;
+			}
+			player->dashing = true;
+			player->dashTime = 0.0f;
+		}
+		else
+		{
+			//check if left stick is centered
+			if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
+			{
+				float left_angle = gGamepads[index]->get_left_thumb_angle();
+				player->velocity.x += cos(left_angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
+				player->velocity.y += sin(left_angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
+			}
+			else //if it is centered: dash to where you are looking
+			{
+				player->velocity.x += cos(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
+				player->velocity.y += sin(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
+			}
+		}
 		cooldown[1] = gSpellConstants.kArcaneDashCooldown + gPlayerSpellConstants[player->index].kArcaneDashCooldown;
 		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
