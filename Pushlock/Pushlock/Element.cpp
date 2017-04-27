@@ -376,20 +376,46 @@ void EarthElement::projectile(Player * player, Map * map)
 void EarthElement::stomp(Player * player, Map * map)
 {
 	if (cooldown[2] <= 0.f) {
+		if (pUpgrades[player->index].choice[0] = 1)
+		{
+			auto position = player->position;
+			auto angle = player->angle;
+			auto radius = player->radius;
+			Entity *e = nullptr;
+			for (size_t i = 1; i < 5; i++)
+			{
+				e = new Entity(EntityType::emitter, { position.x + cos(angle) * (radius + 0.4f + (float)i), 0.0f, position.z + sin(angle) * (radius + 0.4f + (float)i) }, { 0.0f, 0.0f }, radius);
+				map->add_entity(e);
+				auto nearby = map->get_entities_in_radius(e, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
+					return e->type == EntityType::Player;
+				});
 
-		player->stomped = true;
-		//saves nearby players in a vector
-		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
-			return e->type == EntityType::Player;
-		});
-
-		for (auto result : nearby) { //moves all nearby players
-			result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
-			result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+				for (auto result : nearby) { //moves all nearby players
+					if (dynamic_cast<Player*>(result.entity) != player)
+					{
+						result.entity->velocity.x += 0.35f * cos(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+						result.entity->velocity.y += 0.35f * sin(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+					}
+					
+				}
+			}
 		}
+		else
+		{
+			player->stomped = true;
+			//saves nearby players in a vector
+			auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
+				return e->type == EntityType::Player;
+			});
 
-		cooldown[2] = gSpellConstants.kEarthStompCooldown + gPlayerSpellConstants[player->index].kEarthStompCooldown;
-		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
+			for (auto result : nearby) { //moves all nearby players
+				result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+				result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+			}
+
+			cooldown[2] = gSpellConstants.kEarthStompCooldown + gPlayerSpellConstants[player->index].kEarthStompCooldown;
+			map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
+		}
 	}
 }
 

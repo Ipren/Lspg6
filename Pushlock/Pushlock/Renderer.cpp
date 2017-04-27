@@ -1653,6 +1653,11 @@ void Renderer::updateEmitters(Map * map)
 			temp[emitterCount].particleType = test->pEmitter.particleType;
 			emitterCount++;
 		}
+		if (map->entitys[i]->type == EntityType::emitter)
+		{
+			this->createStompParticles(map->entitys[i]->position, 1);
+			map->entitys[i]->dead = true;
+		}
 	}
 	
 	D3D11_MAPPED_SUBRESOURCE data;
