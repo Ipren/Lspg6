@@ -133,3 +133,13 @@ public:
 private:
 	float strenght;
 };
+
+class WindFartCloudSpell : public Spell
+{
+public:
+	WindFartCloudSpell(Player* owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius);
+	virtual ~WindFartCloudSpell();
+
+	virtual void update(Map *map, float dt) override;
+	virtual bool on_effect(Map *map) override;
+};

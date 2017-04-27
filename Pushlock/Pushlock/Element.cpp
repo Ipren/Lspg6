@@ -353,16 +353,34 @@ void WindElement::projectile(Player * player, Map * map)
 void WindElement::stomp(Player * player, Map * map)
 {
 	if (cooldown[2] <= 0.f) {
-
 		player->stomped = true;
-		//saves nearby players in a vector
-		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance, [](Entity *e) {
-			return e->type == EntityType::Player;
-		});
+		if (pUpgrades[player->index].choice[1] == 1)
+		{
+			auto position = player->position;
 
-		for (auto result : nearby) { //moves all nearby players
-			result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[player->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[player->index].kWindStompStrengthFalloff) - result.distance);
-			result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[player->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[player->index].kWindStompStrengthFalloff) - result.distance);
+			WindFartCloudSpell *spell = new WindFartCloudSpell(player,
+			{
+				position.x,
+				0,
+				position.z
+			}, 
+			{
+				0,
+				0
+			}, gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance);
+			map->add_entity(spell);
+		}
+		else 
+		{
+			//saves nearby players in a vector
+			auto nearby = map->get_entities_in_radius(player, gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance, [](Entity *e) {
+				return e->type == EntityType::Player;
+			});
+
+			for (auto result : nearby) { //moves all nearby players
+				result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[player->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[player->index].kWindStompStrengthFalloff) - result.distance);
+				result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[player->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[player->index].kWindStompStrengthFalloff) - result.distance);
+			}
 		}
 
 		cooldown[2] = gSpellConstants.kWindStompCooldown + gPlayerSpellConstants[player->index].kWindStompCooldown;
@@ -373,6 +391,8 @@ void WindElement::stomp(Player * player, Map * map)
 void WindElement::wall(Player * player, Map * map)
 {
 	if (cooldown[3] <= 0.f) {
+
+
 		auto position = player->position;
 		auto angle = player->angle;
 		auto radius = player->radius;
