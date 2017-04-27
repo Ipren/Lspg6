@@ -21,6 +21,8 @@ public:
 	float maxHealth;
 	Element *element;
 	debuf debuffs;
+	bool dashing;
+	float dashTime;
 	/*0:projectile
 	1:dash
 	2:stomp

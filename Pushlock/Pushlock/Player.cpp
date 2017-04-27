@@ -56,6 +56,13 @@ void Player::update(Map *map, float dt)
 		this->debuffs.dot = 0.0f;
 		this->debuffs.speed = 0.0f;
 	}
+	dashTime += dt;
+	if (dashTime > 0.5f)
+	{
+		dashing = false;
+	}
+	
+
 	velocity.x += acceleration.x * dt;
 	velocity.y += acceleration.y * dt;
 

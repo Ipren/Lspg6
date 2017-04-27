@@ -343,6 +343,11 @@ void WindElement::dash(Player * player, Map * map)
 			player->velocity.x += cos(player->angle) * (gSpellConstants.kWindDashSpeed + gPlayerSpellConstants[player->index].kWindDashSpeed);
 			player->velocity.y += sin(player->angle) * (gSpellConstants.kWindDashSpeed + gPlayerSpellConstants[player->index].kWindDashSpeed);
 		}
+		if (pUpgrades[player->index].choice[0] == 2)
+		{
+			player->dashing = true;
+			player->dashTime = 0.0f;
+		}
 
 		cooldown[1] = gSpellConstants.kWindDashCooldown + gPlayerSpellConstants[player->index].kWindDashCooldown;
 		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);

@@ -117,8 +117,16 @@ void Map::update(float dt, Camera *cam)
 					else if (a->type == EntityType::Player && b->type == EntityType::Spell)
 					{
 						Spell *spell = dynamic_cast<Spell*>(b);
-						if (spell->on_effect(this)) {//calling spell effect
-							spell->dead = true;//deleting the spell
+						if (dynamic_cast<Player*>(a)->dashing)
+						{
+							b->acceleration.x = -b->acceleration.x;
+							b->acceleration.y = -b->acceleration.y;
+						}
+						else
+						{
+							if (spell->on_effect(this)) {//calling spell effect
+								spell->dead = true;//deleting the spell
+							}
 						}
 					}
 					// Player vs. Wall
