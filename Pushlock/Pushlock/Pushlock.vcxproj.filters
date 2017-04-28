@@ -258,6 +258,8 @@
     </FxCompile>
     <FxCompile Include="CUPS.hlsl">
       <Filter>Shaders\gui</Filter>
+    <FxCompile Include="Shadow.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

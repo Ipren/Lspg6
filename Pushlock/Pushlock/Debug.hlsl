@@ -4,6 +4,15 @@ cbuffer Camera : register(b0) {
 	float4x4 Proj;
 };
 
+cbuffer ShadowCamera : register(b5) {
+	float4x4 ShadowWorld;
+	float4x4 ShadowView;
+	float4x4 ShadowProj;
+}
+
+SamplerComparisonState ShadowSampler : register(s0);
+Texture2D ShadowMap : register(t1);
+
 cbuffer Mat : register(b1) {
 	float4 Color;
 }
@@ -38,6 +47,7 @@ struct VS_OUT
 {
     float4 pos : SV_Position;
     float4 wPos : POSITION;
+	float4 viewPos : POSITION1;
 };
 
 VS_OUT VS(float3 pos : POSITION)
@@ -45,8 +55,21 @@ VS_OUT VS(float3 pos : POSITION)
     VS_OUT output;
     output.pos = mul(Proj, mul(View, mul(World, float4(pos, 1.0))));
     output.wPos = mul(World, float4(pos, 1.0f));
+    output.viewPos = mul(View, mul(World, float4(pos, 1.0f)));
     return output;
 
+}
+
+float GetShadow(float d, float4 coords)
+{
+	// orthographic..
+	float3 proj = coords.xyz / coords.w;
+	proj = proj * 0.5 + 0.5;
+	proj.y = 1.0 - proj.y;
+	
+	float shadowDepth = ShadowMap.SampleCmpLevelZero(ShadowSampler, proj.xy, proj.z).r;
+
+	return shadowDepth;
 }
 
 float4 PS(in VS_OUT input) : SV_TARGET
@@ -56,7 +79,9 @@ float4 PS(in VS_OUT input) : SV_TARGET
     float3 diffuse = saturate(dot(-dLightDirection, normal));
     diffuse *= c.xyz * dLightcolor.xyz;
 
-    float3 ambient = c.xyz * float3(0.0f, 0.0f, 0.0f);
+	float4 coords = mul(ShadowProj, mul(ShadowView, mul(ShadowWorld, input.wPos)));
+	float shadow = 1-GetShadow(mul(ShadowView, mul(ShadowWorld, input.wPos)).z, coords);
+	float3 ambient = c.xyz * float3(0.0f, 0.0f, 0.0f);
 
     float attenuation = 1.0f;
     float3 P2L;
@@ -88,5 +113,11 @@ float4 PS(in VS_OUT input) : SV_TARGET
         }
     }
 
-    return float4(diffuse + ambient, 1.0f);
+	coords = coords * 0.5 + 0.5;
+	coords.y = 1.0 - coords.y;
+	float r = ShadowMap.Load(int3(int2(coords.xy * float2(1280, 800)), 0)).r;
+	return float4(diffuse + ambient + 0.2 * shadow, 1.0f);
+	//return float4(float3(input.viewPos.z / 30.0, input.viewPos.z / 30.0, input.viewPos.z / 30.0), 1.0);
+	//return float4(float3(shadow, shadow, shadow), 1.0f);
+	//return float4(float3(r-coords.z, r - coords.z, r-coords.z), 1.0f);
 }

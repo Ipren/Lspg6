@@ -128,8 +128,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			quit |= game->update((elapsed) / 1000.f);
 			game->render();
 
-			ImGui::Render();
-
 			prev = newtime;
 		}
 		delete game;
