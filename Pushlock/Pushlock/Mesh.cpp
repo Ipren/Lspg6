@@ -51,12 +51,6 @@ bool Mesh::LoadStatic(std::string filename, ID3D11Device* device, ID3D11DeviceCo
 void Mesh::PreDraw(ID3D11Device* device, ID3D11DeviceContext* deviceContext) {
 	deviceContext->VSSetShader(custom_mesh_vsh, nullptr, 0);
 	deviceContext->PSSetShader(custom_mesh_psh, nullptr, 0);
-}
-
-void Mesh::Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext )
-{
-
-
 	if (device == nullptr)
 		return;
 
@@ -69,6 +63,13 @@ void Mesh::Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext )
 
 	if (pIndexBuffer != nullptr)
 		deviceContext->IASetIndexBuffer(this->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+}
+
+void Mesh::Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext )
+{
+
+
+	
 
 	
 

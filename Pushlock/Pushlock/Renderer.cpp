@@ -1853,6 +1853,7 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 
 	for (auto entity : map->entitys)
 	{
+
 		XMMATRIX &model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
 
 		shadow_camera.world = model;
@@ -1867,7 +1868,11 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 		gDeviceContext->VSSetConstantBuffers(0, 1, &shadow_wvp_buffer);
 
 		if (entity->pMesh)
+		{
+			entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
 			entity->pMesh->Draw(globalDevice, globalDeviceContext);
+		}
+			
 	}
 	
 	shadow_camera.world = XMMatrixIdentity();
