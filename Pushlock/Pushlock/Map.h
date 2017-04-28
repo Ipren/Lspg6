@@ -34,8 +34,10 @@ public:
 	float timeSinceLastShrunk;
 	float radius;
 	bool shrunk;
+	bool shrinking;
 	float shrinkAmount;
 	float shrinkTimer;
+	float newRadius;
 	GameState* currentState;
 	int indexWinner;
 

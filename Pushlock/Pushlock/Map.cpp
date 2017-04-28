@@ -18,6 +18,7 @@ Map::Map(GameState * currentState)
 
 	}
 	this->indexWinner = -1;
+	shrinking = false;
 }
 
 Map::~Map()
@@ -62,6 +63,7 @@ void Map::reset(int nrOfPlayers)
 	timeSinceLastShrunk = 0.0f;
 	radius = 15.0f;
 	shrunk = true;
+	shrinking = false;
 	shrinkAmount = gDefaultMapConstants.kShrinkAmount;
 	shrinkTimer = gDefaultMapConstants.kShrinkTimer;
 }
@@ -82,8 +84,21 @@ void Map::update(float dt, Camera *cam)
 		timeSinceLastShrunk = 0.0f;
 		if (radius - shrinkAmount > 4.0f)
 		{
-			radius -= shrinkAmount;
+			shrinking = true;
+			newRadius = radius - shrinkAmount;
+			
+		}
+	}
+	if (shrinking)
+	{
+		if ( radius - newRadius > 0.001f)
+		{
+			radius -= 0.001;
 			shrunk = true;
+		}
+		else
+		{
+			shrinking = false;
 		}
 	}
 
