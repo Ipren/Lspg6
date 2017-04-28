@@ -60,7 +60,7 @@ VS_OUT VS(float3 pos : POSITION)
 
 }
 
-float GetShadow(float d, float4 coords)
+float GetShadow(float4 coords)
 {
 	// orthographic..
 	float3 proj = coords.xyz / coords.w;
@@ -80,7 +80,7 @@ float4 PS(in VS_OUT input) : SV_TARGET
     diffuse *= c.xyz * dLightcolor.xyz;
 
 	float4 coords = mul(ShadowProj, mul(ShadowView, mul(ShadowWorld, input.wPos)));
-	float shadow = 1-GetShadow(mul(ShadowView, mul(ShadowWorld, input.wPos)).z, coords);
+	float shadow = 1-GetShadow(coords);
 	float3 ambient = c.xyz * float3(0.0f, 0.0f, 0.0f);
 
     float attenuation = 1.0f;
@@ -91,7 +91,7 @@ float4 PS(in VS_OUT input) : SV_TARGET
     float4 wNorm = mul(World, float4(normal, 1.0f));
     for (uint i = 0; i < nrOfPointLights; i++)
     {
-        wLightPos = mul(World, float4(pLights[i].lightPos, 1.0f)); 
+        wLightPos = float4(pLights[i].lightPos, 1.0f); 
         P2L =  wLightPos.xyz - input.wPos.xyz;
         distance = length(P2L);
         if(distance < pLights[i].range)
@@ -113,11 +113,5 @@ float4 PS(in VS_OUT input) : SV_TARGET
         }
     }
 
-	coords = coords * 0.5 + 0.5;
-	coords.y = 1.0 - coords.y;
-	float r = ShadowMap.Load(int3(int2(coords.xy * float2(1280, 800)), 0)).r;
 	return float4(diffuse + ambient + 0.2 * shadow, 1.0f);
-	//return float4(float3(input.viewPos.z / 30.0, input.viewPos.z / 30.0, input.viewPos.z / 30.0), 1.0);
-	//return float4(float3(shadow, shadow, shadow), 1.0f);
-	//return float4(float3(r-coords.z, r - coords.z, r-coords.z), 1.0f);
 }
