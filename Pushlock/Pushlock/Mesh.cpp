@@ -53,7 +53,7 @@ void Mesh::PreDraw(ID3D11Device* device, ID3D11DeviceContext* deviceContext) {
 	deviceContext->PSSetShader(custom_mesh_psh, nullptr, 0);
 }
 
-void Mesh::Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+void Mesh::Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext )
 {
 
 
@@ -64,11 +64,13 @@ void Mesh::Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	UINT32 offset = 0;
 
 	deviceContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &vertexSize, &offset);
+	deviceContext->IASetInputLayout(this->custom_mesh_layout);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	if (pIndexBuffer != nullptr)
 		deviceContext->IASetIndexBuffer(this->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
 
 	if (pIndexBuffer != nullptr)
 		deviceContext->DrawIndexed(indexArray.size(), 0, 0);
@@ -111,13 +113,19 @@ void Mesh::CreateBuffers()
 	//int offset = 0;
 	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		//{ "TEXCOORD", 0, DXGI_FORMAT_R16G16_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	custom_mesh_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, device);
+	//custom_mesh_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, device);
+	HRESULT hr = this->device->CreateInputLayout(input_desc, ARRAYSIZE(input_desc), blob->GetBufferPointer(), blob->GetBufferSize(), &this->custom_mesh_layout);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" input desc creation failed", L"error", MB_OK);
+	}
 
 	blob = compile_shader(L"Mesh.hlsl", "PS", "ps_5_0", device);
 	DXCALL(device->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &custom_mesh_psh));
+	blob->Release();
 }
 
 void Mesh::PrepareShaders()

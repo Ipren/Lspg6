@@ -2223,6 +2223,9 @@ void Renderer::render(Map *map, Camera *camera)
 			gDeviceContext->IASetVertexBuffers(0, 1, &debug_entity_circle, &size, &offset);
 			gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 			gDeviceContext->IASetInputLayout(debug_entity_layout);
+			gDeviceContext->VSSetShader(debug_entity_vsh, nullptr, 0);
+			gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
+
 			XMFLOAT4 col = normalize_color(i >= 4 ? (0xfff6b2ff * (++i)) : colors[i++]);
 			D3D11_MAPPED_SUBRESOURCE data;
 			DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
@@ -2239,8 +2242,9 @@ void Renderer::render(Map *map, Camera *camera)
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 			gDeviceContext->Draw(129, 0);
 
-			if (entity->pMesh)
-				
+			if (entity->pMesh != nullptr)
+			{
+
 				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
 
 				gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
@@ -2249,9 +2253,10 @@ void Renderer::render(Map *map, Camera *camera)
 				gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 				gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
 				gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
-				
+
 
 				entity->pMesh->Draw(globalDevice, globalDeviceContext);
+			}
 		}
 
 	}

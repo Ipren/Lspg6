@@ -32,6 +32,12 @@ struct pointLight
 };
 StructuredBuffer<pointLight> pLights : register(t0);
 
+struct VS_IN
+{
+    float3 pos : POSITION;
+    float3 nor : NORMAL;
+};
+
 //static const float3 normal = float3(0.0f, 1.0f, 0.0f);
 
 struct VS_OUT
@@ -42,12 +48,12 @@ struct VS_OUT
     float4 wPos : POSITION;
 };
 
-VS_OUT VS(float3 pos : POSITION, float3 nor : NORMAL)
+VS_OUT VS(VS_IN input)
 {
     VS_OUT output;
-    output.pos = mul(Proj, mul(View, mul(World, float4(pos, 1.0))));
-    output.wPos = mul(World, float4(pos, 1.0f));
-	output.nor = nor;
+    output.pos = mul(Proj, mul(View, mul(World, float4(input.pos, 1.0))));
+    output.wPos = mul(World, float4(input.pos, 1.0f));
+	output.nor = input.nor;
 	output.uv = float2(0, 0);
     return output;
 
