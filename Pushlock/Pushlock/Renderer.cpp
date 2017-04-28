@@ -1871,6 +1871,7 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 		gDeviceContext->Unmap(shadow_wvp_buffer, 0);
 		
 		gDeviceContext->VSSetConstantBuffers(0, 1, &shadow_wvp_buffer);
+		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
 		if (entity->pMesh)
 		{
