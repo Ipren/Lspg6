@@ -198,9 +198,9 @@ void Renderer::createShadowMap()
 	D3D11_RASTERIZER_DESC state;
 	ZeroMemory(&state, sizeof(D3D11_RASTERIZER_DESC));
 	state.FillMode = D3D11_FILL_SOLID;
-	state.CullMode = D3D11_CULL_BACK;
-	state.FrontCounterClockwise = true;
-	state.DepthBias = false;
+	state.CullMode = D3D11_CULL_FRONT;
+	state.FrontCounterClockwise = false;
+	state.DepthBias = 0;
 	state.DepthBiasClamp = 0;
 	state.SlopeScaledDepthBias = 0;
 	state.DepthClipEnable = true;
@@ -249,7 +249,7 @@ void Renderer::createShadowMap()
 	sampdesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampdesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampdesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampdesc.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;
+	sampdesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
 	sampdesc.ComparisonFunc = D3D11_COMPARISON_GREATER;
 	DXCALL(gDevice->CreateSamplerState(&sampdesc, &shadowMapSampler));
 
@@ -413,7 +413,7 @@ void Renderer::createDepthBuffers()
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
 	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
-	descDepth.SampleDesc.Count = 4;
+	descDepth.SampleDesc.Count = 1;
 	descDepth.SampleDesc.Quality = 0;
 	descDepth.Usage = D3D11_USAGE_DEFAULT;
 	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
@@ -451,7 +451,7 @@ void Renderer::createDepthBuffers()
 	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 	ZeroMemory(&descDSV, sizeof(descDSV));
 	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
-	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	descDSV.Texture2D.MipSlice = 0;
 	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
 	ZeroMemory(&descSRV, sizeof(descSRV));
@@ -478,7 +478,7 @@ HRESULT Renderer::createDirect3DContext(HWND wndHandle)
 	scd.BufferDesc.RefreshRate.Denominator = 1;
 	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	scd.OutputWindow = wndHandle;
-	scd.SampleDesc.Count = 4;
+	scd.SampleDesc.Count = 1;
 	scd.Windowed = true;
 
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(NULL,
@@ -1786,9 +1786,16 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0x00);
 	gDeviceContext->RSSetState(ShadowRaster);
 
-	shadow_camera.proj = XMMatrixOrthographicLH(25.f, 25.f, 1.f, 30.f);
+	shadow_camera.proj = XMMatrixOrthographicLH(35.f, 35.f, 1.f, 30.f);
 	XMMATRIX view = XMMatrixLookAtLH(XMLoadFloat3(&directionalLightPos), XMLoadFloat3(&directionalLightFocus), { 0, 1, 0 });
 	shadow_camera.view = view;
+
+	D3D11_MAPPED_SUBRESOURCE ddata;
+	DXCALL(gDeviceContext->Map(shadow_wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ddata));
+	{
+		CopyMemory(ddata.pData, &shadow_camera, sizeof(Camera::BufferVals));
+	}
+	gDeviceContext->Unmap(shadow_wvp_buffer, 0);
 
 	{
 		gDeviceContext->IASetInputLayout(debug_map_layout);
@@ -1805,7 +1812,7 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 
 	for (auto entity : map->entitys)
 	{
-		XMMATRIX &model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, 1, entity->radius) * XMMatrixTranslation(entity->position.x, 0, entity->position.z);
+		XMMATRIX &model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
 
 		shadow_camera.world = model;
 		
@@ -2130,7 +2137,7 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->PSSetConstantBuffers(5, 1, &this->shadow_wvp_buffer);
 		
 		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
-		gDeviceContext->PSSetShaderResources(1, 1, &this->shadowMapSRV);
+		gDeviceContext->PSSetShaderResources(1, 1, &this->DepthBufferSRV);
 		gDeviceContext->PSSetSamplers(0, 1, &this->shadowMapSampler);
 
 
@@ -2177,7 +2184,7 @@ void Renderer::render(Map *map, Camera *camera)
 			}
 			gDeviceContext->Unmap(color_buffer, 0);
 
-			XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, 1, entity->radius) * XMMatrixTranslation(entity->position.x, 0, entity->position.z);
+			XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
 
 			camera->vals.world = model;
 			camera->update(0, gDeviceContext);

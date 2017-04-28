@@ -39,6 +39,9 @@ public:
 	ID3D11ShaderResourceView *endMenuTexture;
 	ID3D11RenderTargetView *gBackbufferRTV;
 
+	XMFLOAT3 directionalLightPos;
+	XMFLOAT3 directionalLightFocus;
+
 private:
 	IDXGISwapChain *gSwapChain;
 	
@@ -120,9 +123,6 @@ private:
 	ID3D11PixelShader *cuPS;
 	ID3D11ShaderResourceView *r1CUTextures[5];
 	
-	XMFLOAT3 directionalLightPos;
-	XMFLOAT3 directionalLightFocus;
-
 	Camera::BufferVals shadow_camera;
 	ID3D11Buffer *shadow_wvp_buffer;
 	ID3D11SamplerState *shadowMapSampler;

@@ -60,18 +60,15 @@ VS_OUT VS(float3 pos : POSITION)
 
 }
 
-float GetShadow(float4 coords)
+float GetShadow(float d, float4 coords)
 {
 	// orthographic..
 	float3 proj = coords.xyz / coords.w;
 	proj = proj * 0.5 + 0.5;
 	proj.y = 1.0 - proj.y;
 	
-	float shadowDepth = ShadowMap.SampleCmpLevelZero(ShadowSampler, proj.xy, proj.z/30.0).r;
-	//float shadowDepth = ShadowMap.Sample(ShadowSampler, proj.xy).r;
-	float projDepth = proj.z / 30.0;
+	float shadowDepth = ShadowMap.SampleCmpLevelZero(ShadowSampler, proj.xy, proj.z).r;
 
-	float shadow = projDepth > shadowDepth ? 1.0 : 0.125;
 	return shadowDepth;
 }
 
@@ -82,9 +79,8 @@ float4 PS(in VS_OUT input) : SV_TARGET
     float3 diffuse = saturate(dot(-dLightDirection, normal));
     diffuse *= c.xyz * dLightcolor.xyz;
 
-	float shadow = GetShadow(
-		mul(ShadowProj, mul(ShadowView, mul(ShadowWorld, input.wPos)))
-	);
+	float4 coords = mul(ShadowProj, mul(ShadowView, mul(ShadowWorld, input.wPos)));
+	float shadow = 1-GetShadow(mul(ShadowView, mul(ShadowWorld, input.wPos)).z, coords);
 	float3 ambient = c.xyz * float3(0.0f, 0.0f, 0.0f);
 
     float attenuation = 1.0f;
@@ -117,6 +113,11 @@ float4 PS(in VS_OUT input) : SV_TARGET
         }
     }
 
-//	return float4(float3(input.viewPos.z / 30.0, input.viewPos.z / 30.0, input.viewPos.z / 30.0), 1.0);
-    return float4(float3(shadow, shadow, shadow), 1.0f);
+	coords = coords * 0.5 + 0.5;
+	coords.y = 1.0 - coords.y;
+	float r = ShadowMap.Load(int3(int2(coords.xy * float2(1280, 800)), 0)).r;
+	return float4(diffuse + ambient + 0.2 * shadow, 1.0f);
+	//return float4(float3(input.viewPos.z / 30.0, input.viewPos.z / 30.0, input.viewPos.z / 30.0), 1.0);
+	//return float4(float3(shadow, shadow, shadow), 1.0f);
+	//return float4(float3(r-coords.z, r - coords.z, r-coords.z), 1.0f);
 }

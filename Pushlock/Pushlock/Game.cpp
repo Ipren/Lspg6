@@ -210,6 +210,28 @@ bool Game::update(float dt)
 		}
 		if (ImGui::CollapsingHeader("Game")) {
 			ImGui::TextDisabled("Camera");
+
+			Entity *e = currentMap->entitys[0];
+			float pe[3] = {
+				e->position.x,
+				e->position.y,
+				e->position.z
+			};
+			ImGui::SliderFloat3("pos##dd", pe, -0.f, 8.f);
+			e->position = {
+				pe[0],
+				pe[1],
+				pe[2]
+			};
+			pe[0] = renderer->directionalLightPos.x;
+			pe[1] = renderer->directionalLightPos.y;
+			pe[2] = renderer->directionalLightPos.z;
+			ImGui::SliderFloat3("shadow##ddad", pe, -15.f, 15.f);
+			renderer->directionalLightPos = {
+				pe[0],
+				pe[1],
+				pe[2]
+			};
 			
 			float p[3] = {
 				gGameConstants.kCameraX,
