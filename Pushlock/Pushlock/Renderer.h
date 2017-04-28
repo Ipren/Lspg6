@@ -39,6 +39,12 @@ public:
 	ID3D11ShaderResourceView *endMenuTexture;
 	ID3D11RenderTargetView *gBackbufferRTV;
 
+	ID3D11Buffer *cuVertexBuffer;
+	ID3D11InputLayout *cuLayout;
+	ID3D11VertexShader *cuVS;
+	ID3D11PixelShader *cuPS;
+	ID3D11ShaderResourceView *r1CUTextures[5];
+
 private:
 	IDXGISwapChain *gSwapChain;
 	
@@ -108,11 +114,7 @@ private:
 	ID3D11VertexShader *HPVS;
 	ID3D11PixelShader *HPPS;
 
-	ID3D11Buffer *cuVertexBuffer;
-	ID3D11InputLayout *cuLayout;
-	ID3D11VertexShader *cuVS;
-	ID3D11PixelShader *cuPS;
-	ID3D11ShaderResourceView *r1CUTextures[5];
+	
 	
 
 	ID3D11UnorderedAccessView* nullUAV;

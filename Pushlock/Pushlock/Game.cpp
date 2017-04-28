@@ -566,7 +566,7 @@ void Game::render()
 
 	this->renderer->render(this->currentMap, this->camera);
 	if (this->menu != nullptr)
-		this->menu->render(this->renderer, this->currentState, currentMap->indexWinner);
+		this->menu->render(this->renderer, this->currentState, currentMap->indexWinner, this->currentMap, this->currentRound);
 
 	
 	ImGui::Render();

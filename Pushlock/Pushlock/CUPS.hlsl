@@ -18,18 +18,23 @@ float4 main(VS_OUT input) : SV_TARGET
     if(input.index == 0)
     {
         return p1.Sample(sSampler, input.uv);
+        //return float4(1.0f, 0.0f, 0.0f, 1.0f);
     }
     if (input.index == 1)
     {
         return p2.Sample(sSampler, input.uv);
+        //return float4(0.0f, 1.0f, 0.0f, 1.0f);
     }
     if (input.index == 2)
     {
         return p3.Sample(sSampler, input.uv);
+        //return float4(0.0f, 0.0f, 1.0f, 1.0f);
     }
     if (input.index == 3)
     {
         return p4.Sample(sSampler, input.uv);
+        //return float4(1.0f, 1.0f, 0.0f, 1.0f);
     }
     return menu.Sample(sSampler, input.uv);
+    //return float4(1.0f, 1.0f, 1.0f, 1.0f);
 }
