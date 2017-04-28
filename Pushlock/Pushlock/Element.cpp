@@ -193,6 +193,7 @@ FireElement::FireElement()
 	: active_projectile(nullptr)
 {
 	this->startHealth = 10.f;
+
 }
 
 void FireElement::projectile(Player * player, Map * map)

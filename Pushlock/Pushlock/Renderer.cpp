@@ -1295,6 +1295,27 @@ void Renderer::loadTexture()
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR1arcane.png ", &texture, &this->r1CUTextures[0]);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR1fire.png ", &texture, &this->r1CUTextures[1]);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR1Wind.png ", &texture, &this->r1CUTextures[2]);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR1earth.png ", &texture, &this->r1CUTextures[3]);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR1water.png ", &texture, &this->r1CUTextures[4]);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+
 	texture->Release();
 
 }
@@ -1429,33 +1450,33 @@ void Renderer::createHPShaders()
 void Renderer::createCuBuffers()
 {
 	chooseUpgradesVertex v[24];
-	v[0].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
-	v[1].pos = { -1.0f, 0.0f, 0.0f ,0.0f };
-	v[2].pos = { -1.0f, 1.0f, 0.0f ,0.0f };
-	v[3].pos = { -1.0f, 1.0f, 0.0f ,0.0f };
-	v[4].pos = { 0.0f, 1.0f, 0.0f ,0.0f };
-	v[5].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
+	v[0].pos = { 0.0f, 0.0f, 0.0f ,1.0f };
+	v[1].pos = { -1.0f, 0.0f, 0.0f ,1.0f };
+	v[2].pos = { -1.0f, 1.0f, 0.0f ,1.0f };
+	v[3].pos = { -1.0f, 1.0f, 0.0f ,1.0f };
+	v[4].pos = { 0.0f, 1.0f, 0.0f ,1.0f };
+	v[5].pos = { 0.0f, 0.0f, 0.0f ,1.0f };
 
-	v[6].pos = { 1.0f, 0.0f, 0.0f ,0.0f };
-	v[7].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
-	v[8].pos = { 0.0f, 1.0f, 0.0f ,0.0f };
-	v[9].pos = { 0.0f, 1.0f, 0.0f ,0.0f };
-	v[10].pos = { 1.0f, 1.0f, 0.0f ,0.0f };
-	v[11].pos = { 1.0f, 0.0f, 0.0f ,0.0f };
+	v[6].pos = { 1.0f, 0.0f, 0.0f ,1.0f };
+	v[7].pos = { 0.0f, 0.0f, 0.0f ,1.0f };
+	v[8].pos = { 0.0f, 1.0f, 0.0f ,1.0f };
+	v[9].pos = { 0.0f, 1.0f, 0.0f ,1.0f };
+	v[10].pos = { 1.0f, 1.0f, 0.0f ,1.0f };
+	v[11].pos = { 1.0f, 0.0f, 0.0f ,1.0f };
 
-	v[12].pos = { 0.0f, -1.0f, 0.0f ,0.0f };
-	v[13].pos = { -1.0f, -1.0f, 0.0f ,0.0f };
-	v[14].pos = { -1.0f, 0.0f, 0.0f ,0.0f };
-	v[15].pos = { -1.0f, 0.0f, 0.0f ,0.0f };
-	v[16].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
-	v[17].pos = { 0.0f, -1.0f, 0.0f ,0.0f };
+	v[12].pos = { 0.0f, -1.0f, 0.0f ,1.0f };
+	v[13].pos = { -1.0f, -1.0f, 0.0f ,1.0f };
+	v[14].pos = { -1.0f, 0.0f, 0.0f ,1.0f };
+	v[15].pos = { -1.0f, 0.0f, 0.0f ,1.0f };
+	v[16].pos = { 0.0f, 0.0f, 0.0f ,1.0f };
+	v[17].pos = { 0.0f, -1.0f, 0.0f ,1.0f };
 
-	v[0].pos = { 1.0f, -1.0f, 0.0f ,0.0f };
-	v[0].pos = { 0.0f, -1.0f, 0.0f ,0.0f };
-	v[0].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
-	v[0].pos = { 0.0f, 0.0f, 0.0f ,0.0f };
-	v[0].pos = { 1.0f, 0.0f, 0.0f ,0.0f };
-	v[0].pos = { 1.0f, -1.0f, 0.0f ,0.0f };
+	v[18].pos = { 1.0f, -1.0f, 0.0f ,1.0f };
+	v[19].pos = { 0.0f, -1.0f, 0.0f ,1.0f };
+	v[20].pos = { 0.0f, 0.0f, 0.0f ,1.0f };
+	v[21].pos = { 0.0f, 0.0f, 0.0f ,1.0f };
+	v[22].pos = { 1.0f, 0.0f, 0.0f ,1.0f };
+	v[23].pos = { 1.0f, -1.0f, 0.0f ,1.0f };
 
 
 	v[0].uv = { 1.0f, 1.0f };
@@ -1560,9 +1581,9 @@ void Renderer::createCUShaders()
 
 	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "INDEX", 0, DXGI_FORMAT_R32_UINT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "INDEX", 0, DXGI_FORMAT_R32_SINT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->cuLayout);

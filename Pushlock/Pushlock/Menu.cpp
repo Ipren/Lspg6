@@ -57,7 +57,7 @@ Menu::~Menu()
 
 #include "imgui.h"
 
-void Menu::render(Renderer* renderer, GameState currentState, int winner)
+void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *map, int currentRound)
 {
 
 
@@ -85,20 +85,48 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner)
 		if (currentState == GameState::ChoosePowers)
 		{
 			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cpMenuTexture);
+			renderer->gDeviceContext->Draw(6, 0);
 		}
 		else if (currentState == GameState::MainMenu)
 		{
 			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->mainMenuTexture);
+			renderer->gDeviceContext->Draw(6, 0);
 		}
 		else if (currentState == GameState::EndRound)
 		{
+			vertexSize = sizeof(chooseUpgradesVertex);
+			renderer->gDeviceContext->IASetVertexBuffers(0, 1, &renderer->cuVertexBuffer, &vertexSize, &offset);
+			renderer->gDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			renderer->gDeviceContext->IASetInputLayout(renderer->cuLayout);
+			
+			renderer->gDeviceContext->VSSetShader(renderer->cuVS, nullptr, 0);
+			renderer->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
+			renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
+			renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+			renderer->gDeviceContext->PSSetShader(renderer->cuPS, nullptr, 0);
 			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cuMenuTexture);
+			
+
+			for (size_t i = 1; i < 5; i++)
+			{
+				renderer->gDeviceContext->PSSetShaderResources(i, 1, &renderer->cuMenuTexture);
+			}
+			if (currentRound == 0)
+			{
+				for (size_t i = 0; i < map->nrOfPlayers; i++)
+				{
+					renderer->gDeviceContext->PSSetShaderResources((i + 1), 1, &renderer->r1CUTextures[map->playerElemnts[i]]);
+				}
+			}
+			renderer->gDeviceContext->Draw(24, 0);
+
 		}
 		else if (currentState == GameState::EndGame)
 		{
 			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->endMenuTexture);
+			renderer->gDeviceContext->Draw(6, 0);
 		}
-		renderer->gDeviceContext->Draw(6, 0);
+		
 
 	}
 

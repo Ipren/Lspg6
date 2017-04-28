@@ -37,6 +37,7 @@ void Map::reset(int nrOfPlayers)
 		if (this->playerElemnts[i] == 1)
 		{
 			p->element = new FireElement();
+			p->element->startHealth += gPlayerSpellConstants[p->index].kHealth;
 		}
 		if (this->playerElemnts[i] == 2)
 		{
@@ -79,7 +80,7 @@ void Map::update(float dt, Camera *cam)
 	if (timeSinceLastShrunk > shrinkTimer)
 	{
 		timeSinceLastShrunk = 0.0f;
-		if (radius -= shrinkAmount > 0)
+		if (radius - shrinkAmount > 4.0f)
 		{
 			radius -= shrinkAmount;
 			shrunk = true;
