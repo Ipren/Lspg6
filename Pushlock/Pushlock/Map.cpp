@@ -37,6 +37,7 @@ void Map::reset(int nrOfPlayers)
 		if (this->playerElemnts[i] == 1)
 		{
 			p->element = new FireElement();
+			p->element->startHealth += gPlayerSpellConstants[p->index].kHealth;
 		}
 		if (this->playerElemnts[i] == 2)
 		{
