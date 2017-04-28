@@ -80,7 +80,7 @@ void Map::update(float dt, Camera *cam)
 	if (timeSinceLastShrunk > shrinkTimer)
 	{
 		timeSinceLastShrunk = 0.0f;
-		if (radius -= shrinkAmount > 0)
+		if (radius - shrinkAmount > 4.0f)
 		{
 			radius -= shrinkAmount;
 			shrunk = true;
