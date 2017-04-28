@@ -1853,9 +1853,15 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 
 	for (auto entity : map->entitys)
 	{
+
 		XMMATRIX &model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
 
+		model = XMMatrixMultiply(XMMatrixRotationX(90 * XM_PI / 180), model);
+		model = XMMatrixMultiply(XMMatrixRotationZ(270 * XM_PI / 180), model);
+
+	
 		shadow_camera.world = model;
+
 		
 		D3D11_MAPPED_SUBRESOURCE data;
 		DXCALL(gDeviceContext->Map(shadow_wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
@@ -1867,7 +1873,11 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 		gDeviceContext->VSSetConstantBuffers(0, 1, &shadow_wvp_buffer);
 
 		if (entity->pMesh)
+		{
+			entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
 			entity->pMesh->Draw(globalDevice, globalDeviceContext);
+		}
+			
 	}
 	
 	shadow_camera.world = XMMatrixIdentity();
@@ -2223,6 +2233,9 @@ void Renderer::render(Map *map, Camera *camera)
 			gDeviceContext->IASetVertexBuffers(0, 1, &debug_entity_circle, &size, &offset);
 			gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 			gDeviceContext->IASetInputLayout(debug_entity_layout);
+			gDeviceContext->VSSetShader(debug_entity_vsh, nullptr, 0);
+			gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
+
 			XMFLOAT4 col = normalize_color(i >= 4 ? (0xfff6b2ff * (++i)) : colors[i++]);
 			D3D11_MAPPED_SUBRESOURCE data;
 			DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
@@ -2239,19 +2252,25 @@ void Renderer::render(Map *map, Camera *camera)
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 			gDeviceContext->Draw(129, 0);
 
-			if (entity->pMesh)
-				
-				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
+			if (entity->pMesh != nullptr)
+			{
 
+				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
+				model = XMMatrixMultiply(XMMatrixRotationX( 270* XM_PI / 180), model);
+				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+
+				camera->vals.world = model;
+				camera->update(0, gDeviceContext);
 				gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 				gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 				gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 				gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 				gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
 				gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
-				
+
 
 				entity->pMesh->Draw(globalDevice, globalDeviceContext);
+			}
 		}
 
 	}
