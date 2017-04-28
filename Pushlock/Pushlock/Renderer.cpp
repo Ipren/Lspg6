@@ -1856,7 +1856,12 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 
 		XMMATRIX &model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
 
+		model = XMMatrixMultiply(XMMatrixRotationX(90 * XM_PI / 180), model);
+		model = XMMatrixMultiply(XMMatrixRotationZ(270 * XM_PI / 180), model);
+
+	
 		shadow_camera.world = model;
+
 		
 		D3D11_MAPPED_SUBRESOURCE data;
 		DXCALL(gDeviceContext->Map(shadow_wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
@@ -2251,7 +2256,11 @@ void Renderer::render(Map *map, Camera *camera)
 			{
 
 				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
+				model = XMMatrixMultiply(XMMatrixRotationX( 270* XM_PI / 180), model);
+				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
 
+				camera->vals.world = model;
+				camera->update(0, gDeviceContext);
 				gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 				gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 				gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
