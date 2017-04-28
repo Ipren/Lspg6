@@ -212,6 +212,7 @@ void Renderer::createShadowMap()
 
 	gDeviceContext->RSGetState(&DefaultRaster);
 	
+	// TODO: ta bort
 	ID3D11Texture2D* shadow_map = NULL;
 	D3D11_TEXTURE2D_DESC map_desc;
 	map_desc.Width = WIDTH;
@@ -249,7 +250,7 @@ void Renderer::createShadowMap()
 	sampdesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampdesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampdesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampdesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+	sampdesc.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;
 	sampdesc.ComparisonFunc = D3D11_COMPARISON_GREATER;
 	DXCALL(gDevice->CreateSamplerState(&sampdesc, &shadowMapSampler));
 
