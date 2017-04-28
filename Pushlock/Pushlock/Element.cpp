@@ -263,7 +263,7 @@ void FireElement::stomp(Player * player, Map * map)
 			
 			if (pUpgrades[player->index].choice[0] = 2)
 			{
-				player->element->cooldown[1] == 0.0f;
+				player->element->cooldown[1] = 0.0f;
 			}
 		}
 
