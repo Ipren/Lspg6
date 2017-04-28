@@ -33,10 +33,17 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->debug_map_quad = nullptr;
 	this->debug_map_vsh = nullptr;
 
+	this->mesh_vsh = nullptr;
+	this->mesh_psh = nullptr;
+
 	this->debug_entity_circle = nullptr;
 	this->debug_entity_layout = nullptr;
 	this->debug_entity_psh = nullptr;
 	this->debug_entity_vsh = nullptr;
+
+	this->mesh_psh = nullptr;
+	this->mesh_psh = nullptr;
+
 	this->dLightBuffer = nullptr;
 
 	this->nullSRV = nullptr;
@@ -95,11 +102,23 @@ Renderer::~Renderer()
 	this->debug_map_quad->Release();
 	this->debug_map_psh->Release();
 	this->debug_map_vsh->Release();
+
+	if (this->mesh_vsh)
+		this->mesh_vsh->Release();
+	if (this->mesh_psh)
+	this->mesh_psh->Release();
+
 	this->color_buffer->Release();
 	this->debug_entity_circle->Release();
 	this->debug_entity_layout->Release();
 	this->debug_entity_psh->Release();
 	this->debug_entity_vsh->Release();
+
+	if (this->mesh_vsh)
+		this->mesh_vsh->Release();
+	if (this->mesh_psh)
+		this->mesh_psh->Release();
+
 	this->UAVS[0]->Release();
 	this->UAVS[1]->Release();
 	this->SRVS[0]->Release();
@@ -2220,7 +2239,18 @@ void Renderer::render(Map *map, Camera *camera)
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 			gDeviceContext->Draw(129, 0);
 
-			if(entity->pMesh)
+			if (entity->pMesh)
+				
+				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
+
+				gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+				gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+				gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
+				gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
+				gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+				gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
+				
+
 				entity->pMesh->Draw(globalDevice, globalDeviceContext);
 		}
 

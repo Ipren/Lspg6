@@ -51,6 +51,7 @@ void DumpRecursive(FbxNode* current_node, std::vector<Joint> &joints, int curren
 
 void FBXImporter::Import(const char * filename, sMesh* mesh, vector<sMaterial*>& outMaterials)
 {
+
 	importer->Initialize(filename, -1, manager->GetIOSettings());
 	scene = FbxScene::Create(manager, "Scene");
 
@@ -192,13 +193,14 @@ void FBXImporter::Import(const char * filename, sMesh* mesh, vector<sMaterial*>&
 						
 
 						if (uvmapped) {
-							vertex.numberOfUVs++;
+							//vertex.numberOfUVs++;
 							UV uv_out;
-							uv_out.uvset_id = mesh->uvsets[u].id;
+							//uv_out.uvset_id = mesh->uvsets[u].id;
 							uv_out.U = uv_in[0];
 							uv_out.V = uv_in[1];
 
-							vertex.uvs.push_back(uv_out);
+							//vertex.uvs.push_back(uv_out);
+							mesh->uvs.push_back(uv_out);
 
 						}
 
@@ -292,11 +294,14 @@ void FBXImporter::ExportBinary(const char * outputFile, sMesh* mesh , vector<sMa
 	//Export vertex data all at once
 	file.write(reinterpret_cast<char*>(mesh->verts.data()), sizeof(Vertex) * mesh->header.numberOfVerts);
 	//Export uv vertex data in the correct order
+	/*
 	for (int i = 0; i < mesh->header.numberOfVerts; i++) {
 		for (int j = 0; j < mesh->verts[i].numberOfUVs; j++) {
-			file.write(reinterpret_cast<char*>(&mesh->verts[i].uvs[j]), sizeof(UV));
+			file.write(reinterpret_cast<char*>(&mesh->uvs[i*mesh->header.numberOfVerts + j]), sizeof(UV));
 		}
 	}
+	*/
+	file.write(reinterpret_cast<char*>(mesh->uvs.data()), sizeof(UV) * mesh->header.numberOfVerts * mesh->header.numberOfUVSets);
 
 	//Write material data
 	
@@ -340,6 +345,7 @@ void FBXImporter::ExportBinary(const char * outputFile, sMesh* mesh , vector<sMa
 
 void FBXImporter::ImportBinary(const char * inputFile, sMesh* mesh)
 {
+	/* OLD
 	std::ifstream file(inputFile, std::ios::binary);
 
 	assert(file.is_open());
@@ -351,4 +357,5 @@ void FBXImporter::ImportBinary(const char * inputFile, sMesh* mesh)
 	file.read(reinterpret_cast<char*>(mesh->verts.data()), sizeof(Vertex) * mesh->header.numberOfVerts);
 
 	file.close();
+	*/
 }

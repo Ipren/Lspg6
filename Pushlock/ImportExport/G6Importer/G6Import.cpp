@@ -13,6 +13,9 @@ bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<s
 	outMesh->uvsets.clear();
 	outMesh->uvsets.resize(outMesh->header.numberOfUVSets);
 
+	outMesh->uvs.clear();
+	outMesh->uvs.resize(outMesh->header.numberOfVerts * outMesh->header.numberOfUVSets);
+
 	//Import UVSets
 	file.read(reinterpret_cast<char*>(outMesh->uvsets.data()), sizeof(UVSet) * outMesh->header.numberOfUVSets);
 	for (int i = 0; i < outMesh->header.numberOfUVSets; i++) {
@@ -27,6 +30,9 @@ bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<s
 
 	//Assume indices as linear
 	file.read(reinterpret_cast<char*>(outMesh->verts.data()), sizeof(Vertex) * outMesh->header.numberOfVerts);
+	file.read(reinterpret_cast<char*>(outMesh->uvs.data()), sizeof(UV) * outMesh->header.numberOfVerts * outMesh->header.numberOfUVSets);
+
+	/*
 	for (int i = 0; i < outMesh->header.numberOfVerts; i++) {
 		outMesh->indices.push_back(i);
 
@@ -38,6 +44,8 @@ bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<s
 		}
 
 	}
+
+	*/
 
 
 
