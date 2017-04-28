@@ -745,7 +745,7 @@ void Renderer::createParticleBuffer(int nrOfParticles)
 	}
 
 
-	hr = this->gDevice->CreateBuffer(&desc, &data, &this->stompParticles);
+	hr = this->gDevice->CreateBuffer(&desc, nullptr, &this->stompParticles);
 	if (FAILED(hr))
 	{
 		MessageBox(0, L"stomp particle cbuffer creation failed", L"error", MB_OK);
@@ -2111,7 +2111,7 @@ void Renderer::render(Map *map, Camera *camera)
 	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, DepthBufferMS);
 
 	{
-		XMFLOAT4 col = normalize_color(0x5e6172ff);
+		XMFLOAT4 col = normalize_color(0x998D66ff);
 		D3D11_MAPPED_SUBRESOURCE data;
 		DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
 		{
@@ -2171,13 +2171,19 @@ void Renderer::render(Map *map, Camera *camera)
 
 		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
-		int i = 2;
+		int i = 0;
+		int colors[4] = {
+			0x9EB6D3ff,
+			0xD19C9Cff,
+			0x9ACE9Fff,
+			0xBA99CCff
+		};
 		for (auto entity : map->entitys)
 		{
 			gDeviceContext->IASetVertexBuffers(0, 1, &debug_entity_circle, &size, &offset);
 			gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 			gDeviceContext->IASetInputLayout(debug_entity_layout);
-			XMFLOAT4 col = normalize_color(0xfff6b2ff * (++i));
+			XMFLOAT4 col = normalize_color(i >= 4 ? (0xfff6b2ff * (++i)) : colors[i++]);
 			D3D11_MAPPED_SUBRESOURCE data;
 			DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
 			{
