@@ -108,6 +108,7 @@ struct PlayerSpellConstants {
 	float kArcaneProjectileStrength = 0.0f;
 	float kArcaneProjectileSpeed = 0.0f;
 	float kArcaneProjectileCooldown = 0.0f;
+	float kArcaneProjectileLifeTime = 0.0f;
 
 	float kArcaneStompDistance = 0.0f;
 	float kArcaneStompStrength = 0.0f;
@@ -196,6 +197,11 @@ struct PlayerSpellConstants {
 	int kWaterWallNrOfPillars = 0.0f;
 	float kWaterWallPillarDistance = 0.0f;
 	float kWaterWallPillarRadius = 0.0f;
+
+	float kRadius = 0.0f;
+	float kSpeed = 0.0f;
+	float kFriction = 0.0f;
+	float kHealth = 0.0f;
 
 	//void addDefault(SpellConstants def)
 	//{

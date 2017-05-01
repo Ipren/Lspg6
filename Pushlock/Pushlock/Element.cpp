@@ -8,22 +8,87 @@
 void ArcaneElement::projectile(Player *player, Map *map)
 {
 	if (cooldown[0] <= 0.f) {
-		auto position = player->position;
-		auto angle = player->angle;
-		auto radius = player->radius;
-
-		ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
+		if (pUpgrades[player->index].choice[0] == 1)
 		{
-			position.x + cos(angle) * (radius + 0.4f),
-			0,
-			position.z + sin(angle) * (radius + 0.4f)
-		},
-		{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
-			sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
-			0.1f
-		);
+			if (gPlayerSpellConstants[player->index].kArcaneProjectileStrength > -15.0f)
+			{
+				
+				gPlayerSpellConstants[player->index].kArcaneProjectileStrength = -15.0f;
+				gPlayerSpellConstants[player->index].kArcaneProjectileCooldown = 1.2f;
+			}
 
-		map->add_entity(spell);
+			auto position = player->position;
+			auto angle = player->angle;
+			auto radius = player->radius;
+			XMFLOAT2 v = {0.0f, 0.0f};
+
+			ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
+			{
+				position.x + cos(angle) * (radius + 0.4f),
+				0,
+				position.z + sin(angle) * (radius + 0.4f)
+			},
+			{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
+				sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
+				0.1f
+			);
+			map->add_entity(spell);
+
+			for (size_t i = 1; i < 3; i++)
+			{
+				v = { cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed), sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) };
+				if (i % 2 != 0)
+				{
+					v.x = v.x * cos(i * 20 * XM_PI / 180) - v.y * sin(i * 20 * XM_PI / 180);
+					v.y = v.x * sin(i * 20 * XM_PI / 180) + v.y * cos(i * 20 * XM_PI / 180);
+					spell = new ArcaneProjectileSpell(player,
+					{
+						position.x + cos(angle) * (radius + 0.4f),
+						0,
+						position.z + sin(angle) * (radius + 0.4f)
+					},
+						v,
+						0.1f
+					);
+					map->add_entity(spell);
+				}
+				else
+				{
+					v.x = v.x * cos((i-1) * 15 * XM_PI / 180) + v.y * sin((i - 1) * 15 * XM_PI / 180);
+					v.y = -v.x * sin((i - 1) * 15 * XM_PI / 180) + v.y * cos((i - 1) * 15 * XM_PI / 180);
+					spell = new ArcaneProjectileSpell(player,
+					{
+						position.x + cos(angle) * (radius + 0.4f),
+						0,
+						position.z + sin(angle) * (radius + 0.4f)
+					},
+						v,
+						0.1f
+					);
+					map->add_entity(spell);
+				}
+				
+			}
+		}
+		else 
+		{
+			auto position = player->position;
+			auto angle = player->angle;
+			auto radius = player->radius;
+
+			ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
+			{
+				position.x + cos(angle) * (radius + 0.4f),
+				0,
+				position.z + sin(angle) * (radius + 0.4f)
+			},
+			{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
+				sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
+				0.1f
+			);
+
+			map->add_entity(spell);
+		}
 		cooldown[0] = gSpellConstants.kArcaneProjectileCooldown + gPlayerSpellConstants[player->index].kArcaneProjectileCooldown;
 		map->sounds.play(spellSounds::arcaneProjectile, 0.0f, 50.0f);
 	}
@@ -53,9 +118,9 @@ void ArcaneElement::stomp(Player *player, Map *map)
 void ArcaneElement::wall(Player *player, Map *map)
 {
 	if (cooldown[3] <= 0.f) {
-		auto position = player->position;
-		auto angle = player->angle;
-		auto radius = player->radius;
+		XMFLOAT3 position = player->position;
+		float angle = player->angle;
+		float radius = player->radius;
 
 		XMVECTOR pos = {
 			position.x + cos(angle) * (radius + 1.5f),
@@ -66,14 +131,24 @@ void ArcaneElement::wall(Player *player, Map *map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		/*for (int i = 0; i < gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars; i++)
-		{*/
+		int nrOfPillars = gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars;
+
+		for (int i = 0; i < nrOfPillars; i++)
+		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float) - (gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars) / 2.f) *
-				(gSpellConstants.kArcaneWallPillarDistance + gPlayerSpellConstants[player->index].kArcaneWallPillarDistance)/ 2.f + pos);
-			map->add_entity(new ArcaneWallSpell(player, p, XMFLOAT2(p.x + player->angle, p.z + player->angle), gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
-		//}
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
+
+			Entity* e = map->add_entity(new ArcaneWallSpell(player, p, 
+				gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+			if (i == 0 || i == nrOfPillars-1)
+			{
+				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
+				w->edge = true;
+			}
+		}
+
 
 		cooldown[3] = gSpellConstants.kArcaneWallCooldown + gPlayerSpellConstants[player->index].kArcaneWallCooldown;
 		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
@@ -87,19 +162,38 @@ void ArcaneElement::dash(Player * player, Map * map)
 		auto index = player->index;
 		XMFLOAT2 leftVector = gGamepads[index]->get_left_thumb();
 
-		//check if left stick is centered
-		if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
+		if (pUpgrades[player->index].choice[0] == 2)
 		{
-			float left_angle = gGamepads[index]->get_left_thumb_angle();
-			player->velocity.x += cos(left_angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
-			player->velocity.y += sin(left_angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
-		}
-		else //if it is centered: dash to where you are looking
-		{
-			player->velocity.x += cos(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
-			player->velocity.y += sin(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
-		}
 
+			if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
+			{
+				float left_angle = gGamepads[index]->get_left_thumb_angle();
+				player->position.x += cos(left_angle) * 5.0f;
+				player->position.z += sin(left_angle) * 5.0f;
+			}
+			else
+			{
+				player->position.x += cos(player->angle) * 5.0f;
+				player->position.z += sin(player->angle) * 5.0f;
+			}
+			player->dashing = true;
+			player->dashTime = 0.0f;
+		}
+		else
+		{
+			//check if left stick is centered
+			if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
+			{
+				float left_angle = gGamepads[index]->get_left_thumb_angle();
+				player->velocity.x += cos(left_angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
+				player->velocity.y += sin(left_angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
+			}
+			else //if it is centered: dash to where you are looking
+			{
+				player->velocity.x += cos(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
+				player->velocity.y += sin(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
+			}
+		}
 		cooldown[1] = gSpellConstants.kArcaneDashCooldown + gPlayerSpellConstants[player->index].kArcaneDashCooldown;
 		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
@@ -109,50 +203,56 @@ FireElement::FireElement()
 	: active_projectile(nullptr)
 {
 	this->startHealth = 10.f;
+
 }
 
 void FireElement::projectile(Player * player, Map * map)
 {
-	if (active_projectile == nullptr) {
-		if (cooldown[0] <= 0.f) {
-			auto position = player->position;
-			auto angle = player->angle;
-			auto radius = player->radius;
+	if (cooldown[0] <= 0.f || active_projectile != nullptr)
+	{
+		if (active_projectile == nullptr) {
+			 {
+				auto position = player->position;
+				auto angle = player->angle;
+				auto radius = player->radius;
 
-			FireProjectileSpell *spell = new FireProjectileSpell(player,
-			{
-				position.x + cos(angle) * (radius + 0.4f),
-				0,
-				position.z + sin(angle) * (radius + 0.4f)
-			},
-			{ cos(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed),
-				sin(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed) },
-				0.1f
-			);
-
-			map->add_entity(spell);
-			active_projectile = spell;
-			map->sounds.play(spellSounds::fireProjectile, 0.0f, 50.0f);
-		}
-	}
-	else {
-		if (active_projectile->dead != true)
-		{
-			if (active_projectile->on_effect(map)) {
-				cooldown[0] = gSpellConstants.kFireProjectileCooldown + gPlayerSpellConstants[player->index].kFireProjectileCooldown;
+				FireProjectileSpell *spell = new FireProjectileSpell(player,
 				{
-					player->blowUp = true;
-					active_projectile->dead = true;
-					
-				}
+					position.x + cos(angle) * (radius + 0.4f),
+					0,
+					position.z + sin(angle) * (radius + 0.4f)
+				},
+				{ cos(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed),
+					sin(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed) },
+					0.1f
+				);
+
+				map->add_entity(spell);
+				active_projectile = spell;
+				map->sounds.play(spellSounds::fireProjectile, 0.0f, 50.0f);
+				cooldown[0] = gSpellConstants.kFireProjectileCooldown + gPlayerSpellConstants[player->index].kFireProjectileCooldown;
 			}
 		}
-		else
-		{
-			active_projectile->dead = true;
-			active_projectile = nullptr;
-		}
+		else {
+			if (active_projectile->dead != true)
+			{
+				player->blowUp = true;
+				if (active_projectile->on_effect(map)) {
+					//cooldown[0] = gSpellConstants.kFireProjectileCooldown + gPlayerSpellConstants[player->index].kFireProjectileCooldown;
+					{
+						
+						active_projectile->dead = true;
 
+					}
+				}
+			}
+			else
+			{
+				active_projectile->dead = true;
+				active_projectile = nullptr;
+			}
+
+		}
 	}
 }
 
@@ -170,6 +270,11 @@ void FireElement::stomp(Player * player, Map * map)
 		for (auto result : nearby) { //moves all nearby players
 			result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kFireStompStrength + gPlayerSpellConstants[player->index].kFireStompStrength) * abs((gSpellConstants.kFireStompDistance + gPlayerSpellConstants[player->index].kFireStompDistance + gSpellConstants.kFireStompStrengthFalloff + gPlayerSpellConstants[player->index].kFireStompStrengthFalloff) - result.distance);
 			result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kFireStompStrength + gPlayerSpellConstants[player->index].kFireStompStrength) * abs((gSpellConstants.kFireStompDistance + gPlayerSpellConstants[player->index].kFireStompDistance + gSpellConstants.kFireStompStrengthFalloff + gPlayerSpellConstants[player->index].kFireStompStrengthFalloff) - result.distance);
+			
+			if (pUpgrades[player->index].choice[0] = 2)
+			{
+				player->element->cooldown[1] = 0.0f;
+			}
 		}
 
 		cooldown[2] = gSpellConstants.kFireStompCooldown + gPlayerSpellConstants[player->index].kFireStompCooldown;
@@ -193,15 +298,22 @@ void FireElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars; i++)
+		int nrOfPillars = gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars;
+
+		for (int i = 0; i < nrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
 			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars) / 2.f) *
 				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
 
-			// TODO: fire wall
-			map->add_entity(new ArcaneWallSpell(player, p, XMFLOAT2(p.x + 1.f, p.z + 1.f), gSpellConstants.kFireWallPillarRadius + gPlayerSpellConstants[player->index].kFireWallPillarRadius));
+			Entity* e = map->add_entity(new ArcaneWallSpell(player, p,
+				gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+			if (i == 0 || i == nrOfPillars - 1)
+			{
+				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
+				w->edge = true;
+			}
 		}
 
 		cooldown[3] = gSpellConstants.kFireWallCooldown + gPlayerSpellConstants[player->index].kFireWallCooldown;
@@ -292,15 +404,22 @@ void WindElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kWindWallNrOfPillars + gPlayerSpellConstants[player->index].kWindWallNrOfPillars; i++)
+		int nrOfPillars = gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars;
+
+		for (int i = 0; i < nrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kWindWallNrOfPillars + gPlayerSpellConstants[player->index].kWindWallNrOfPillars) / 2.f) *
-				(gSpellConstants.kWindWallPillarDistance + gPlayerSpellConstants[player->index].kWindWallPillarDistance) / 2.f + pos);
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
 
-			// TODO: Wind wall
-			map->add_entity(new ArcaneWallSpell(player, p, XMFLOAT2(p.x + 1.f, p.z + 1.f), gSpellConstants.kWindWallPillarRadius + gPlayerSpellConstants[player->index].kWindWallPillarRadius));
+			Entity* e = map->add_entity(new ArcaneWallSpell(player, p,
+				gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+			if (i == 0 || i == nrOfPillars - 1)
+			{
+				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
+				w->edge = true;
+			}
 		}
 
 		cooldown[3] = gSpellConstants.kWindWallCooldown  + gPlayerSpellConstants[player->index].kWindWallCooldown;
@@ -325,6 +444,11 @@ void WindElement::dash(Player * player, Map * map)
 		{
 			player->velocity.x += cos(player->angle) * (gSpellConstants.kWindDashSpeed + gPlayerSpellConstants[player->index].kWindDashSpeed);
 			player->velocity.y += sin(player->angle) * (gSpellConstants.kWindDashSpeed + gPlayerSpellConstants[player->index].kWindDashSpeed);
+		}
+		if (pUpgrades[player->index].choice[0] == 2)
+		{
+			player->dashing = true;
+			player->dashTime = 0.0f;
 		}
 
 		cooldown[1] = gSpellConstants.kWindDashCooldown + gPlayerSpellConstants[player->index].kWindDashCooldown;
@@ -359,18 +483,163 @@ void EarthElement::projectile(Player * player, Map * map)
 void EarthElement::stomp(Player * player, Map * map)
 {
 	if (cooldown[2] <= 0.f) {
+		if (pUpgrades[player->index].choice[0] == 1)
+		{
+			auto position = player->position;
+			auto angle = player->angle;
+			auto radius = player->radius;
+			Entity *e = nullptr;
+			for (size_t i = 1; i < 5; i++)
+			{
+				e = new Entity(EntityType::emitter, { position.x + cos(angle) * (radius + 0.4f + (float)i), 0.0f, position.z + sin(angle) * (radius + 0.4f + (float)i) }, { 0.0f, 0.0f }, radius);
+				map->add_entity(e);
+				auto nearby = map->get_entities_in_radius(e, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
+					return e->type == EntityType::Player;
+				});
 
-		player->stomped = true;
-		//saves nearby players in a vector
-		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
-			return e->type == EntityType::Player;
-		});
-
-		for (auto result : nearby) { //moves all nearby players
-			result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
-			result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+				for (auto result : nearby) { //moves all nearby players
+					if (dynamic_cast<Player*>(result.entity) != player)
+					{
+						result.entity->velocity.x += 0.35f * cos(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+						result.entity->velocity.y += 0.35f * sin(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+					}
+					
+				}
+			}
 		}
+		else if(pUpgrades[player->index].choice[0] == 2)
+		{
+			player->stomped = true;
+			//saves nearby players in a vector
+			auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
+				return e->type == EntityType::Player;
+			});
 
+			for (auto result : nearby) { //moves all nearby players
+				result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+				result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+			}
+			auto position = player->position;
+			auto radius = player->radius;
+
+			WaterProjectileSpell *spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)0) * (radius + 0.4f),
+				0,
+				position.z + sin((float)0) * (radius + 0.4f)
+			},
+			{ cos((float)0) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)0) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)2.45f) * (radius + 0.4f),
+				0,
+				position.z + sin((float)2.45f) * (radius + 0.4f)
+			},
+			{ cos((float)2.45f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)2.45f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)0.9f) * (radius + 0.4f),
+				0,
+				position.z + sin((float)0.9f) * (radius + 0.4f)
+			},
+			{ cos((float)0.9f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)0.9f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+			
+
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)4.1f) * (radius + 0.4f),
+				0,
+				position.z + sin((float)4.1f) * (radius + 0.4f)
+			},
+			{ cos((float)4.1f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)4.1f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)5.6f) * (radius + 0.4f),
+				0,
+				position.z + sin((float)5.6f) * (radius + 0.4f)
+			},
+			{ cos((float)5.6f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)5.6f) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)(XM_PI/2)) * (radius + 0.4f),
+				0,
+				position.z + sin((float)(XM_PI / 2)) * (radius + 0.4f)
+			},
+			{ cos((float)XM_PI / 2) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)XM_PI / 2) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos((float)XM_PI) * (radius + 0.4f),
+				0,
+				position.z + sin((float)XM_PI) * (radius + 0.4f)
+			},
+			{ cos((float)XM_PI) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin((float)XM_PI) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+			spell = new WaterProjectileSpell(player,
+			{
+				position.x + cos(270 * XM_PI / 180) * (radius + 0.4f),
+				0,
+				position.z + sin(270 * XM_PI / 180) * (radius + 0.4f)
+			},
+			{ cos(270 * XM_PI / 180) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed),
+				sin(270 * XM_PI / 180) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
+				0.1f
+			);
+			spell->pEmitter.particleType = -1;
+			map->add_entity(spell);
+		
+		}
+		else
+		{
+			player->stomped = true;
+			//saves nearby players in a vector
+			auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
+				return e->type == EntityType::Player;
+			});
+
+			for (auto result : nearby) { //moves all nearby players
+				result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+				result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kEarthStompStrength + gPlayerSpellConstants[player->index].kEarthStompStrength) * abs((gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance + gSpellConstants.kEarthStompStrengthFalloff + gPlayerSpellConstants[player->index].kEarthStompStrengthFalloff) - result.distance);
+			}
+
+			
+		}
 		cooldown[2] = gSpellConstants.kEarthStompCooldown + gPlayerSpellConstants[player->index].kEarthStompCooldown;
 		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 	}
@@ -392,15 +661,22 @@ void EarthElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kEarthWallNrOfPillars + gPlayerSpellConstants[player->index].kEarthWallNrOfPillars; i++)
+		int nrOfPillars = gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars;
+
+		for (int i = 0; i < nrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kEarthWallNrOfPillars + gPlayerSpellConstants[player->index].kEarthWallNrOfPillars) / 2.f) *
-				(gSpellConstants.kEarthWallPillarDistance + gPlayerSpellConstants[player->index].kEarthWallPillarDistance) / 2.f + pos);
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
 
-			// TODO: Earth wall
-			map->add_entity(new ArcaneWallSpell(player, p, XMFLOAT2(p.x + 1.f, p.z + 1.f), gSpellConstants.kEarthWallPillarRadius + gPlayerSpellConstants[player->index].kEarthWallPillarRadius));
+			Entity* e = map->add_entity(new ArcaneWallSpell(player, p,
+				gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+			if (i == 0 || i == nrOfPillars - 1)
+			{
+				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
+				w->edge = true;
+			}
 		}
 
 		cooldown[3] = gSpellConstants.kEarthWallCooldown + gPlayerSpellConstants[player->index].kEarthWallCooldown;
@@ -594,15 +870,22 @@ void WaterElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kWaterWallNrOfPillars + gPlayerSpellConstants[player->index].kWaterWallNrOfPillars; i++)
+		int nrOfPillars = gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars;
+
+		for (int i = 0; i < nrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kWaterWallNrOfPillars + gPlayerSpellConstants[player->index].kWaterWallNrOfPillars) / 2.f) *
-				(gSpellConstants.kWaterWallPillarDistance + gPlayerSpellConstants[player->index].kWaterWallPillarDistance) / 2.f + pos);
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
 
-			// TODO: Earth wall
-			map->add_entity(new ArcaneWallSpell(player, p, XMFLOAT2(p.x + 1.f, p.z + 1.f), gSpellConstants.kWaterWallPillarRadius + gPlayerSpellConstants[player->index].kWaterWallPillarRadius));
+			Entity* e = map->add_entity(new ArcaneWallSpell(player, p,
+				gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+			if (i == 0 || i == nrOfPillars - 1)
+			{
+				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
+				w->edge = true;
+			}
 		}
 
 		cooldown[3] = gSpellConstants.kWaterWallCooldown + gPlayerSpellConstants[player->index].kWaterWallCooldown;

@@ -2,6 +2,7 @@
 
 #include "Constants.h"
 #include "Player.h"
+#include "Upgrades.h"
 
 Spell::Spell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius, float life)
 	: Entity(EntityType::Spell, position, velocity, radius), owner(owner), life(life)
@@ -13,7 +14,7 @@ Spell::~Spell()
 }
 
 ArcaneProjectileSpell::ArcaneProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
-	: Spell(owner, position, velocity, radius, 4.5f), explosion_radius(1.5f), strength(1.f)
+	: Spell(owner, position, velocity, radius, 4.5f + gPlayerSpellConstants[owner->index].kArcaneProjectileLifeTime), explosion_radius(1.5f), strength(1.f)
 {
 	this->pEmitter.randomVector = DirectX::XMFLOAT4(velocity.x, position.x, velocity.y, 1.0f);
 	this->pEmitter.position = position;
@@ -119,8 +120,19 @@ bool FireProjectileSpell::on_effect(Map *map)
 
 		result.entity->velocity.x += cos(result.angle) * ((gSpellConstants.kFireProjectileStrength + gPlayerSpellConstants[owner->index].kFireProjectileStrength) * falloff);
 		result.entity->velocity.y += sin(result.angle) * ((gSpellConstants.kFireProjectileStrength + gPlayerSpellConstants[owner->index].kFireProjectileStrength) * falloff);
+
+		if (pUpgrades[this->owner->index].choice[0] == 1 && dynamic_cast<Player *>(result.entity) != this->owner)
+		{
+			dynamic_cast<Player *>(result.entity)->debuffs.dot = -0.5f;
+			dynamic_cast<Player *>(result.entity)->debuffs.duration = 2;
+		}
 	}
 	map->sounds.play(spellSounds::fireExplotion, 0.0f, 50.0f);
+	if (this->owner->blowUp == false)
+	{
+		dynamic_cast<FireElement*>(this->owner->element)->active_projectile->dead = true;
+		dynamic_cast<FireElement*>(this->owner->element)->active_projectile = nullptr;
+	}
 	return true;
 }
 
@@ -220,7 +232,18 @@ bool WaterProjectileSpell::on_effect(Map * map)
 	for (auto result : nearby) {
 		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWaterProjectileStrenght + gPlayerSpellConstants[owner->index].kWaterProjectileStrenght);
 		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWaterProjectileStrenght + gPlayerSpellConstants[owner->index].kWaterProjectileStrenght);
+		if (pUpgrades[this->owner->index].choice[0] == 1)
+		{
+			dynamic_cast<Player *>(result.entity)->debuffs.speed = -1.0f;
+			dynamic_cast<Player *>(result.entity)->debuffs.duration = 5;
+		}
+		
+
 	}
-	dynamic_cast<WaterElement*>(this->owner->element)->active_projectile = nullptr;
+	if (map->playerElemnts[this->owner->index] == 4)
+	{
+		dynamic_cast<WaterElement*>(this->owner->element)->active_projectile = nullptr;
+	}
+	
 	return true;
 }

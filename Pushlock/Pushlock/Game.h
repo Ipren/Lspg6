@@ -11,6 +11,7 @@ public:
 	~Game();
 
 	bool update(float dt);
+	void updateUpgradeStats();
 	void render();
 
 //private: 
@@ -22,7 +23,6 @@ public:
 	Renderer *renderer;
 	int width;
 	int heigth;
-	bool audioDevicePresent;
 	int playerElements;
 	int currentRound;
 	

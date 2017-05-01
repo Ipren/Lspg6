@@ -21,8 +21,12 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	stomped = false;
 	blowUp = false;
 	ready = false;
-	this->health = gPlayerConstants.maxHealth;
-	this->maxHealth = gPlayerConstants.maxHealth;
+	this->health = gPlayerConstants.maxHealth + gPlayerSpellConstants[index].kHealth;
+	this->maxHealth = gPlayerConstants.maxHealth + gPlayerSpellConstants[index].kHealth;
+
+	this->debuffs.dot = 0.0f;
+	this->debuffs.speed = 0.0f;
+	this->debuffs.duration = 0;
 }
 
 Player::~Player()
@@ -37,8 +41,27 @@ void Player::update(Map *map, float dt)
 	auto right_angle = gGamepads[index]->get_right_thumb_angle();
 	angle = right_angle;
 
-	acceleration.x += left.x * gPlayerConstants.kSpeed;
-	acceleration.y += left.y * gPlayerConstants.kSpeed;
+	acceleration.x += left.x * (gPlayerConstants.kSpeed + gPlayerSpellConstants[index].kSpeed + (debuffs.speed * debuffs.duration));
+	acceleration.y += left.y * (gPlayerConstants.kSpeed + gPlayerSpellConstants[index].kSpeed + (debuffs.speed * debuffs.duration));
+
+
+	
+	if (debuffs.duration  - dt > 0)
+	{
+		debuffs.duration -= dt;
+		this->health += (debuffs.dot * dt);
+	}
+	else
+	{
+		this->debuffs.dot = 0.0f;
+		this->debuffs.speed = 0.0f;
+	}
+	dashTime += dt;
+	if (dashTime > 0.5f)
+	{
+		dashing = false;
+	}
+	
 
 	velocity.x += acceleration.x * dt;
 	velocity.y += acceleration.y * dt;
@@ -47,8 +70,8 @@ void Player::update(Map *map, float dt)
 	position.z += velocity.y * dt;
 
 
-	velocity.x -= velocity.x * gPlayerConstants.kFriction * dt;
-	velocity.y -= velocity.y * gPlayerConstants.kFriction * dt;
+	velocity.x -= velocity.x * (gPlayerConstants.kFriction + gPlayerSpellConstants[index].kFriction) * dt;
+	velocity.y -= velocity.y * (gPlayerConstants.kFriction + gPlayerSpellConstants[index].kFriction) * dt;
 
 	acceleration.x = 0;
 	acceleration.y = 0;

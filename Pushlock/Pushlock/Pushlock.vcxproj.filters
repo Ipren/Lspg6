@@ -253,6 +253,15 @@
     <FxCompile Include="HPVS.hlsl">
       <Filter>Shaders\gui</Filter>
     </FxCompile>
+    <FxCompile Include="CUVS.hlsl">
+      <Filter>Shaders\gui</Filter>
+    </FxCompile>
+    <FxCompile Include="CUPS.hlsl">
+      <Filter>Shaders\gui</Filter>
+    </FxCompile>
+    <FxCompile Include="Shadow.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">

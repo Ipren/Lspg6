@@ -6,7 +6,8 @@ enum class EntityType
 {
 	Player,
 	Spell,
-	Wall
+	Wall,
+	emitter
 };
 
 enum Button
@@ -85,4 +86,18 @@ enum spellSounds
 	earthWall,
 	windWall,
 	waterWall
+};
+
+struct debuf
+{
+	float speed;
+	float dot;
+	float duration;
+};
+
+struct chooseUpgradesVertex
+{
+	DirectX::XMFLOAT4 pos;
+	DirectX::XMFLOAT2 uv;
+	int index;
 };

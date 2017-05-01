@@ -12,6 +12,7 @@
 #include "Upgrades.h"
 #include "Player.h"
 #include "Menu.h"
+#include "Upgrades.h"
 
 
 
@@ -209,6 +210,28 @@ bool Game::update(float dt)
 		}
 		if (ImGui::CollapsingHeader("Game")) {
 			ImGui::TextDisabled("Camera");
+
+			Entity *e = currentMap->entitys[0];
+			float pe[3] = {
+				e->position.x,
+				e->position.y,
+				e->position.z
+			};
+			ImGui::SliderFloat3("pos##dd", pe, -0.f, 8.f);
+			e->position = {
+				pe[0],
+				pe[1],
+				pe[2]
+			};
+			pe[0] = renderer->directionalLightPos.x;
+			pe[1] = renderer->directionalLightPos.y;
+			pe[2] = renderer->directionalLightPos.z;
+			ImGui::SliderFloat3("shadow##ddad", pe, -15.f, 15.f);
+			renderer->directionalLightPos = {
+				pe[0],
+				pe[1],
+				pe[2]
+			};
 			
 			float p[3] = {
 				gGameConstants.kCameraX,
@@ -458,6 +481,7 @@ bool Game::update(float dt)
 			firsttime = true;
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
+			updateUpgradeStats();
 		}
 
 		if (ImGui::Button("start next round")) {
@@ -470,6 +494,7 @@ bool Game::update(float dt)
 			firsttime = true;
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
+			updateUpgradeStats();
 		}
 		ImGui::End();
 	}
@@ -503,13 +528,67 @@ bool Game::update(float dt)
 	return quit;
 }
 
+void Game::updateUpgradeStats()
+{
+	for (size_t i = 0; i < this->currentMap->nrOfPlayers; i++)
+	{
+		if (pUpgrades[i].choice[this->currentRound - 1] == 3)
+		{
+			if (currentMap->playerElemnts[i] == 0) //arcane
+			{
+				gPlayerSpellConstants[i].kArcaneProjectileSeekStrength += 0.5f;
+				gPlayerSpellConstants[i].kArcaneProjectileSeekRadius += 2;
+			}
+			if (currentMap->playerElemnts[i] == 1)//fire
+			{
+				gPlayerSpellConstants[i].kFireProjectileExplosionRadius += 3.0f;
+			}
+			if (currentMap->playerElemnts[i] == 2) //wind
+			{
+				gPlayerSpellConstants[i].kWindProjectileStrength += 1.0f;
+			}
+			if (currentMap->playerElemnts[i] == 3) //earth
+			{
+				gPlayerSpellConstants[i].kFriction += 3.0f;
+			}
+			if (currentMap->playerElemnts[i] == 4)//water
+			{
+				gPlayerSpellConstants[i].kWaterProjectileStrenght += 5.0f;
+			}
+		}
+		if (pUpgrades[i].choice[this->currentRound - 1] == 4)
+		{
+			if (currentMap->playerElemnts[i] == 0)
+			{
+				gPlayerSpellConstants[i].kArcaneProjectileLifeTime += 2.25f;
+			}
+			if (currentMap->playerElemnts[i] == 1)
+			{
+				gPlayerSpellConstants[i].kHealth += 5.0f;
+			}
+			if (currentMap->playerElemnts[i] == 2)
+			{
+				gPlayerSpellConstants[i].kWindDashCooldown -= 1.0f;
+			}
+			if (currentMap->playerElemnts[i] == 3)
+			{
+				gPlayerSpellConstants[i].kEarthStompStrength += 5.0f;
+			}
+			if (currentMap->playerElemnts[i] == 4)
+			{
+				gPlayerSpellConstants[i].kWaterWallCooldown -= 1.0f;
+			}
+		}
+	}
+}
+
 void Game::render()
 {
 
 
 	this->renderer->render(this->currentMap, this->camera);
 	if (this->menu != nullptr)
-		this->menu->render(this->renderer, this->currentState, currentMap->indexWinner);
+		this->menu->render(this->renderer, this->currentState, currentMap->indexWinner, this->currentMap, this->currentRound);
 
 	
 	ImGui::Render();
