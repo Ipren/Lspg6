@@ -30,11 +30,13 @@ public:
 	ID3D11Device *gDevice;
 	ID3D11DeviceContext *gDeviceContext;
 	ID3D11Buffer *quadVertexBuffer;
+	ID3D11Buffer *roundVertexBuffer;
 	ID3D11VertexShader *cpMenuVs;
 	ID3D11PixelShader *cpmenuPS;
 	ID3D11InputLayout *cpQuadLayout;
 	ID3D11ShaderResourceView *cpMenuTexture;
 	ID3D11ShaderResourceView *mainMenuTexture;
+	ID3D11ShaderResourceView *scoreBoardTexture;
 	ID3D11ShaderResourceView *cuMenuTexture;
 	ID3D11ShaderResourceView *endMenuTexture;
 	ID3D11RenderTargetView *gBackbufferRTV;
@@ -160,6 +162,7 @@ private:
 	void createCameraBuffer();
 	void createcpMenuShaders();
 	void createFullScreenQuad();
+	void createScoreQuad();
 	void loadTexture();
 	void createHPBuffers();
 	void createHPShaders();

@@ -59,7 +59,7 @@ Menu::~Menu()
 
 void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *map, int currentRound)
 {
-
+	m_spriteBatch->Begin();
 
 	if (currentState != GameState::Playing)
 	{
@@ -129,8 +129,31 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		
 
 	}
+	if (currentState != GameState::MainMenu && currentState != GameState::EndGame)
+	{
+		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
 
-	m_spriteBatch->Begin();
+		UINT vertexSize = sizeof(float) * 5;
+		UINT offset = 0;
+
+		renderer->gDeviceContext->IASetVertexBuffers(0, 1, &renderer->roundVertexBuffer, &vertexSize, &offset);
+		renderer->gDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		renderer->gDeviceContext->IASetInputLayout(renderer->cpQuadLayout);
+
+		renderer->gDeviceContext->VSSetShader(renderer->cpMenuVs, nullptr, 0);
+		renderer->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->PSSetShader(renderer->cpmenuPS, nullptr, 0);
+
+		renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->scoreBoardTexture);
+		renderer->gDeviceContext->Draw(6, 0);
+
+		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Round: ") + std::to_wstring(map->round)).c_str(), XMFLOAT2(600, 10), Colors::Black);
+
+	}
+
+	
 	if (currentState == GameState::MainMenu)
 		m_spriteBatch->Draw(m_texture.Get(), catPos, nullptr, Colors::White, 0.f, m_origin);
 	else if (currentState == GameState::EndGame)
@@ -140,7 +163,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player: ") + std::to_wstring(winner+1)).c_str(), XMFLOAT2(375, 300), Colors::HotPink);
 	}
 	auto pos = ImGui::GetIO();// .MousePos();
-	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar inte en fin font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
+	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar en font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
 
 	m_spriteBatch->End();
 

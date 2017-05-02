@@ -428,7 +428,7 @@ bool Game::update(float dt)
 				}
 			}
 		}
-	}else if (currentState == GameState::EndRound)//här ska upgraderingar hända
+	}else if (currentState == GameState::EndRound)
 	{
 		//make upgrade choices here
 
@@ -438,6 +438,7 @@ bool Game::update(float dt)
 		if (firsttime == true)
 		{
 			currentMap->reset(currentMap->nrOfPlayers);
+			this->currentMap->round++;
 			firsttime = false;
 		}
 		currentMap->update(dt, camera);
@@ -516,6 +517,7 @@ bool Game::update(float dt)
 		{
 			currentMap->playerPoints[i] = 0;
 		}
+		this->currentMap->round = 1;
 	}
 
 	

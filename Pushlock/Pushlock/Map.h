@@ -38,6 +38,7 @@ public:
 	float shrinkAmount;
 	float shrinkTimer;
 	float newRadius;
+	int round;
 	GameState* currentState;
 	int indexWinner;
 

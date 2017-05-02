@@ -58,6 +58,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createCameraBuffer();
 	this->createcpMenuShaders();
 	this->createFullScreenQuad();
+	this->createScoreQuad();
 	this->createShadowMap();
 	this->loadTexture();
 
@@ -122,6 +123,7 @@ Renderer::~Renderer()
 	this->pLightSRV->Release();
 	this->pointLightCountBuffer->Release();
 	this->quadVertexBuffer->Release();
+	this->roundVertexBuffer->Release();
 	this->cpMenuTexture->Release();
 	this->cpMenuVs->Release();
 	this->cpQuadLayout->Release();
@@ -280,52 +282,6 @@ void Renderer::createShadowMap()
 	blob = compile_shader(L"Shadow.hlsl", "PS", "ps_5_0", gDevice);
 	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &shadowMapPS));
 }
-
-//void Renderer::create_menu()
-//{
-//
-//	std::vector<XMFLOAT3> vertices;
-//	for (int i = 0; i < 128; ++i)
-//	{
-//		XMFLOAT3 vert = {
-//			sin(2 * XM_PI * i / 128.f),
-//			0.1f,
-//			cos(2 * XM_PI * i / 128.f)
-//		};
-//		vertices.push_back(vert);
-//	}
-//	XMFLOAT3 start = vertices[0];
-//	start.z += 2.4f;
-//
-//	vertices[0] = start;
-//	vertices.push_back(start);
-//
-//	D3D11_BUFFER_DESC desc;
-//	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
-//	desc.Usage = D3D11_USAGE_DYNAMIC;
-//	desc.ByteWidth = (UINT)(sizeof(XMFLOAT3) * vertices.size());
-//	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-//	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-//	desc.MiscFlags = 0;
-//	desc.StructureByteStride = 0;
-//
-//	D3D11_SUBRESOURCE_DATA data;
-//	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
-//	data.pSysMem = &vertices[0];
-//
-//	DXCALL(gDevice->CreateBuffer(&desc, &data, &menu_buffer));
-//
-//	ID3DBlob *blob = compile_shader(L"Debug.hlsl", "VS", "vs_5_0", gDevice);
-//	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_entity_vsh));
-//
-//	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
-//		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-//	};
-//	menu_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, gDevice);
-//
-//	blob = compile_shader(L"Debug.hlsl", "PS", "ps_5_0", gDevice);
-//	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &debug_entity_psh));
-//}
 
 void Renderer::createShaders()
 {
@@ -1213,6 +1169,48 @@ void Renderer::createFullScreenQuad()
 
 }
 
+void Renderer::createScoreQuad()
+{
+	struct TriangleVertex
+	{
+		float x, y, z;
+		float u, v;
+	};
+
+	TriangleVertex triangleVertices[6] =
+	{
+		.25f, .75f, 0.0f,		//OO
+		1.0f, 1.0f,				//OX
+
+		-.25f, .75f, 0.0f,		//OO
+		0.0f, 1.0f,				//XO
+
+		-.25f, 1.f, 0.0f,		//XO
+		0.0f,  0.0f,			//OO
+
+		//t2
+		-.25f, 1.f, 0.0f,		//XO
+		0.0f, 0.0f,				//OO
+
+		.25f, 1.f, 0.0f,		//OX
+		1.0f, 0.0f,				//OO
+
+		.25f, .75f, 0.0f,		//OO
+		1.0f, 1.0f				//OX
+	};
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(triangleVertices);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = triangleVertices;
+	this->gDevice->CreateBuffer(&bufferDesc, &data, &this->roundVertexBuffer);
+
+}
+
 void Renderer::createcpMenuShaders()
 {
 	HRESULT hr;
@@ -1318,6 +1316,10 @@ void Renderer::loadTexture()
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
 	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR1water.png ", &texture, &this->r1CUTextures[4]);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/scoreBoardTexture.png ", &texture, &this->scoreBoardTexture);
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
