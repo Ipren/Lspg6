@@ -16,6 +16,7 @@ public:
 	void selectDown(GameState currentState);
 	void selectUp(GameState currentState);
 	int getSelectedButton()const { return this->selectedButton; }
+	void setUpgradesArrowPos(Map *map);
 private:
 	struct mQuad
 	{
@@ -29,6 +30,8 @@ private:
 	std::vector<mQuad> quads;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_cutexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_Balltexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_winner;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
@@ -39,5 +42,7 @@ private:
 	std::unique_ptr<DirectX::BasicEffect> m_effect;
 	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_batch;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
+
+	DirectX::XMFLOAT2 arrowPos[4];
 	
 };

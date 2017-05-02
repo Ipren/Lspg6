@@ -162,18 +162,22 @@ void Player::update(Map *map, float dt)
 		if (gGamepads[index]->get_button_pressed(Gamepad::X))
 		{
 			pUpgrades[index].chooseUpgrade(1);
+			map->upgradeChoice[index] = 0;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::Y))
 		{
 			pUpgrades[index].chooseUpgrade(2);
+			map->upgradeChoice[index] = 1;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::A))
 		{
 			pUpgrades[index].chooseUpgrade(3);
+			map->upgradeChoice[index] = 2;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::B))
 		{
 			pUpgrades[index].chooseUpgrade(4);
+			map->upgradeChoice[index] = 3;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::Start))
 		{

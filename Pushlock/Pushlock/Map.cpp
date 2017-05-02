@@ -20,6 +20,11 @@ Map::Map(GameState * currentState)
 	}
 	this->indexWinner = -1;
 	shrinking = false;
+	for (size_t i = 0; i < 4; i++)
+	{
+		this->upgradeChoice[i] = 0;
+
+	}
 }
 
 Map::~Map()
