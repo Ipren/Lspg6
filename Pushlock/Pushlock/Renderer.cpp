@@ -2184,7 +2184,7 @@ void Renderer::render(Map *map, Camera *camera)
 	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, DepthBufferMS);
 
 	{
-		XMFLOAT4 col = normalize_color(0x998D66ff);
+		XMFLOAT4 col = normalize_color(0x3D9D00AA);
 		D3D11_MAPPED_SUBRESOURCE data;
 		DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
 		{
@@ -2216,6 +2216,15 @@ void Renderer::render(Map *map, Camera *camera)
 
 
 		gDeviceContext->Draw(128*3, 0);
+	}
+	{
+		XMFLOAT4 col = normalize_color(0x998D66ff);
+		D3D11_MAPPED_SUBRESOURCE data;
+		DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
+		{
+			CopyMemory(data.pData, &col, sizeof(float) * 4);
+		}
+		gDeviceContext->Unmap(color_buffer, 0);
 	}
 
 	mapmesh->PreDraw(gDevice, gDeviceContext);
