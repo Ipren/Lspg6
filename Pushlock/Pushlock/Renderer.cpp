@@ -409,8 +409,8 @@ void Renderer::createDepthBuffers()
 	ID3D11Texture2D* depth_tex_ms = NULL;
 	ID3D11Texture2D* depth_tex = NULL;
 	D3D11_TEXTURE2D_DESC descDepth;
-	descDepth.Width = WIDTH;
-	descDepth.Height = HEIGHT;
+	descDepth.Width = 2048;
+	descDepth.Height = 2048;
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
 	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
@@ -1807,6 +1807,7 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	gDeviceContext->OMSetRenderTargets(1, &shadowMapRTV, DepthBuffer);
 	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0x00);
 	gDeviceContext->RSSetState(ShadowRaster);
+	setViewPort(2048, 2048);
 
 	shadow_camera.proj = XMMatrixOrthographicLH(35.f, 35.f, 1.f, 30.f);
 	XMMATRIX view = XMMatrixLookAtLH(XMLoadFloat3(&directionalLightPos), XMLoadFloat3(&directionalLightFocus), { 0, 1, 0 });
@@ -1861,6 +1862,7 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	gDeviceContext->Unmap(shadow_wvp_buffer, 0);
 
 	gDeviceContext->RSSetState(DefaultRaster);
+	setViewPort(WIDTH, HEIGHT);
 }
 
 void Renderer::renderCooldownGUI(Map * map, Camera * cam)
