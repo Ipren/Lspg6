@@ -5,7 +5,7 @@ Release/
 .suo
 Lil game/Lil game/Game.cpp.orig
 *.user
-imgui.ini
+Pushlock/Pushlock/imgui.ini
 *.aps
 Pushlock/packages/
 Pushlock/Pushlock/Element.cpp~RF1f086ac0.TMP
