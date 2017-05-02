@@ -45,6 +45,7 @@ public:
 	XMFLOAT3 directionalLightPos;
 	XMFLOAT3 directionalLightFocus;
 
+	Mesh *mapmesh;
 	ID3D11PixelShader *cuPS;
 	ID3D11ShaderResourceView *r1CUTextures[5];
 
