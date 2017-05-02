@@ -46,7 +46,7 @@ void Player::update(Map *map, float dt)
 
 
 	
-	if (debuffs.duration  - dt > 0)
+	if (debuffs.duration  - dt > 0.0f)
 	{
 		debuffs.duration -= dt;
 		this->health += (debuffs.dot * dt);
