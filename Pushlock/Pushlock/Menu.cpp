@@ -8,6 +8,11 @@ Menu::Menu(Renderer* renderer)
 
 	ID3D11Resource *r = nullptr;
 	DXCALL(CreateDDSTextureFromFile(renderer->gDevice, L"cat.dds", &r, &m_texture, 0, nullptr));
+
+	HRESULT hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/arrow.png ", &r, &this->m_cutexture);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
 	r->Release();
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
 	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"comicsans.spritefont");
@@ -47,6 +52,7 @@ Menu::Menu(Renderer* renderer)
 Menu::~Menu()
 {
 	m_texture.Reset();
+	m_cutexture.Reset();
 	m_spriteBatch.reset();
 
 	m_states.reset();
@@ -132,12 +138,20 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 
 	m_spriteBatch->Begin();
 	if (currentState == GameState::MainMenu)
-		m_spriteBatch->Draw(m_texture.Get(), catPos, nullptr, Colors::White, 0.f, m_origin);
+		m_spriteBatch->Draw(m_cutexture.Get(), catPos, nullptr, Colors::White, 0.f, m_origin);
 	else if (currentState == GameState::EndGame)
 	{
 		/*std::wstring s = L"Player: " + (winner + 1);
 		wchar_t* c = new wchar_t(&s.c_str());*/
 		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player: ") + std::to_wstring(winner+1)).c_str(), XMFLOAT2(375, 300), Colors::HotPink);
+	}
+	else if (currentState == GameState::EndRound)
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			
+		}
+		 
 	}
 	auto pos = ImGui::GetIO();// .MousePos();
 	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar inte en fin font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
