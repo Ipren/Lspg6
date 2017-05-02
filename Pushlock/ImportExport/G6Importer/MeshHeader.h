@@ -29,20 +29,20 @@ struct UVSet
 	string name;
 };
 
-struct UV {
-	int uvset_id;
-	float U, V;
-};
-
 struct Vertex
 {
 	float posX, posY, posZ;
 	float norX, norY, norZ;
-
-	vector<UV> uvs;
-	int numberOfUVs;
+	float u, v;
+	//uv1
+	//uv2
+	//uv3
 	
 	//other stuff?
+};
+
+struct UV {
+	float U, V;
 };
 
 struct Joint {
@@ -59,4 +59,5 @@ struct sMesh
 	vector<int> indices;
 	bool is_skinned;
 	uint8_t mat_id;
+	vector<UV> uvs;
 };

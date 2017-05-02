@@ -18,12 +18,9 @@ void PrintUV(UV uv) {
 
 void PrintVertex(Vertex vertex)
 {
+	out "--------------------" << std::endl;
 	out "Position: { " << vertex.posX << ", " << vertex.posY << ", " << vertex.posZ << "}" << std::endl;
 	out "Normal: { " << vertex.norX << ", " << vertex.norY << ", " << vertex.norZ << "}" << std::endl;
-	for (int i = 0; i < vertex.uvs.size(); i++) {
-		PrintUV(vertex.uvs[i]);
-	}
-	out "--------------------" << std::endl;
 	//out "UV: { " << vertex.U << ", " << vertex.V << "}" << std::endl;
 }
 
@@ -33,9 +30,14 @@ void PrintMesh(const sMesh& mesh)
 	out "Name: " << mesh.name endline;
 	out "# of V: " << mesh.header.numberOfVerts endline;
 
-	for (auto& v : mesh.verts)
-		PrintVertex(v);
+	//for (auto& v : mesh.verts) {
+	for (int v = 0; v < mesh.header.numberOfVerts; v++) {
+		PrintVertex(mesh.verts[v]);
+		for (int u = 0; u < mesh.header.numberOfUVSets; u++) {
+			PrintUV(mesh.uvs[v*u + u]);
 
+		}
+	}
 
 }
 

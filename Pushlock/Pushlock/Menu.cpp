@@ -13,6 +13,10 @@ Menu::Menu(Renderer* renderer)
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
+	hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/choiceball.png ", &r, &this->m_Balltexture);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
 	r->Release();
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
 	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"comicsans.spritefont");
@@ -65,7 +69,7 @@ Menu::~Menu()
 
 void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *map, int currentRound)
 {
-
+	m_spriteBatch->Begin();
 
 	if (currentState != GameState::Playing)
 	{
@@ -125,6 +129,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 				}
 			}
 			renderer->gDeviceContext->Draw(24, 0);
+			this->setUpgradesArrowPos(map);
 
 		}
 		else if (currentState == GameState::EndGame)
@@ -135,8 +140,31 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		
 
 	}
+	if (currentState != GameState::MainMenu && currentState != GameState::EndGame)
+	{
+		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
 
-	m_spriteBatch->Begin();
+		UINT vertexSize = sizeof(float) * 5;
+		UINT offset = 0;
+
+		renderer->gDeviceContext->IASetVertexBuffers(0, 1, &renderer->roundVertexBuffer, &vertexSize, &offset);
+		renderer->gDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		renderer->gDeviceContext->IASetInputLayout(renderer->cpQuadLayout);
+
+		renderer->gDeviceContext->VSSetShader(renderer->cpMenuVs, nullptr, 0);
+		renderer->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+		renderer->gDeviceContext->PSSetShader(renderer->cpmenuPS, nullptr, 0);
+
+		renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->scoreBoardTexture);
+		renderer->gDeviceContext->Draw(6, 0);
+
+		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Round: ") + std::to_wstring(map->round)).c_str(), XMFLOAT2(600, 10), Colors::Black);
+
+	}
+
+	
 	if (currentState == GameState::MainMenu)
 		m_spriteBatch->Draw(m_cutexture.Get(), catPos, nullptr, Colors::White, 0.f, m_origin);
 	else if (currentState == GameState::EndGame)
@@ -149,12 +177,12 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	{
 		for (size_t i = 0; i < 4; i++)
 		{
-			
+			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
 		}
 		 
 	}
 	auto pos = ImGui::GetIO();// .MousePos();
-	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar inte en fin font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
+	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar en font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
 
 	m_spriteBatch->End();
 
@@ -193,6 +221,99 @@ void Menu::selectUp(GameState currentState)
 		selectedButton = buttons[currentState]-1;
 	}
 	setSelectedPos(currentState);
+}
+
+void Menu::setUpgradesArrowPos(Map * map)
+{
+	float offsetX = 640.0f;
+	float offsetY = 400.0f;
+	//p1
+	if (map->upgradeChoice[0] == 0)
+	{
+		this->arrowPos[0].y = 293.0f/2;
+		this->arrowPos[0].x = 180.0f/2;
+	}
+	if (map->upgradeChoice[0] == 1)
+	{
+		this->arrowPos[0].y = 389.0f / 2;
+		this->arrowPos[0].x = 180.0f / 2;
+	}
+	if (map->upgradeChoice[0] == 2)
+	{
+		this->arrowPos[0].y = 480.0f / 2;
+		this->arrowPos[0].x = 180.0f / 2;
+	}
+	if (map->upgradeChoice[0] == 3)
+	{
+		this->arrowPos[0].y = 579.0f / 2;
+		this->arrowPos[0].x = 180.0f / 2;
+	}
+
+	//p2
+	if (map->upgradeChoice[1] == 0)
+	{
+		this->arrowPos[1].y = 293.0f / 2 + offsetY;
+		this->arrowPos[1].x = 180.0f / 2;
+	}
+	if (map->upgradeChoice[1] == 1)
+	{
+		this->arrowPos[1].y = 389.0f / 2 + offsetY;
+		this->arrowPos[1].x = 180.0f / 2;
+	}
+	if (map->upgradeChoice[1] == 2)
+	{
+		this->arrowPos[1].y = 480.0f / 2 + offsetY;
+		this->arrowPos[1].x = 180.0f / 2;
+	}
+	if (map->upgradeChoice[1] == 3)
+	{
+		this->arrowPos[1].y = 579.0f / 2 + offsetY;
+		this->arrowPos[1].x = 180.0f / 2;
+	}
+
+	//p3
+	if (map->upgradeChoice[2] == 0)
+	{
+		this->arrowPos[2].y = 293.0f / 2;
+		this->arrowPos[2].x = 180.0f / 2 + offsetX;
+	}
+	if (map->upgradeChoice[2] == 1)
+	{
+		this->arrowPos[2].y = 389.0f / 2;
+		this->arrowPos[2].x = 180.0f / 2 + offsetX;
+	}
+	if (map->upgradeChoice[2] == 2)
+	{
+		this->arrowPos[2].y = 480.0f / 2;
+		this->arrowPos[2].x = 180.0f / 2 + offsetX;
+	}
+	if (map->upgradeChoice[2] == 3)
+	{
+		this->arrowPos[2].y = 579.0f / 2;
+		this->arrowPos[2].x = 180.0f / 2 + offsetX;
+	}
+
+	//p4
+	if (map->upgradeChoice[3] == 0)
+	{
+		this->arrowPos[3].y = 293.0f / 2 + offsetY;
+		this->arrowPos[3].x = 180.0f / 2 + offsetX;
+	}
+	if (map->upgradeChoice[3] == 1)
+	{
+		this->arrowPos[3].y = 389.0f / 2 + offsetY;
+		this->arrowPos[3].x = 180.0f / 2 + offsetX;
+	}
+	if (map->upgradeChoice[3] == 2)
+	{
+		this->arrowPos[3].y = 480.0f / 2 + offsetY;
+		this->arrowPos[3].x = 180.0f / 2 + offsetX;
+	}
+	if (map->upgradeChoice[3] == 3)
+	{
+		this->arrowPos[3].y = 579.0f / 2 + offsetY;
+		this->arrowPos[3].x = 180.0f / 2 + offsetX;
+	}
 }
 
 void Menu::setSelectedPos(GameState currentState)

@@ -149,7 +149,7 @@ bool Game::update(float dt)
 			if (ImGui::CollapsingHeader("Earth")) {
 				ImGui::TextDisabled("Projectile");
 
-				ImGui::SliderFloat("strength##earth", &gSpellConstants.kEarthProjectileStrength, 0.0f, 90.0f);
+				ImGui::SliderFloat("strength##earth", &gSpellConstants.kEarthProjectileStrength, 0.0f, 3.0f);
 				ImGui::SliderFloat("speed##earth", &gSpellConstants.kEarthProjectileSpeed, 0.0f, 30.0f);
 				ImGui::SliderFloat("cooldown##earth", &gSpellConstants.kEarthProjectileCooldown, 0.0f, 15.0f);
 				ImGui::SliderFloat("effect radius##earth", &gSpellConstants.kEarthProjectileEffectRadius, 0.0f, 6.0f);
@@ -428,7 +428,7 @@ bool Game::update(float dt)
 				}
 			}
 		}
-	}else if (currentState == GameState::EndRound)//här ska upgraderingar hända
+	}else if (currentState == GameState::EndRound)
 	{
 		//make upgrade choices here
 
@@ -438,6 +438,7 @@ bool Game::update(float dt)
 		if (firsttime == true)
 		{
 			currentMap->reset(currentMap->nrOfPlayers);
+			this->currentMap->round++;
 			firsttime = false;
 		}
 		currentMap->update(dt, camera);
@@ -465,7 +466,8 @@ bool Game::update(float dt)
 		int readyCount = 0;
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
-			if (dynamic_cast<Player*>(currentMap->entitys[i])->ready)
+			Player* p = dynamic_cast<Player*>(currentMap->entitys[i]);
+			if (p && p->ready)
 			{
 				readyCount++;
 			}
@@ -482,6 +484,12 @@ bool Game::update(float dt)
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
 			updateUpgradeStats();
+			for (size_t i = 0; i < 4; i++)
+			{
+				currentMap->upgradeChoice[i] = 0;
+					
+			}
+			
 		}
 
 		if (ImGui::Button("start next round")) {
@@ -495,6 +503,11 @@ bool Game::update(float dt)
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
 			updateUpgradeStats();
+			for (size_t i = 0; i < 4; i++)
+			{
+				currentMap->upgradeChoice[i] = 0;
+
+			}
 		}
 		ImGui::End();
 	}
@@ -516,6 +529,7 @@ bool Game::update(float dt)
 		{
 			currentMap->playerPoints[i] = 0;
 		}
+		this->currentMap->round = 1;
 	}
 
 	

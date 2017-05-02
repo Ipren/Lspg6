@@ -57,12 +57,12 @@ struct SpellConstants {
 	float kWindWallPillarDistance = 0.65f;
 	float kWindWallPillarRadius = 0.35f;
 
-	float kEarthProjectileStrength = 0.40f;
+	float kEarthProjectileStrength = 2.2f;
 	float kEarthProjectileSpeed = 10.0f;
-	float kEarthProjectileCooldown = 0.5f;
+	float kEarthProjectileCooldown = 2.5f;
 	float kEarthProjectileEffectRadius = 5.f;
-	float kEarthProjectileEffectFalloff = 0.5f;
-	float kEarthProjectileEffectArmingTime = 0.5f;
+	float kEarthProjectileEffectFalloff = 0.2f;
+	float kEarthProjectileEffectArmingTime = 0.2f;
 
 	float kEarthStompDistance = 5.3f;
 	float kEarthStompStrength = 5.f;

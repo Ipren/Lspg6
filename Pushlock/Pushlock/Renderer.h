@@ -30,11 +30,13 @@ public:
 	ID3D11Device *gDevice;
 	ID3D11DeviceContext *gDeviceContext;
 	ID3D11Buffer *quadVertexBuffer;
+	ID3D11Buffer *roundVertexBuffer;
 	ID3D11VertexShader *cpMenuVs;
 	ID3D11PixelShader *cpmenuPS;
 	ID3D11InputLayout *cpQuadLayout;
 	ID3D11ShaderResourceView *cpMenuTexture;
 	ID3D11ShaderResourceView *mainMenuTexture;
+	ID3D11ShaderResourceView *scoreBoardTexture;
 	ID3D11ShaderResourceView *cuMenuTexture;
 	ID3D11ShaderResourceView *endMenuTexture;
 	ID3D11RenderTargetView *gBackbufferRTV;
@@ -45,6 +47,7 @@ public:
 	XMFLOAT3 directionalLightPos;
 	XMFLOAT3 directionalLightFocus;
 
+	Mesh *mapmesh;
 	ID3D11PixelShader *cuPS;
 	ID3D11ShaderResourceView *r1CUTextures[5];
 
@@ -75,10 +78,16 @@ private:
 	ID3D11VertexShader *debug_map_vsh;
 	ID3D11PixelShader *debug_map_psh;
 
+	ID3D11VertexShader *mesh_vsh;
+	ID3D11PixelShader *mesh_psh;
+
 	ID3D11Buffer *debug_entity_circle;
 	ID3D11InputLayout *debug_entity_layout;
 	ID3D11VertexShader *debug_entity_vsh;
 	ID3D11PixelShader *debug_entity_psh;
+
+	ID3D11VertexShader *model_vsh;
+	ID3D11PixelShader *modely_psh;
 
 	ID3D11Debug *debugDevice;
 
@@ -160,6 +169,7 @@ private:
 	void createCameraBuffer();
 	void createcpMenuShaders();
 	void createFullScreenQuad();
+	void createScoreQuad();
 	void loadTexture();
 	void createHPBuffers();
 	void createHPShaders();

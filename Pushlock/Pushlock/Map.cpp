@@ -12,6 +12,7 @@ Map::Map(GameState * currentState)
 	this->reset(4);
 	this->nrOfAlivePlayers = 4;
 	this->currentState = currentState;
+	this->round = 1;
 	for (size_t i = 0; i < 4; i++)
 	{
 		this->playerElemnts[i] = 0;
@@ -19,6 +20,11 @@ Map::Map(GameState * currentState)
 	}
 	this->indexWinner = -1;
 	shrinking = false;
+	for (size_t i = 0; i < 4; i++)
+	{
+		this->upgradeChoice[i] = 0;
+
+	}
 }
 
 Map::~Map()
@@ -56,6 +62,7 @@ void Map::reset(int nrOfPlayers)
 		entitys.push_back(e);
 		entitys.back()->pMesh = new Mesh();
 		entitys.back()->pMesh->LoadStatic("character.G6Mesh", globalDevice, globalDeviceContext);
+		
 	}
 	this->nrOfAlivePlayers = nrOfPlayers;
 	this->nrOfPlayers = nrOfPlayers;
