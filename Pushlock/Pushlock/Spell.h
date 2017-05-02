@@ -1,4 +1,5 @@
 #pragma once
+#include "Player.h"
 #include "Entity.h"
 #include "Map.h"
 
@@ -61,7 +62,11 @@ class ArcaneWallSpell : public Spell
 public:
 	ArcaneWallSpell(Player *owner, XMFLOAT3 position, float radius)
 		:Spell(owner, position, { 0,0 }, radius, 10.f) {
-		this->type = EntityType::Wall;}
+		this->endPos = endPos;
+		this->type = EntityType::Wall;
+		this->angle = owner->angle;
+		this->edge = false;
+	}
 	virtual ~ArcaneWallSpell() {}
 
 	virtual void update(Map *map, float dt) override
@@ -73,9 +78,11 @@ public:
 	}
 
 	virtual bool on_effect(Map *map) override;// { return false; };
+	XMFLOAT2 endPos;
+	bool edge;
 private:
-	float explosion_radius;
-	float strength;
+	/*float explosion_radius;
+	float strength;*/
 };
 
 class FireProjectileSpell : public Spell

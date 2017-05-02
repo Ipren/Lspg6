@@ -118,9 +118,9 @@ void ArcaneElement::stomp(Player *player, Map *map)
 void ArcaneElement::wall(Player *player, Map *map)
 {
 	if (cooldown[3] <= 0.f) {
-		auto position = player->position;
-		auto angle = player->angle;
-		auto radius = player->radius;
+		XMFLOAT3 position = player->position;
+		float angle = player->angle;
+		float radius = player->radius;
 
 		XMVECTOR pos = {
 			position.x + cos(angle) * (radius + 1.5f),
@@ -131,14 +131,24 @@ void ArcaneElement::wall(Player *player, Map *map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars; i++)
+		int nrOfPillars = gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars;
+
+		for (int i = 0; i < nrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars) / 2.f) *
-				(gSpellConstants.kArcaneWallPillarDistance + gPlayerSpellConstants[player->index].kArcaneWallPillarDistance)/ 2.f + pos);
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
+
+			Entity* e = map->add_entity(new ArcaneWallSpell(player, p, 
+				gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+			if (i == 0 || i == nrOfPillars-1)
+			{
+				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
+				w->edge = true;
+			}
 		}
+
 
 		cooldown[3] = gSpellConstants.kArcaneWallCooldown + gPlayerSpellConstants[player->index].kArcaneWallCooldown;
 		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
@@ -193,6 +203,7 @@ FireElement::FireElement()
 	: active_projectile(nullptr)
 {
 	this->startHealth = 10.f;
+
 }
 
 void FireElement::projectile(Player * player, Map * map)
@@ -262,7 +273,7 @@ void FireElement::stomp(Player * player, Map * map)
 			
 			if (pUpgrades[player->index].choice[0] = 2)
 			{
-				player->element->cooldown[1] == 0.0f;
+				player->element->cooldown[1] = 0.0f;
 			}
 		}
 
@@ -287,15 +298,22 @@ void FireElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars; i++)
+		int nrOfPillars = gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars;
+
+		for (int i = 0; i < nrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
 			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars) / 2.f) *
 				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
 
-			// TODO: fire wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kFireWallPillarRadius + gPlayerSpellConstants[player->index].kFireWallPillarRadius));
+			Entity* e = map->add_entity(new ArcaneWallSpell(player, p,
+				gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+			if (i == 0 || i == nrOfPillars - 1)
+			{
+				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
+				w->edge = true;
+			}
 		}
 
 		cooldown[3] = gSpellConstants.kFireWallCooldown + gPlayerSpellConstants[player->index].kFireWallCooldown;
@@ -406,15 +424,22 @@ void WindElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kWindWallNrOfPillars + gPlayerSpellConstants[player->index].kWindWallNrOfPillars; i++)
+		int nrOfPillars = gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars;
+
+		for (int i = 0; i < nrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kWindWallNrOfPillars + gPlayerSpellConstants[player->index].kWindWallNrOfPillars) / 2.f) *
-				(gSpellConstants.kWindWallPillarDistance + gPlayerSpellConstants[player->index].kWindWallPillarDistance) / 2.f + pos);
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
 
-			// TODO: Wind wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kWindWallPillarRadius + gPlayerSpellConstants[player->index].kWindWallPillarRadius));
+			Entity* e = map->add_entity(new ArcaneWallSpell(player, p,
+				gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+			if (i == 0 || i == nrOfPillars - 1)
+			{
+				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
+				w->edge = true;
+			}
 		}
 
 		cooldown[3] = gSpellConstants.kWindWallCooldown  + gPlayerSpellConstants[player->index].kWindWallCooldown;
@@ -656,15 +681,22 @@ void EarthElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kEarthWallNrOfPillars + gPlayerSpellConstants[player->index].kEarthWallNrOfPillars; i++)
+		int nrOfPillars = gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars;
+
+		for (int i = 0; i < nrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kEarthWallNrOfPillars + gPlayerSpellConstants[player->index].kEarthWallNrOfPillars) / 2.f) *
-				(gSpellConstants.kEarthWallPillarDistance + gPlayerSpellConstants[player->index].kEarthWallPillarDistance) / 2.f + pos);
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
 
-			// TODO: Earth wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kEarthWallPillarRadius + gPlayerSpellConstants[player->index].kEarthWallPillarRadius));
+			Entity* e = map->add_entity(new ArcaneWallSpell(player, p,
+				gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+			if (i == 0 || i == nrOfPillars - 1)
+			{
+				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
+				w->edge = true;
+			}
 		}
 
 		cooldown[3] = gSpellConstants.kEarthWallCooldown + gPlayerSpellConstants[player->index].kEarthWallCooldown;
@@ -858,15 +890,22 @@ void WaterElement::wall(Player * player, Map * map)
 		XMVECTOR dist = pos - XMLoadFloat3(&position);
 		XMVECTOR n = XMVector3Cross(dist, { 0, 1, 0 });
 
-		for (int i = 0; i < gSpellConstants.kWaterWallNrOfPillars + gPlayerSpellConstants[player->index].kWaterWallNrOfPillars; i++)
+		int nrOfPillars = gSpellConstants.kArcaneWallNrOfPillars + gPlayerSpellConstants[player->index].kArcaneWallNrOfPillars;
+
+		for (int i = 0; i < nrOfPillars; i++)
 		{
 
 			XMFLOAT3 p;
-			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kWaterWallNrOfPillars + gPlayerSpellConstants[player->index].kWaterWallNrOfPillars) / 2.f) *
-				(gSpellConstants.kWaterWallPillarDistance + gPlayerSpellConstants[player->index].kWaterWallPillarDistance) / 2.f + pos);
+			XMStoreFloat3(&p, n * ((float)i - (gSpellConstants.kFireWallNrOfPillars + gPlayerSpellConstants[player->index].kFireWallNrOfPillars) / 2.f) *
+				(gSpellConstants.kFireWallPillarDistance + gPlayerSpellConstants[player->index].kFireWallPillarDistance) / 2.f + pos);
 
-			// TODO: Earth wall
-			map->add_entity(new ArcaneWallSpell(player, p, gSpellConstants.kWaterWallPillarRadius + gPlayerSpellConstants[player->index].kWaterWallPillarRadius));
+			Entity* e = map->add_entity(new ArcaneWallSpell(player, p,
+				gSpellConstants.kArcaneWallPillarRadius + gPlayerSpellConstants[player->index].kArcaneWallPillarRadius));
+			if (i == 0 || i == nrOfPillars - 1)
+			{
+				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
+				w->edge = true;
+			}
 		}
 
 		cooldown[3] = gSpellConstants.kWaterWallCooldown + gPlayerSpellConstants[player->index].kWaterWallCooldown;

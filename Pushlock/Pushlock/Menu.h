@@ -10,7 +10,7 @@ public:
 	Menu(Renderer* renderer);
 	virtual ~Menu();
 
-	void render(Renderer* renderer, GameState currentState, int winner);
+	void render(Renderer* renderer, GameState currentState, int winner, Map *map, int currentRound);
 
 	std::vector<int> buttons;
 	void selectDown(GameState currentState);

@@ -21,11 +21,14 @@ public:
 	void update(float dt, ID3D11DeviceContext *gDeviceContext);
 	void updateCamPosBuffer(ID3D11Buffer *rBuffer);
 
+	__declspec(align(16))
 	struct BufferVals {
 		XMMATRIX world;
 		XMMATRIX view;
 		XMMATRIX proj;
-	} vals;
+	};
+
+	BufferVals vals;
 
 	XMVECTOR pos, look;
 	XMVECTOR target;

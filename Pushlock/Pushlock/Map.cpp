@@ -18,6 +18,7 @@ Map::Map(GameState * currentState)
 
 	}
 	this->indexWinner = -1;
+	shrinking = false;
 }
 
 Map::~Map()
@@ -37,6 +38,7 @@ void Map::reset(int nrOfPlayers)
 		if (this->playerElemnts[i] == 1)
 		{
 			p->element = new FireElement();
+			p->element->startHealth += gPlayerSpellConstants[p->index].kHealth;
 		}
 		if (this->playerElemnts[i] == 2)
 		{
@@ -61,13 +63,15 @@ void Map::reset(int nrOfPlayers)
 	timeSinceLastShrunk = 0.0f;
 	radius = 15.0f;
 	shrunk = true;
+	shrinking = false;
 	shrinkAmount = gDefaultMapConstants.kShrinkAmount;
 	shrinkTimer = gDefaultMapConstants.kShrinkTimer;
 }
 
-void Map::add_entity(Entity * entity)
+Entity* Map::add_entity(Entity * entity)
 {
 	entitys_to_add.push_back(entity);
+	return entity;
 }
 
 void Map::update(float dt, Camera *cam)
@@ -79,10 +83,23 @@ void Map::update(float dt, Camera *cam)
 	if (timeSinceLastShrunk > shrinkTimer)
 	{
 		timeSinceLastShrunk = 0.0f;
-		if (radius -= shrinkAmount > 0)
+		if (radius - shrinkAmount > 4.0f)
 		{
-			radius -= shrinkAmount;
+			shrinking = true;
+			newRadius = radius - shrinkAmount;
+			
+		}
+	}
+	if (shrinking)
+	{
+		if ( radius - newRadius > 0.001f)
+		{
+			radius -= 0.001;
 			shrunk = true;
+		}
+		else
+		{
+			shrinking = false;
 		}
 	}
 
@@ -104,7 +121,7 @@ void Map::update(float dt, Camera *cam)
 
 				float distance = sqrt(dx * dx + dz * dz);
 
-				if (distance < (a->radius + b->radius))
+				if (distance < (a->radius + b->radius) && a->type != EntityType::Wall)
 				{
 					// Player vs. Player
 					if (a->type == EntityType::Player && b->type == EntityType::Player)
@@ -129,30 +146,33 @@ void Map::update(float dt, Camera *cam)
 							}
 						}
 					}
-					// Player vs. Wall
-					else if (a->type == EntityType::Wall && b->type == EntityType::Player)
+
+				}//wall checks
+				else if (a->type == EntityType::Wall && b->type != EntityType::Wall) 
+				{
+
+
+					
+
+					ArcaneWallSpell* wall = dynamic_cast<ArcaneWallSpell*>(a);
+					/*XMFLOAT2 vec;
+					vec.x = wall->endPos.x - wall->position.x;
+					vec.y = wall->endPos.y - wall->position.z;
+					XMVECTOR top = XMVector2Dot({ vec.x, vec.y,0.f,0.f }, { b->position.x, b->position.z,0.f,0.f });
+					XMVECTOR bot = XMVector2Dot({ b->position.x, b->position.z,0.f,0.f }, { b->position.x, b->position.z,0.f,0.f });
+					XMVECTOR point = top / bot * XMVECTOR{ b->position.x, b->position.z, 0.f, 0.f };
+					if (distance < XMVectorGetX(XMVector2Length(point - XMVECTOR{ b->position.x, b->position.z , 0.f,0.f})))*/
+					/*float wLength = XMVectorGetX(XMVector2Length({ wall->endPos.x - wall->position.x , wall->endPos.y - wall->position.z ,0.f,0.f}));
+					int nrOfCircles = wLength / a->radius;
+					for (int i = 0; i < nrOfCircles; i++)
 					{
-						//changing the acceleration to negative to create a small bounce effect
-						if (!dynamic_cast<Player*>(b)->dashing)
-						{
-							b->acceleration.x = -(a->position.x - b->position.x) * 150;
-							b->acceleration.y = -(a->position.z - b->position.z) * 150;
-						}
-						
 
-						if (b->acceleration.x > 4 || b->acceleration.y > 4)//prevents dashing through the wall
-						{
-							if ((this->playerElemnts[dynamic_cast<Player*>(b)->index] && pUpgrades[dynamic_cast<Player*>(b)->index].choice[0] == 1) == false)
-							{
-								b->velocity.x = -b->velocity.x;
-								b->velocity.y = -b->velocity.y;
-							}
-							
-						}
+						dx = abs(a->position.x - b->position.x + i*a->radius);
+						dz = abs(a->position.z - b->position.z + i*a->radius);
 
-					}
-					//Spell vs. Wall
-					else if (a->type == EntityType::Wall && b->type == EntityType::Spell)
+						distance = sqrt(dx * dx + dz * dz);*/
+
+					if (distance < a->radius + b->radius)
 					{
 						XMVECTOR aPos;
 						XMVECTOR bPos;
@@ -161,21 +181,31 @@ void Map::update(float dt, Camera *cam)
 						bPos = XMVectorSet(b->position.x, b->position.z, 0.f, 0.f);
 						bVel = XMVectorSet(b->velocity.x, b->velocity.y, 0.f, 0.f);
 
-						XMVECTOR norm = bPos - aPos;
+						XMVECTOR norm;
+
+						if(wall->edge)
+							norm = aPos - bPos;
+						else
+						{
+							norm = XMVectorSet(cos(wall->angle), sin(wall->angle), 0.f, 0.f);
+							if (XMVectorGetX(XMVector2Dot(norm, bVel)) < 0)
+							{
+								norm = -norm;
+							}
+						}
+
 						norm = XMVector2Normalize(norm);
 						//bVel = bVel - 2 * XMVector4Dot(norm, bVel) * norm;
 						bVel = XMVector2Reflect(bVel, norm);
+
+						b->position.x = a->position.x + (XMVectorGetX(-norm) * (a->radius + b->radius + 0.1f));
+						b->position.z = a->position.z + (XMVectorGetY(-norm) * (a->radius + b->radius + 0.1f));
+						
 						b->velocity.x = XMVectorGetX(bVel);
 						b->velocity.y = XMVectorGetY(bVel);
 
-						b->position.x = a->position.x + (XMVectorGetX(norm) * (a->radius + b->radius));
-						b->position.y = a->position.y + (XMVectorGetY(norm) * (a->radius + b->radius));
-
-
-						/*b->velocity.x = -b->velocity.x;
-						b->velocity.y = -b->velocity.y;*/
+							
 					}
-
 				}
 			}
 		}

@@ -39,6 +39,15 @@ public:
 	ID3D11ShaderResourceView *endMenuTexture;
 	ID3D11RenderTargetView *gBackbufferRTV;
 
+	ID3D11Buffer *cuVertexBuffer;
+	ID3D11InputLayout *cuLayout;
+	ID3D11VertexShader *cuVS;
+	XMFLOAT3 directionalLightPos;
+	XMFLOAT3 directionalLightFocus;
+
+	ID3D11PixelShader *cuPS;
+	ID3D11ShaderResourceView *r1CUTextures[5];
+
 private:
 	IDXGISwapChain *gSwapChain;
 	
@@ -46,7 +55,13 @@ private:
 	ID3D11DepthStencilState *DepthStateRead;
 	ID3D11DepthStencilState *DepthStateDisable;
 
-	ID3D11DepthStencilView *gDepthStencil;
+	ID3D11DepthStencilView *DepthBufferMS;
+	ID3D11DepthStencilView *DepthBuffer;
+	ID3D11ShaderResourceView* DepthBufferSRV;
+
+	ID3D11RasterizerState *ShadowRaster;
+	ID3D11RasterizerState *DefaultRaster;
+
 
 	ID3D11Buffer *color_buffer;
 
@@ -108,12 +123,15 @@ private:
 	ID3D11VertexShader *HPVS;
 	ID3D11PixelShader *HPPS;
 
-	ID3D11Buffer *cuVertexBuffer;
-	ID3D11InputLayout *cuLayout;
-	ID3D11VertexShader *cuVS;
-	ID3D11PixelShader *cuPS;
-	ID3D11ShaderResourceView *r1CUTextures[5];
 	
+	
+	Camera::BufferVals shadow_camera;
+	ID3D11Buffer *shadow_wvp_buffer;
+	ID3D11SamplerState *shadowMapSampler;
+	ID3D11RenderTargetView *shadowMapRTV;
+	ID3D11ShaderResourceView *shadowMapSRV;
+	ID3D11VertexShader *shadowMapVS;
+	ID3D11PixelShader *shadowMapPS;
 
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
@@ -128,6 +146,7 @@ private:
 
 	//void create_menu();
 	void create_debug_entity();
+	void createShadowMap();
 	void createShaders();
 	void createDepthBuffers();
 	HRESULT createDirect3DContext(HWND wndHandle);
@@ -159,6 +178,7 @@ private:
 	void updatecooldownGUI(Player *player);
 	void updateHPBuffers(Player *player);
 
+	void renderShadowMap(Map *map, Camera *cam);
 
 	void renderCooldownGUI(Map *map, Camera *cam);
 	void renderHPGUI(Map *map, Camera *cam);

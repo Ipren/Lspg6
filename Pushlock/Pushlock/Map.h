@@ -19,7 +19,7 @@ public:
 	virtual ~Map();
 
 	void reset(int nrOfPlayers = 4);
-	void add_entity(Entity *entity);
+	Entity* add_entity(Entity *entity);
 	void update(float dt, Camera *cam);
 
 	std::vector<EntityQueryResult> get_entities_in_radius(Entity *self, float radius, std::function<bool(Entity*)> predicate);
@@ -34,8 +34,10 @@ public:
 	float timeSinceLastShrunk;
 	float radius;
 	bool shrunk;
+	bool shrinking;
 	float shrinkAmount;
 	float shrinkTimer;
+	float newRadius;
 	GameState* currentState;
 	int indexWinner;
 
