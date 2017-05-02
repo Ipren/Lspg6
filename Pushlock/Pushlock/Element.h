@@ -4,6 +4,7 @@
 
 class FireProjectileSpell;
 class WaterProjectileSpell;
+class WindBeaconSpell;
 class Player;
 
 class Element {
@@ -63,6 +64,10 @@ public:
 	virtual void wall(Player *player, Map *map) override;
 	virtual void dash(Player *player, Map *map) override;
 
+private:
+	bool beaconOut = false;
+	WindBeaconSpell *spell = nullptr;
+
 };
 
 class EarthElement : public Element {
@@ -74,7 +79,6 @@ public:
 	virtual void stomp(Player *player, Map *map) override;
 	virtual void wall(Player *player, Map *map) override;
 	virtual void dash(Player *player, Map *map) override;
-
 };
 
 class WaterElement : public Element {

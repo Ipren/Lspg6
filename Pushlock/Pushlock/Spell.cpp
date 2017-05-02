@@ -275,3 +275,41 @@ bool WindFartCloudSpell::on_effect(Map * map)
 
 	return false;
 }
+
+WindBeaconSpell::WindBeaconSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius) 
+	: Spell(owner, position, velocity, radius, 4.5f), lifetime(0.0f)
+{
+}
+
+WindBeaconSpell::~WindBeaconSpell()
+{
+}
+
+void WindBeaconSpell::update(Map * map, float dt)
+{
+	if (lifetime <= 0.0f)
+	{
+		owner->stomped = true;
+		//saves nearby players in a vector
+		auto nearby = map->get_entities_in_radius(this, gSpellConstants.kWindStompDistance + gPlayerSpellConstants[owner->index].kWindStompDistance, [](Entity *e) {
+			return e->type == EntityType::Player;
+		});
+
+		for (auto result : nearby) { //moves all nearby players
+			result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[owner->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[owner->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[owner->index].kWindStompStrengthFalloff) - result.distance);
+			result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[owner->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[owner->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[owner->index].kWindStompStrengthFalloff) - result.distance);
+		}
+
+		lifetime = gSpellConstants.kWindStompCooldown + gPlayerSpellConstants[owner->index].kWindStompCooldown;
+		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
+	}
+	else
+	{
+		lifetime -= dt;
+	}
+}
+
+bool WindBeaconSpell::on_effect(Map * map)
+{
+	return false;
+}

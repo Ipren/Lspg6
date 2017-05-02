@@ -150,3 +150,16 @@ public:
 	virtual void update(Map *map, float dt) override;
 	virtual bool on_effect(Map *map) override;
 };
+
+class WindBeaconSpell : public Spell
+{
+public:
+	WindBeaconSpell(Player* owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius);
+	virtual ~WindBeaconSpell();
+
+	virtual void update(Map *map, float dt) override;
+	virtual bool on_effect(Map *map) override;
+
+private:
+	float lifetime;
+};

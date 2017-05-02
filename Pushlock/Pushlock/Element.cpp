@@ -388,6 +388,32 @@ void WindElement::stomp(Player * player, Map * map)
 			}, gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance);
 			map->add_entity(spell);
 		}
+		else if (pUpgrades[player->index].choice[1] == 2)
+		{
+			if (beaconOut == false)
+			{
+				auto position = player->position;
+
+				spell = new WindBeaconSpell(player,
+				{
+					position.x,
+					0,
+					position.z
+				},
+				{
+					0,
+					0
+				}, 0.1f);
+				map->add_entity(spell);
+				beaconOut = true;
+			}
+			else
+			{
+				spell->dead = true;
+				beaconOut = false;
+			}
+
+		}
 		else 
 		{
 			//saves nearby players in a vector
