@@ -40,6 +40,7 @@ public:
 	float newRadius;
 	GameState* currentState;
 	int indexWinner;
+	int upgradeChoice[4];
 
 	SoundSystem sounds;
 	/*used for starting each round with the same nr of players*/

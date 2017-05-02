@@ -482,6 +482,12 @@ bool Game::update(float dt)
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
 			updateUpgradeStats();
+			for (size_t i = 0; i < 4; i++)
+			{
+				currentMap->upgradeChoice[i] = 0;
+					
+			}
+			
 		}
 
 		if (ImGui::Button("start next round")) {
@@ -495,6 +501,11 @@ bool Game::update(float dt)
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
 			updateUpgradeStats();
+			for (size_t i = 0; i < 4; i++)
+			{
+				currentMap->upgradeChoice[i] = 0;
+
+			}
 		}
 		ImGui::End();
 	}
