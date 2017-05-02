@@ -74,10 +74,10 @@ float4 PS(in VS_OUT input) : SV_TARGET
     float distance;
     float nDotL;
     float4 wLightPos;
-    //float4 wNorm = mul(World, float4(input.nor, 1.0f));
+    //float4 wNorm = float4(input.nor, 1.0f);
     for (uint i = 0; i < nrOfPointLights; i++)
     {
-        wLightPos = mul(World, float4(pLights[i].lightPos, 1.0f)); 
+        wLightPos = float4(pLights[i].lightPos, 1.0f); 
         P2L =  wLightPos.xyz - input.wPos.xyz;
         distance = length(P2L);
         if(distance < pLights[i].range)
