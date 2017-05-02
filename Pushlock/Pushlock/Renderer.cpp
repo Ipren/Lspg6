@@ -427,6 +427,9 @@ void Renderer::createDepthBuffers()
 
 	DXCALL(gDevice->CreateTexture2D(&descDepth, NULL, &depth_tex));
 
+	descDepth.Width = WIDTH;
+	descDepth.Height = HEIGHT;
+
 	D3D11_DEPTH_STENCIL_DESC dsDesc;
 	dsDesc.DepthEnable = true;
 	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -465,6 +468,7 @@ void Renderer::createDepthBuffers()
 	DXCALL(gDevice->CreateDepthStencilView(depth_tex, &descDSV, &DepthBuffer));
 	DXCALL(gDevice->CreateShaderResourceView(depth_tex, &descSRV, &DepthBufferSRV));
 	depth_tex_ms->Release();
+	depth_tex->Release();
 
 }
 
