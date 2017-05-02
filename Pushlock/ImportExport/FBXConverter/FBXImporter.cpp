@@ -185,6 +185,7 @@ void FBXImporter::Import(const char * filename, sMesh* mesh, vector<sMaterial*>&
 
 					for (int u = 0; u < uvs.GetCount(); u++) {
 
+
 						FbxVector2 uv_in;
 						const char* uvset_name = uvs.GetStringAt(0);
 						bool has_uvs;
@@ -193,6 +194,13 @@ void FBXImporter::Import(const char * filename, sMesh* mesh, vector<sMaterial*>&
 						
 
 						if (uvmapped) {
+
+
+							if (u == 0) { //Export 1st uv set
+								vertex.u = uv_in[0];
+								vertex.v = uv_in[1];
+							}
+
 							//vertex.numberOfUVs++;
 							UV uv_out;
 							//uv_out.uvset_id = mesh->uvsets[u].id;
