@@ -149,7 +149,7 @@ bool Game::update(float dt)
 			if (ImGui::CollapsingHeader("Earth")) {
 				ImGui::TextDisabled("Projectile");
 
-				ImGui::SliderFloat("strength##earth", &gSpellConstants.kEarthProjectileStrength, 0.0f, 90.0f);
+				ImGui::SliderFloat("strength##earth", &gSpellConstants.kEarthProjectileStrength, 0.0f, 3.0f);
 				ImGui::SliderFloat("speed##earth", &gSpellConstants.kEarthProjectileSpeed, 0.0f, 30.0f);
 				ImGui::SliderFloat("cooldown##earth", &gSpellConstants.kEarthProjectileCooldown, 0.0f, 15.0f);
 				ImGui::SliderFloat("effect radius##earth", &gSpellConstants.kEarthProjectileEffectRadius, 0.0f, 6.0f);
@@ -466,7 +466,8 @@ bool Game::update(float dt)
 		int readyCount = 0;
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
-			if (dynamic_cast<Player*>(currentMap->entitys[i])->ready)
+			Player* p = dynamic_cast<Player*>(currentMap->entitys[i]);
+			if (p && p->ready)
 			{
 				readyCount++;
 			}
