@@ -409,8 +409,8 @@ void Renderer::createDepthBuffers()
 	ID3D11Texture2D* depth_tex_ms = NULL;
 	ID3D11Texture2D* depth_tex = NULL;
 	D3D11_TEXTURE2D_DESC descDepth;
-	descDepth.Width = 2048;
-	descDepth.Height = 2048;
+	descDepth.Width = WIDTH;
+	descDepth.Height = HEIGHT;
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
 	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
@@ -421,6 +421,8 @@ void Renderer::createDepthBuffers()
 	descDepth.CPUAccessFlags = 0;
 	descDepth.MiscFlags = 0;
 	DXCALL(gDevice->CreateTexture2D(&descDepth, NULL, &depth_tex_ms));
+	descDepth.Width = 2048;
+	descDepth.Height = 2048;
 	descDepth.SampleDesc.Count = 1;
 	descDepth.Format = DXGI_FORMAT_R32_TYPELESS;
 	descDepth.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
@@ -1807,8 +1809,8 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	gDeviceContext->ClearDepthStencilView(DepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	gDeviceContext->VSSetShader(shadowMapVS, nullptr, 0);
-	gDeviceContext->PSSetShader(shadowMapPS, nullptr, 0);
-	gDeviceContext->OMSetRenderTargets(1, &shadowMapRTV, DepthBuffer);
+	gDeviceContext->PSSetShader(nullptr, nullptr, 0);
+	gDeviceContext->OMSetRenderTargets(0, nullptr, DepthBuffer);
 	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0x00);
 	gDeviceContext->RSSetState(ShadowRaster);
 	setViewPort(2048, 2048);
