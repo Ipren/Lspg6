@@ -103,10 +103,12 @@ float4 PS(in VS_OUT input) : SV_TARGET
             //nDotL should be multiplied here but the light doesnt appear when you do : fix
             if(pLights[i].lightColor.w > 0)
             {
+                //diffuse += nDotL * pLights[i].lightColor.xyz * attenuation;
                 diffuse += pLights[i].lightColor.xyz * attenuation;
             }
             else
             {
+                //diffuse *= nDotL *  pLights[i].lightColor.xyz * (1.0f - attenuation);
                 diffuse *= pLights[i].lightColor.xyz * (1.0f - attenuation);
             }
            
