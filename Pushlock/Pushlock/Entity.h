@@ -24,7 +24,6 @@ public:
 	float angle;
 	EntityType type;
 	bool dead;
-
-	Mesh* pMesh;
+	Mesh* pMesh = nullptr;
 private:
 };
