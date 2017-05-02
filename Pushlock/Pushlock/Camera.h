@@ -26,6 +26,7 @@ public:
 		XMMATRIX world;
 		XMMATRIX view;
 		XMMATRIX proj;
+		XMMATRIX normal;
 	};
 
 	BufferVals vals;

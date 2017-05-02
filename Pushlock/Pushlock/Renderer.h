@@ -47,6 +47,7 @@ public:
 	XMFLOAT3 directionalLightPos;
 	XMFLOAT3 directionalLightFocus;
 
+	Mesh *mapmesh;
 	ID3D11PixelShader *cuPS;
 	ID3D11ShaderResourceView *r1CUTextures[5];
 
@@ -77,10 +78,16 @@ private:
 	ID3D11VertexShader *debug_map_vsh;
 	ID3D11PixelShader *debug_map_psh;
 
+	ID3D11VertexShader *mesh_vsh;
+	ID3D11PixelShader *mesh_psh;
+
 	ID3D11Buffer *debug_entity_circle;
 	ID3D11InputLayout *debug_entity_layout;
 	ID3D11VertexShader *debug_entity_vsh;
 	ID3D11PixelShader *debug_entity_psh;
+
+	ID3D11VertexShader *model_vsh;
+	ID3D11PixelShader *modely_psh;
 
 	ID3D11Debug *debugDevice;
 
