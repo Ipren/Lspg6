@@ -166,14 +166,18 @@ void Map::update(float dt, Camera *cam)
 				}//wall checks
 				else if (a->type == EntityType::Wall && b->type != EntityType::Wall) 
 				{
-					ArcaneWallSpell* wall = dynamic_cast<ArcaneWallSpell*>(a);
+					ArcaneWallSpell* awall = dynamic_cast<ArcaneWallSpell*>(a);
+					EarthWallSpell* ewall = dynamic_cast<EarthWallSpell*>(a);
 
-					if (wall == nullptr)
+					if (awall == nullptr)
 					{
-						EarthWallSpell* wall = dynamic_cast<EarthWallSpell*>(a);
+						ewall->on_effect(this);
+					}
+					else
+					{
+						awall->on_effect(this);
 					}
 
-					wall->on_effect(this);
 				}
 			}
 		}
