@@ -141,6 +141,18 @@ private:
 	float strenght;
 };
 
+class WaterIcePatch : public Spell
+{
+public:
+	WaterIcePatch(Player* owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius);
+	virtual ~WaterIcePatch();
+
+	virtual void update(Map *map, float dt) override;
+	virtual bool on_effect(Map *map) override;
+private:
+	float slowAmount;
+};
+
 class WindFartCloudSpell : public Spell
 {
 public:
