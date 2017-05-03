@@ -2106,18 +2106,12 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos, int type)
 	this->gDeviceContext->Unmap(this->playerPosBuffer, 0);
 
 	float lenght = 0.0f;
-	XMFLOAT3 temppos;
 	Particle *particles = new Particle[50];
 	for (size_t i = 0; i < 50; i++)
 	{
 		particles[i].age = 1.6f;
 		particles[i].type = type;
 		particles[i].velocity.y = 0.5f;
-
-		temppos = pos;
-		lenght = sqrt(particles[i].position.x * particles[i].position.x + particles[i].position.y * particles[i].position.y + particles[i].position.z * particles[i].position.z);
-		temppos.x = temppos.x / lenght;
-		temppos.z = temppos.z / lenght;
 
 		//creates circle of particles around player
 		particles[i].velocity.x = (0.55f) * cos( 7.2f *i * XM_PI / 180);

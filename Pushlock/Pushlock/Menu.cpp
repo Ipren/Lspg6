@@ -17,6 +17,10 @@ Menu::Menu(Renderer* renderer)
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
+	hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/readytext.png ", &r, &this->m_readyTexture);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
 	r->Release();
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
 	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"comicsans.spritefont");
@@ -94,8 +98,25 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 
 		if (currentState == GameState::ChoosePowers)
 		{
+			
+			vertexSize = sizeof(chooseUpgradesVertex);
+			renderer->gDeviceContext->IASetVertexBuffers(0, 1, &renderer->cuVertexBuffer, &vertexSize, &offset);
+			renderer->gDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			renderer->gDeviceContext->IASetInputLayout(renderer->cuLayout);
+
+			renderer->gDeviceContext->VSSetShader(renderer->cuVS, nullptr, 0);
+			renderer->gDeviceContext->HSSetShader(nullptr, nullptr, 0);
+			renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
+			renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+			renderer->gDeviceContext->PSSetShader(renderer->cuPS, nullptr, 0);
 			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cpMenuTexture);
-			renderer->gDeviceContext->Draw(6, 0);
+
+			for (size_t i = 1; i < 5; i++)
+			{
+				renderer->gDeviceContext->PSSetShaderResources(i, 1, &renderer->cpMenuTexture);
+			}
+			renderer->gDeviceContext->Draw(24, 0);
+			this->setPowerArrowPos(map);
 		}
 		else if (currentState == GameState::MainMenu)
 		{
@@ -179,7 +200,15 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		{
 			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
 		}
-		 
+		this->setReady(map);
+	}
+	else if (currentState == GameState::ChoosePowers)
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
+		}
+		this->setReady(map);
 	}
 	auto pos = ImGui::GetIO();// .MousePos();
 	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar en font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
@@ -314,6 +343,160 @@ void Menu::setUpgradesArrowPos(Map * map)
 		this->arrowPos[3].y = 579.0f / 2 + offsetY;
 		this->arrowPos[3].x = 180.0f / 2 + offsetX;
 	}
+}
+
+void Menu::setPowerArrowPos(Map * map)
+{
+	float offsetX = 640.0f;
+	float offsetY = 400.0f;
+
+	//player 1
+	if (map->playerElemnts[0] == 0)
+	{
+		this->arrowPos[0].x = 100 / 2;
+		this->arrowPos[0].y = 200 / 2;
+	}
+	if (map->playerElemnts[0] == 1)
+	{
+		this->arrowPos[0].x = 100 / 2;
+		this->arrowPos[0].y = 310 / 2;
+	}
+	if (map->playerElemnts[0] == 2)
+	{
+		this->arrowPos[0].x = 100 / 2;
+		this->arrowPos[0].y = 430 / 2;
+	}
+	if (map->playerElemnts[0] == 3)
+	{
+		this->arrowPos[0].x = 100 / 2;
+		this->arrowPos[0].y = 550 / 2;
+	}
+	if (map->playerElemnts[0] == 4)
+	{
+		this->arrowPos[0].x = 100 / 2;
+		this->arrowPos[0].y = 670 / 2;
+	}
+
+	//player 2
+	if (map->playerElemnts[1] == 0)
+	{
+		this->arrowPos[1].x = 100 / 2 + offsetX;
+		this->arrowPos[1].y = 200 / 2;
+	}
+	if (map->playerElemnts[1] == 1)
+	{
+		this->arrowPos[1].x = 100 / 2 + offsetX;
+		this->arrowPos[1].y = 310 / 2;
+	}
+	if (map->playerElemnts[1] == 2)
+	{
+		this->arrowPos[1].x = 100 / 2 + offsetX;
+		this->arrowPos[1].y = 430 / 2;
+	}
+	if (map->playerElemnts[1] == 3)
+	{
+		this->arrowPos[1].x = 100 / 2 + offsetX;
+		this->arrowPos[1].y = 550 / 2;
+	}
+	if (map->playerElemnts[1] == 4)
+	{
+		this->arrowPos[1].x = 100 / 2 + offsetX;
+		this->arrowPos[1].y = 670 / 2;
+	}
+
+	//player 3
+	if (map->playerElemnts[2] == 0)
+	{
+		this->arrowPos[2].x = 100 / 2;
+		this->arrowPos[2].y = 200 / 2 + offsetY;
+	}
+	if (map->playerElemnts[2] == 1)
+	{
+		this->arrowPos[2].x = 100 / 2;
+		this->arrowPos[2].y = 310 / 2 + offsetY;
+	}
+	if (map->playerElemnts[2] == 2)
+	{
+		this->arrowPos[2].x = 100 / 2;
+		this->arrowPos[2].y = 430 / 2 + offsetY;
+	}
+	if (map->playerElemnts[2] == 3)
+	{
+		this->arrowPos[2].x = 100 / 2;
+		this->arrowPos[2].y = 550 / 2 + offsetY;
+	}
+	if (map->playerElemnts[2] == 4)
+	{
+		this->arrowPos[2].x = 100 / 2;
+		this->arrowPos[2].y = 670 / 2 + offsetY;
+	}
+
+	//player 4
+	if (map->playerElemnts[3] == 0)
+	{
+		this->arrowPos[3].x = 100 / 2 + offsetX;
+		this->arrowPos[3].y = 200 / 2 + offsetY;
+	}
+	if (map->playerElemnts[3] == 1)
+	{
+		this->arrowPos[3].x = 100 / 2 + offsetX;
+		this->arrowPos[3].y = 310 / 2 + offsetY;
+	}
+	if (map->playerElemnts[3] == 2)
+	{
+		this->arrowPos[3].x = 100 / 2 + offsetX;
+		this->arrowPos[3].y = 430 / 2 + offsetY;
+	}
+	if (map->playerElemnts[3] == 3)
+	{
+		this->arrowPos[3].x = 100 / 2 + offsetX;
+		this->arrowPos[3].y = 550 / 2 + offsetY;
+	}
+	if (map->playerElemnts[3] == 4)
+	{
+		this->arrowPos[3].x = 100 / 2 + offsetX;
+		this->arrowPos[3].y = 670 / 2 + offsetY;
+	}
+
+}
+
+void Menu::setReady(Map * map)
+{
+	float offsetX = 640.0f;
+	float offsetY = 400.0f;
+	for (size_t i = 0; i < 4; i++)
+	{
+		this->ready[i] = true;
+	}
+	int n = 0;
+	for (size_t i = 0; i < map->entitys.size(); i++)
+	{
+		if (dynamic_cast<Player *>(map->entitys[i]) != nullptr)
+		{
+			this->ready[n] = dynamic_cast<Player *>(map->entitys[i])->ready;
+			n++;
+		}
+		
+	}
+
+	if (this->ready[0])
+	{
+		m_spriteBatch->Draw(m_readyTexture.Get(), DirectX::XMFLOAT2(0.0f, 0.0f), nullptr, Colors::White, 0.f, m_origin);
+	}
+	if (this->ready[1])
+	{
+		m_spriteBatch->Draw(m_readyTexture.Get(), DirectX::XMFLOAT2(0.0f + offsetX, 0.0f), nullptr, Colors::White, 0.f, m_origin);
+	}
+	if (this->ready[2])
+	{
+		m_spriteBatch->Draw(m_readyTexture.Get(), DirectX::XMFLOAT2(0.0f, 0.0f + offsetY), nullptr, Colors::White, 0.f, m_origin);
+	}
+	if (this->ready[3])
+	{
+		m_spriteBatch->Draw(m_readyTexture.Get(), DirectX::XMFLOAT2(0.0f + offsetX, 0.0f + offsetY), nullptr, Colors::White, 0.f, m_origin);
+	}
+
+
 }
 
 void Menu::setSelectedPos(GameState currentState)
