@@ -313,3 +313,32 @@ bool WindBeaconSpell::on_effect(Map * map)
 {
 	return false;
 }
+
+WaterIcePatch::WaterIcePatch(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
+	: Spell(owner, position, velocity, radius, 3.5f)
+{
+
+}
+
+WaterIcePatch::~WaterIcePatch()
+{
+}
+
+void WaterIcePatch::update(Map * map, float dt)
+{
+	Spell::update(map, dt);
+}
+
+bool WaterIcePatch::on_effect(Map * map)
+{
+	auto nearby = map->get_entities_in_radius(this, radius, [](Entity *e) {
+		return e->type == EntityType::Player;
+	});
+
+	for (auto result : nearby) {
+		dynamic_cast<Player*>(result.entity)->debuffs.speed = this->dSpeed;
+		dynamic_cast<Player*>(result.entity)->debuffs.friction = this->dFriction;
+		dynamic_cast<Player*>(result.entity)->debuffs.duration = 0.4f;
+	}
+	return true;
+}

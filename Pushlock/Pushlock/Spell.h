@@ -150,7 +150,8 @@ public:
 	virtual void update(Map *map, float dt) override;
 	virtual bool on_effect(Map *map) override;
 private:
-	float slowAmount;
+	float dSpeed = 100.0f;
+	float dFriction = -100.0f;
 };
 
 class WindFartCloudSpell : public Spell

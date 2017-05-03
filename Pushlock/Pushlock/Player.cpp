@@ -27,7 +27,8 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 
 	this->debuffs.dot = 0.0f;
 	this->debuffs.speed = 0.0f;
-	this->debuffs.duration = 0;
+	this->debuffs.duration = 0.0f;
+	this->debuffs.friction = 0.0f;
 }
 
 Player::~Player()
