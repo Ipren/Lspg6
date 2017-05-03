@@ -25,7 +25,8 @@ enum class ParticleOrientation {
 enum class ParticleEase {
 	Linear = 0,
 	EaseIn,
-	EaseOut
+	EaseOut,
+	None
 };
 
 typedef float(*EaseFunc)(float, float, float);
@@ -34,16 +35,19 @@ typedef XMVECTOR(*EaseFuncV)(XMVECTOR, XMVECTOR, float);
 EaseFunc ease_funcs[] = {
 	ease::Lerp,
 	ease::EaseIn,
-	ease::EaseOut
+	ease::EaseOut,
+	nullptr
 };
 
 EaseFuncV ease_funcs_xmv[] = {
 	ease::Lerp,
 	ease::EaseIn,
-	ease::EaseOut
+	ease::EaseOut,
+	nullptr
 };
 
 const char *EASE_STRINGS = "Linear\0EaseIn\0EaseOut\0";
+const char *EASE_STRINGS_OPTIONAL = "Linear\0EaseIn\0EaseOut\0None\0";
 
 EaseFunc GetEaseFunc(ParticleEase ease)
 {
@@ -68,6 +72,10 @@ struct ParticleDefinition {
 	ParticleEase scale_fn;
 	float scale_start;
 	float scale_end = 1.0;
+
+	ParticleEase distort_fn = ParticleEase::None;
+	float distort_start = 1.0;
+	float distort_end;
 
 	ParticleEase color_fn;
 	XMFLOAT4 start_color = { 1.f, 1.f, 1.f, 1.f };
@@ -121,6 +129,7 @@ struct Particle {
 	float rotation;
 	float rotation_velocity;
 	float age;
+	float distort;
 	int type;
 	int idx;
 };
