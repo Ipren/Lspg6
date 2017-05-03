@@ -72,6 +72,10 @@ ID3D11VertexShader *composite_vs;
 ID3D11PixelShader *composite_ps;
 ID3D11SamplerState *composite_sampler;
 
+ID3D11RenderTargetView *distort_rtv;
+ID3D11ShaderResourceView *distort_srv;
+ID3D11ShaderResourceView *distortSRV;
+
 ID3D11RenderTargetView *hdr_rtv;
 ID3D11ShaderResourceView *hdr_srv;
 
@@ -198,17 +202,18 @@ void InitParticles()
 	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &particle_vs));
 
 	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
-		{ "ORIGIN", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "VELOCITY", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 64, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "SCALE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 80, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "ROTATION", 0, DXGI_FORMAT_R32_FLOAT, 0, 88, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "ROTATIONV", 0, DXGI_FORMAT_R32_FLOAT, 0, 92, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "FOG", 0, DXGI_FORMAT_R32_FLOAT, 0, 96, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TYPE", 0, DXGI_FORMAT_R32_SINT, 0, 100, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "IDX", 0, DXGI_FORMAT_R32_SINT, 0, 104, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "ORIGIN",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "VELOCITY",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR",     0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "SCALE",     0, DXGI_FORMAT_R32G32_FLOAT,       0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "ROTATION",  0, DXGI_FORMAT_R32_FLOAT,          0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "ROTATIONV", 0, DXGI_FORMAT_R32_FLOAT,          0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "AGE",       0, DXGI_FORMAT_R32_FLOAT,          0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "DISTORT",   0, DXGI_FORMAT_R32_FLOAT,          0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TYPE",      0, DXGI_FORMAT_R32_SINT,           0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "IDX",       0, DXGI_FORMAT_R32_SINT,           0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 	particle_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, gDevice);
 
@@ -220,6 +225,7 @@ void InitParticles()
 
 	ID3D11Resource *r = nullptr;
 	DXCALL(CreateDDSTextureFromFile(gDevice, L"Resources/Particle.dds", &r, &particle_srv, 0, nullptr));
+	DXCALL(CreateDDSTextureFromFile(gDevice, L"Resources/Distort.dds", &r, &distortSRV, 0, nullptr));
 
 	D3D11_SAMPLER_DESC sadesc;
 	ZeroMemory(&sadesc, sizeof(sadesc));
@@ -239,6 +245,15 @@ void InitParticles()
 	state.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	state.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	state.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	state.RenderTarget[1].BlendEnable = TRUE;
+	state.RenderTarget[1].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	state.RenderTarget[1].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	state.RenderTarget[1].BlendOp = D3D11_BLEND_OP_ADD;
+	state.RenderTarget[1].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	state.RenderTarget[1].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+	state.RenderTarget[1].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	state.RenderTarget[1].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	DXCALL(gDevice->CreateBlendState(&state, &particle_blend));
 
 	state.RenderTarget[0].BlendEnable = FALSE;
@@ -294,6 +309,7 @@ void InitComposite()
 
 	ID3D11Texture2D *tex;
 	D3D11_TEXTURE2D_DESC rtv_desc;
+	ZeroMemory(&rtv_desc, sizeof(rtv_desc));
 	rtv_desc.Width = WIDTH;
 	rtv_desc.Height = HEIGHT;
 	rtv_desc.Usage = D3D11_USAGE_DEFAULT;
@@ -301,30 +317,34 @@ void InitComposite()
 	rtv_desc.ArraySize = 1;
 	rtv_desc.SampleDesc.Count = 1;
 	rtv_desc.SampleDesc.Quality = 0;
-	rtv_desc.Format = DXGI_FORMAT_R16G16B16A16_TYPELESS;
+	rtv_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	rtv_desc.CPUAccessFlags = 0;
 	rtv_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	rtv_desc.MiscFlags = 0;
 
 	DXCALL(gDevice->CreateTexture2D(&rtv_desc, nullptr, &tex));
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC sdesc;
-	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	DXCALL(gDevice->CreateShaderResourceView(tex, nullptr, &hdr_srv));
+	DXCALL(gDevice->CreateRenderTargetView(tex, nullptr, &hdr_rtv));
 
-	D3D11_RENDER_TARGET_VIEW_DESC rdesc;
-	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	ID3D11Texture2D *dtex;
+	ZeroMemory(&rtv_desc, sizeof(rtv_desc));
+	rtv_desc.Width = WIDTH;
+	rtv_desc.Height = HEIGHT;
+	rtv_desc.Usage = D3D11_USAGE_DEFAULT;
+	rtv_desc.MipLevels = 1;
+	rtv_desc.ArraySize = 1;
+	rtv_desc.SampleDesc.Count = 1;
+	rtv_desc.SampleDesc.Quality = 0;
+	rtv_desc.Format = DXGI_FORMAT_R16G16_FLOAT;
+	rtv_desc.CPUAccessFlags = 0;
+	rtv_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	rtv_desc.MiscFlags = 0;
 
-	sdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	sdesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	sdesc.Texture2D.MipLevels = 1;
-	sdesc.Texture2D.MostDetailedMip = 0;
+	DXCALL(gDevice->CreateTexture2D(&rtv_desc, nullptr, &dtex));
 
-	rdesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	rdesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	rdesc.Texture2D.MipSlice = 0;
-
-	DXCALL(gDevice->CreateShaderResourceView(tex, &sdesc, &hdr_srv));
-	DXCALL(gDevice->CreateRenderTargetView(tex, &rdesc, &hdr_rtv));
+	DXCALL(gDevice->CreateShaderResourceView(tex, nullptr, &distort_srv));
+	DXCALL(gDevice->CreateRenderTargetView(tex, nullptr,   &distort_rtv));
 }
 
 void RenderPlane()
@@ -370,24 +390,32 @@ void RenderParticles()
 	gDeviceContext->PSSetSamplers(0, 1, &particle_sampler);
 	gDeviceContext->PSSetShaderResources(0, 1, &particle_srv);
 	gDeviceContext->PSSetShaderResources(1, 1, &gDepthbufferSRV);
+	gDeviceContext->PSSetShaderResources(2, 1, &distortSRV);
 
 	float factor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	UINT mask = 0xffffffff;
 	
 	gDeviceContext->OMSetBlendState(particle_blend, factor, mask);
 	gDeviceContext->OMSetDepthStencilState(gDepthRead, 0xff);
-	gDeviceContext->OMSetRenderTargets(1, &hdr_rtv, nullptr);
+
+	ID3D11RenderTargetView *targets[] = {
+		hdr_rtv,
+		distort_rtv
+	};
+
+	gDeviceContext->OMSetRenderTargets(2, targets, nullptr);
 
 	gDeviceContext->Draw(particles.size(), 0);
 
-	ID3D11RenderTargetView *rtv = nullptr;
 	ID3D11ShaderResourceView *srv = nullptr;
 	gDeviceContext->PSSetShaderResources(1, 1, &srv);
-	gDeviceContext->OMSetRenderTargets(1, &rtv, nullptr);
+	ID3D11RenderTargetView *rtargets[] = {
+		nullptr,
+		nullptr
+	};
+	gDeviceContext->OMSetRenderTargets(2, rtargets, nullptr);
 	gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	gDeviceContext->OMSetDepthStencilState(gDepthReadWrite, 0xff);
-
-	
 }
 
 void RenderComposite()

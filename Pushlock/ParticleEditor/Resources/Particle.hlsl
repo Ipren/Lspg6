@@ -14,7 +14,10 @@ struct VSIn {
 	float2 scale : SCALE;
 	float rotation : ROTATION;
 	float rotation_velocity : ROTATIONV;
-	float age : FOG;
+	float age : AGE;
+
+	float distort_intensity : DISTORT;
+
 	int type : TYPE;
 	int idx : IDX;
 };
@@ -28,7 +31,9 @@ struct GSOut
 {
 	float4 pos : SV_POSITION;
 	float4 color : COLOR;
-	float2 uv : TEXCOORD;
+	float2 dist_uv : TEXCOORD0;
+	float2 uv : TEXCOORD1;
+	float dist_strength : STR;
 };
 
 #define PTYPE_PLANAR 0
@@ -177,11 +182,23 @@ void GS(point VSIn inp[1], inout TriangleStream<GSOut> outstream)
 
 SamplerState ParticleSampler : register(s0);
 Texture2D ParticleTexture : register(t0);
+Texture2D DistortTexture : register(t2);
 Texture2D DepthTexture : register(t1);
 
-float4 PS(GSOut input) : SV_TARGET
-{
-	float4 col = ParticleTexture.Sample(ParticleSampler, input.uv) * input.color;
+struct PSOut {
+	float4 color : SV_Target0;
+	float2 distort : SV_Target1;
+};
 
-	return col;
+PSOut PS(GSOut input)
+{
+	PSOut output;
+
+	float4 col = ParticleTexture.Sample(ParticleSampler, input.uv) * input.color;
+	float4 dist = DistortTexture.Sample(ParticleSampler, input.dist_uv).xy;
+
+	output.color = col;
+	output.distort = float2(dist) * col.a * input.dist_strength;
+
+	return output;
 }

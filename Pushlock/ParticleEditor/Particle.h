@@ -121,6 +121,7 @@ struct Particle {
 	float rotation;
 	float rotation_velocity;
 	float age;
+	float distort;
 	int type;
 	int idx;
 };
