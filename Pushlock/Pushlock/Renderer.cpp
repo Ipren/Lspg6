@@ -2106,27 +2106,27 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos, int type)
 	this->gDeviceContext->Unmap(this->playerPosBuffer, 0);
 
 	float lenght = 0.0f;
+	XMFLOAT3 temppos;
 	Particle *particles = new Particle[50];
 	for (size_t i = 0; i < 50; i++)
 	{
 		particles[i].age = 1.6f;
 		particles[i].type = type;
-		particles[i].velocity.y = pos.y;
+		particles[i].velocity.y = 0.5f;
+
+		temppos = pos;
+		lenght = sqrt(particles[i].position.x * particles[i].position.x + particles[i].position.y * particles[i].position.y + particles[i].position.z * particles[i].position.z);
+		temppos.x = temppos.x / lenght;
+		temppos.z = temppos.z / lenght;
 
 		//creates circle of particles around player
-		particles[i].velocity.x = (pos.x + 0.55f) * cos(i);
-		particles[i].velocity.z = (pos.z + 0.55f) * sin(i);
+		particles[i].velocity.x = (0.55f) * cos( 7.2f *i * XM_PI / 180);
+		particles[i].velocity.z = (0.55f) * sin(7.2f *i * XM_PI / 180);
 		lenght = sqrt(particles[i].velocity.x * particles[i].velocity.x + particles[i].velocity.y * particles[i].velocity.y + particles[i].velocity.z * particles[i].velocity.z);
 
 		particles[i].velocity.x = particles[i].velocity.x / lenght;
-		if (particles[i].velocity.y < 0)
-		{
-			particles[i].velocity.y = particles[i].velocity.y / -lenght;
-		}
-		else
-		{
-			particles[i].velocity.y = particles[i].velocity.y / lenght;
-		}
+		
+		particles[i].velocity.y = particles[i].velocity.y / lenght;
 		
 		particles[i].velocity.z = particles[i].velocity.z / lenght;
 
@@ -2134,7 +2134,7 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos, int type)
 		particles[i].velocity.z *= 9.0f;
 
 		particles[i].position = pos;
-		particles[i].position.y = 0.1f;
+		particles[i].position.y = 0.2f;
 
 
 	}
