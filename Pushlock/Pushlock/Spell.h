@@ -60,22 +60,10 @@ private:
 class ArcaneWallSpell : public Spell
 {
 public:
-	ArcaneWallSpell(Player *owner, XMFLOAT3 position, float radius)
-		:Spell(owner, position, { 0,0 }, radius, 10.f) {
-		this->endPos = endPos;
-		this->type = EntityType::Wall;
-		this->angle = owner->angle;
-		this->edge = false;
-	}
-	virtual ~ArcaneWallSpell() {}
+	ArcaneWallSpell(Player *owner, XMFLOAT3 position, float radius);
+	virtual ~ArcaneWallSpell();
 
-	virtual void update(Map *map, float dt) override
-	{
-		life -= dt;
-		if (life <= 0.f) {
-			dead = true;
-		}
-	}
+	virtual void update(Map *map, float dt) override;
 
 	virtual bool on_effect(Map *map) override;// { return false; };
 	XMFLOAT2 endPos;
@@ -128,6 +116,22 @@ private:
 
 };
 
+class EarthWallSpell : public Spell
+{
+public:
+	EarthWallSpell(Player *owner, XMFLOAT3 position, float radius);
+	virtual ~EarthWallSpell();
+
+	virtual void update(Map *map, float dt) override;
+
+	virtual bool on_effect(Map *map) override;// { return false; };
+	XMFLOAT2 endPos;
+	bool edge;
+private:
+	/*float explosion_radius;
+	float strength;*/
+};
+
 class WaterProjectileSpell : public Spell
 {
 public:
@@ -173,6 +177,10 @@ public:
 	virtual void update(Map *map, float dt) override;
 	virtual bool on_effect(Map *map) override;
 
+	bool hasStomped();
+	void endStomped();
+
 private:
 	float lifetime;
+	bool stomped;
 };

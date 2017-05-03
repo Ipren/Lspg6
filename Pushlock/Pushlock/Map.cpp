@@ -166,27 +166,12 @@ void Map::update(float dt, Camera *cam)
 				}//wall checks
 				else if (a->type == EntityType::Wall && b->type != EntityType::Wall) 
 				{
-
-
-					
-
 					ArcaneWallSpell* wall = dynamic_cast<ArcaneWallSpell*>(a);
-					/*XMFLOAT2 vec;
-					vec.x = wall->endPos.x - wall->position.x;
-					vec.y = wall->endPos.y - wall->position.z;
-					XMVECTOR top = XMVector2Dot({ vec.x, vec.y,0.f,0.f }, { b->position.x, b->position.z,0.f,0.f });
-					XMVECTOR bot = XMVector2Dot({ b->position.x, b->position.z,0.f,0.f }, { b->position.x, b->position.z,0.f,0.f });
-					XMVECTOR point = top / bot * XMVECTOR{ b->position.x, b->position.z, 0.f, 0.f };
-					if (distance < XMVectorGetX(XMVector2Length(point - XMVECTOR{ b->position.x, b->position.z , 0.f,0.f})))*/
-					/*float wLength = XMVectorGetX(XMVector2Length({ wall->endPos.x - wall->position.x , wall->endPos.y - wall->position.z ,0.f,0.f}));
-					int nrOfCircles = wLength / a->radius;
-					for (int i = 0; i < nrOfCircles; i++)
+
+					if (wall == nullptr)
 					{
-
-						dx = abs(a->position.x - b->position.x + i*a->radius);
-						dz = abs(a->position.z - b->position.z + i*a->radius);
-
-						distance = sqrt(dx * dx + dz * dz);*/
+						EarthWallSpell* wall = dynamic_cast<EarthWallSpell*>(a);
+					}
 
 					if (distance < a->radius + b->radius)
 					{

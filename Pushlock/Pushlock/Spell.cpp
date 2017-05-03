@@ -72,6 +72,27 @@ bool ArcaneProjectileSpell::on_effect(Map *map)
 	return true;
 }
 
+ArcaneWallSpell::ArcaneWallSpell(Player *owner, XMFLOAT3 position, float radius)
+	:Spell(owner, position, { 0,0 }, radius, 10.f) 
+{
+	this->endPos = endPos;
+	this->type = EntityType::Wall;
+	this->angle = owner->angle;
+	this->edge = false;
+}
+
+ArcaneWallSpell::~ArcaneWallSpell()
+{
+}
+
+void ArcaneWallSpell::update(Map * map, float dt)
+{
+	life -= dt;
+	if (life <= 0.f) {
+		dead = true;
+	}
+}
+
 bool ArcaneWallSpell::on_effect(Map *map) {
 	auto nearby = map->get_entities_in_radius(this, radius, [](Entity *e) {
 		return true;
@@ -205,6 +226,44 @@ bool EarthProjectileSpell::on_effect(Map * map)
 	return false;
 }
 
+EarthWallSpell::EarthWallSpell(Player *owner, XMFLOAT3 position, float radius)
+	:Spell(owner, position, { 0,0 }, radius, 10.f)
+{
+	this->endPos = endPos;
+	this->type = EntityType::Wall;
+	this->angle = owner->angle;
+	this->edge = false;
+}
+
+EarthWallSpell::~EarthWallSpell()
+{
+}
+
+void EarthWallSpell::update(Map * map, float dt)
+{
+	life -= dt;
+	if (life <= 0.f) {
+		dead = true;
+	}
+}
+
+bool EarthWallSpell::on_effect(Map *map) { //made so earthwall has its own class for upgrades
+	auto nearby = map->get_entities_in_radius(this, radius, [](Entity *e) {
+		return true;
+	});
+
+	for (auto result : nearby) 
+	{
+		result.entity->acceleration.x = -(position.x - result.entity->position.x) * 150;
+		result.entity->acceleration.y = -(position.z - result.entity->position.z) * 150;
+
+		//result.entity->velocity.x += cos(result.angle) * 25 * abs(explosion_radius - result.distance);
+		//result.entity->velocity.y += sin(result.angle) * 25 * abs(explosion_radius - result.distance);
+	}
+
+	return false;
+};
+
 WaterProjectileSpell::WaterProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, velocity, radius, 4.5f), strenght(1.0f)
 {
@@ -269,15 +328,18 @@ bool WindFartCloudSpell::on_effect(Map * map)
 	});
 
 	for (auto result : nearby) {
-		dynamic_cast<Player*>(result.entity)->debuffs.dot = -0.2f;
-		dynamic_cast<Player*>(result.entity)->debuffs.duration = 0.1f;
+		if (result.entity != owner)
+		{
+			dynamic_cast<Player*>(result.entity)->debuffs.dot = -0.2f;
+			dynamic_cast<Player*>(result.entity)->debuffs.duration = 0.1f;
+		}
 	}
 
 	return false;
 }
 
-WindBeaconSpell::WindBeaconSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius) 
-	: Spell(owner, position, velocity, radius, 4.5f), lifetime(0.0f)
+WindBeaconSpell::WindBeaconSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
+	: Spell(owner, position, velocity, radius, 4.5f), lifetime(0.0f), stomped(false)
 {
 }
 
@@ -289,15 +351,18 @@ void WindBeaconSpell::update(Map * map, float dt)
 {
 	if (lifetime <= 0.0f)
 	{
-		owner->stomped = true;
+		stomped = true;
 		//saves nearby players in a vector
 		auto nearby = map->get_entities_in_radius(this, gSpellConstants.kWindStompDistance + gPlayerSpellConstants[owner->index].kWindStompDistance, [](Entity *e) {
 			return e->type == EntityType::Player;
 		});
 
 		for (auto result : nearby) { //moves all nearby players
-			result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[owner->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[owner->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[owner->index].kWindStompStrengthFalloff) - result.distance);
-			result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[owner->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[owner->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[owner->index].kWindStompStrengthFalloff) - result.distance);
+			if (result.entity != owner)
+			{
+				result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[owner->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[owner->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[owner->index].kWindStompStrengthFalloff) - result.distance);
+				result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[owner->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[owner->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[owner->index].kWindStompStrengthFalloff) - result.distance);
+			}
 		}
 
 		lifetime = gSpellConstants.kWindStompCooldown + gPlayerSpellConstants[owner->index].kWindStompCooldown;
@@ -312,6 +377,16 @@ void WindBeaconSpell::update(Map * map, float dt)
 bool WindBeaconSpell::on_effect(Map * map)
 {
 	return false;
+}
+
+bool WindBeaconSpell::hasStomped()
+{
+	return this->stomped;
+}
+
+void WindBeaconSpell::endStomped()
+{
+	this->stomped = false;
 }
 
 WaterIcePatch::WaterIcePatch(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
