@@ -173,40 +173,7 @@ void Map::update(float dt, Camera *cam)
 						EarthWallSpell* wall = dynamic_cast<EarthWallSpell*>(a);
 					}
 
-					if (distance < a->radius + b->radius)
-					{
-						XMVECTOR aPos;
-						XMVECTOR bPos;
-						XMVECTOR bVel;
-						aPos = XMVectorSet(a->position.x, a->position.z, 0.f, 0.f);
-						bPos = XMVectorSet(b->position.x, b->position.z, 0.f, 0.f);
-						bVel = XMVectorSet(b->velocity.x, b->velocity.y, 0.f, 0.f);
-
-						XMVECTOR norm;
-
-						if(wall->edge)
-							norm = aPos - bPos;
-						else
-						{
-							norm = XMVectorSet(cos(wall->angle), sin(wall->angle), 0.f, 0.f);
-							if (XMVectorGetX(XMVector2Dot(norm, bVel)) < 0)
-							{
-								norm = -norm;
-							}
-						}
-
-						norm = XMVector2Normalize(norm);
-						//bVel = bVel - 2 * XMVector4Dot(norm, bVel) * norm;
-						bVel = XMVector2Reflect(bVel, norm);
-
-						b->position.x = a->position.x + (XMVectorGetX(-norm) * (a->radius + b->radius + 0.1f));
-						b->position.z = a->position.z + (XMVectorGetY(-norm) * (a->radius + b->radius + 0.1f));
-						
-						b->velocity.x = XMVectorGetX(bVel);
-						b->velocity.y = XMVectorGetY(bVel);
-
-							
-					}
+					wall->on_effect(this);
 				}
 			}
 		}
