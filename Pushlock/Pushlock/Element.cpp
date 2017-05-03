@@ -371,7 +371,6 @@ void WindElement::projectile(Player * player, Map * map)
 void WindElement::stomp(Player * player, Map * map)
 {
 	if (cooldown[2] <= 0.f) {
-		player->stomped = true;
 		if (pUpgrades[player->index].choice[1] == 1)
 		{
 			auto position = player->position;
@@ -416,6 +415,7 @@ void WindElement::stomp(Player * player, Map * map)
 		}
 		else 
 		{
+			player->stomped = true;
 			//saves nearby players in a vector
 			auto nearby = map->get_entities_in_radius(player, gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance, [](Entity *e) {
 				return e->type == EntityType::Player;

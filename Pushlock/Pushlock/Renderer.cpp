@@ -2036,7 +2036,11 @@ void Renderer::updateEmitters(Map * map)
 	Emitterlocation *temp = new Emitterlocation[1024];
 	for (size_t i = 0; i < map->entitys.size(); i++)
 	{
-
+		if (dynamic_cast<WindBeaconSpell*>(map->entitys[i]) != nullptr && dynamic_cast<WindBeaconSpell*>(map->entitys[i])->hasStomped())
+		{
+			this->createStompParticles(dynamic_cast<WindBeaconSpell*>(map->entitys[i])->position, 1);
+			dynamic_cast<WindBeaconSpell*>(map->entitys[i])->endStomped();
+		}
 		if (dynamic_cast<Player*>(map->entitys[i]) != nullptr)
 		{
 			if (dynamic_cast<Player*>(map->entitys[i])->stomped)
