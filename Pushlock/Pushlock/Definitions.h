@@ -93,6 +93,7 @@ struct debuf
 	float speed;
 	float dot;
 	float duration;
+	float friction;
 };
 
 struct chooseUpgradesVertex
