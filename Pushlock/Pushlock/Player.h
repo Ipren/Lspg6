@@ -23,6 +23,7 @@ public:
 	debuf debuffs;
 	bool dashing;
 	float dashTime;
+	bool frosen;
 	/*0:projectile
 	1:dash
 	2:stomp

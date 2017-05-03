@@ -749,6 +749,7 @@ void EarthElement::dash(Player * player, Map * map)
 			player->velocity.y += sin(player->angle) * (gSpellConstants.kEarthDashSpeed + gPlayerSpellConstants[player->index].kEarthDashSpeed);
 		}
 
+		
 		cooldown[1] = gSpellConstants.kEarthDashCooldown + gPlayerSpellConstants[player->index].kEarthDashCooldown;
 		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
@@ -958,6 +959,11 @@ void WaterElement::dash(Player * player, Map * map)
 			player->velocity.y += sin(player->angle) * (gSpellConstants.kWaterDashSpeed + gPlayerSpellConstants[player->index].kWaterDashSpeed);
 		}
 
+		if (pUpgrades[player->index].choice[1] == 1)
+		{
+			player->frosen = true;
+			player->dashTime = 0.0f;
+		}
 		cooldown[1] = gSpellConstants.kWaterDashCooldown + gPlayerSpellConstants[player->index].kWaterDashCooldown;
 		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}

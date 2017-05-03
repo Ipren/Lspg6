@@ -92,5 +92,5 @@ public:
 	virtual void dash(Player *player, Map *map) override;
 
 	WaterProjectileSpell *active_projectile;
-
+	
 };

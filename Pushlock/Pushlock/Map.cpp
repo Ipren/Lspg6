@@ -134,8 +134,17 @@ void Map::update(float dt, Camera *cam)
 					if (a->type == EntityType::Player && b->type == EntityType::Player)
 					{
 						//changing the acceleration to negative to create a small bounce effect
-						b->acceleration.x = -(a->position.x - b->position.x) * 150;
-						b->acceleration.y = -(a->position.z - b->position.z) * 150;
+						if (dynamic_cast<Player *>(a)->frosen)
+						{
+							b->acceleration.x = -(a->position.x - b->position.x) * 5328;
+							b->acceleration.y = -(a->position.z - b->position.z) * 5328;
+						}
+						else
+						{
+							b->acceleration.x = -(a->position.x - b->position.x) * 150;
+							b->acceleration.y = -(a->position.z - b->position.z) * 150;
+						}
+						
 					}
 					// Player vs. Spell
 					else if (a->type == EntityType::Player && b->type == EntityType::Spell)

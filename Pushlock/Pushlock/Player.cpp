@@ -21,6 +21,7 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	stomped = false;
 	blowUp = false;
 	ready = false;
+	frosen = false;
 	this->health = gPlayerConstants.maxHealth + gPlayerSpellConstants[index].kHealth;
 	this->maxHealth = gPlayerConstants.maxHealth + gPlayerSpellConstants[index].kHealth;
 
@@ -57,9 +58,10 @@ void Player::update(Map *map, float dt)
 		this->debuffs.speed = 0.0f;
 	}
 	dashTime += dt;
-	if (dashTime > 0.5f)
+	if (dashTime > 0.54f)
 	{
 		dashing = false;
+		frosen = false;
 	}
 	
 
