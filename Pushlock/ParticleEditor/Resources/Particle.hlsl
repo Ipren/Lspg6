@@ -14,7 +14,10 @@ struct VSIn {
 	float2 scale : SCALE;
 	float rotation : ROTATION;
 	float rotation_velocity : ROTATIONV;
-	float age : FOG;
+	float age : AGE;
+
+	float distort_intensity : DISTORT;
+
 	int type : TYPE;
 	int idx : IDX;
 };
@@ -28,17 +31,22 @@ struct GSOut
 {
 	float4 pos : SV_POSITION;
 	float4 color : COLOR;
-	float2 uv : TEXCOORD;
+	float2 dist_uv : TEXCOORD0;
+	float2 uv : TEXCOORD1;
+	float dist_strength : STR;
 };
 
 #define PTYPE_PLANAR 0
 #define PTYPE_BILLBOARD 1
 #define Epsilon 0.0001
 
+static const float4 UV = float4(0, 0, 1, 1);
+
 void PlanarParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 {
 	GSOut output;
 	output.color = input.color;
+	output.dist_strength = input.distort_intensity;
 	
 	float w = input.scale.x;
 	float h = input.scale.y;
@@ -50,18 +58,22 @@ void PlanarParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 
 	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + N + W, 1.0)));
 	output.uv = input.uv.xy;
+	output.dist_uv = UV.xy;
 	outstream.Append(output);
 
 	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + S + W, 1.0)));
 	output.uv = input.uv.xw;
+	output.dist_uv = UV.xw;
 	outstream.Append(output);
 
 	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + N + E, 1.0)));
 	output.uv = input.uv.zy;
+	output.dist_uv = UV.zy;
 	outstream.Append(output);
 
 	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + S + E, 1.0)));
 	output.uv = input.uv.zw;
+	output.dist_uv = UV.zw;
 	outstream.Append(output);
 }
 
@@ -69,6 +81,7 @@ void BillboardParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 {
 	GSOut output;
 	output.color = input.color;
+	output.dist_strength = input.distort_intensity;
 
 	float w = input.scale.x;
 	float h = input.scale.y;
@@ -90,18 +103,22 @@ void BillboardParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 
 	output.pos = mul(Proj, pos + N + W);
 	output.uv = input.uv.xy;
+	output.dist_uv = UV.xy;
 	outstream.Append(output);
 
 	output.pos = mul(Proj, pos + S + W);
 	output.uv = input.uv.xw;
+	output.dist_uv = UV.xw;
 	outstream.Append(output);
 
 	output.pos = mul(Proj, pos + N + E);
 	output.uv = input.uv.zy;
+	output.dist_uv = UV.zy;
 	outstream.Append(output);
 
 	output.pos = mul(Proj, pos + S + E);
 	output.uv = input.uv.zw;
+	output.dist_uv = UV.zw;
 	outstream.Append(output);
 }
 
@@ -109,6 +126,7 @@ void VelocityParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 {
 	GSOut output;
 	output.color = input.color;
+	output.dist_strength = input.distort_intensity;
 
 	float w = input.scale.x;
 	float h = input.scale.y;
@@ -143,18 +161,22 @@ void VelocityParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 
 	output.pos = mul(Proj, mul(View, float4(input.origin.xyz + N + W, 1.0)));
 	output.uv = input.uv.xy;					  
+	output.dist_uv = UV.xy;
 	outstream.Append(output);					  
 												  
 	output.pos = mul(Proj, mul(View, float4(input.origin.xyz + S + W, 1.0)));
 	output.uv = input.uv.xw;					  
+	output.dist_uv = UV.xw;
 	outstream.Append(output);					  
 												  
 	output.pos = mul(Proj, mul(View, float4(input.origin.xyz + N + E, 1.0)));
 	output.uv = input.uv.zy;					  
+	output.dist_uv = UV.zy;
 	outstream.Append(output);					  
 												  
 	output.pos = mul(Proj, mul(View, float4(input.origin.xyz + S + E, 1.0)));
 	output.uv = input.uv.zw;
+	output.dist_uv = UV.zw;
 	outstream.Append(output);
 }
 
@@ -175,13 +197,33 @@ void GS(point VSIn inp[1], inout TriangleStream<GSOut> outstream)
 
 }
 
+#define PI 3.14159265f
+
+float2 RadialNormal(float2 input)
+{
+	input.y = 1 - input.y;
+	input -= float2(0.5, 0.5);
+	return float2(atan2(abs(input.y), input.x), atan2(abs(input.x), input.y)) / PI;
+}
+
 SamplerState ParticleSampler : register(s0);
 Texture2D ParticleTexture : register(t0);
 Texture2D DepthTexture : register(t1);
 
-float4 PS(GSOut input) : SV_TARGET
-{
-	float4 col = ParticleTexture.Sample(ParticleSampler, input.uv) * input.color;
+struct PSOut {
+	float4 color : SV_Target0;
+	float4 distort : SV_Target1;
+};
 
-	return col;
+PSOut PS(GSOut input)
+{
+	PSOut output;
+
+	float4 col = ParticleTexture.Sample(ParticleSampler, input.uv);
+	float2 dist = input.dist_uv;
+
+	output.color = col * input.color;
+	output.distort = float4(RadialNormal(dist) * 2 - 1, 0, col.a * input.dist_strength);
+
+	return output;
 }
