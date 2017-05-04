@@ -379,6 +379,33 @@ void EarthWallSpell::update(Map * map, float dt)
 	if (life <= 0.f) {
 		dead = true;
 	}
+
+	if (pUpgrades[owner->index].choice[1] == 2)
+	{
+		auto nearby = map->get_entities_in_radius(this, gPlayerSpellConstants[owner->index].kEarthWallEffectRadius, [](Entity *e) {
+			return true;
+		});
+
+		for (auto result : nearby)
+		{
+			Player* pvictim = nullptr;
+			Spell* victim = dynamic_cast<Spell*>(result.entity);
+
+			if (victim != nullptr)
+			{
+				pvictim = victim->owner;
+			}
+			if (dynamic_cast<Player *>(result.entity) != owner && pvictim != owner && result.entity->type != EntityType::Wall)
+			{
+				float falloff = (abs(gPlayerSpellConstants[owner->index].kEarthWallEffectRadius - result.distance)
+					/ (gPlayerSpellConstants[owner->index].kEarthWallEffectRadius))
+					* (gPlayerSpellConstants[owner->index].kEarthWallEffectFalloff);
+
+				result.entity->velocity.x -= cos(result.angle) * (gPlayerSpellConstants[owner->index].kEarthWallStrength * falloff);
+				result.entity->velocity.y -= sin(result.angle) * (gPlayerSpellConstants[owner->index].kEarthWallStrength * falloff);
+			}
+		}
+	}
 }
 
 bool EarthWallSpell::on_effect(Map *map) { //made so earthwall has its own class for upgrades
@@ -413,34 +440,46 @@ bool EarthWallSpell::on_effect(Map *map) { //made so earthwall has its own class
 							victim->debuffs.duration = 0.1f;
 						}
 					}
-					XMVECTOR aPos;
-					XMVECTOR bPos;
-					XMVECTOR bVel;
-					aPos = XMVectorSet(this->position.x, this->position.z, 0.f, 0.f);
-					bPos = XMVectorSet(result.entity->position.x, result.entity->position.z, 0.f, 0.f);
-					bVel = XMVectorSet(result.entity->velocity.x, result.entity->velocity.y, 0.f, 0.f);
 
-					XMVECTOR norm;
+					Player* pvictim = nullptr;
+					Spell* victim = dynamic_cast<Spell*>(result.entity);
 
-					if (this->edge)
-						norm = aPos - bPos;
-					else
+					if (victim != nullptr)
 					{
-						norm = XMVectorSet(cos(this->angle), sin(this->angle), 0.f, 0.f);
-						if (XMVectorGetX(XMVector2Dot(norm, bVel)) < 0)
-						{
-							norm = -norm;
-						}
+						pvictim = victim->owner;
 					}
 
-					norm = XMVector2Normalize(norm);
-					bVel = XMVector2Reflect(bVel, norm);
+					if (pUpgrades[owner->index].choice[1] != 2 || dynamic_cast<Player *>(result.entity) == owner || pvictim == owner)
+					{
+						XMVECTOR aPos;
+						XMVECTOR bPos;
+						XMVECTOR bVel;
+						aPos = XMVectorSet(this->position.x, this->position.z, 0.f, 0.f);
+						bPos = XMVectorSet(result.entity->position.x, result.entity->position.z, 0.f, 0.f);
+						bVel = XMVectorSet(result.entity->velocity.x, result.entity->velocity.y, 0.f, 0.f);
 
-					result.entity->position.x = this->position.x + (XMVectorGetX(-norm) * (this->radius + result.entity->radius + 0.1f));
-					result.entity->position.z = this->position.z + (XMVectorGetY(-norm) * (this->radius + result.entity->radius + 0.1f));
+						XMVECTOR norm;
 
-					result.entity->velocity.x = XMVectorGetX(bVel);
-					result.entity->velocity.y = XMVectorGetY(bVel);
+						if (this->edge)
+							norm = aPos - bPos;
+						else
+						{
+							norm = XMVectorSet(cos(this->angle), sin(this->angle), 0.f, 0.f);
+							if (XMVectorGetX(XMVector2Dot(norm, bVel)) < 0)
+							{
+								norm = -norm;
+							}
+						}
+
+						norm = XMVector2Normalize(norm);
+						bVel = XMVector2Reflect(bVel, norm);
+
+						result.entity->position.x = this->position.x + (XMVectorGetX(-norm) * (this->radius + result.entity->radius + 0.1f));
+						result.entity->position.z = this->position.z + (XMVectorGetY(-norm) * (this->radius + result.entity->radius + 0.1f));
+
+						result.entity->velocity.x = XMVectorGetX(bVel);
+						result.entity->velocity.y = XMVectorGetY(bVel);
+					}
 				}
 
 

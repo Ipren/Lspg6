@@ -178,6 +178,9 @@ struct PlayerSpellConstants {
 	int   kEarthWallNrOfPillars = 0.0f;
 	float kEarthWallPillarDistance = 0.0f;
 	float kEarthWallPillarRadius = 0.0f;
+	float kEarthWallStrength = 2.2f;
+	float kEarthWallEffectRadius = 5.f;
+	float kEarthWallEffectFalloff = 0.2f;
 
 	float kWaterProjectileStrenght = 0.0f;
 	float kWaterProjectileSpeed = 0.0f;

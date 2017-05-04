@@ -35,11 +35,10 @@ public:
 	};
 
 	virtual bool on_effect(Map *map) { return true; };
-protected:
 	Player *owner;
-	float life;
-public:
 	Emitterlocation pEmitter;
+protected:
+	float life;
 };
 
 class ArcaneProjectileSpell : public Spell
