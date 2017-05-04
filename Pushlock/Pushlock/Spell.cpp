@@ -200,6 +200,97 @@ bool FireProjectileSpell::on_effect(Map *map)
 	return true;
 }
 
+FireWallSpell::FireWallSpell(Player * owner, XMFLOAT3 position, float radius) 
+	: Spell(owner, position, { 0,0 }, radius, 10.f)
+{
+	this->endPos = endPos;
+	this->type = EntityType::Wall;
+	this->angle = owner->angle;
+	this->edge = false;
+}
+
+FireWallSpell::~FireWallSpell()
+{
+}
+
+void FireWallSpell::update(Map * map, float dt)
+{
+	life -= dt;
+	if (life <= 0.f) {
+		dead = true;
+	}
+}
+
+bool FireWallSpell::on_effect(Map * map)
+{
+	auto nearby = map->get_entities_in_radius(this, radius, [](Entity *e) {
+		return true;
+	});
+
+	for (auto result : nearby)
+	{
+		if (result.entity->type != this->type)
+		{
+			float dx = abs(this->position.x - result.entity->position.x);
+			float dz = abs(this->position.z - result.entity->position.z);
+
+			float distance = sqrt(dx * dx + dz * dz);
+
+			if (distance < this->radius + result.entity->radius)
+			{
+
+				if (dynamic_cast<Player *>(result.entity) != nullptr && dynamic_cast<Player *>(result.entity)->dashing == true)
+				{
+
+				}
+				else
+				{
+					if (pUpgrades[owner->index].choice[1] == 1 && result.entity->type == EntityType::Player)
+					{
+						Player* victim = dynamic_cast<Player*>(result.entity);
+						if (victim != nullptr && victim != owner)
+						{
+							victim->debuffs.dot = -0.02f;
+							victim->debuffs.duration = 1.0f;
+						}
+					}
+					XMVECTOR aPos;
+					XMVECTOR bPos;
+					XMVECTOR bVel;
+					aPos = XMVectorSet(this->position.x, this->position.z, 0.f, 0.f);
+					bPos = XMVectorSet(result.entity->position.x, result.entity->position.z, 0.f, 0.f);
+					bVel = XMVectorSet(result.entity->velocity.x, result.entity->velocity.y, 0.f, 0.f);
+
+					XMVECTOR norm;
+
+					if (this->edge)
+						norm = aPos - bPos;
+					else
+					{
+						norm = XMVectorSet(cos(this->angle), sin(this->angle), 0.f, 0.f);
+						if (XMVectorGetX(XMVector2Dot(norm, bVel)) < 0)
+						{
+							norm = -norm;
+						}
+					}
+
+					norm = XMVector2Normalize(norm);
+					bVel = XMVector2Reflect(bVel, norm);
+
+					result.entity->position.x = this->position.x + (XMVectorGetX(-norm) * (this->radius + result.entity->radius + 0.1f));
+					result.entity->position.z = this->position.z + (XMVectorGetY(-norm) * (this->radius + result.entity->radius + 0.1f));
+
+					result.entity->velocity.x = XMVectorGetX(bVel);
+					result.entity->velocity.y = XMVectorGetY(bVel);
+				}
+
+
+			}
+		}
+	}
+	return false;
+}
+
 WindProjectileSpell::WindProjectileSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, velocity, radius, 4.5f), strength(1.f)
 {
@@ -316,7 +407,7 @@ bool EarthWallSpell::on_effect(Map *map) { //made so earthwall has its own class
 					if (pUpgrades[owner->index].choice[1] == 1 && result.entity->type == EntityType::Player)
 					{
 						Player* victim = dynamic_cast<Player*>(result.entity);
-						if (victim != nullptr)
+						if (victim != nullptr && victim != owner)
 						{
 							victim->debuffs.dot = -0.2f;
 							victim->debuffs.duration = 0.1f;

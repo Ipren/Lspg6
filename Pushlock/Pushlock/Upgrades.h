@@ -1,7 +1,7 @@
 #pragma once
 
 struct Upgrades {
-	int choice[3] = {1, 1, 1};
+	int choice[3] = {0, 0, 0};
 	int round = 0;
 	void chooseUpgrade(int cchoice)
 	{

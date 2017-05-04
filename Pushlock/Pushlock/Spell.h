@@ -88,6 +88,22 @@ private:
 
 };
 
+class FireWallSpell : public Spell
+{
+public:
+	FireWallSpell(Player *owner, XMFLOAT3 position, float radius);
+	virtual ~FireWallSpell();
+
+	virtual void update(Map *map, float dt) override;
+
+	virtual bool on_effect(Map *map) override;// { return false; };
+	XMFLOAT2 endPos;
+	bool edge;
+private:
+	/*float explosion_radius;
+	float strength;*/
+};
+
 class WindProjectileSpell : public Spell
 {
 public:
