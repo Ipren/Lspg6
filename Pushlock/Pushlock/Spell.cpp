@@ -509,7 +509,7 @@ bool WaterIcePatch::on_effect(Map * map)
 	});
 
 	for (auto result : nearby) {
-		//if (dynamic_cast<Player*>(result.entity) != this->owner)
+		if (dynamic_cast<Player*>(result.entity) != this->owner)
 		{
 			dynamic_cast<Player*>(result.entity)->debuffs.speed = this->dSpeed;
 			dynamic_cast<Player*>(result.entity)->debuffs.friction = this->dFriction;
