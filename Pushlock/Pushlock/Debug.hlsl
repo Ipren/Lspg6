@@ -2,6 +2,7 @@ cbuffer Camera : register(b0) {
 	float4x4 World;
 	float4x4 View;
 	float4x4 Proj;
+	float4x4 NormalMatrix;
 };
 
 cbuffer ShadowCamera : register(b5) {
@@ -76,8 +77,10 @@ float4 PS(in VS_OUT input) : SV_TARGET
 {
     float4 c = Color;
     
-    float3 diffuse = saturate(dot(-dLightDirection, normal));
-    diffuse *= c.xyz * dLightcolor.xyz;
+	float3 lightDir = normalize(dLightDirection);
+	float3 diffuse = saturate(dot(normal, lightDir));
+	//return float4(diffuse, 1.0);
+	diffuse *= c.xyz * dLightcolor.xyz;
 
 	float4 coords = mul(ShadowProj, mul(ShadowView, mul(ShadowWorld, input.wPos)));
 	float shadow = 1-GetShadow(coords);
@@ -103,10 +106,12 @@ float4 PS(in VS_OUT input) : SV_TARGET
             //nDotL should be multiplied here but the light doesnt appear when you do : fix
             if(pLights[i].lightColor.w > 0)
             {
+                //diffuse += nDotL * pLights[i].lightColor.xyz * attenuation;
                 diffuse += pLights[i].lightColor.xyz * attenuation;
             }
             else
             {
+                //diffuse *= nDotL *  pLights[i].lightColor.xyz * (1.0f - attenuation);
                 diffuse *= pLights[i].lightColor.xyz * (1.0f - attenuation);
             }
            

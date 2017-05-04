@@ -57,7 +57,7 @@ struct Vertex
 {
 	float posX, posY, posZ;
 	float norX, norY, norZ;
-
+	float u, v;
 	//uv1
 	//uv2
 	//uv3

@@ -35,6 +35,9 @@ bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<s
 	file.read(reinterpret_cast<char*>(outMesh->verts.data()), sizeof(Vertex) * outMesh->header.numberOfVerts);
 	file.read(reinterpret_cast<char*>(outMesh->uvs.data()), sizeof(UV) * outMesh->header.numberOfVerts * outMesh->header.numberOfUVSets);
 
+	//Use 1st uvset for now
+
+
 	/*
 	for (int i = 0; i < outMesh->header.numberOfVerts; i++) {
 		outMesh->indices.push_back(i);

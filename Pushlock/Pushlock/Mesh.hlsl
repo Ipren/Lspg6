@@ -2,7 +2,17 @@ cbuffer Camera : register(b0) {
 	float4x4 World;
 	float4x4 View;
 	float4x4 Proj;
+	float4x4 NormalMatrix;
 };
+
+cbuffer ShadowCamera : register(b5) {
+	float4x4 ShadowWorld;
+	float4x4 ShadowView;
+	float4x4 ShadowProj;
+};
+
+SamplerComparisonState ShadowSampler : register(s0);
+Texture2D ShadowMap : register(t1);
 
 cbuffer Mat : register(b1) {
 	float4 Color;
@@ -40,10 +50,25 @@ struct VS_IN
 
 //static const float3 normal = float3(0.0f, 1.0f, 0.0f);
 
+float GetShadow(float3 normal, float4 coords)
+{
+	// orthographic..
+	float3 proj = coords.xyz / coords.w;
+	proj = proj * 0.5 + 0.5;
+	proj.y = 1.0 - proj.y;
+
+	// TODO: fixa
+	float bias = 0;// max(0.05 * (1.0 - dot(normal, normalize(dLightDirection))), 0.00005);
+	float shadowDepth = ShadowMap.SampleCmpLevelZero(ShadowSampler, proj.xy, proj.z + bias).r;
+
+	return shadowDepth;
+}
+
+
 struct VS_OUT
 {
     float4 pos : SV_Position;
-	float4 nor : NORMAL;
+	float3 nor : NORMAL;
 	float2 uv : UV;
     float4 wPos : POSITION;
 };
@@ -53,7 +78,7 @@ VS_OUT VS(VS_IN input)
     VS_OUT output;
     output.pos = mul(Proj, mul(View, mul(World, float4(input.pos, 1.0))));
     output.wPos = mul(World, float4(input.pos, 1.0f));
-    output.nor = mul(World, float4(input.nor, 1.0f));
+    output.nor = mul(NormalMatrix, input.nor);
     output.nor = normalize(output.nor);
 	output.uv = float2(0, 0);
     return output;
@@ -63,21 +88,27 @@ VS_OUT VS(VS_IN input)
 float4 PS(in VS_OUT input) : SV_TARGET
 {
     float4 c = Color;
-    
-    float3 diffuse = saturate(dot(-dLightDirection, input.nor.xyz));
+
+	//return float4(input.nor.xyz, 1.0);
+	float3 lightDir = normalize(dLightDirection);
+	float3 diffuse = saturate(dot(input.nor.xyz, lightDir));
+	//return float4(diffuse, 1.0);
     diffuse *= c.xyz * dLightcolor.xyz;
 
-    float3 ambient = c.xyz * float3(0.0f, 0.0f, 0.0f);
+	float4 coords = mul(ShadowProj, mul(ShadowView, mul(ShadowWorld, input.wPos)));
+	float shadow = 1 - GetShadow(input.nor, coords);
+    
+	float3 ambient = c.xyz * float3(0.0f, 0.0f, 0.0f);
 
     float attenuation = 1.0f;
     float3 P2L;
     float distance;
     float nDotL;
     float4 wLightPos;
-    //float4 wNorm = mul(World, float4(input.nor, 1.0f));
+    //float4 wNorm = float4(input.nor, 1.0f);
     for (uint i = 0; i < nrOfPointLights; i++)
     {
-        wLightPos = mul(World, float4(pLights[i].lightPos, 1.0f)); 
+        wLightPos = float4(pLights[i].lightPos, 1.0f); 
         P2L =  wLightPos.xyz - input.wPos.xyz;
         distance = length(P2L);
         if(distance < pLights[i].range)
@@ -99,5 +130,5 @@ float4 PS(in VS_OUT input) : SV_TARGET
         }
     }
 
-    return float4(diffuse + ambient, 1.0f);
+    return float4(diffuse + ambient + 0.2 * shadow, 1.0f);
 }
