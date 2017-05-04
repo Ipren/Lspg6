@@ -52,6 +52,8 @@ public:
 	virtual void dash(Player *player, Map *map) override;
 
 	FireProjectileSpell *active_projectile;
+	int firePatchCount;
+	float time = 0.0f;
 };
 
 class WindElement : public Element {

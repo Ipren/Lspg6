@@ -188,7 +188,7 @@ bool FireProjectileSpell::on_effect(Map *map)
 		if (pUpgrades[this->owner->index].choice[0] == 1 && dynamic_cast<Player *>(result.entity) != this->owner)
 		{
 			dynamic_cast<Player *>(result.entity)->debuffs.dot = -0.5f;
-			dynamic_cast<Player *>(result.entity)->debuffs.duration = 2;
+			dynamic_cast<Player *>(result.entity)->debuffs.duration = 2.0f;
 		}
 	}
 	map->sounds.play(spellSounds::fireExplotion, 0.0f, 50.0f);
@@ -523,6 +523,9 @@ bool WaterIcePatch::on_effect(Map * map)
 FirePathSpell::FirePathSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, { 0.0f, 0.0f }, radius, 6.3f)
 {
+	this->pEmitter.particleType = 1;
+	this->pEmitter.position = position;
+	this->pEmitter.randomVector = DirectX::XMFLOAT4(position.x, position.y, position.z, 1.0f);
 }
 
 FirePathSpell::~FirePathSpell()
@@ -546,8 +549,8 @@ bool FirePathSpell::on_effect(Map * map)
 	for (auto result : nearby) {
 		if (dynamic_cast<Player*>(result.entity) != this->owner)
 		{
-			dynamic_cast<Player*>(result.entity)->debuffs.speed = this->dot;
-			dynamic_cast<Player*>(result.entity)->debuffs.duration = 0.4f;
+			dynamic_cast<Player*>(result.entity)->debuffs.dot = this->dot;
+			dynamic_cast<Player*>(result.entity)->debuffs.duration = 0.32f;
 		}
 
 	}

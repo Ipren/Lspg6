@@ -195,5 +195,5 @@ public:
 	virtual bool on_effect(Map *map) override;
 
 private:
-	float dot;
+	float dot = -0.43f;
 };

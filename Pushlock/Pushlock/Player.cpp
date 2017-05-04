@@ -98,6 +98,20 @@ void Player::update(Map *map, float dt)
 			WaterIcePatch *spell = new WaterIcePatch(this, this->position, XMFLOAT2(0.0f, 0.0f), 1.0f);
 			map->add_entity(spell);
 		}
+	}
+
+	if (map->playerElemnts[index] == 1 && pUpgrades[index].choice[1] == 1)
+	{
+
+		FireElement *e = dynamic_cast<FireElement *>(this->element);
+		e->time += dt;
+		if (e->firePatchCount != 0 && e->time > 0.02f)
+		{
+			e->firePatchCount--;
+			e->time = 0.0f;
+			FirePathSpell *spell = new FirePathSpell(this, this->position, XMFLOAT2(0.0f, 0.0f), 0.4f);
+			map->add_entity(spell);
+		}
 
 	}
 

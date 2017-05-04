@@ -340,6 +340,15 @@ void FireElement::dash(Player * player, Map * map)
 			player->velocity.y += sin(player->angle) * (gSpellConstants.kFireDashSpeed + gPlayerSpellConstants[player->index].kFireDashSpeed);
 		}
 
+
+		if (pUpgrades[player->index].choice[1] == 1)
+		{
+			FireElement *e = dynamic_cast<FireElement *>(player->element);
+			if (e != nullptr)
+			{
+				e->firePatchCount = 6;
+			}
+		}
 		cooldown[1] = gSpellConstants.kFireDashCooldown + gPlayerSpellConstants[player->index].kFireDashCooldown;
 		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
