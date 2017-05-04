@@ -57,6 +57,7 @@ void Player::update(Map *map, float dt)
 	{
 		this->debuffs.dot = 0.0f;
 		this->debuffs.speed = 0.0f;
+		this->debuffs.friction = 0.0f;
 	}
 	dashTime += dt;
 	if (dashTime > 0.54f)
@@ -85,6 +86,20 @@ void Player::update(Map *map, float dt)
 
 	//acceleration.x *= 0.9;
 	//acceleration.y *= 0.9;
+	if (map->playerElemnts[index] == 4 && pUpgrades[index].choice[1] == 2)
+	{
+		
+		WaterElement *e = dynamic_cast<WaterElement *>(this->element);
+		e->time += dt;
+		if (e->icePatchCount != 0 && e->time > 0.02f)
+		{
+			e->icePatchCount--;
+			e->time = 0.0f;
+			WaterIcePatch *spell = new WaterIcePatch(this, this->position, XMFLOAT2(0.0f, 0.0f), 1.0f);
+			map->add_entity(spell);
+		}
+
+	}
 
 	if (*map->currentState == GameState::Playing)
 	{

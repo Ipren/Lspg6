@@ -92,5 +92,6 @@ public:
 	virtual void dash(Player *player, Map *map) override;
 
 	WaterProjectileSpell *active_projectile;
-	
+	int icePatchCount;
+	float time = 0.0f;
 };

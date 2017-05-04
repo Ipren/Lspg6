@@ -284,45 +284,45 @@ void Menu::setUpgradesArrowPos(Map * map)
 	//p2
 	if (map->upgradeChoice[1] == 0)
 	{
-		this->arrowPos[1].y = 293.0f / 2 + offsetY;
-		this->arrowPos[1].x = 180.0f / 2;
+		this->arrowPos[1].y = 293.0f / 2 ;
+		this->arrowPos[1].x = 180.0f / 2 + offsetX;
 	}
 	if (map->upgradeChoice[1] == 1)
 	{
-		this->arrowPos[1].y = 389.0f / 2 + offsetY;
-		this->arrowPos[1].x = 180.0f / 2;
+		this->arrowPos[1].y = 389.0f / 2;
+		this->arrowPos[1].x = 180.0f / 2 + offsetX;
 	}
 	if (map->upgradeChoice[1] == 2)
 	{
-		this->arrowPos[1].y = 480.0f / 2 + offsetY;
-		this->arrowPos[1].x = 180.0f / 2;
+		this->arrowPos[1].y = 480.0f / 2;
+		this->arrowPos[1].x = 180.0f / 2 + offsetX;
 	}
 	if (map->upgradeChoice[1] == 3)
 	{
-		this->arrowPos[1].y = 579.0f / 2 + offsetY;
-		this->arrowPos[1].x = 180.0f / 2;
+		this->arrowPos[1].y = 579.0f / 2;
+		this->arrowPos[1].x = 180.0f / 2 + offsetX;
 	}
 
 	//p3
 	if (map->upgradeChoice[2] == 0)
 	{
-		this->arrowPos[2].y = 293.0f / 2;
-		this->arrowPos[2].x = 180.0f / 2 + offsetX;
+		this->arrowPos[2].y = 293.0f / 2 + offsetY;
+		this->arrowPos[2].x = 180.0f / 2;
 	}
 	if (map->upgradeChoice[2] == 1)
 	{
-		this->arrowPos[2].y = 389.0f / 2;
-		this->arrowPos[2].x = 180.0f / 2 + offsetX;
+		this->arrowPos[2].y = 389.0f / 2 + offsetY;
+		this->arrowPos[2].x = 180.0f / 2 ;
 	}
 	if (map->upgradeChoice[2] == 2)
 	{
-		this->arrowPos[2].y = 480.0f / 2;
-		this->arrowPos[2].x = 180.0f / 2 + offsetX;
+		this->arrowPos[2].y = 480.0f / 2 + offsetY;
+		this->arrowPos[2].x = 180.0f / 2;
 	}
 	if (map->upgradeChoice[2] == 3)
 	{
-		this->arrowPos[2].y = 579.0f / 2;
-		this->arrowPos[2].x = 180.0f / 2 + offsetX;
+		this->arrowPos[2].y = 579.0f / 2 + offsetY;
+		this->arrowPos[2].x = 180.0f / 2 ;
 	}
 
 	//p4

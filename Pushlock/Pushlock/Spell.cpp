@@ -485,7 +485,7 @@ void WindBeaconSpell::endStomped()
 }
 
 WaterIcePatch::WaterIcePatch(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
-	: Spell(owner, position, velocity, radius, 3.5f)
+	: Spell(owner, position, {0.0f, 0.0f}, radius, 6.3f)
 {
 
 }
@@ -496,7 +496,10 @@ WaterIcePatch::~WaterIcePatch()
 
 void WaterIcePatch::update(Map * map, float dt)
 {
-	Spell::update(map, dt);
+	life -= dt;
+	if (life <= 0.f) {
+		dead = true;
+	}
 }
 
 bool WaterIcePatch::on_effect(Map * map)
@@ -506,9 +509,13 @@ bool WaterIcePatch::on_effect(Map * map)
 	});
 
 	for (auto result : nearby) {
-		dynamic_cast<Player*>(result.entity)->debuffs.speed = this->dSpeed;
-		dynamic_cast<Player*>(result.entity)->debuffs.friction = this->dFriction;
-		dynamic_cast<Player*>(result.entity)->debuffs.duration = 0.4f;
+		//if (dynamic_cast<Player*>(result.entity) != this->owner)
+		{
+			dynamic_cast<Player*>(result.entity)->debuffs.speed = this->dSpeed;
+			dynamic_cast<Player*>(result.entity)->debuffs.friction = this->dFriction;
+			dynamic_cast<Player*>(result.entity)->debuffs.duration = 0.4f;
+		}
+		
 	}
-	return true;
+	return false;
 }

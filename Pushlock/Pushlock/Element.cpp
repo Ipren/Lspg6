@@ -964,6 +964,10 @@ void WaterElement::dash(Player * player, Map * map)
 			player->frosen = true;
 			player->dashTime = 0.0f;
 		}
+		if (pUpgrades[player->index].choice[1] == 2)
+		{
+			dynamic_cast<WaterElement *>(player->element)->icePatchCount = 6;
+		}
 		cooldown[1] = gSpellConstants.kWaterDashCooldown + gPlayerSpellConstants[player->index].kWaterDashCooldown;
 		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
