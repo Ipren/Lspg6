@@ -41,7 +41,7 @@ public:
 	virtual void dash(Player *player, Map *map) override;
 
 	XMFLOAT3 returnPos;
-	bool teleported;
+	bool teleported = false;
 };
 
 class FireElement : public Element {

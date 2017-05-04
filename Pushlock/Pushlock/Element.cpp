@@ -170,6 +170,42 @@ void ArcaneElement::dash(Player * player, Map * map)
 				dynamic_cast<ArcaneElement*>(player->element)->teleported = true;
 
 			}
+			if (pUpgrades[player->index].choice[1] = 2)
+			{
+				XMFLOAT3 telePos = {0.0f, 0.0f, 0.0f};
+
+				if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
+				{
+					float left_angle = gGamepads[index]->get_left_thumb_angle();
+					telePos.x += cos(left_angle) * 5.0f;
+					telePos.z += sin(left_angle) * 5.0f;
+				}
+				else
+				{
+					telePos.x += cos(player->angle) * 5.0f;
+					telePos.z += sin(player->angle) * 5.0f;
+				}
+
+				float dx;
+				float dz;
+				float distance;
+
+				for (size_t i = 0; i < map->entitys.size(); i++)
+				{
+					if (dynamic_cast<Player* >(map->entitys[i]) != player && dynamic_cast<Player* >(map->entitys[i]) != nullptr)
+					{
+						dx = abs(telePos.x - map->entitys[i]->position.x);
+						dz = abs(telePos.y - map->entitys[i]->position.y);
+						distance = sqrt(dx*dx + dz*dz);
+
+						if (distance < (map->entitys[i]->radius + map->entitys[i]->radius + 2.6f))
+						{
+							map->entitys[i]->velocity.x = telePos.x * 8.5f;
+							map->entitys[i]->velocity.y = telePos.z * 8.5f;
+						}
+					}
+				}
+			}
 			if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
 			{
 				float left_angle = gGamepads[index]->get_left_thumb_angle();
@@ -183,6 +219,8 @@ void ArcaneElement::dash(Player * player, Map * map)
 			}
 			player->dashing = true;
 			player->dashTime = 0.0f;
+
+			
 			
 		}
 		else
