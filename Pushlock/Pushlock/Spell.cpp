@@ -519,3 +519,20 @@ bool WaterIcePatch::on_effect(Map * map)
 	}
 	return false;
 }
+
+FirePathSpell::FirePathSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
+{
+}
+
+FirePathSpell::~FirePathSpell()
+{
+}
+
+void FirePathSpell::update(Map * map, float dt)
+{
+}
+
+bool FirePathSpell::on_effect(Map * map)
+{
+	return false;
+}
