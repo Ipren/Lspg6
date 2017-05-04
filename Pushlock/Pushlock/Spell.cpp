@@ -600,13 +600,47 @@ bool WaterIcePatch::on_effect(Map * map)
 	});
 
 	for (auto result : nearby) {
-		//if (dynamic_cast<Player*>(result.entity) != this->owner)
+		if (dynamic_cast<Player*>(result.entity) != this->owner)
 		{
 			dynamic_cast<Player*>(result.entity)->debuffs.speed = this->dSpeed;
 			dynamic_cast<Player*>(result.entity)->debuffs.friction = this->dFriction;
 			dynamic_cast<Player*>(result.entity)->debuffs.duration = 0.4f;
 		}
 		
+	}
+	return false;
+}
+
+FirePathSpell::FirePathSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
+	: Spell(owner, position, { 0.0f, 0.0f }, radius, 6.3f)
+{
+}
+
+FirePathSpell::~FirePathSpell()
+{
+}
+
+void FirePathSpell::update(Map * map, float dt)
+{
+	life -= dt;
+	if (life <= 0.f) {
+		dead = true;
+	}
+}
+
+bool FirePathSpell::on_effect(Map * map)
+{
+	auto nearby = map->get_entities_in_radius(this, radius, [](Entity *e) {
+		return e->type == EntityType::Player;
+	});
+
+	for (auto result : nearby) {
+		if (dynamic_cast<Player*>(result.entity) != this->owner)
+		{
+			dynamic_cast<Player*>(result.entity)->debuffs.speed = this->dot;
+			dynamic_cast<Player*>(result.entity)->debuffs.duration = 0.4f;
+		}
+
 	}
 	return false;
 }

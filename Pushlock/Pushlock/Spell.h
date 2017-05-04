@@ -200,3 +200,16 @@ private:
 	float lifetime;
 	bool stomped;
 };
+
+class FirePathSpell : public Spell
+{
+public:
+	FirePathSpell(Player* owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius);
+	~FirePathSpell();
+
+	virtual void update(Map *map, float dt) override;
+	virtual bool on_effect(Map *map) override;
+
+private:
+	float dot;
+};
