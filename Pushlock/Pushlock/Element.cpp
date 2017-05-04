@@ -164,7 +164,12 @@ void ArcaneElement::dash(Player * player, Map * map)
 
 		if (pUpgrades[player->index].choice[0] == 2)
 		{
+			if (pUpgrades[player->index].choice[1] == 1)
+			{
+				dynamic_cast<ArcaneElement*>(player->element)->returnPos = player->position;
+				dynamic_cast<ArcaneElement*>(player->element)->teleported = true;
 
+			}
 			if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
 			{
 				float left_angle = gGamepads[index]->get_left_thumb_angle();
@@ -178,6 +183,7 @@ void ArcaneElement::dash(Player * player, Map * map)
 			}
 			player->dashing = true;
 			player->dashTime = 0.0f;
+			
 		}
 		else
 		{
@@ -196,6 +202,10 @@ void ArcaneElement::dash(Player * player, Map * map)
 		}
 		cooldown[1] = gSpellConstants.kArcaneDashCooldown + gPlayerSpellConstants[player->index].kArcaneDashCooldown;
 		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
+	}
+	else if(pUpgrades[player->index].choice[1] == 1 && dynamic_cast<ArcaneElement*>(player->element)->teleported)
+	{
+		player->position = dynamic_cast<ArcaneElement*>(player->element)->returnPos;
 	}
 }
 

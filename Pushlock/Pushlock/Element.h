@@ -40,6 +40,8 @@ public:
 	virtual void wall(Player *player, Map *map) override;
 	virtual void dash(Player *player, Map *map) override;
 
+	XMFLOAT3 returnPos;
+	bool teleported;
 };
 
 class FireElement : public Element {
