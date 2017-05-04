@@ -40,6 +40,8 @@ public:
 	virtual void wall(Player *player, Map *map) override;
 	virtual void dash(Player *player, Map *map) override;
 
+	XMFLOAT3 returnPos;
+	bool teleported = false;
 };
 
 class FireElement : public Element {
@@ -52,6 +54,8 @@ public:
 	virtual void dash(Player *player, Map *map) override;
 
 	FireProjectileSpell *active_projectile;
+	int firePatchCount;
+	float time = 0.0f;
 };
 
 class WindElement : public Element {
