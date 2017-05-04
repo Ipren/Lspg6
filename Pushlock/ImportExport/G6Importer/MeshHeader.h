@@ -113,16 +113,12 @@ struct JointPose
 	float				m_scale;    //S     
 };
 
-struct SkeletonPose
-{
-	vector<Joint>			m_pSkeleton;    //skeleton + num joints
-	vector<JointPose>		m_aLocalPose;   //local joint poses
-	DirectX::XMFLOAT4X4A*	m_aGlobalPose;  //global joint poses
-};
-
-
-
-
+//struct SkeletonPose
+//{
+//	vector<Joint>			m_pSkeleton;    //skeleton + num joints
+//	vector<JointPose>		m_aLocalPose;   //local joint poses
+//	DirectX::XMFLOAT4X4A*	m_aGlobalPose;  //global joint poses
+//};
 
 struct AnimationSample
 {
