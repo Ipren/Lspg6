@@ -169,14 +169,17 @@ void Map::update(float dt, Camera *cam)
 					ArcaneWallSpell* awall = dynamic_cast<ArcaneWallSpell*>(a);
 					EarthWallSpell* ewall = dynamic_cast<EarthWallSpell*>(a);
 
-					if (awall == nullptr)
-					{
-						ewall->on_effect(this);
-					}
-					else
-					{
-						awall->on_effect(this);
-					}
+				
+							if (awall == nullptr)
+							{
+								ewall->on_effect(this);
+							}
+							else
+							{
+								awall->on_effect(this);
+							}
+					
+					
 
 				}
 			}

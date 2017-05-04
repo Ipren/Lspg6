@@ -109,34 +109,41 @@ bool ArcaneWallSpell::on_effect(Map *map) {
 
 			if (distance < this->radius + result.entity->radius)
 			{
-				XMVECTOR aPos;
-				XMVECTOR bPos;
-				XMVECTOR bVel;
-				aPos = XMVectorSet(this->position.x, this->position.z, 0.f, 0.f);
-				bPos = XMVectorSet(result.entity->position.x, result.entity->position.z, 0.f, 0.f);
-				bVel = XMVectorSet(result.entity->velocity.x, result.entity->velocity.y, 0.f, 0.f);
+				if (dynamic_cast<Player *>(result.entity) != nullptr && dynamic_cast<Player *>(result.entity)->dashing == true)
+				{
 
-				XMVECTOR norm;
-
-				if (this->edge)
-					norm = aPos - bPos;
+				}
 				else
 				{
-					norm = XMVectorSet(cos(this->angle), sin(this->angle), 0.f, 0.f);
-					if (XMVectorGetX(XMVector2Dot(norm, bVel)) < 0)
+					XMVECTOR aPos;
+					XMVECTOR bPos;
+					XMVECTOR bVel;
+					aPos = XMVectorSet(this->position.x, this->position.z, 0.f, 0.f);
+					bPos = XMVectorSet(result.entity->position.x, result.entity->position.z, 0.f, 0.f);
+					bVel = XMVectorSet(result.entity->velocity.x, result.entity->velocity.y, 0.f, 0.f);
+
+					XMVECTOR norm;
+
+					if (this->edge)
+						norm = aPos - bPos;
+					else
 					{
-						norm = -norm;
+						norm = XMVectorSet(cos(this->angle), sin(this->angle), 0.f, 0.f);
+						if (XMVectorGetX(XMVector2Dot(norm, bVel)) < 0)
+						{
+							norm = -norm;
+						}
 					}
+
+					norm = XMVector2Normalize(norm);
+					bVel = XMVector2Reflect(bVel, norm);
+
+					result.entity->position.x = this->position.x + (XMVectorGetX(-norm) * (this->radius + result.entity->radius + 0.1f));
+					result.entity->position.z = this->position.z + (XMVectorGetY(-norm) * (this->radius + result.entity->radius + 0.1f));
+
+					result.entity->velocity.x = XMVectorGetX(bVel);
+					result.entity->velocity.y = XMVectorGetY(bVel);
 				}
-
-				norm = XMVector2Normalize(norm);
-				bVel = XMVector2Reflect(bVel, norm);
-
-				result.entity->position.x = this->position.x + (XMVectorGetX(-norm) * (this->radius + result.entity->radius + 0.1f));
-				result.entity->position.z = this->position.z + (XMVectorGetY(-norm) * (this->radius + result.entity->radius + 0.1f));
-
-				result.entity->velocity.x = XMVectorGetX(bVel);
-				result.entity->velocity.y = XMVectorGetY(bVel);
 
 
 			}
@@ -299,43 +306,51 @@ bool EarthWallSpell::on_effect(Map *map) { //made so earthwall has its own class
 
 			if (distance < this->radius + result.entity->radius)
 			{
-				if (pUpgrades[owner->index].choice[1] == 1 && result.entity->type == EntityType::Player)
+
+				if (dynamic_cast<Player *>(result.entity) != nullptr && dynamic_cast<Player *>(result.entity)->dashing == true)
 				{
-					Player* victim = dynamic_cast<Player*>(result.entity);
-					if (victim != nullptr)
-					{
-						victim->debuffs.dot = -0.2f;
-						victim->debuffs.duration = 0.1f;
-					}
+			
 				}
-				XMVECTOR aPos;
-				XMVECTOR bPos;
-				XMVECTOR bVel;
-				aPos = XMVectorSet(this->position.x, this->position.z, 0.f, 0.f);
-				bPos = XMVectorSet(result.entity->position.x, result.entity->position.z, 0.f, 0.f);
-				bVel = XMVectorSet(result.entity->velocity.x, result.entity->velocity.y, 0.f, 0.f);
-
-				XMVECTOR norm;
-
-				if (this->edge)
-					norm = aPos - bPos;
 				else
 				{
-					norm = XMVectorSet(cos(this->angle), sin(this->angle), 0.f, 0.f);
-					if (XMVectorGetX(XMVector2Dot(norm, bVel)) < 0)
+					if (pUpgrades[owner->index].choice[1] == 1 && result.entity->type == EntityType::Player)
 					{
-						norm = -norm;
+						Player* victim = dynamic_cast<Player*>(result.entity);
+						if (victim != nullptr)
+						{
+							victim->debuffs.dot = -0.2f;
+							victim->debuffs.duration = 0.1f;
+						}
 					}
+					XMVECTOR aPos;
+					XMVECTOR bPos;
+					XMVECTOR bVel;
+					aPos = XMVectorSet(this->position.x, this->position.z, 0.f, 0.f);
+					bPos = XMVectorSet(result.entity->position.x, result.entity->position.z, 0.f, 0.f);
+					bVel = XMVectorSet(result.entity->velocity.x, result.entity->velocity.y, 0.f, 0.f);
+
+					XMVECTOR norm;
+
+					if (this->edge)
+						norm = aPos - bPos;
+					else
+					{
+						norm = XMVectorSet(cos(this->angle), sin(this->angle), 0.f, 0.f);
+						if (XMVectorGetX(XMVector2Dot(norm, bVel)) < 0)
+						{
+							norm = -norm;
+						}
+					}
+
+					norm = XMVector2Normalize(norm);
+					bVel = XMVector2Reflect(bVel, norm);
+
+					result.entity->position.x = this->position.x + (XMVectorGetX(-norm) * (this->radius + result.entity->radius + 0.1f));
+					result.entity->position.z = this->position.z + (XMVectorGetY(-norm) * (this->radius + result.entity->radius + 0.1f));
+
+					result.entity->velocity.x = XMVectorGetX(bVel);
+					result.entity->velocity.y = XMVectorGetY(bVel);
 				}
-
-				norm = XMVector2Normalize(norm);
-				bVel = XMVector2Reflect(bVel, norm);
-
-				result.entity->position.x = this->position.x + (XMVectorGetX(-norm) * (this->radius + result.entity->radius + 0.1f));
-				result.entity->position.z = this->position.z + (XMVectorGetY(-norm) * (this->radius + result.entity->radius + 0.1f));
-
-				result.entity->velocity.x = XMVectorGetX(bVel);
-				result.entity->velocity.y = XMVectorGetY(bVel);
 
 
 			}
