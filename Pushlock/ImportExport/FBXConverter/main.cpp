@@ -48,22 +48,23 @@ int main()
 	//////////////////////////////////////////////////////
 
 	FBXImporter importer;
-	sMesh mesh;
+	sSkinnedMesh mesh;
 	vector<sMaterial*> meshMaterials;
 
-	importer.Import("tower.fbx", &mesh, meshMaterials);
-	PrintMesh(mesh);
+	importer.ImportAnimatedMesh("animatedSphere.fbx", &mesh, meshMaterials);
+
+	//PrintMesh(mesh);
 
 	//pause;
 	//clear;
 
 	//importer.ExportBinary("ExpImpTest.G6", &mesh);
-	importer.ExportBinary("tower.G6", &mesh, meshMaterials);
+	importer.ExportSkinnedBinary("animatedSphere.G6Skin", &mesh, meshMaterials);
 
 	G6Import g6importer;
-	sMesh* tmp_mesh = new sMesh();
-	vector<sMaterial*> tmpMaterials;
-	g6importer.ImportStaticMesh("tower.G6", tmp_mesh, tmpMaterials);
+	sSkinnedMesh* tmp_mesh = new sSkinnedMesh();
+	//vector<sMaterial*> tmpMaterials;
+	g6importer.ImportAnimatedMesh("animatedSphere.G6Skin", tmp_mesh);
 
 	//vector<Vertex> newVerts;
 	//newVerts.resize(1);
