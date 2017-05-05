@@ -6,11 +6,10 @@
 
 #include <DirectXMath.h>
 #include "Ease.h"
-#include "Camera.h"
 
 using namespace DirectX;
 
-const char *EMITTER_STRINGS = "Static\0Box\0Sphere\0";
+#define EMITTER_STRINGS "Static\0Box\0Sphere\0"
 
 enum class ParticleEmitter {
 	Static = 0,
@@ -35,29 +34,18 @@ enum class ParticleEase {
 typedef float(*EaseFunc)(float, float, float);
 typedef XMVECTOR(*EaseFuncV)(XMVECTOR, XMVECTOR, float);
 
-EaseFunc ease_funcs[] = {
-	ease::Lerp,
-	ease::EaseIn,
-	ease::EaseOut,
-	nullptr
-};
+extern EaseFunc ease_funcs[4];
+extern EaseFuncV ease_funcs_xmv[4];
 
-EaseFuncV ease_funcs_xmv[] = {
-	ease::Lerp,
-	ease::EaseIn,
-	ease::EaseOut,
-	nullptr
-};
+#define EASE_STRINGS "Linear\0EaseIn\0EaseOut\0"
+#define EASE_STRINGS_OPTIONAL "Linear\0EaseIn\0EaseOut\0None\0"
 
-const char *EASE_STRINGS = "Linear\0EaseIn\0EaseOut\0";
-const char *EASE_STRINGS_OPTIONAL = "Linear\0EaseIn\0EaseOut\0None\0";
-
-EaseFunc GetEaseFunc(ParticleEase ease)
+inline EaseFunc GetEaseFunc(ParticleEase ease)
 {
 	return ease_funcs[(int)ease];
 }
 
-EaseFuncV GetEaseFuncV(ParticleEase ease)
+inline EaseFuncV GetEaseFuncV(ParticleEase ease)
 {
 	return ease_funcs_xmv[(int)ease];
 }
@@ -121,7 +109,7 @@ struct ParticleEffect {
 	bool clamp_children = false;
 };
 
-struct Particle {
+struct ParticleInstance {
 	XMVECTOR origin;
 	XMVECTOR pos;
 	XMVECTOR velocity;
@@ -137,52 +125,6 @@ struct Particle {
 	int idx;
 };
 
-class ParticleSystem {
-public:
-	ParticleSystem(UINT capacity);
-	~ParticleSystem();
-
-	void ProcessFX(ParticleEffect &fx, XMMATRIX model, float dt);
-	void AddFX(std::string name, XMMATRIX model);
-
-	void update(Camera *cam, float dt);
-	void render(Camera *cam, ID3D11RenderTargetView *dst_rtv, ID3D11ShaderResourceView *dst_srv);
-
-private:
-	//ParticleEffect *getEffect(std::string name);
-
-	std::vector<ParticleDefinition> particle_definitions;
-	std::vector<ParticleEffect> effect_definitions;
-
-	std::vector<ParticleEffect> effects;
-	std::vector<Particle> particles;
-
-	ID3D11BlendState *no_blend;
-	ID3D11Buffer *particle_buffer;
-	ID3D11InputLayout *particle_layout;
-
-	ID3D11VertexShader *particle_vs;
-	ID3D11GeometryShader *particle_gs;
-	ID3D11PixelShader *particle_ps;
-	ID3D11ShaderResourceView *particle_srv;
-	ID3D11SamplerState *particle_sampler;
-
-	ID3D11BlendState *particle_blend;
-
-	ID3D11Buffer *composite_vertex_buffer;
-	ID3D11InputLayout *composite_layout;
-
-	ID3D11VertexShader *composite_vs;
-	ID3D11PixelShader *composite_ps;
-	ID3D11SamplerState *composite_sampler;
-
-
-	ID3D11RenderTargetView *distort_rtv;
-	ID3D11ShaderResourceView *distort_srv;
-
-	ID3D11Device *device;
-	ID3D11DeviceContext *cxt;
-};
 
 inline bool SerializeParticles(const wchar_t *file, std::vector<ParticleEffect> effects, std::vector<ParticleDefinition> definitions)
 {
@@ -190,6 +132,14 @@ inline bool SerializeParticles(const wchar_t *file, std::vector<ParticleEffect> 
 	
 	if (_wfopen_s(&f, file, L"wb+") != 0) {
 		return false;
+	}
+
+	for (auto &fx : effects) {
+		fx.age = 0;
+		for (int i = 0; i < fx.fx_count; ++i) {
+			if (fx.fx[i].emitter_type == ParticleEmitter::Static)
+				fx.fx[i].spawned_particles = 1.f;
+		}
 	}
 
 	auto size = definitions.size();

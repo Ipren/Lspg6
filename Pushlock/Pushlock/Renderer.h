@@ -12,9 +12,12 @@
 #include "Camera.h"
 #include "Map.h"
 #include "Player.h"
+#include "ParticleSystem.h"
 
 #include "DirectXTK.h"
 #include "WICTextureLoader.h"
+
+extern ParticleSystem *FXSystem;
 
 class Renderer
 {
@@ -25,7 +28,7 @@ public:
 
 	void render(Map *map, Camera *camera);
 	void present();
-	void update(float dt, Map *map);
+	void update(float dt, Map *map, Camera *camera);
 	
 	ID3D11Device *gDevice;
 	ID3D11DeviceContext *gDeviceContext;
@@ -51,6 +54,8 @@ public:
 	ID3D11PixelShader *cuPS;
 	ID3D11ShaderResourceView *r1CUTextures[5];
 
+	ID3D11RenderTargetView *default_rtv;
+	ID3D11ShaderResourceView *default_srv;
 private:
 	IDXGISwapChain *gSwapChain;
 	
@@ -61,6 +66,7 @@ private:
 	ID3D11DepthStencilView *DepthBufferMS;
 	ID3D11DepthStencilView *DepthBuffer;
 	ID3D11ShaderResourceView* DepthBufferSRV;
+
 
 	ID3D11RasterizerState *ShadowRaster;
 	ID3D11RasterizerState *DefaultRaster;

@@ -535,7 +535,7 @@ bool Game::update(float dt)
 	
 	
 	camera->update(dt, this->renderer->gDeviceContext);
-	renderer->update(dt, this->currentMap);
+	renderer->update(dt, this->currentMap, camera);
 
 	
 

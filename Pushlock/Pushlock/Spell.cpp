@@ -58,6 +58,8 @@ void ArcaneProjectileSpell::update(Map *map, float dt)
 	this->light.lightPos = this->position;
 }
 
+#include "ParticleSystem.h"
+
 bool ArcaneProjectileSpell::on_effect(Map *map)
 {
 	auto nearby = map->get_entities_in_radius(this, explosion_radius, [](Entity *e) {
@@ -68,6 +70,8 @@ bool ArcaneProjectileSpell::on_effect(Map *map)
 		result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kArcaneProjectileStrength + gPlayerSpellConstants[owner->index].kArcaneProjectileStrength) * abs(explosion_radius - result.distance);
 		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kArcaneProjectileStrength + gPlayerSpellConstants[owner->index].kArcaneProjectileStrength) * abs(explosion_radius - result.distance);
 	}
+	
+	FXSystem->AddFX("splosion", XMMatrixTranslation(position.x, position.y, position.z));
 	
 	return true;
 }
