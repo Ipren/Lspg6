@@ -26,7 +26,7 @@ float time;
 float ptime;
 
 std::vector<ParticleDefinition> definitions;
-std::vector<Particle> particles;
+std::vector<ParticleInstance> particles;
 
 std::vector<ParticleEffect> effects;
 ParticleEffect *current_effect;
@@ -79,7 +79,7 @@ ID3D11ShaderResourceView *distortSRV;
 ID3D11RenderTargetView *hdr_rtv;
 ID3D11ShaderResourceView *hdr_srv;
 
-float RandomFloat(float lo, float hi)
+inline float RandomFloat(float lo, float hi)
 {
 	return ((hi - lo) * ((float)rand() / RAND_MAX)) + lo;
 }
@@ -197,7 +197,7 @@ void InitParticles()
 	D3D11_BUFFER_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.ByteWidth = (UINT)(sizeof(Particle) * 4096);
+	desc.ByteWidth = (UINT)(sizeof(ParticleInstance) * 4096);
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
@@ -379,7 +379,7 @@ void RenderPlane()
 
 void RenderParticles()
 {
-	UINT32 stride = sizeof(Particle);
+	UINT32 stride = sizeof(ParticleInstance);
 	UINT32 offset = 0u;
 
 	gDeviceContext->IASetInputLayout(particle_layout);
@@ -1074,7 +1074,7 @@ void Update(float dt)
 						float rot = RandomFloat(entry.rot_min, entry.rot_max);
 						float rotvel = RandomFloat(entry.rot_vmin, entry.rot_vmax);
 
-						Particle p = {};
+						ParticleInstance p = {};
 						p.origin = pos;
 						p.pos = pos;
 						p.velocity = vel;
@@ -1138,13 +1138,13 @@ void Update(float dt)
 		}
 	}
 
-	std::sort(particles.begin(), particles.end(), [](Particle &a, Particle &b) { return XMVectorGetZ(XMVector3Length(camera->pos - a.pos)) > XMVectorGetZ(XMVector3Length(camera->pos - b.pos)); });
+	std::sort(particles.begin(), particles.end(), [](ParticleInstance &a, ParticleInstance &b) { return XMVectorGetZ(XMVector3Length(camera->pos - a.pos)) > XMVectorGetZ(XMVector3Length(camera->pos - b.pos)); });
 
 	if (!particles.empty()) {
 		D3D11_MAPPED_SUBRESOURCE data;
 		DXCALL(gDeviceContext->Map(particle_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
 		{
-			CopyMemory(data.pData, particles.data(), sizeof(Particle) * particles.size());
+			CopyMemory(data.pData, particles.data(), sizeof(ParticleInstance) * particles.size());
 		}
 		gDeviceContext->Unmap(particle_buffer, 0);
 	}
