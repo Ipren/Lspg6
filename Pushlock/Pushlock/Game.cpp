@@ -283,6 +283,8 @@ bool Game::update(float dt)
 	}
 
 	{
+		ImGui::Begin("Debug");
+
 		if (ImGui::Button("Main Menu")) {//start the main menu
 			currentState = GameState::MainMenu;
 		}
@@ -298,7 +300,6 @@ bool Game::update(float dt)
 			ImGui::Text("player %i: dead", i + 1);
 		}
 
-		ImGui::Begin("Debug");
 		if (ImGui::Button("Reset to 2p")) {//resetting the map with 2 players
 			currentMap->reset(2);
 		}
@@ -518,7 +519,9 @@ bool Game::update(float dt)
 			if (gGamepads[i]->get_button_pressed(Gamepad::A))
 			{
 				currentState = GameState::MainMenu;
+				this->currentMap->round = 1;
 			}
+			pUpgrades[i].resetUpgrades();
 		}
 		ImGui::Begin("End of the game");
 		ImGui::Text("Winner player: %i", currentMap->indexWinner +1);
@@ -529,7 +532,6 @@ bool Game::update(float dt)
 		{
 			currentMap->playerPoints[i] = 0;
 		}
-		this->currentMap->round = 1;
 	}
 
 	

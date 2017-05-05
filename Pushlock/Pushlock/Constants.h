@@ -428,8 +428,8 @@ extern GameConstants gGameConstants;
 
 struct MapConstants
 {
-	float kShrinkAmount = 1.0f;
-	float kShrinkTimer = 20.0f;
+	float kShrinkAmount = 1.5f;
+	float kShrinkTimer = 10.0f;
 };
 extern MapConstants gDefaultMapConstants;
 extern MapConstants gMapConstants;
