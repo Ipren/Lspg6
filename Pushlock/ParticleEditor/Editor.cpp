@@ -79,7 +79,7 @@ ID3D11ShaderResourceView *distortSRV;
 ID3D11RenderTargetView *hdr_rtv;
 ID3D11ShaderResourceView *hdr_srv;
 
-float RandomFloat(float lo, float hi)
+inline float RandomFloat(float lo, float hi)
 {
 	return ((hi - lo) * ((float)rand() / RAND_MAX)) + lo;
 }
