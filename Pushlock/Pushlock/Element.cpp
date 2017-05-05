@@ -170,7 +170,7 @@ void ArcaneElement::dash(Player * player, Map * map)
 				dynamic_cast<ArcaneElement*>(player->element)->teleported = true;
 
 			}
-			if (pUpgrades[player->index].choice[1] = 2)
+			if (pUpgrades[player->index].choice[1] == 2)
 			{
 				XMFLOAT3 telePos = {0.0f, 0.0f, 0.0f};
 

@@ -149,6 +149,13 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 					renderer->gDeviceContext->PSSetShaderResources((i + 1), 1, &renderer->r1CUTextures[map->playerElemnts[i]]);
 				}
 			}
+			if (currentRound == 1)
+			{
+				for (size_t i = 0; i < map->nrOfPlayers; i++)
+				{
+					renderer->gDeviceContext->PSSetShaderResources((i + 1), 1, &renderer->r2CUTextures[map->playerElemnts[i]]);
+				}
+			}
 			renderer->gDeviceContext->Draw(24, 0);
 			this->setUpgradesArrowPos(map);
 
