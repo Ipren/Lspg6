@@ -405,8 +405,8 @@ void EarthWallSpell::update(Map * map, float dt)
 					/ (gPlayerSpellConstants[owner->index].kEarthWallEffectRadius))
 					* (gPlayerSpellConstants[owner->index].kEarthWallEffectFalloff);
 
-				result.entity->velocity.x -= cos(result.angle) * (gPlayerSpellConstants[owner->index].kEarthWallStrength * falloff);
-				result.entity->velocity.y -= sin(result.angle) * (gPlayerSpellConstants[owner->index].kEarthWallStrength * falloff);
+				result.entity->velocity.x -= cos(result.angle) * ((gPlayerSpellConstants[owner->index].kEarthWallStrength / (gSpellConstants.kEarthWallNrOfPillars + gPlayerSpellConstants[owner->index].kEarthWallNrOfPillars)) * falloff);
+				result.entity->velocity.y -= sin(result.angle) * ((gPlayerSpellConstants[owner->index].kEarthWallStrength / (gSpellConstants.kEarthWallNrOfPillars + gPlayerSpellConstants[owner->index].kEarthWallNrOfPillars)) * falloff);
 			}
 		}
 	}
