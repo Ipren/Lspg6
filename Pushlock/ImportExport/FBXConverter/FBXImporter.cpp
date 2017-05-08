@@ -96,11 +96,13 @@ void FBXImporter::Import(const char * filename, sMesh* mesh, vector<sMaterial*>&
 				mesh->header.numberOfUVSets++;
 
 				UVSet uvset;
-				uvset.name = uvs.GetStringAt(0);
-				uvset.name_length = uvset.name.length();
+				//uvset.name = uvs.GetStringAt(0);
+				string name = uvs.GetStringAt(0);
+				uvset.name_length = name.length();
 				uvset.id = i;
 
 				mesh->uvsets.push_back(uvset);
+				mesh->uvset_names.push_back(uvs.GetStringAt(0));
 			}
 
 			FbxDeformer *deformer = nullptr;
@@ -190,7 +192,7 @@ void FBXImporter::Import(const char * filename, sMesh* mesh, vector<sMaterial*>&
 						const char* uvset_name = uvs.GetStringAt(0);
 						bool has_uvs;
 
-						bool uvmapped = currentMesh->GetPolygonVertexUV(j, k, mesh->uvsets[u].name.data(), uv_in, has_uvs);
+						bool uvmapped = currentMesh->GetPolygonVertexUV(j, k, mesh->uvset_names[u].data(), uv_in, has_uvs);
 						
 
 						if (uvmapped) {
@@ -295,8 +297,8 @@ void FBXImporter::ExportBinary(const char * outputFile, sMesh* mesh , vector<sMa
 	//Export uvsets all at once
 	file.write(reinterpret_cast<char*>(mesh->uvsets.data()), sizeof(UVSet) * mesh->uvsets.size());
 	//Export uvsets names in the correct order
-	for (int i = 0; i < mesh->uvsets.size(); i++) {
-		file.write((char*)(mesh->uvsets[i].name.data()), mesh->uvsets[i].name_length);
+	for (int i = 0; i < mesh->uvset_names.size(); i++) {
+		file.write((char*)(mesh->uvset_names[i].data()), mesh->uvsets[i].name_length);
 	}
 
 	//Export vertex data all at once

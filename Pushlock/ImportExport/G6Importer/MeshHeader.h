@@ -26,8 +26,8 @@ struct UVSet
 {
 	int id;
 	int name_length;
-	string name;
 };
+
 
 struct Vertex
 {
@@ -56,6 +56,7 @@ struct sMesh
 	string name;
 	vector<Vertex> verts;
 	vector<UVSet> uvsets;
+	vector<string> uvset_names;
 	vector<int> indices;
 	bool is_skinned;
 	uint8_t mat_id;
