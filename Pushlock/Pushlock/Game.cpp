@@ -524,6 +524,13 @@ bool Game::update(float dt)
 		ImGui::Text("Winner player: %i", currentMap->indexWinner +1);
 		if (ImGui::Button("Go to main menu")) {
 			currentState = GameState::MainMenu;}
+		for (size_t i = 0; i < 4; i++)
+		{
+			pUpgrades[i].choice[0] = 0;
+			pUpgrades[i].choice[1] = 0;
+			pUpgrades[i].choice[2] = 0;
+		}
+		this->currentRound = 1;
 		ImGui::End();
 		for (int i = 0; i < 4; i++)
 		{
