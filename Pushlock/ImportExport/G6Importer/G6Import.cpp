@@ -13,17 +13,21 @@ bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<s
 	outMesh->uvsets.clear();
 	outMesh->uvsets.resize(outMesh->header.numberOfUVSets);
 
+	outMesh->uvset_names.clear();
+	outMesh->uvset_names.resize(outMesh->header.numberOfUVSets);
+
 	outMesh->uvs.clear();
 	outMesh->uvs.resize(outMesh->header.numberOfVerts * outMesh->header.numberOfUVSets);
 
 	//Import UVSets
 	file.read(reinterpret_cast<char*>(outMesh->uvsets.data()), sizeof(UVSet) * outMesh->header.numberOfUVSets);
+
 	for (int i = 0; i < outMesh->header.numberOfUVSets; i++) {
 		char* uvset_name = (char*)malloc(sizeof(char) * (outMesh->uvsets[i].name_length + 1));
 		memset(uvset_name, 0x0, sizeof(char) * (outMesh->uvsets[i].name_length + 1));
 
 		file.read((char*)(uvset_name), outMesh->uvsets[i].name_length* sizeof(char));
-		outMesh->uvsets[i].name = string(uvset_name);
+		outMesh->uvset_names[i] = string(uvset_name);
 
 		free(uvset_name);
 	}
