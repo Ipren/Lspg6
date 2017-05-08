@@ -126,6 +126,12 @@
     <ClCompile Include="Spell.cpp">
       <Filter>Source Files\GameLogic\spell</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ParticleEditor\Particle.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dxerr.h">
@@ -208,6 +214,9 @@
     </ClInclude>
     <ClInclude Include="SoundSystem.h">
       <Filter>Header Files\other</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

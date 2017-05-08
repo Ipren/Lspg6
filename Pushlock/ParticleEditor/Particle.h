@@ -1,13 +1,15 @@
 #pragma once
 
 #include <cstdio>
+#include <string>
+#include <vector>
 
 #include <DirectXMath.h>
 #include "Ease.h"
 
 using namespace DirectX;
 
-const char *EMITTER_STRINGS = "Static\0Box\0Sphere\0";
+#define EMITTER_STRINGS "Static\0Box\0Sphere\0"
 
 enum class ParticleEmitter {
 	Static = 0,
@@ -32,29 +34,18 @@ enum class ParticleEase {
 typedef float(*EaseFunc)(float, float, float);
 typedef XMVECTOR(*EaseFuncV)(XMVECTOR, XMVECTOR, float);
 
-EaseFunc ease_funcs[] = {
-	ease::Lerp,
-	ease::EaseIn,
-	ease::EaseOut,
-	nullptr
-};
+extern EaseFunc ease_funcs[4];
+extern EaseFuncV ease_funcs_xmv[4];
 
-EaseFuncV ease_funcs_xmv[] = {
-	ease::Lerp,
-	ease::EaseIn,
-	ease::EaseOut,
-	nullptr
-};
+#define EASE_STRINGS "Linear\0EaseIn\0EaseOut\0"
+#define EASE_STRINGS_OPTIONAL "Linear\0EaseIn\0EaseOut\0None\0"
 
-const char *EASE_STRINGS = "Linear\0EaseIn\0EaseOut\0";
-const char *EASE_STRINGS_OPTIONAL = "Linear\0EaseIn\0EaseOut\0None\0";
-
-EaseFunc GetEaseFunc(ParticleEase ease)
+inline EaseFunc GetEaseFunc(ParticleEase ease)
 {
 	return ease_funcs[(int)ease];
 }
 
-EaseFuncV GetEaseFuncV(ParticleEase ease)
+inline EaseFuncV GetEaseFuncV(ParticleEase ease)
 {
 	return ease_funcs_xmv[(int)ease];
 }
@@ -118,7 +109,7 @@ struct ParticleEffect {
 	bool clamp_children = false;
 };
 
-struct Particle {
+struct ParticleInstance {
 	XMVECTOR origin;
 	XMVECTOR pos;
 	XMVECTOR velocity;
@@ -134,12 +125,21 @@ struct Particle {
 	int idx;
 };
 
+
 inline bool SerializeParticles(const wchar_t *file, std::vector<ParticleEffect> effects, std::vector<ParticleDefinition> definitions)
 {
 	FILE *f;
 	
 	if (_wfopen_s(&f, file, L"wb+") != 0) {
 		return false;
+	}
+
+	for (auto &fx : effects) {
+		fx.age = 0;
+		for (int i = 0; i < fx.fx_count; ++i) {
+			if (fx.fx[i].emitter_type == ParticleEmitter::Static)
+				fx.fx[i].spawned_particles = 1.f;
+		}
 	}
 
 	auto size = definitions.size();

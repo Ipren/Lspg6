@@ -6,6 +6,8 @@
 #include "Constants.h"
 #include "Globals.h"
 
+ParticleSystem *FXSystem;
+
 const UINT startParticleCount = 0;
 //makes it so the actual amount of particles in the buffers is used
 const UINT UAVFLAG = -1;
@@ -77,6 +79,8 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 
 	this->createCuBuffers();
 	this->createCUShaders();
+
+	FXSystem = new ParticleSystem(L"Particles.no", 4096, gDevice, gDeviceContext);
 
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
@@ -489,6 +493,25 @@ HRESULT Renderer::createDirect3DContext(HWND wndHandle)
 
 		this->createDepthBuffers();
 
+		ID3D11Texture2D *dtex;
+		D3D11_TEXTURE2D_DESC rtv_desc;
+		ZeroMemory(&rtv_desc, sizeof(rtv_desc));
+		rtv_desc.Width = WIDTH;
+		rtv_desc.Height = HEIGHT;
+		rtv_desc.Usage = D3D11_USAGE_DEFAULT;
+		rtv_desc.MipLevels = 1;
+		rtv_desc.ArraySize = 1;
+		rtv_desc.SampleDesc.Count = 1;
+		rtv_desc.SampleDesc.Quality = 0;
+		rtv_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		rtv_desc.CPUAccessFlags = 0;
+		rtv_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		rtv_desc.MiscFlags = 0;
+
+		DXCALL(gDevice->CreateTexture2D(&rtv_desc, nullptr, &dtex));
+
+		DXCALL(gDevice->CreateShaderResourceView(dtex, nullptr, &default_srv));
+		DXCALL(gDevice->CreateRenderTargetView(dtex, nullptr, &default_rtv));
 	}
 
 	return hr;
@@ -1944,7 +1967,7 @@ void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 		{
 
 
-			XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 0.01f, entity->position.z + 0.8f);
+			XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 1.0f, entity->position.z + 0.8f);
 
 			cam->vals.world = model;
 			cam->update(0, gDeviceContext);
@@ -1981,7 +2004,7 @@ void Renderer::renderHPGUI(Map * map, Camera * cam)
 
 			if ((p->maxHealth - p->health) > 0.001f)
 			{
-				XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 0.01f, entity->position.z + 1.09f);
+				XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 1.0f, entity->position.z + 1.09f);
 
 				cam->vals.world = model;
 				cam->update(0, gDeviceContext);
@@ -2034,7 +2057,7 @@ void Renderer::renderParticles(Camera *camera)
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT sampleMask = 0xffffffff;
 	this->gDeviceContext->OMSetBlendState(particle_blend, blendFactor, sampleMask);
-	this->gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, DepthBufferMS);
+	this->gDeviceContext->OMSetRenderTargets(1, &default_rtv, DepthBufferMS);
 
 	this->gDeviceContext->DrawInstancedIndirect(this->inderectArgumentBuffer, 0);
 
@@ -2205,13 +2228,13 @@ void Renderer::render(Map *map, Camera *camera)
 	this->updateCameraPosBuffer(camera);
 	XMFLOAT4 clear = normalize_color(0x93a9bcff);
 
-	gDeviceContext->ClearRenderTargetView(gBackbufferRTV, (float*)&clear);
+	gDeviceContext->ClearRenderTargetView(default_rtv, (float*)&clear);
 	gDeviceContext->ClearDepthStencilView(DepthBufferMS, D3D11_CLEAR_DEPTH, 1.0f, 0);		
 	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0xff);
-	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, DepthBufferMS);
+	gDeviceContext->OMSetRenderTargets(1, &default_rtv, DepthBufferMS);
 
 	{
-		XMFLOAT4 col = normalize_color(0x3D9D00AA);
+		XMFLOAT4 col = normalize_color(0x343434AA);
 		D3D11_MAPPED_SUBRESOURCE data;
 		DXCALL(gDeviceContext->Map(color_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
 		{
@@ -2345,6 +2368,7 @@ void Renderer::render(Map *map, Camera *camera)
 	camera->update(0, gDeviceContext);
 
 	this->renderParticles(camera);
+	FXSystem->render(camera, default_rtv, default_srv, gBackbufferRTV);
 }
 
 
@@ -2352,8 +2376,9 @@ void Renderer::present() {
 	this->gSwapChain->Present(0, 0);
 }
 
-void Renderer::update(float dt, Map * map)
+void Renderer::update(float dt, Map *map, Camera *camera)
 {
+	FXSystem->update(camera, dt);
 	this->updateParticles(dt, map);
 	this->updatePointLights(map);
 	if (map->shrunk == true)

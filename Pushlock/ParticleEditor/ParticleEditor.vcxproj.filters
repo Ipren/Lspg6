@@ -47,6 +47,9 @@
     <ClCompile Include="External\imgui_dock.cpp">
       <Filter>External</Filter>
     </ClCompile>
+    <ClCompile Include="Particle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\DirectXTK.h">
