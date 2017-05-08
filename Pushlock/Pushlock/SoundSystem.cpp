@@ -9,7 +9,7 @@
 SoundSystem::SoundSystem()
 {
 	this->buffers = new sf::SoundBuffer[21];
-	this->sound = new sf::Sound[32];
+	this->sound = new sf::Sound[512];
 	this->buffers[0].loadFromFile("../Resources/Sounds/fireball.wav");
 	this->buffers[1].loadFromFile("../Resources/Sounds/boom.wav");
 	this->buffers[2].loadFromFile("../Resources/Sounds/arcaneball.wav");

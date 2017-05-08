@@ -244,6 +244,7 @@ void ArcaneElement::dash(Player * player, Map * map)
 	else if(pUpgrades[player->index].choice[1] == 1 && dynamic_cast<ArcaneElement*>(player->element)->teleported)
 	{
 		player->position = dynamic_cast<ArcaneElement*>(player->element)->returnPos;
+		this->teleported = false;
 	}
 }
 
