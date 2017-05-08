@@ -601,6 +601,60 @@ void Game::updateUpgradeStats()
 			}
 		}
 	}
+	if (this->currentRound > 3)
+	{
+		for (size_t i = 0; i < this->currentMap->nrOfPlayers; i++)
+		{
+			if (pUpgrades[i].choice[this->currentRound - 1] == 1)
+			{
+				if (currentMap->playerElemnts[i] == 0)
+				{
+					gPlayerSpellConstants[i].kArcaneDashCooldown -= 0.3f;
+				}
+				if (currentMap->playerElemnts[i] == 1)
+				{
+					gPlayerSpellConstants[i].kFireProjectileStrength += 5.0f;
+				}
+				if (currentMap->playerElemnts[i] == 2)
+				{
+					gPlayerSpellConstants[i].kWindProjectileSpeed += 1.0f;
+				}
+				if (currentMap->playerElemnts[i] == 3)
+				{
+					gPlayerSpellConstants[i].kEarthProjectileSpeed += 1.0f;
+				}
+				if (currentMap->playerElemnts[i] == 4)
+				{
+					gPlayerSpellConstants[i].kWaterProjectileSpeed += 1.0f;
+				}
+			}
+
+			if (pUpgrades[i].choice[this->currentRound - 1] == 2)
+			{
+				if (currentMap->playerElemnts[i] == 0)
+				{
+					gPlayerSpellConstants[i].kArcaneProjectileSpeed += 1.0f;
+				}
+				if (currentMap->playerElemnts[i] == 1)
+				{
+					gPlayerSpellConstants[i].kFireStompStrength += 5.0f;
+				}
+				if (currentMap->playerElemnts[i] == 2)
+				{
+					gPlayerSpellConstants[i].kWindStompStrength += 5.0f;
+				}
+				if (currentMap->playerElemnts[i] == 3)
+				{
+					gPlayerSpellConstants[i].kEarthProjectileEffectRadius += 1.0f;
+				}
+				if (currentMap->playerElemnts[i] == 4)
+				{
+					gPlayerSpellConstants[i].kWaterStompDistance += 1.0f;
+				}
+			}
+		}
+		
+	}
 }
 
 void Game::render()
