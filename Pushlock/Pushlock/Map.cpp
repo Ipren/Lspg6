@@ -53,6 +53,11 @@ void Map::reset(int nrOfPlayers)
 		}
 		p->health = p->element->startHealth;//set health based on the element choice
 		entitys.push_back(e);
+
+		//Load skinned mesh test
+		//entitys.back()->pAnimator = new Animator();
+		//entitys.back()->pAnimator->LoadSkinnedMesh("cylinder_bending.G6Skin");
+
 		entitys.back()->pMesh = new Mesh();
 		entitys.back()->pMesh->LoadStatic("character.G6Mesh", globalDevice, globalDeviceContext);
 		
