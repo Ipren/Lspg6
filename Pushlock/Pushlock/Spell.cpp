@@ -16,12 +16,15 @@ Spell::~Spell()
 ArcaneProjectileSpell::ArcaneProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, velocity, radius, 4.5f + gPlayerSpellConstants[owner->index].kArcaneProjectileLifeTime), explosion_radius(1.5f), strength(1.f)
 {
+	static ParticleEffect ArcaneTrail = FXSystem->GetFX("arcane-proj-trail");
+
 	this->pEmitter.randomVector = DirectX::XMFLOAT4(velocity.x, position.x, velocity.y, 1.0f);
 	this->pEmitter.position = position;
 	this->pEmitter.particleType = 0;
-	this->light.lightColor = XMFLOAT4(0.28f, 0.1f, 0.56f, 1.0f);
+	this->light.lightColor = XMFLOAT4(0.8f, 0.78f, 1.0f, 1.0f);
 	this->light.lightPos = position;
-	this->light.range = 0.9f;
+	this->light.range = 1.4f;
+	this->trail = ArcaneTrail;
 }
 
 ArcaneProjectileSpell::~ArcaneProjectileSpell()
@@ -55,10 +58,9 @@ void ArcaneProjectileSpell::update(Map *map, float dt)
 	}
 	
 	Spell::update(map, dt);
+	FXSystem->ProcessFX(this->trail, XMMatrixTranslation(position.x, position.y, position.z), dt);
 	this->light.lightPos = this->position;
 }
-
-#include "ParticleSystem.h"
 
 bool ArcaneProjectileSpell::on_effect(Map *map)
 {

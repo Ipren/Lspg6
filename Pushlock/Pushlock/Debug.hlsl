@@ -91,31 +91,15 @@ float4 PS(in VS_OUT input) : SV_TARGET
     float distance;
     float nDotL;
     float4 wLightPos;
-    float4 wNorm = mul(World, float4(normal, 1.0f));
+    float4 wNorm = float4(normal, 1.0f);
     for (uint i = 0; i < nrOfPointLights; i++)
     {
-        wLightPos = float4(pLights[i].lightPos, 1.0f); 
-        P2L =  wLightPos.xyz - input.wPos.xyz;
-        distance = length(P2L);
-        if(distance < pLights[i].range)
-        {
-            attenuation = saturate(1.0f - (distance / pLights[i].range));
-            P2L /= distance;
-            nDotL = saturate(dot(wNorm.xyz, P2L));
-
-            //nDotL should be multiplied here but the light doesnt appear when you do : fix
-            if(pLights[i].lightColor.w > 0)
-            {
-                //diffuse += nDotL * pLights[i].lightColor.xyz * attenuation;
-                diffuse += pLights[i].lightColor.xyz * attenuation;
-            }
-            else
-            {
-                //diffuse *= nDotL *  pLights[i].lightColor.xyz * (1.0f - attenuation);
-                diffuse *= pLights[i].lightColor.xyz * (1.0f - attenuation);
-            }
-           
-        }
+		wLightPos = float4(pLights[i].lightPos, 1.0f);
+		float3 lightDir = normalize(wLightPos.xyz - input.wPos.xyz);
+		float diff = max(dot(wNorm, lightDir), 0.0);
+		float distance = length(wLightPos.xyz - input.wPos.xyz);
+		float attenuation = 1.0f / (1 + 0.99 * distance + 0.92 * (distance * distance));    
+		diffuse += pLights[i].lightColor * diff * attenuation;
     }
 
 	return float4(diffuse + ambient + 0.2 * shadow, 1.0f);

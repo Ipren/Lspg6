@@ -21,6 +21,7 @@ public:
 
 	void ProcessFX(ParticleEffect &fx, XMMATRIX model, float dt);
 	void AddFX(std::string name, XMMATRIX model);
+	ParticleEffect GetFX(std::string name);
 
 	void update(Camera *cam, float dt);
 	void render(Camera *cam, ID3D11RenderTargetView *dst_rtv, ID3D11ShaderResourceView *dst_srv, ID3D11RenderTargetView *output);

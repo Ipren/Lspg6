@@ -25,7 +25,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 			ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
 			{
 				position.x + cos(angle) * (radius + 0.4f),
-				0,
+				0.5f,
 				position.z + sin(angle) * (radius + 0.4f)
 			},
 			{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
@@ -44,7 +44,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 					spell = new ArcaneProjectileSpell(player,
 					{
 						position.x + cos(angle) * (radius + 0.4f),
-						0,
+						0.5f,
 						position.z + sin(angle) * (radius + 0.4f)
 					},
 						v,
@@ -59,7 +59,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 					spell = new ArcaneProjectileSpell(player,
 					{
 						position.x + cos(angle) * (radius + 0.4f),
-						0,
+						0.5f,
 						position.z + sin(angle) * (radius + 0.4f)
 					},
 						v,
@@ -79,7 +79,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 			ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
 			{
 				position.x + cos(angle) * (radius + 0.4f),
-				0,
+				0.5f,
 				position.z + sin(angle) * (radius + 0.4f)
 			},
 			{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),

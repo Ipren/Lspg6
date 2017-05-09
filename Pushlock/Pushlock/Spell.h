@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "Entity.h"
 #include "Map.h"
+#include "ParticleSystem.h"
 
 class Player;
 
@@ -50,6 +51,7 @@ public:
 	virtual void update(Map *map, float dt) override;
 	virtual bool on_effect(Map *map) override;
 	pointLight light;
+	ParticleEffect trail;
 private:
 	float explosion_radius;
 	float strength;

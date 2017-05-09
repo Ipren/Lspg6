@@ -131,7 +131,7 @@ void VelocityParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 	float w = input.scale.x;
 	float h = input.scale.y;
 
-	float3 u = mul(View, input.vel.xyz - input.origin.xyz).xyz;
+	float3 u = mul(View, input.vel.xyz).xyz;
 
 	float t = 0.0;
 	float nz = abs(normalize(u).z);
