@@ -25,7 +25,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 			ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
 			{
 				position.x + cos(angle) * (radius + 0.4f),
-				0,
+				0.5f,
 				position.z + sin(angle) * (radius + 0.4f)
 			},
 			{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
@@ -44,7 +44,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 					spell = new ArcaneProjectileSpell(player,
 					{
 						position.x + cos(angle) * (radius + 0.4f),
-						0,
+						0.5f,
 						position.z + sin(angle) * (radius + 0.4f)
 					},
 						v,
@@ -59,7 +59,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 					spell = new ArcaneProjectileSpell(player,
 					{
 						position.x + cos(angle) * (radius + 0.4f),
-						0,
+						0.5f,
 						position.z + sin(angle) * (radius + 0.4f)
 					},
 						v,
@@ -79,7 +79,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 			ArcaneProjectileSpell *spell = new ArcaneProjectileSpell(player,
 			{
 				position.x + cos(angle) * (radius + 0.4f),
-				0,
+				0.5f,
 				position.z + sin(angle) * (radius + 0.4f)
 			},
 			{ cos(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed),
@@ -98,7 +98,7 @@ void ArcaneElement::stomp(Player *player, Map *map)
 {
 	if (cooldown[2] <= 0.f) {
 
-		player->stomped = true;
+		//player->stomped = true;
 		//saves nearby players in a vector
 		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kArcaneStompDistance + gPlayerSpellConstants[player->index].kArcaneStompDistance, [](Entity *e) {
 			return e->type == EntityType::Player;
@@ -111,7 +111,8 @@ void ArcaneElement::stomp(Player *player, Map *map)
 
 		cooldown[2] = gSpellConstants.kArcaneStompCooldown + gPlayerSpellConstants[player->index].kArcaneStompCooldown;
 		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
-		
+		FXSystem->AddFX("arcane-stomp", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
+		FXSystem->AddFX("shrapnel", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
 	}
 }
 
@@ -217,8 +218,6 @@ void ArcaneElement::dash(Player * player, Map * map)
 				player->position.x += cos(player->angle) * 5.0f;
 				player->position.z += sin(player->angle) * 5.0f;
 			}
-			player->dashing = true;
-			player->dashTime = 0.0f;
 
 			
 			
@@ -238,6 +237,9 @@ void ArcaneElement::dash(Player * player, Map * map)
 				player->velocity.y += sin(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
 			}
 		}
+		player->dashing = true;
+		player->dashTime = 0.0f;
+
 		cooldown[1] = gSpellConstants.kArcaneDashCooldown + gPlayerSpellConstants[player->index].kArcaneDashCooldown;
 		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
@@ -245,6 +247,15 @@ void ArcaneElement::dash(Player * player, Map * map)
 	{
 		player->position = dynamic_cast<ArcaneElement*>(player->element)->returnPos;
 		this->teleported = false;
+	}
+}
+
+void ArcaneElement::update(Player *player, Map *map, float dt) {
+	Element::update(player, map, dt);
+
+	if (player->dashing) {
+		XMVECTOR vel = { player->velocity.x, 0, player->velocity.y };
+		FXSystem->ProcessFX(dash_trail, XMMatrixTranslation(player->position.x, player->position.y, player->position.z), -vel * 0.15, dt);
 	}
 }
 

@@ -168,6 +168,13 @@ void ParticleSystem::ProcessFX(ParticleEffect &fx, XMMATRIX model, float dt)
 	auto time = fx.clamp_children ? fx.children_time : fx.time;
 
 	fx.age += dt;
+	
+	if (fx.age >= time) {
+		if (fx.loop) {
+			fx.age = 0;
+		}
+	}
+
 	if (fx.age >= time) {
 
 	}
@@ -177,20 +184,20 @@ void ParticleSystem::ProcessFX(ParticleEffect &fx, XMMATRIX model, float dt)
 
 			auto def = particle_definitions[entry.idx];
 
-			if (fx.age > entry.start && fx.age < entry.start + entry.end) {
+			if (fx.loop || (fx.age > entry.start && fx.age < entry.start + entry.end)) {
 				auto factor = (fx.age - entry.start) / (entry.end);
 
 				auto spawn_ease = GetEaseFunc(entry.spawn_fn);
-				float spawn = spawn_ease((float)entry.spawn_start, (float)entry.spawn_end, factor) * dt;
+				float spawn = entry.loop ? entry.spawn_start : spawn_ease((float)entry.spawn_start, (float)entry.spawn_end, factor);
 
-				entry.spawned_particles += spawn;
+				entry.spawned_particles += spawn * dt;
 
 				for (; entry.spawned_particles >= 1.f; entry.spawned_particles -= 1.f) {
-					XMVECTOR pos = {
+					XMVECTOR pos = XMVectorAdd(XMVector3Transform({ 0, 0, 0 }, model), {
 						RandomFloat(entry.emitter_xmin, entry.emitter_xmax),
 						RandomFloat(entry.emitter_ymin, entry.emitter_ymax),
 						RandomFloat(entry.emitter_zmin, entry.emitter_zmax),
-					};
+					});
 
 					XMVECTOR vel = {
 						RandomFloat(entry.vel_xmin, entry.vel_xmax),
@@ -217,20 +224,77 @@ void ParticleSystem::ProcessFX(ParticleEffect &fx, XMMATRIX model, float dt)
 	}
 }
 
+void ParticleSystem::ProcessFX(ParticleEffect & fx, XMMATRIX model, XMVECTOR velocity, float dt)
+{
+	auto time = fx.clamp_children ? fx.children_time : fx.time;
+
+	fx.age += dt;
+
+	if (fx.age >= time) {
+		if (fx.loop) {
+			fx.age = 0;
+		}
+	}
+
+	if (fx.age >= time) {
+
+	}
+	else {
+		for (int i = 0; i < fx.fx_count; ++i) {
+			auto &entry = fx.fx[i];
+
+			auto def = particle_definitions[entry.idx];
+
+			if (fx.loop || (fx.age > entry.start && fx.age < entry.start + entry.end)) {
+				auto factor = (fx.age - entry.start) / (entry.end);
+
+				auto spawn_ease = GetEaseFunc(entry.spawn_fn);
+				float spawn = entry.loop ? entry.spawn_start : spawn_ease((float)entry.spawn_start, (float)entry.spawn_end, factor);
+
+				entry.spawned_particles += spawn * dt;
+
+				for (; entry.spawned_particles >= 1.f; entry.spawned_particles -= 1.f) {
+					XMVECTOR pos = XMVectorAdd(XMVector3Transform({ 0, 0, 0 }, model), {
+						RandomFloat(entry.emitter_xmin, entry.emitter_xmax),
+						RandomFloat(entry.emitter_ymin, entry.emitter_ymax),
+						RandomFloat(entry.emitter_zmin, entry.emitter_zmax),
+					});
+
+					float rot = RandomFloat(entry.rot_min, entry.rot_max);
+					float rotvel = RandomFloat(entry.rot_vmin, entry.rot_vmax);
+
+					ParticleInstance p = {};
+					p.origin = pos;
+					p.pos = pos;
+					p.velocity = velocity;
+					p.idx = entry.idx;
+					p.rotation = rot;
+					p.rotation_velocity = rotvel;
+					p.type = (int)def.orientation;
+					p.scale = { 1.f, 1.f };
+					particles.push_back(p);
+				}
+			}
+		}
+	}
+}
+
 void ParticleSystem::AddFX(std::string name, XMMATRIX model)
+{
+	ParticleEffectInstance effect = {
+		XMVector3Transform({}, model),
+		GetFX(name)
+	};
+	effects.push_back(effect);
+}
+
+ParticleEffect ParticleSystem::GetFX(std::string name)
 {
 	auto result = std::find_if(effect_definitions.begin(), effect_definitions.end(), [name](ParticleEffect &a) {
 		return std::strcmp(name.c_str(), a.name) == 0;
 	});
 
-	if (result != effect_definitions.end()) {
-		auto fx = *result;
-		ParticleEffectInstance effect = {
-			XMVector3Transform({}, model),
-			fx
-		};
-		effects.push_back(effect);
-	}
+	return *result;
 }
 
 void ParticleSystem::update(Camera *cam, float dt)
@@ -303,6 +367,12 @@ void ParticleSystem::update(Camera *cam, float dt)
 		p->velocity -= { 0.f, def->gravity * dt, 0.f, 0.f };
 		p->rotation += p->rotation_velocity * dt;
 		p->age += dt;
+		
+		if (XMVectorGetY(p->pos) < 0) {
+			p->pos *= {1.f, 0.f, 1.f};
+			p->velocity *= {0.8f, -0.3f, 0.8f};
+			p->rotation_velocity *= 0.6;
+		}
 		//}
 
 		if (def->orientation == ParticleOrientation::Velocity) {

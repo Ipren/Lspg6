@@ -11,7 +11,7 @@ cbuffer ShadowCamera : register(b5) {
 	float4x4 ShadowProj;
 };
 
-SamplerComparisonState ShadowSampler : register(s0);
+SamplerState ShadowSampler : register(s0);
 Texture2D ShadowMap : register(t1);
 
 cbuffer Mat : register(b1) {
@@ -20,32 +20,32 @@ cbuffer Mat : register(b1) {
 
 cbuffer dirLigth : register(b2)
 {
-    float3 dLightDirection;
-    float4 dLightcolor;
+	float3 dLightDirection;
+	float4 dLightcolor;
 }
 
 cbuffer camPos : register(b3)
 {
-    float4 cameraPosition;
+	float4 cameraPosition;
 }
 
 cbuffer pLightCount : register(b4)
 {
-    uint nrOfPointLights;
+	uint nrOfPointLights;
 }
 
 struct pointLight
 {
-    float4 lightColor;
-    float3 lightPos;
-    float range;
+	float4 lightColor;
+	float3 lightPos;
+	float range;
 };
 StructuredBuffer<pointLight> pLights : register(t0);
 
 struct VS_IN
 {
-    float3 pos : POSITION;
-    float3 nor : NORMAL;
+	float3 pos : POSITION;
+	float3 nor : NORMAL;
 };
 
 //static const float3 normal = float3(0.0f, 1.0f, 0.0f);
@@ -58,77 +58,86 @@ float GetShadow(float3 normal, float4 coords)
 	proj.y = 1.0 - proj.y;
 
 	// TODO: fixa
-	float bias = 0;// max(0.05 * (1.0 - dot(normal, normalize(dLightDirection))), 0.00005);
-	float shadowDepth = ShadowMap.SampleCmpLevelZero(ShadowSampler, proj.xy, proj.z + bias).r;
+	float bias = max(0.0005 * (1.0 - dot(normal, normalize(dLightDirection))), 0.0005);
+	float shadow = 0;
 
-	return shadowDepth;
+	for (int x = -1; x <= 1; ++x) {
+		for (int y = -1; y <= 1; ++y) {
+			float shadowDepth = ShadowMap.Sample(ShadowSampler, proj.xy, int2(x, y)).r;
+			if (shadowDepth - bias < proj.z)
+				shadow += 1;
+		}
+	}
+
+	return shadow / 9;
 }
 
 
 struct VS_OUT
 {
-    float4 pos : SV_Position;
+	float4 pos : SV_Position;
 	float3 nor : NORMAL;
 	float2 uv : UV;
-    float4 wPos : POSITION;
+	float4 wPos : POSITION;
 };
 
 VS_OUT VS(VS_IN input)
 {
-    VS_OUT output;
-    output.pos = mul(Proj, mul(View, mul(World, float4(input.pos, 1.0))));
-    output.wPos = mul(World, float4(input.pos, 1.0f));
-    output.nor = mul(NormalMatrix, float4(input.nor, 1.0f));
-    output.nor = normalize(output.nor);
+	VS_OUT output;
+	output.pos = mul(Proj, mul(View, mul(World, float4(input.pos, 1.0))));
+	output.wPos = mul(World, float4(input.pos, 1.0f));
+	output.nor = mul(NormalMatrix, float4(input.nor, 1.0f));
+	output.nor = normalize(output.nor);
 	output.uv = float2(0, 0);
-    return output;
+	return output;
 
 }
 
 float4 PS(in VS_OUT input) : SV_TARGET
 {
-    float4 c = Color;
+	float4 c = Color;
 
 	//return float4(input.nor.xyz, 1.0);
 	float3 lightDir = normalize(dLightDirection);
 	float3 diffuse = saturate(dot(input.nor.xyz, lightDir));
 	//return float4(diffuse, 1.0);
-    diffuse *= c.xyz * dLightcolor.xyz;
+	diffuse *= c.xyz * dLightcolor.xyz;
 
 	float4 coords = mul(ShadowProj, mul(ShadowView, mul(ShadowWorld, input.wPos)));
 	float shadow = 1 - GetShadow(input.nor, coords);
-    
+
 	float3 ambient = c.xyz * float3(0.0f, 0.0f, 0.0f);
 
-    float attenuation = 1.0f;
-    float3 P2L;
-    float distance;
-    float nDotL;
-    float4 wLightPos;
-    //float4 wNorm = float4(input.nor, 1.0f);
-    for (uint i = 0; i < nrOfPointLights; i++)
-    {
-        wLightPos = float4(pLights[i].lightPos, 1.0f); 
-        P2L =  wLightPos.xyz - input.wPos.xyz;
-        distance = length(P2L);
-        if(distance < pLights[i].range)
-        {
-            attenuation = saturate(1.0f - (distance / pLights[i].range));
-            P2L /= distance;
-            nDotL = saturate(dot(input.nor.xyz, P2L));
+	float attenuation = 1.0f;
+	float3 P2L;
+	float distance;
+	float nDotL;
+	float4 wLightPos;
+	//float4 wNorm = float4(input.nor, 1.0f);
+	for (uint i = 0; i < nrOfPointLights; i++)
+	{
+		wLightPos = float4(pLights[i].lightPos, 1.0f);
+		P2L = wLightPos.xyz - input.wPos.xyz;
+		distance = length(P2L);
+		if (distance < pLights[i].range)
+		{
+			attenuation = saturate(1.0f - (distance / pLights[i].range));
+			P2L /= distance;
+			nDotL = saturate(dot(input.nor.xyz, P2L));
 
-            //nDotL should be multiplied here but the light doesnt appear when you do : fix
-            if(pLights[i].lightColor.w > 0)
-            {
-                diffuse += pLights[i].lightColor.xyz * attenuation;
-            }
-            else
-            {
-                diffuse *= pLights[i].lightColor.xyz * (1.0f - attenuation);
-            }
-           
-        }
-    }
+			//nDotL should be multiplied here but the light doesnt appear when you do : fix
+			if (pLights[i].lightColor.w > 0)
+			{
+				diffuse += pLights[i].lightColor.xyz * attenuation;
+			}
+			else
+			{
+				diffuse *= pLights[i].lightColor.xyz * (1.0f - attenuation);
+			}
 
-    return float4(diffuse + ambient + 0.2 * shadow, 1.0f);
+		}
+	}
+
+	//return float4(shadow, shadow, shadow, 1.0);
+	return float4(diffuse + ambient + 0.2 * shadow, 1.0f);
 }

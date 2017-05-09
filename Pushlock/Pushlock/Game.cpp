@@ -209,6 +209,32 @@ bool Game::update(float dt)
 			ImGui::SliderFloat("health", &gPlayerConstants.maxHealth, 1.0f, 20.0f);
 		}
 		if (ImGui::CollapsingHeader("Game")) {
+			static int bias;
+			static float bias_clamp;
+			static float slope_scale;
+
+			ImGui::SliderInt("bias", &bias, -10, 10);
+			ImGui::SliderFloat("bias clamp", &bias_clamp, -5, 5);
+			ImGui::SliderFloat("bias slope", &slope_scale, -5, 5);
+			
+			if (renderer->ShadowRaster) {
+				renderer->ShadowRaster->Release();
+			}
+			D3D11_RASTERIZER_DESC state;
+			ZeroMemory(&state, sizeof(D3D11_RASTERIZER_DESC));
+			state.FillMode = D3D11_FILL_SOLID;
+			state.CullMode = D3D11_CULL_FRONT;
+			state.FrontCounterClockwise = false;
+			state.DepthBias = bias;
+			state.DepthBiasClamp = bias_clamp;
+			state.SlopeScaledDepthBias = slope_scale;
+			state.DepthClipEnable = false;
+			state.ScissorEnable = false;
+			state.MultisampleEnable = false;
+			state.AntialiasedLineEnable = false;
+
+			DXCALL(renderer->gDevice->CreateRasterizerState(&state, &renderer->ShadowRaster));
+
 			ImGui::TextDisabled("Camera");
 
 			Entity *e = currentMap->entitys[0];
