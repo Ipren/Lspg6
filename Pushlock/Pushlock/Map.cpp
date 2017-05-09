@@ -12,7 +12,6 @@ Map::Map(GameState * currentState)
 	this->reset(4);
 	this->nrOfAlivePlayers = 4;
 	this->currentState = currentState;
-	this->round = 1;
 	for (size_t i = 0; i < 4; i++)
 	{
 		this->playerElemnts[i] = 0;

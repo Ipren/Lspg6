@@ -213,7 +213,7 @@ void Player::update(Map *map, float dt)
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::Start))
 		{
-			if (pUpgrades[index].choice[map->round - 2] == 0)
+			if (pUpgrades[index].choice[gMapConstants.round - 1] == 0)
 			{
 				pUpgrades[index].chooseUpgrade(1);
 			}

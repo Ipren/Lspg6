@@ -24,7 +24,6 @@ public:
 	int width;
 	int heigth;
 	int playerElements;
-	int currentRound;
 	
 	GameState currentState;
 };

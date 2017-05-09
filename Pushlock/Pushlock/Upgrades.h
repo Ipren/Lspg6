@@ -1,11 +1,10 @@
 #pragma once
-
+#include "Constants.h"
 struct Upgrades {
 	int choice[3] = {0, 0, 0};
-	int round = 0;
 	void chooseUpgrade(int cchoice)
 	{
-		choice[round] = cchoice;
+		choice[gMapConstants.round - 1] = cchoice;
 	}
 	//doesn't work
 	void resetUpgrades(){
@@ -13,7 +12,6 @@ struct Upgrades {
 		{
 			choice[i] = 0;
 		}
-		round = 0;
 	}
 };
 

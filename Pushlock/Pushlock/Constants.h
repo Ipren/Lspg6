@@ -428,6 +428,7 @@ extern GameConstants gGameConstants;
 
 struct MapConstants
 {
+	int round = 1;
 	float kShrinkAmount = 1.5f;
 	float kShrinkTimer = 10.0f;
 };
