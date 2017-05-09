@@ -278,8 +278,9 @@ void Renderer::createShadowMap()
 	sampdesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampdesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampdesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampdesc.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;
-	sampdesc.ComparisonFunc = D3D11_COMPARISON_GREATER;
+	sampdesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	sampdesc.MaxAnisotropy = 8;
+	//sampdesc.ComparisonFunc = D3D11_COMPARISON_GREATER_EQUAL;
 	DXCALL(gDevice->CreateSamplerState(&sampdesc, &shadowMapSampler));
 
 	D3D11_BUFFER_DESC desc;
@@ -1884,7 +1885,7 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	setViewPort(2048, 2048);
 	gDeviceContext->VSSetConstantBuffers(0, 1, &shadow_wvp_buffer);
 
-	shadow_camera.proj = XMMatrixOrthographicLH(50.f, 50.f, 1.f, 40.f);
+	shadow_camera.proj = XMMatrixOrthographicLH(50.f, 50.f, shadowznear, shadowzfar);
 	XMMATRIX view = XMMatrixLookAtLH(XMLoadFloat3(&directionalLightPos), XMLoadFloat3(&directionalLightFocus), { 0, 1, 0 });
 	shadow_camera.view = view;
 
@@ -1910,8 +1911,10 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 
 		XMMATRIX &model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
 
-		model = XMMatrixMultiply(XMMatrixRotationX(90 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixRotationZ(270 * XM_PI / 180), model);
+		//model = XMMatrixMultiply(XMMatrixRotationX(90 * XM_PI / 180), model);
+		//model = XMMatrixMultiply(XMMatrixRotationZ(270 * XM_PI / 180), model);
+		model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+		model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
 
 	
 		shadow_camera.world = model;

@@ -55,6 +55,12 @@ public:
 	ID3D11ShaderResourceView *r1CUTextures[5];
 	ID3D11ShaderResourceView *r2CUTextures[5];
 
+	ID3D11RasterizerState *ShadowRaster;
+	ID3D11RasterizerState *DefaultRaster;
+
+	float shadowznear = 1.f;
+	float shadowzfar = 30.f;
+	
 	ID3D11RenderTargetView *default_rtv;
 	ID3D11ShaderResourceView *default_srv;
 private:
@@ -68,9 +74,6 @@ private:
 	ID3D11DepthStencilView *DepthBuffer;
 	ID3D11ShaderResourceView* DepthBufferSRV;
 
-
-	ID3D11RasterizerState *ShadowRaster;
-	ID3D11RasterizerState *DefaultRaster;
 
 
 	ID3D11Buffer *color_buffer;

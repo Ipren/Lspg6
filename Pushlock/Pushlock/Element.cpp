@@ -98,7 +98,7 @@ void ArcaneElement::stomp(Player *player, Map *map)
 {
 	if (cooldown[2] <= 0.f) {
 
-		player->stomped = true;
+		//player->stomped = true;
 		//saves nearby players in a vector
 		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kArcaneStompDistance + gPlayerSpellConstants[player->index].kArcaneStompDistance, [](Entity *e) {
 			return e->type == EntityType::Player;

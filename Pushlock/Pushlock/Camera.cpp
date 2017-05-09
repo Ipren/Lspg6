@@ -2,10 +2,10 @@
 #include "Constants.h"
 
 Camera::Camera(XMVECTOR pos, XMVECTOR look, ID3D11Device *gDevice)
-	: pos(pos), look(look), target({}), temp({}), offset({})
+	: pos(pos), look(look), target({}), temp({}), offset({}), znear(0.1), zfar(500.f)
 {
 	vals.world = XMMatrixIdentity();
-	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, WIDTH / (float)HEIGHT, 0.1f, 50.f);
+	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, WIDTH / (float)HEIGHT, 0.1f, 500.f);
 	vals.view = XMMatrixLookAtLH(pos, look, { 0, 1, 0 });
 
 	vals.view = DirectX::XMMatrixTranspose(vals.view);
@@ -74,7 +74,7 @@ void Camera::update(float dt, ID3D11DeviceContext *gDeviceContext)
 	pos = XMVectorSelect(pos, temp, XMVectorSelectControl(XM_SELECT_1, XM_SELECT_0, XM_SELECT_1, XM_SELECT_0));
 	look = XMVectorSelect(look, temp, XMVectorSelectControl(XM_SELECT_1, XM_SELECT_0, XM_SELECT_1, XM_SELECT_0));
 
-	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, WIDTH / (float)HEIGHT, 0.1f, 50.f);
+	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, WIDTH / (float)HEIGHT, znear, zfar);
 	vals.view = XMMatrixLookAtLH(pos + temp * gGameConstants.kCameraDrag, look + temp, { 0, 1, 0 });
 	vals.normal = XMMatrixTranspose(XMMatrixInverse(nullptr, vals.world));
 	
