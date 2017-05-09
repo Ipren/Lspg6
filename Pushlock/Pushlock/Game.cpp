@@ -465,7 +465,6 @@ bool Game::update(float dt)
 		if (firsttime == true)
 		{
 			currentMap->reset(currentMap->nrOfPlayers);
-			this->currentMap->round++;
 			firsttime = false;
 		}
 		currentMap->update(dt, camera);
@@ -480,7 +479,7 @@ bool Game::update(float dt)
 
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
 		{
-			ImGui::Text("player %i choose upgrade %i", i + 1, pUpgrades[i].choice[currentRound]);
+			ImGui::Text("player %i choose upgrade %i", i + 1, pUpgrades[i].choice[gMapConstants.round-1]);
 		}
 
 		for (int i = 0; i < currentMap->nrOfPlayers; i++)
@@ -502,11 +501,7 @@ bool Game::update(float dt)
 
 		if (readyCount == currentMap->nrOfPlayers)
 		{
-			for (int i = 0; i < currentMap->nrOfPlayers; i++)
-			{
-				pUpgrades[i].round++;
-			}
-			currentRound++;
+			gMapConstants.round++;
 			firsttime = true;
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfPlayers);
@@ -519,13 +514,9 @@ bool Game::update(float dt)
 			
 		}
 
-		if (ImGui::Button("start next round")) {
-
-			for (int i = 0; i < currentMap->nrOfPlayers; i++)
-			{
-				pUpgrades[i].round++;
-			}
-			currentRound++;
+		if (ImGui::Button("start next round")) 
+		{
+			gMapConstants.round++;
 			firsttime = true;
 			currentState = GameState::Playing;
 			updateUpgradeStats();
@@ -545,21 +536,22 @@ bool Game::update(float dt)
 			if (gGamepads[i]->get_button_pressed(Gamepad::A))
 			{
 				currentState = GameState::MainMenu;
-				this->currentMap->round = 1;
 			}
 			pUpgrades[i].resetUpgrades();
 		}
 		ImGui::Begin("End of the game");
 		ImGui::Text("Winner player: %i", currentMap->indexWinner +1);
-		if (ImGui::Button("Go to main menu")) {
-			currentState = GameState::MainMenu;}
+		if (ImGui::Button("Go to main menu")) 
+		{
+			currentState = GameState::MainMenu;
+		}
 		for (size_t i = 0; i < 4; i++)
 		{
 			pUpgrades[i].choice[0] = 0;
 			pUpgrades[i].choice[1] = 0;
 			pUpgrades[i].choice[2] = 0;
 		}
-		this->currentRound = 1;
+		gMapConstants.round = 1;
 		ImGui::End();
 		for (int i = 0; i < 4; i++)
 		{
@@ -581,7 +573,7 @@ void Game::updateUpgradeStats()
 {
 	for (size_t i = 0; i < this->currentMap->nrOfPlayers; i++)
 	{
-		if (pUpgrades[i].choice[this->currentRound - 1] == 3)
+		if (pUpgrades[i].choice[gMapConstants.round - 1] == 3)
 		{
 			if (currentMap->playerElemnts[i] == 0) //arcane
 			{
@@ -605,7 +597,7 @@ void Game::updateUpgradeStats()
 				gPlayerSpellConstants[i].kWaterProjectileStrenght += 5.0f;
 			}
 		}
-		if (pUpgrades[i].choice[this->currentRound - 1] == 4)
+		if (pUpgrades[i].choice[gMapConstants.round - 1] == 4)
 		{
 			if (currentMap->playerElemnts[i] == 0)
 			{
@@ -629,11 +621,11 @@ void Game::updateUpgradeStats()
 			}
 		}
 	}
-	if (this->currentRound > 3)
+	if (gMapConstants.round > 3)
 	{
 		for (size_t i = 0; i < this->currentMap->nrOfPlayers; i++)
 		{
-			if (pUpgrades[i].choice[this->currentRound - 1] == 1)
+			if (pUpgrades[i].choice[gMapConstants.round - 1] == 1)
 			{
 				if (currentMap->playerElemnts[i] == 0)
 				{
@@ -657,7 +649,7 @@ void Game::updateUpgradeStats()
 				}
 			}
 
-			if (pUpgrades[i].choice[this->currentRound - 1] == 2)
+			if (pUpgrades[i].choice[gMapConstants.round - 1] == 2)
 			{
 				if (currentMap->playerElemnts[i] == 0)
 				{
@@ -691,7 +683,7 @@ void Game::render()
 
 	this->renderer->render(this->currentMap, this->camera);
 	if (this->menu != nullptr)
-		this->menu->render(this->renderer, this->currentState, currentMap->indexWinner, this->currentMap, this->currentRound);
+		this->menu->render(this->renderer, this->currentState, currentMap->indexWinner, this->currentMap, gMapConstants.round);
 
 	
 	ImGui::Render();

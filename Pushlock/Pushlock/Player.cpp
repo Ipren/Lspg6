@@ -38,7 +38,6 @@ Player::~Player()
 
 void Player::update(Map *map, float dt)
 {
-
 	auto left = gGamepads[index]->get_left_thumb();
 	auto right_angle = gGamepads[index]->get_right_thumb_angle();
 	angle = right_angle;
@@ -213,7 +212,7 @@ void Player::update(Map *map, float dt)
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::Start))
 		{
-			if (pUpgrades[index].choice[map->round - 2] == 0)
+			if (pUpgrades[index].choice[gMapConstants.round - 1] == 0)
 			{
 				pUpgrades[index].chooseUpgrade(1);
 			}

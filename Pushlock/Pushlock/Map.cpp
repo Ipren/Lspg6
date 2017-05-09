@@ -12,7 +12,6 @@ Map::Map(GameState * currentState)
 	this->reset(4);
 	this->nrOfAlivePlayers = 4;
 	this->currentState = currentState;
-	this->round = 1;
 	for (size_t i = 0; i < 4; i++)
 	{
 		this->playerElemnts[i] = 0;
@@ -68,7 +67,7 @@ void Map::reset(int nrOfPlayers)
 	this->nrOfPlayers = nrOfPlayers;
 	totalTime = 0.0f;
 	timeSinceLastShrunk = 0.0f;
-	radius = 15.0f;
+	radius = 10.0f;
 	shrunk = true;
 	shrinking = false;
 	shrinkAmount = gDefaultMapConstants.kShrinkAmount;

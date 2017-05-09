@@ -20,6 +20,7 @@ public:
 	~ParticleSystem();
 
 	void ProcessFX(ParticleEffect &fx, XMMATRIX model, float dt);
+	void ProcessFX(ParticleEffect &fx, XMMATRIX model, XMVECTOR velocity, float dt);
 	void AddFX(std::string name, XMMATRIX model);
 	ParticleEffect GetFX(std::string name);
 
