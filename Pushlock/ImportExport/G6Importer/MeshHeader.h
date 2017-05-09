@@ -69,7 +69,7 @@ struct SkinnedVertex
 {
 	float posX, posY, posZ;
 	float norX, norY, norZ;
-
+	float u, v;
 	int boneIndex[4];
 	float boneWeights[4];
 	//uv1
@@ -181,8 +181,8 @@ struct sSkinnedMesh
 	vector<Joint> skeletonHierarchy;
 	vector<UVSet> uvsets;
 	vector<int> indices;
-	bool is_skinned;
+	bool is_skinned;		//unused
 	uint8_t mat_id;
 	vector<UV> uvs;
-	AnimationClip animation;
+	AnimationClip animation; //default animation, presumably idle_anim
 };
