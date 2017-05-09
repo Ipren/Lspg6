@@ -13,6 +13,10 @@ struct Upgrades {
 		{
 			choice[i] = 0;
 		}
+		for (size_t i = 0; i < 4; i++)
+		{
+			gPlayerSpellConstants[i].kHealth = 0.f;
+		}
 		round = 0;
 	}
 };

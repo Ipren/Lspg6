@@ -528,8 +528,8 @@ bool Game::update(float dt)
 			currentRound++;
 			firsttime = true;
 			currentState = GameState::Playing;
-			currentMap->reset(currentMap->nrOfPlayers);
 			updateUpgradeStats();
+			currentMap->reset(currentMap->nrOfPlayers);
 			for (size_t i = 0; i < 4; i++)
 			{
 				currentMap->upgradeChoice[i] = 0;
