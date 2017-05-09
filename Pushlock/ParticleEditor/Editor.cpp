@@ -1103,6 +1103,12 @@ void Update(float dt)
 			p->velocity -= { 0.f, def->gravity * pdt, 0.f, 0.f };
 			p->rotation += p->rotation_velocity * pdt;
 			p->age += pdt;
+
+			if (XMVectorGetY(p->pos) < 0) {
+				p->pos *= {1.f, 0.f, 1.f};
+				p->velocity *= {0.8f, -0.3f, 0.8f};
+				p->rotation_velocity *= 0.6;
+			}
 		}
 
 		if (def->orientation == ParticleOrientation::Velocity) {

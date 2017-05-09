@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Map.h"
+#include "ParticleSystem.h"
 
 class FireProjectileSpell;
 class WaterProjectileSpell;
@@ -34,13 +35,19 @@ class ArcaneElement : public Element {
 
 public:
 	ArcaneElement() {
-		this->startHealth = 10.f;}
+		static ParticleEffect trail = FXSystem->GetFX("arcane-dash-trail");
+		dash_trail = trail;
+
+		this->startHealth = 10.f;
+	}
 	virtual void projectile(Player *player, Map *map) override;
 	virtual void stomp(Player *player, Map *map) override;
 	virtual void wall(Player *player, Map *map) override;
 	virtual void dash(Player *player, Map *map) override;
+	virtual void update(Player *player, Map *map, float dt) override;
 
 	XMFLOAT3 returnPos;
+	ParticleEffect dash_trail;
 	bool teleported = false;
 };
 

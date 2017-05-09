@@ -38,7 +38,6 @@ Player::~Player()
 
 void Player::update(Map *map, float dt)
 {
-
 	auto left = gGamepads[index]->get_left_thumb();
 	auto right_angle = gGamepads[index]->get_right_thumb_angle();
 	angle = right_angle;
