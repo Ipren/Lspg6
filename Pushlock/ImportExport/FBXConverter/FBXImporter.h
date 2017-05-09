@@ -15,12 +15,14 @@ public:
 	FBXImporter();
 	~FBXImporter();
 	void ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, vector<sMaterial*>& outMaterials);
+	void ImportAnimationClip(const char * filename, AnimationClip* animation, bool exportClip);
 	void ImportStaticMesh(const char * filename, sMesh* mesh, vector<sMaterial*>& outMaterials);
 
 	unsigned int FindJointIndexUsingName(const std::string& inJointName, std::vector<Joint>* joints);
 
 	void ExportBinary(const char * outputFile, sMesh* mesh, vector<sMaterial*>& outMaterials);
 	void ExportSkinnedBinary(const char * outputFile, sSkinnedMesh* mesh, vector<sMaterial*>& outMaterials);
+	void ExportAnimationClipBinary(const char* outputFile, AnimationClip* animation, int jointCount);
 	void ImportBinary(const char * inputFile, sMesh* mesh);
 private:
 	void ProcessControlPoints(FbxNode* inNode, std::unordered_map<unsigned int, CtrlPoint*> &mControlPoints);

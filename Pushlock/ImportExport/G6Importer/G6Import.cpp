@@ -189,6 +189,11 @@ bool G6Import::ImportAnimatedMesh(const char * filename, sSkinnedMesh * outMesh)
 		outMesh->animation.m_aSamples.push_back(currentSample);
 	}
 
+	//Extra bits//////////////////////////////////////////////////////////////
+	outMesh->animation.m_frameCount = outMesh->header.frameCount;			//
+	outMesh->animation.m_framesPerSecond = outMesh->header.framesPerSecond;	//
+	//////////////////////////////////////////////////////////////////////////
+
 	/*
 	for (int i = 0; i < outMesh->header.numberOfVerts; i++) {
 	outMesh->indices.push_back(i);
@@ -251,6 +256,49 @@ bool G6Import::ImportAnimatedMesh(const char * filename, sSkinnedMesh * outMesh)
 
 	file.close();
 
+	return true;
+}
+
+bool G6Import::ImportAnimationClip(const char * filename, AnimationClip * animation)
+{
+	std::ifstream file(filename, std::ios::binary);
+
+	assert(file.is_open());
+
+
+		//Read data count information
+		int frameCount = 0;
+		int numberOfJoints = 0;
+		file.read(reinterpret_cast<char*>(&frameCount), sizeof(uint32_t));
+		file.read(reinterpret_cast<char*>(&numberOfJoints), sizeof(int));
+
+
+
+	for (int sample = 0; sample < frameCount; sample++)
+	{
+		AnimationSample currentSample;
+		for (int joint = 0; joint < numberOfJoints; joint++)
+		{
+			JointPose currentPose;
+
+			DirectX::XMFLOAT4 rot;
+			DirectX::XMFLOAT3 trans;
+
+			file.read(reinterpret_cast<char*>(&rot), sizeof(float) * 4);
+			file.read(reinterpret_cast<char*>(&trans), sizeof(float) * 3);
+
+			currentPose.m_rot = DirectX::XMLoadFloat4(&rot);
+			currentPose.m_trans = DirectX::XMLoadFloat3(&trans);
+
+			file.read(reinterpret_cast<char*>(&currentPose.m_scale), sizeof(float));
+
+			currentSample.m_aJointPose.push_back(currentPose);
+		}
+		animation->m_aSamples.push_back(currentSample);
+	}
+
+	//Done, close file
+	file.close();
 	return true;
 }
 

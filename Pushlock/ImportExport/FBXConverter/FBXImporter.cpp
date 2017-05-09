@@ -3,6 +3,7 @@
 #include "MeshHeader.h"
 #include "HelperStructs.h"
 #include <fstream>
+#include "G6Import.h"
 
 //Utility functions
 DirectX::XMMATRIX FbxMatrixToXMFLOAT4X4A(FbxAMatrix& matrix)
@@ -69,14 +70,30 @@ void DumpRecursive(FbxNode* current_node, std::vector<Joint> &joints, int curren
 
 void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, vector<sMaterial*>& outMaterials)
 {
+	//Initial setup //////////////////////////////////////////////////
+																	//
+	importer->Initialize(filename, -1, manager->GetIOSettings());	//
+	scene = FbxScene::Create(manager, "Scene");						//
+																	//
+	importer->Import(scene);										//
+																	//
+	//done with importer											//
+	importer->Destroy();											//
+																	//
+	//////////////////////////////////////////////////////////////////
 
-	importer->Initialize(filename, -1, manager->GetIOSettings());
-	scene = FbxScene::Create(manager, "Scene");
+	//Set to DirectX axis system /////////////////////////////////////////////////
+																				//
+	FbxAxisSystem SceneAxisSystem = scene->GetGlobalSettings().GetAxisSystem();	//
+	FbxAxisSystem OurAxisSystem(FbxAxisSystem::DirectX);						//
+	if (SceneAxisSystem != OurAxisSystem)										//
+	{																			//
+		//OurAxisSystem.ConvertScene(scene);										//
+	}																			//
+																				//
+	//////////////////////////////////////////////////////////////////////////////
 
-	importer->Import(scene);
-	
-	//done with importer
-	importer->Destroy();
+
 
 	FbxNode* pFbxRootNode = scene->GetRootNode();
 
@@ -370,16 +387,219 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 
 }
 
+void FBXImporter::ImportAnimationClip(const char * filename, AnimationClip * animation, bool exportClip)
+{
+	//Initial setup //////////////////////////////////////////////////
+																	//
+	importer->Initialize(filename, -1, manager->GetIOSettings());	//
+	scene = FbxScene::Create(manager, "Scene");						//
+																	//
+	importer->Import(scene);										//
+																	//
+	//done with importer											//
+	importer->Destroy();											//
+																	//
+	//////////////////////////////////////////////////////////////////
+
+	//Set to DirectX axis system /////////////////////////////////////////////////
+																				//
+	FbxAxisSystem SceneAxisSystem = scene->GetGlobalSettings().GetAxisSystem();	//
+	FbxAxisSystem OurAxisSystem(FbxAxisSystem::DirectX);						//
+	if (SceneAxisSystem != OurAxisSystem)										//
+	{																			//
+		OurAxisSystem.ConvertScene(scene);										//
+	}																			//
+																				//
+	//////////////////////////////////////////////////////////////////////////////
+
+	FbxNode* pFbxRootNode = scene->GetRootNode();
+
+	//Read bone hierarchy
+	std::vector<Joint> joints;
+	DumpRecursive(pFbxRootNode, joints, 0, -1);
+
+	if (pFbxRootNode)
+	{
+		int nodes = pFbxRootNode->GetChildCount();
+		for (int i = 0; i < pFbxRootNode->GetChildCount(); i++)
+		{
+			FbxNode* pCurrentNode = pFbxRootNode->GetChild(i);
+			if (pCurrentNode->GetNodeAttribute() == NULL) continue;
+
+			FbxNodeAttribute::EType AttributeType = pCurrentNode->GetNodeAttribute()->GetAttributeType();
+			if (AttributeType != FbxNodeAttribute::eMesh) continue;
+
+			FbxMesh* currentMesh = (FbxMesh*)pCurrentNode->GetNodeAttribute();
+
+			if (!currentMesh) continue; //Just in case
+
+			//Found a mesh. This function exports only one AnimationClip. Make sure we do not iterate any more children.
+			i = pFbxRootNode->GetChildCount();
+
+			FbxDeformer *deformer = nullptr;
+
+			int deformer_count = currentMesh->GetDeformerCount();
+			for (int d = 0; d < deformer_count; d++) {
+				deformer = currentMesh->GetDeformer(d);
+				FbxDeformer::EDeformerType deformer_type = deformer->GetDeformerType();
+
+				if (deformer_type == FbxDeformer::eSkin) break;
+			}
+
+
+			FbxSkin *skin = deformer && deformer->Is<FbxSkin>() ? (FbxSkin*)deformer : 0;
+			std::string AnimationName;
+
+			if (skin) {
+				int n_of_clusters = skin->GetClusterCount();
+
+				for (int c = 0; c < n_of_clusters; c++) {
+
+					FbxCluster *cluster = skin->GetCluster(c);
+
+					//Get current joint index
+					std::string currJointName = cluster->GetLink()->GetName();
+					unsigned int currJointIndex = FindJointIndexUsingName(currJointName, &joints);
+
+					FbxCluster::ELinkMode cluster_mode = cluster->GetLinkMode();
+
+					FbxAMatrix model_to_pose_mat;
+					model_to_pose_mat = cluster->GetTransformLinkMatrix(model_to_pose_mat);
+					FbxAMatrix model_to_pose_mat_inv = model_to_pose_mat.Inverse();
+
+
+					FbxAMatrix bone_init_pose;
+					bone_init_pose = cluster->GetTransformMatrix(bone_init_pose);
+
+					FbxAMatrix bind_pose_inv = model_to_pose_mat_inv * bone_init_pose;
+					FbxAMatrix bild_pose = bind_pose_inv.Inverse();
+					joints[currJointIndex].inverseBindPose = FbxMatrixToXMFLOAT4X4A(bind_pose_inv);
+
+					//______________________________________________________________________________//
+					
+					// Get animation information
+					// Now only supports one take
+					
+					FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(0);
+					FbxString animStackName = currAnimStack->GetName();
+					AnimationName = animStackName.Buffer();
+					FbxTakeInfo* takeInfo = scene->GetTakeInfo(animStackName);
+					FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
+					FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+
+
+					animation->m_framesPerSecond = 24;
+					animation->m_frameCount = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
+					animation->m_aSamples.resize(animation->m_frameCount);
+					animation->m_aSamples[currJointIndex].m_aJointPose.resize(joints.size());
+					FbxLongLong poop = end.GetFrameCount(FbxTime::eFrames24);
+					for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+					{
+						FbxTime currTime;
+						currTime.SetFrame(i, FbxTime::eFrames24);
+
+						if (animation->m_aSamples[i - 1].m_aJointPose.size() == 0)
+							animation->m_aSamples[i - 1].m_aJointPose.resize(joints.size());
+						JointPose& currentPose = (animation->m_aSamples[i - 1].m_aJointPose[currJointIndex]);
+
+						FbxAMatrix currentTransformOffset = pCurrentNode->EvaluateGlobalTransform(currTime);
+						FbxAMatrix mGlobalTransform = currentTransformOffset.Inverse() * cluster->GetLink()->EvaluateLocalTransform(currTime);
+
+						//Get rotation
+						DirectX::XMFLOAT4 rot(
+							mGlobalTransform.GetQ()[0],
+							mGlobalTransform.GetQ()[1],
+							mGlobalTransform.GetQ()[2],
+							mGlobalTransform.GetQ()[3]);
+
+						//Get translation
+						DirectX::XMFLOAT3 trans(
+							mGlobalTransform.GetT()[0],
+							mGlobalTransform.GetT()[1],
+							mGlobalTransform.GetT()[2]);
+
+						//Load into currentPose
+						currentPose.m_rot = DirectX::XMLoadFloat4(&rot);
+						currentPose.m_trans = DirectX::XMLoadFloat3(&trans);
+
+						//Scale always 1.0f
+						currentPose.m_scale = 1.0f;
+					}
+
+				}
+			}
+		}
+
+		if (exportClip)
+			this->ExportAnimationClipBinary(filename, animation, joints.size());
+	}
+}
+
+void FBXImporter::ExportAnimationClipBinary(const char * outputFile, AnimationClip * animation, int jointCount)
+{
+	//Open file
+	std::ofstream file((string(outputFile) + ".G6AnimationClip"), std::ios::binary);
+	assert(file.is_open() && "AnimationClip output file open");
+
+
+
+
+	//****EXPORT ANIMATIONCLIP****
+
+
+		//Write data count information
+		file.write(reinterpret_cast<char*>(&animation->m_frameCount), sizeof(uint32_t));
+		file.write(reinterpret_cast<char*>(&jointCount), sizeof(int));
+
+
+
+	//for every frame
+	for (int i = 0; i < animation->m_frameCount; i++)
+	{
+		//for every joint 
+		for (int j = 0; j < animation->m_aSamples.size(); j++)
+		{
+			DirectX::XMFLOAT4 rot;
+			DirectX::XMFLOAT3 trans;
+
+			DirectX::XMStoreFloat4(&rot, animation->m_aSamples[i].m_aJointPose[j].m_rot);
+			DirectX::XMStoreFloat3(&trans, animation->m_aSamples[i].m_aJointPose[j].m_trans);
+
+			file.write(reinterpret_cast<char*>(&rot), sizeof(float) * 4);
+			file.write(reinterpret_cast<char*>(&trans), sizeof(float) * 3);
+			file.write(reinterpret_cast<char*>(&animation->m_aSamples[i].m_aJointPose[j].m_scale), sizeof(float)); //currently always 1.0f
+
+		}
+	}
+
+	//Done, close file
+	file.close();
+}
+
 void FBXImporter::ImportStaticMesh(const char * filename, sMesh * mesh, vector<sMaterial*>& outMaterials)
 {
+	//Initial setup //////////////////////////////////////////////////
+																	//
+	importer->Initialize(filename, -1, manager->GetIOSettings());	//
+	scene = FbxScene::Create(manager, "Scene");						//
+																	//
+	importer->Import(scene);										//
+																	//
+	//done with importer											//
+	importer->Destroy();											//
+																	//
+	//////////////////////////////////////////////////////////////////
 
-	importer->Initialize(filename, -1, manager->GetIOSettings());
-	scene = FbxScene::Create(manager, "Scene");
-
-	importer->Import(scene);
-
-	//done with importer
-	importer->Destroy();
+	//Set to DirectX axis system /////////////////////////////////////////////////
+																				//
+	FbxAxisSystem SceneAxisSystem = scene->GetGlobalSettings().GetAxisSystem();	//
+	FbxAxisSystem OurAxisSystem(FbxAxisSystem::DirectX);						//
+	if (SceneAxisSystem != OurAxisSystem)										//
+	{																			//
+		OurAxisSystem.ConvertScene(scene);										//
+	}																			//
+																				//
+	//////////////////////////////////////////////////////////////////////////////
 
 	FbxNode* pFbxRootNode = scene->GetRootNode();
 
@@ -762,6 +982,7 @@ void FBXImporter::ExportSkinnedBinary(const char * outputFile, sSkinnedMesh* mes
 		}
 	}
 
+
 	//file.write(reinterpret_cast<char*>(mesh->uvs.data()), sizeof(UV) * mesh->header.numberOfVerts * mesh->header.numberOfUVSets);
 
 	//Write material data
@@ -803,6 +1024,7 @@ void FBXImporter::ExportSkinnedBinary(const char * outputFile, sSkinnedMesh* mes
 
 	file.close();
 }
+
 
 void FBXImporter::ImportBinary(const char * inputFile, sMesh* mesh)
 {

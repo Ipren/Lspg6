@@ -12,6 +12,14 @@
 #define pause system("pause")
 #define clear system("clear")
 
+// http://stackoverflow.com/users/550752/graphitemaster
+std::string GetFileExtension(const std::string& FileName)
+{
+	if (FileName.find_last_of(".") != std::string::npos)
+		return FileName.substr(FileName.find_last_of(".") + 1);
+	return "";
+}
+
 void PrintUV(UV uv) {
 	out "UV: { " << uv.U << ", " << uv.V << "}" << std::endl;
 }
@@ -41,30 +49,117 @@ void PrintMesh(const sMesh& mesh)
 
 }
 
-int main() 
+int main(int argc, char * argv[]) 
 {
-	//////////////////////////////////////////////////////
-	//// FBXImporter TEST ////////////////////////////////
-	//////////////////////////////////////////////////////
-
 	FBXImporter importer;
+
+	string inDefault;
+	string outDefault;
+
+	std::ifstream defaults("defaults.txt");
+	std::getline(defaults, inDefault);
+	std::getline(defaults, outDefault);
+	defaults.close();
+
+	string inFile;
+	string outFile;
+
+	//Skip first param, first param indicates which function to use 
+	//(e.g. ImportAnimatedMesh(), ExportSkinnedBinary() etc)
+	for (int i = 1; i < argc; i++)
+	{
+		string parameter(argv[i]);
+		
+		if (parameter == "in")
+		{
+			inFile = argv[i + 1];
+
+			if (inFile == "default")
+			{
+				string fileName = argv[i + 2];
+				inFile = inDefault + fileName;
+				i++;
+			}
+			//skip next
+			i++;
+		}
+
+		if (parameter == "out")
+		{
+			outFile = argv[i + 1];
+
+			if (outFile == "default")
+			{
+				string fileName = argv[i + 2];
+				outFile = outDefault + fileName;
+				i++;
+			}
+			//skip next
+			i++;
+		}
+
+		if (parameter == "skinned")
+		{
+			sSkinnedMesh mesh;
+			vector<sMaterial*> meshMaterials;
+			importer.ImportAnimatedMesh(inFile.c_str(), &mesh, meshMaterials);
+			importer.ExportSkinnedBinary(outFile.c_str(), &mesh, meshMaterials);
+
+			//EXIT PROGRAM
+			return 0;
+		}
+	}
+	inFile = inDefault;
+	outFile = outDefault;
+
 	sSkinnedMesh mesh;
 	vector<sMaterial*> meshMaterials;
-
-	importer.ImportAnimatedMesh("animatedSphere.fbx", &mesh, meshMaterials);
-
-	//PrintMesh(mesh);
-
-	//pause;
-	//clear;
-
-	//importer.ExportBinary("ExpImpTest.G6", &mesh);
-	importer.ExportSkinnedBinary("animatedSphere.G6Skin", &mesh, meshMaterials);
+	importer.ImportAnimatedMesh(inFile.c_str(), &mesh, meshMaterials);
+	importer.ExportSkinnedBinary(outFile.c_str(), &mesh, meshMaterials);
 
 	G6Import g6importer;
 	sSkinnedMesh* tmp_mesh = new sSkinnedMesh();
 	//vector<sMaterial*> tmpMaterials;
-	g6importer.ImportAnimatedMesh("animatedSphere.G6Skin", tmp_mesh);
+	g6importer.ImportAnimatedMesh(outFile.c_str(), tmp_mesh);
+
+	//EXIT PROGRAM
+	return 0;
+
+	out inFile endline;
+	out outFile endline;
+
+	pause;
+
+	out "testing outpath" endline;
+
+	pause;
+
+	std::ofstream file(outFile);
+	file << "poop";
+	file.close();
+	out "Written." endline;
+	pause;
+	////////////////////////////////////////////////////////
+	////// FBXImporter TEST ////////////////////////////////
+	////////////////////////////////////////////////////////
+
+	//sSkinnedMesh mesh;
+	//vector<sMaterial*> meshMaterials;
+
+	//importer.ImportAnimatedMesh("sphere_bouncing.fbx", &mesh, meshMaterials);
+
+	////PrintMesh(mesh);
+
+	////pause;
+	////clear;
+
+	////importer.ExportBinary("ExpImpTest.G6", &mesh);
+	//importer.ExportSkinnedBinary("sphere_bouncing.G6Skin", &mesh, meshMaterials);
+
+	//G6Import g6importer;
+	//sSkinnedMesh* tmp_mesh = new sSkinnedMesh();
+	////vector<sMaterial*> tmpMaterials;
+	//g6importer.ImportAnimatedMesh("sphere_bouncing.G6Skin", tmp_mesh);
 
 	//vector<Vertex> newVerts;
 	//newVerts.resize(1);
