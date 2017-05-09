@@ -80,7 +80,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createCuBuffers();
 	this->createCUShaders();
 
-	FXSystem = new ParticleSystem(L"Particles.no", 4096, gDevice, gDeviceContext);
+	FXSystem = new ParticleSystem(L"../Resources/Particles.no", 4096, gDevice, gDeviceContext);
 
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
