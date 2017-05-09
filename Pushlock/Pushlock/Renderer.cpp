@@ -2288,6 +2288,25 @@ void Renderer::render(Map *map, Camera *camera)
 
 				entity->pMesh->Draw(globalDevice, globalDeviceContext);
 			}
+
+			if (entity->pAnimator != nullptr)
+			{
+				model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+
+				camera->vals.world = model;
+				camera->update(0, gDeviceContext);
+				gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+				gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+				gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
+				gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
+				gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+				gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
+
+				//TODO: deltaTime
+				entity->pAnimator->DrawAndUpdate(0.001f);
+
+			}
 		}
 
 	}
