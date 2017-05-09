@@ -111,7 +111,7 @@ void ArcaneElement::stomp(Player *player, Map *map)
 
 		cooldown[2] = gSpellConstants.kArcaneStompCooldown + gPlayerSpellConstants[player->index].kArcaneStompCooldown;
 		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
-		
+		FXSystem->AddFX("arcane-stomp", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
 	}
 }
 
