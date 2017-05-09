@@ -1,5 +1,5 @@
 #include "Entity.h"
-
+#include "Globals.h"
 Entity::Entity()
 {
 }
@@ -14,3 +14,11 @@ Entity::~Entity()
 	if (this->pMesh != nullptr)
 		delete pMesh;
 }
+
+void Entity::update(Map * map, float dt)
+{
+	if (this->pAnimator != nullptr)
+		pAnimator->Update(dt);
+}
+
+

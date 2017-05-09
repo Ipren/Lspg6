@@ -2,6 +2,7 @@
 #include <DirectXMath.h>
 #include "Definitions.h"
 #include "Mesh.h"
+#include "Animator.h"
 class Map;
 using namespace DirectX;
 
@@ -16,7 +17,7 @@ public:
 	DirectX::XMFLOAT3 position;
 	float radius;
 
-	virtual void update(Map *map, float dt) {}
+	virtual void update(Map *map, float dt);
 
 	//private:
 	DirectX::XMFLOAT2 acceleration;
@@ -25,5 +26,6 @@ public:
 	EntityType type;
 	bool dead;
 	Mesh* pMesh = nullptr;
+	Animator* pAnimator = nullptr;
 private:
 };
