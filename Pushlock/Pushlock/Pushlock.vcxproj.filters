@@ -126,6 +126,12 @@
     <ClCompile Include="Spell.cpp">
       <Filter>Source Files\GameLogic\spell</Filter>
     </ClCompile>
+    <ClCompile Include="Animator.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinnedMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dxerr.h">
@@ -209,6 +215,12 @@
     <ClInclude Include="SoundSystem.h">
       <Filter>Header Files\other</Filter>
     </ClInclude>
+    <ClInclude Include="Animator.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinnedMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Simple.hlsl">
@@ -263,6 +275,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Mesh.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Skinned.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
