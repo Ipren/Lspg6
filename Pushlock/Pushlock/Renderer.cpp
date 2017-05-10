@@ -1027,7 +1027,7 @@ void Renderer::shrinkMap(Map * map)
 
 	D3D11_MAPPED_SUBRESOURCE data;
 	this->gDeviceContext->Map(this->shrinkBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
-	this->toatlShrunkAmount += gMapConstants.kShrinkAmount;
+	this->toatlShrunkAmount = 10.0f - map->radius;
 	memcpy(data.pData, &this->toatlShrunkAmount, sizeof(float));
 	this->gDeviceContext->Unmap(this->shrinkBuffer, 0);
 }
