@@ -113,13 +113,16 @@ bool ArcaneWallSpell::on_effect(Map *map) {
 
 			float distance = sqrt(dx * dx + dz * dz);
 
-			if (distance < this->radius + result.entity->radius)
-			{
-				if (dynamic_cast<Player *>(result.entity) != nullptr && dynamic_cast<Player *>(result.entity)->dashing == true)
-				{
+			WindFartCloudSpell* f = dynamic_cast<WindFartCloudSpell*>(result.entity);
+			Player* p = dynamic_cast<Player *>(result.entity);
 
-				}
-				else
+			if (distance < this->radius + result.entity->radius && f == nullptr)
+			{
+				bool dash = true;
+				if (p != nullptr)
+					if (p->dashing == false)
+						dash = false;
+				if (dash == false || result.entity->type == EntityType::Spell)
 				{
 					XMVECTOR aPos;
 					XMVECTOR bPos;
@@ -242,14 +245,16 @@ bool FireWallSpell::on_effect(Map * map)
 
 			float distance = sqrt(dx * dx + dz * dz);
 
-			if (distance < this->radius + result.entity->radius)
+			WindFartCloudSpell* f = dynamic_cast<WindFartCloudSpell*>(result.entity);
+			Player* p = dynamic_cast<Player *>(result.entity);
+
+			if (distance < this->radius + result.entity->radius && f == nullptr)
 			{
-
-				if (dynamic_cast<Player *>(result.entity) != nullptr && dynamic_cast<Player *>(result.entity)->dashing == true)
-				{
-
-				}
-				else
+				bool dash = true;
+				if (p != nullptr)
+					if (p->dashing == false)
+						dash = false;
+				if (dash == false || result.entity->type == EntityType::Spell)
 				{
 					if (pUpgrades[owner->index].choice[1] == 1 && result.entity->type == EntityType::Player)
 					{
@@ -428,14 +433,16 @@ bool EarthWallSpell::on_effect(Map *map) { //made so earthwall has its own class
 
 			float distance = sqrt(dx * dx + dz * dz);
 
-			if (distance < this->radius + result.entity->radius)
-			{
+			WindFartCloudSpell* f = dynamic_cast<WindFartCloudSpell*>(result.entity);
+			Player* p = dynamic_cast<Player *>(result.entity);
 
-				if (dynamic_cast<Player *>(result.entity) != nullptr && dynamic_cast<Player *>(result.entity)->dashing == true)
-				{
-			
-				}
-				else
+			if (distance < this->radius + result.entity->radius && f == nullptr)
+			{
+				bool dash = true;
+				if (p != nullptr)
+					if (p->dashing == false)
+						dash = false;
+				if (dash == false || result.entity->type == EntityType::Spell)
 				{
 					if (pUpgrades[owner->index].choice[1] == 1 && result.entity->type == EntityType::Player)
 					{

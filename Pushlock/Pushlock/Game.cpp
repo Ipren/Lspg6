@@ -337,6 +337,9 @@ bool Game::update(float dt)
 		if (ImGui::Button("Reset to 4p")) {//resetting the map with 4 players
 			currentMap->reset(4);
 		}
+		if (ImGui::Button("go to next round")) {//resetting the map with 2 players
+			currentState = GameState::EndRound;
+		}
 		ImGui::End();
 	}
 	if (currentState == GameState::MainMenu)
