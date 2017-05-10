@@ -1970,7 +1970,7 @@ void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 		{
 
 
-			XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 1.0f, entity->position.z + 0.8f);
+			XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 2.5f, entity->position.z + 1.4f);
 
 			cam->vals.world = model;
 			cam->update(0, gDeviceContext);
@@ -2007,7 +2007,7 @@ void Renderer::renderHPGUI(Map * map, Camera * cam)
 
 			if ((p->maxHealth - p->health) > 0.001f)
 			{
-				XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 1.0f, entity->position.z + 1.09f);
+				XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 2.5f, entity->position.z + 1.69f);
 
 				cam->vals.world = model;
 				cam->update(0, gDeviceContext);
