@@ -24,6 +24,13 @@ Map::Map(GameState * currentState)
 		this->upgradeChoice[i] = 0;
 
 	}
+	this->radius = 10.0f;
+	this->newRadius = radius;
+	shrunk = false;
+	shrinkAmount = gDefaultMapConstants.kShrinkAmount;
+	shrinkTimer = gDefaultMapConstants.kShrinkTimer;
+	totalTime = 0.0f;
+	timeSinceLastShrunk = 0.0f;
 }
 
 Map::~Map()
@@ -86,7 +93,7 @@ void Map::update(float dt, Camera *cam)
 	shrinkTimer = gMapConstants.kShrinkTimer;
 	totalTime += dt;
 	timeSinceLastShrunk += dt;
-	if (timeSinceLastShrunk > shrinkTimer)
+	if (timeSinceLastShrunk > shrinkTimer && shrinking == false)
 	{
 		timeSinceLastShrunk = 0.0f;
 		if (radius - shrinkAmount > 4.0f)
@@ -102,6 +109,7 @@ void Map::update(float dt, Camera *cam)
 		{
 			radius -= 0.001;
 			shrunk = true;
+			timeSinceLastShrunk = 0.0f;
 		}
 		else
 		{

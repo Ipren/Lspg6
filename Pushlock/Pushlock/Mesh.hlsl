@@ -86,7 +86,7 @@ VS_OUT VS(VS_IN input)
 	VS_OUT output;
 	output.pos = mul(Proj, mul(View, mul(World, float4(input.pos, 1.0))));
 	output.wPos = mul(World, float4(input.pos, 1.0f));
-	output.nor = mul(NormalMatrix, float4(input.nor, 1.0f));
+	output.nor = mul(NormalMatrix, float4(input.nor, 1.0f)).xyz;
 	output.nor = normalize(output.nor);
 	output.uv = float2(0, 0);
 	return output;
