@@ -71,8 +71,8 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createShadowMap();
 	this->loadTexture();
 
-	this->createCooldownBuffers();
-	this->createCooldownShaders();
+	this->createCooldownBuffers(); //Move these so they render before the models
+	this->createCooldownShaders(); //Move these so they render before the models
 
 	this->createHPBuffers();
 	this->createHPShaders();
