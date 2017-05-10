@@ -313,6 +313,8 @@ bool Game::update(float dt)
 
 		if (ImGui::Button("Main Menu")) {//start the main menu
 			currentState = GameState::MainMenu;
+			gMapConstants.round = 1;
+			this->currentMap->reset(4);
 		}
 		int i = 0;
 		for (i; i < currentMap->nrOfAlivePlayers; i++)//showing players health
@@ -499,33 +501,17 @@ bool Game::update(float dt)
 			}
 		}
 
-		if (readyCount == currentMap->nrOfPlayers)
+		if (readyCount == currentMap->nrOfPlayers || ImGui::Button("start next round"))
 		{
 			gMapConstants.round++;
 			firsttime = true;
-			currentState = GameState::Playing;
-			currentMap->reset(currentMap->nrOfPlayers);
-			updateUpgradeStats();
-			for (size_t i = 0; i < 4; i++)
-			{
-				currentMap->upgradeChoice[i] = 0;
-					
-			}
-			
-		}
-
-		if (ImGui::Button("start next round")) 
-		{
-			gMapConstants.round++;
-			firsttime = true;
-			currentState = GameState::Playing;
 			updateUpgradeStats();
 			currentMap->reset(currentMap->nrOfPlayers);
 			for (size_t i = 0; i < 4; i++)
 			{
-				currentMap->upgradeChoice[i] = 0;
-
+				currentMap->upgradeChoice[i] = 0;		
 			}
+			currentState = GameState::Playing;
 		}
 		ImGui::End();
 	}
@@ -573,7 +559,7 @@ void Game::updateUpgradeStats()
 {
 	for (size_t i = 0; i < this->currentMap->nrOfPlayers; i++)
 	{
-		if (pUpgrades[i].choice[gMapConstants.round - 1] == 3)
+		if (pUpgrades[i].choice[gMapConstants.round - 2] == 3)
 		{
 			if (currentMap->playerElemnts[i] == 0) //arcane
 			{
@@ -597,7 +583,7 @@ void Game::updateUpgradeStats()
 				gPlayerSpellConstants[i].kWaterProjectileStrenght += 5.0f;
 			}
 		}
-		if (pUpgrades[i].choice[gMapConstants.round - 1] == 4)
+		if (pUpgrades[i].choice[gMapConstants.round - 2] == 4)
 		{
 			if (currentMap->playerElemnts[i] == 0)
 			{
@@ -625,7 +611,7 @@ void Game::updateUpgradeStats()
 	{
 		for (size_t i = 0; i < this->currentMap->nrOfPlayers; i++)
 		{
-			if (pUpgrades[i].choice[gMapConstants.round - 1] == 1)
+			if (pUpgrades[i].choice[gMapConstants.round - 2] == 1)
 			{
 				if (currentMap->playerElemnts[i] == 0)
 				{
@@ -649,7 +635,7 @@ void Game::updateUpgradeStats()
 				}
 			}
 
-			if (pUpgrades[i].choice[gMapConstants.round - 1] == 2)
+			if (pUpgrades[i].choice[gMapConstants.round - 2] == 2)
 			{
 				if (currentMap->playerElemnts[i] == 0)
 				{
