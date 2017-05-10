@@ -28,7 +28,8 @@ VS_OUT main(VS_IN input)
     VS_OUT output;
 
 
-    //todo shrink
+    output.pos.x = -1 * sign(output.pos.x) * shrinkAmount;
+    output.pos.z = -1 * sign(output.pos.z) * shrinkAmount;
 
     output.pos = mul(Proj, mul(View, input.pos));
     output.wPos = mul(World, input.pos);

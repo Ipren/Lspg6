@@ -998,7 +998,7 @@ void Renderer::updateParticles(float dt, Map *map)
 
 void Renderer::shrinkMap(Map * map)
 {
-	std::vector<XMFLOAT3> vertices;
+	/*std::vector<XMFLOAT3> vertices;
 
 
 	for (int i = 0; i < 128; i++)
@@ -1023,9 +1023,13 @@ void Renderer::shrinkMap(Map * map)
 	D3D11_MAPPED_SUBRESOURCE data;
 	this->gDeviceContext->Map(this->debug_map_quad, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
 	memcpy(data.pData, &vertices[0], (UINT)(vertices.size() * 3 * sizeof(float)));
-	this->gDeviceContext->Unmap(this->debug_map_quad, 0);
+	this->gDeviceContext->Unmap(this->debug_map_quad, 0);*/
 
-
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->shrinkBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	this->toatlShrunkAmount += gMapConstants.kShrinkAmount;
+	memcpy(data.pData, &this->toatlShrunkAmount, sizeof(float));
+	this->gDeviceContext->Unmap(this->shrinkBuffer, 0);
 }
 
 void Renderer::createLightBuffers()
@@ -2117,7 +2121,7 @@ void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 	this->gDeviceContext->VSSetShader(this->cooldownVS, nullptr, 0);
 	this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	this->gDeviceContext->PSSetShader(this->cooldownPS, nullptr, 0);
-
+	gDeviceContext->OMSetDepthStencilState(DepthStateDisable, 0xff);
 	
 
 	for (auto entity : map->entitys)
@@ -2151,7 +2155,7 @@ void Renderer::renderHPGUI(Map * map, Camera * cam)
 	this->gDeviceContext->VSSetShader(this->HPVS, nullptr, 0);
 	this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	this->gDeviceContext->PSSetShader(this->HPPS, nullptr, 0);
-
+	gDeviceContext->OMSetDepthStencilState(DepthStateDisable, 0xff);
 
 
 	for (auto entity : map->entitys)
@@ -2176,6 +2180,9 @@ void Renderer::renderHPGUI(Map * map, Camera * cam)
 			
 		}
 	}
+
+	cam->vals.world = XMMatrixIdentity();
+	cam->update(0, gDeviceContext);
 }
 
 void Renderer::swapBuffers()
@@ -2469,10 +2476,9 @@ void Renderer::render(Map *map, Camera *camera)
 	mapmesh->PrepareShaders();
 	mapmesh->Draw(gDevice, gDeviceContext);
 	
-	gDeviceContext->OMSetDepthStencilState(DepthStateDisable, 0xff);
+	
 
-	this->renderCooldownGUI(map, camera);
-	this->renderHPGUI(map, camera);
+	
 	
 	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0xff);
 	
@@ -2555,6 +2561,8 @@ void Renderer::render(Map *map, Camera *camera)
 	camera->vals.world = XMMatrixIdentity();
 	camera->update(0, gDeviceContext);
 	this->renderMap(camera);
+	this->renderCooldownGUI(map, camera);
+	this->renderHPGUI(map, camera);
 
 	this->renderParticles(camera);
 	FXSystem->render(camera, default_rtv, default_srv, gBackbufferRTV);

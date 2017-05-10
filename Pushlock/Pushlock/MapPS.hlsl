@@ -14,7 +14,6 @@ cbuffer ShadowCamera : register(b5)
 }
 
 SamplerState ShadowSampler : register(s0);
-SamplerState SSampler : register(s1);
 Texture2D ShadowMap : register(t1);
 texture2D mapTexture : register(t2);
 
@@ -85,7 +84,7 @@ float GetShadow(float3 normal, float4 coords)
 
 float4 main(in VS_OUT input) : SV_TARGET
 {
-    float4 c = mapTexture.Sample(SSampler, input.uv);
+    float4 c = mapTexture.Sample(ShadowSampler, input.uv);
     //float w = c.w;
     
     float3 lightDir = normalize(dLightDirection);
