@@ -57,6 +57,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->totalTime = 0.0f;
 	this->lastParticleInsert = 0.0f;
 	this->emitterCount = 0;
+	this->toatlShrunkAmount = 0.0f;
 
 	this->createDirect3DContext(wndHandle);
 	this->createDepthBuffers();
@@ -79,6 +80,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 
 	this->createCuBuffers();
 	this->createCUShaders();
+	this->createMapResurces();
 
 	FXSystem = new ParticleSystem(L"../Resources/Particles.no", 4096, gDevice, gDeviceContext);
 
@@ -167,6 +169,13 @@ Renderer::~Renderer()
 	this->cuVS->Release();
 	this->cuLayout->Release();
 	this->cuPS->Release();
+
+	this->mapLayout->Release();
+	this->MapPS->Release();
+	this->MapVS->Release();
+	this->mapVBuffer->Release();
+	this->shrinkBuffer->Release();
+	this->mapTexture->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -989,7 +998,7 @@ void Renderer::updateParticles(float dt, Map *map)
 
 void Renderer::shrinkMap(Map * map)
 {
-	std::vector<XMFLOAT3> vertices;
+	/*std::vector<XMFLOAT3> vertices;
 
 
 	for (int i = 0; i < 128; i++)
@@ -1014,9 +1023,13 @@ void Renderer::shrinkMap(Map * map)
 	D3D11_MAPPED_SUBRESOURCE data;
 	this->gDeviceContext->Map(this->debug_map_quad, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
 	memcpy(data.pData, &vertices[0], (UINT)(vertices.size() * 3 * sizeof(float)));
-	this->gDeviceContext->Unmap(this->debug_map_quad, 0);
+	this->gDeviceContext->Unmap(this->debug_map_quad, 0);*/
 
-
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->shrinkBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	this->toatlShrunkAmount = 10.0f - map->radius;
+	memcpy(data.pData, &this->toatlShrunkAmount, sizeof(float));
+	this->gDeviceContext->Unmap(this->shrinkBuffer, 0);
 }
 
 void Renderer::createLightBuffers()
@@ -1391,6 +1404,11 @@ void Renderer::loadTexture()
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
 
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/mapTexture.png ", &texture, &this->mapTexture);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+
 	texture->Release();
 
 }
@@ -1695,6 +1713,148 @@ void Renderer::createCUShaders()
 	psBlob->Release();
 }
 
+void Renderer::createMapResurces()
+{
+	HRESULT hr;
+	ID3DBlob* vsBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"MapVS.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&vsBlob,
+		nullptr);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"map vsblob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->MapVS);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" map vertex shader creation failed", L"error", MB_OK);
+	}
+
+	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	hr = this->gDevice->CreateInputLayout(inputDesc, ARRAYSIZE(inputDesc), vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &this->mapLayout);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"map input desc creation failed", L"error", MB_OK);
+	}
+
+	vsBlob->Release();
+
+	ID3DBlob *psBlob = nullptr;
+	hr = D3DCompileFromFile(
+		L"MapPS.hlsl",
+		NULL,
+		NULL,
+		"main",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&psBlob,
+		NULL);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"map psBlob creation failed", L"error", MB_OK);
+	}
+
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->MapPS);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" map pixel shader creation failed", L"error", MB_OK);
+	}
+
+	psBlob->Release();
+
+	struct TriangleVertex
+	{
+		float x, y, z, w;
+		float u, v;
+	};
+
+	TriangleVertex triangleVertices[6] =
+	{
+		10.f, 0.f, -10.f, 1.0f,	//v0 pos
+		1.0f, 1.0f,
+
+		-10.f, 0.f, -10.f, 1.0f,	//v1
+		0.0f, 1.0f,
+
+		-10.f, 0.f, 10.f, 1.0f, //v2
+		0.0f,  0.0f,
+
+		//t2
+		-10.f, 0.f, 10.0f, 1.0f,//v0 pos
+		0.0f, 0.0f,
+
+		10.f, 0.f, 10.0f, 1.0f,//v1
+		1.0f, 0.0f,
+
+		10.f, 0.f, -10.0f, 1.0f,//v2
+		1.0f, 1.0f
+	};
+
+	D3D11_BUFFER_DESC bufferDesc;
+	memset(&bufferDesc, 0, sizeof(bufferDesc));
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	bufferDesc.ByteWidth = sizeof(triangleVertices);
+
+	D3D11_SUBRESOURCE_DATA data;
+	data.pSysMem = triangleVertices;
+	data.SysMemPitch = 0;
+	data.SysMemSlicePitch = 0;
+	hr = this->gDevice->CreateBuffer(&bufferDesc, &data, &this->mapVBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" map vBuffer creation failed", L"error", MB_OK);
+	}
+
+
+	ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.ByteWidth = sizeof(float) * 4;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+
+	float init[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	data.pSysMem = init;
+
+	hr = this->gDevice->CreateBuffer(&bufferDesc, &data, &this->shrinkBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" map shrink buffer creation failed", L"error", MB_OK);
+	}
+
+	D3D11_BLEND_DESC BlendState;
+	ZeroMemory(&BlendState, sizeof(D3D11_BLEND_DESC));
+	BlendState.RenderTarget[0].BlendEnable = TRUE;
+	BlendState.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	BlendState.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	BlendState.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	BlendState.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_INV_DEST_ALPHA;
+	BlendState.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	BlendState.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	BlendState.RenderTarget[0].RenderTargetWriteMask = 0x0f;
+	this->gDevice->CreateBlendState(&BlendState, &this->mapBlendState);
+
+
+}
+
 void Renderer::createCooldownBuffers()
 {
 	D3D11_BUFFER_DESC desc;
@@ -1961,7 +2121,7 @@ void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 	this->gDeviceContext->VSSetShader(this->cooldownVS, nullptr, 0);
 	this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	this->gDeviceContext->PSSetShader(this->cooldownPS, nullptr, 0);
-
+	gDeviceContext->OMSetDepthStencilState(DepthStateDisable, 0xff);
 	
 
 	for (auto entity : map->entitys)
@@ -1995,7 +2155,7 @@ void Renderer::renderHPGUI(Map * map, Camera * cam)
 	this->gDeviceContext->VSSetShader(this->HPVS, nullptr, 0);
 	this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 	this->gDeviceContext->PSSetShader(this->HPPS, nullptr, 0);
-
+	gDeviceContext->OMSetDepthStencilState(DepthStateDisable, 0xff);
 
 
 	for (auto entity : map->entitys)
@@ -2020,6 +2180,9 @@ void Renderer::renderHPGUI(Map * map, Camera * cam)
 			
 		}
 	}
+
+	cam->vals.world = XMMatrixIdentity();
+	cam->update(0, gDeviceContext);
 }
 
 void Renderer::swapBuffers()
@@ -2067,6 +2230,39 @@ void Renderer::renderParticles(Camera *camera)
 	this->gDeviceContext->VSSetShaderResources(0, 1, &this->nullSRV);
 	gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 
+}
+
+void Renderer::renderMap(Camera * cam)
+{
+	gDeviceContext->IASetInputLayout(this->mapLayout);
+
+	UINT32 size = sizeof(float) * 6;
+	UINT32 offset = 0u;
+	gDeviceContext->IASetVertexBuffers(0, 1, &this->mapVBuffer, &size, &offset);
+	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	UINT sampleMask = 0xffffffff;
+	gDeviceContext->OMSetBlendState(this->mapBlendState, blendFactor, sampleMask);
+
+	gDeviceContext->VSSetShader(this->MapVS, nullptr, 0);
+	gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
+	gDeviceContext->VSSetConstantBuffers(1, 1, &this->shrinkBuffer);
+	gDeviceContext->PSSetShader(this->MapPS, nullptr, 0);
+	gDeviceContext->PSSetConstantBuffers(0, 1, &cam->wvp_buffer);
+	gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+	gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
+	gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
+	gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+	gDeviceContext->PSSetConstantBuffers(5, 1, &this->shadow_wvp_buffer);
+
+	gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
+	gDeviceContext->PSSetShaderResources(1, 1, &this->DepthBufferSRV);
+	gDeviceContext->PSSetShaderResources(2, 1, &this->mapTexture);
+	gDeviceContext->PSSetSamplers(0, 1, &this->shadowMapSampler);
+
+
+	gDeviceContext->Draw(6, 0);
 }
 
 void Renderer::updateDTimeBuffer(float dt)
@@ -2246,29 +2442,23 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->Unmap(color_buffer, 0);
 
 
-		gDeviceContext->IASetInputLayout(debug_map_layout);
-
-		UINT32 size = sizeof(float) * 3;
+		UINT32 size = sizeof(float) * 6;
 		UINT32 offset = 0u;
-		gDeviceContext->IASetVertexBuffers(0, 1, &debug_map_quad, &size, &offset);
 		gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		gDeviceContext->VSSetShader(debug_map_vsh, nullptr, 0);
+
 		gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-		gDeviceContext->PSSetShader(debug_entity_psh, nullptr, 0);
 		gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
 		gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 		gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 		gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
 		gDeviceContext->PSSetConstantBuffers(5, 1, &this->shadow_wvp_buffer);
-		
+
 		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 		gDeviceContext->PSSetShaderResources(1, 1, &this->DepthBufferSRV);
 		gDeviceContext->PSSetSamplers(0, 1, &this->shadowMapSampler);
-
-
-		gDeviceContext->Draw(128*3, 0);
+		
 	}
 	{
 		XMFLOAT4 col = normalize_color(0x998D66ff);
@@ -2279,15 +2469,16 @@ void Renderer::render(Map *map, Camera *camera)
 		}
 		gDeviceContext->Unmap(color_buffer, 0);
 	}
-
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	UINT sampleMask = 0xffffffff;
+	gDeviceContext->OMSetBlendState(NULL, blendFactor, sampleMask);
 	mapmesh->PreDraw(gDevice, gDeviceContext);
 	mapmesh->PrepareShaders();
 	mapmesh->Draw(gDevice, gDeviceContext);
 	
-	gDeviceContext->OMSetDepthStencilState(DepthStateDisable, 0xff);
+	
 
-	this->renderCooldownGUI(map, camera);
-	this->renderHPGUI(map, camera);
+	
 	
 	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0xff);
 	
@@ -2369,6 +2560,9 @@ void Renderer::render(Map *map, Camera *camera)
 	
 	camera->vals.world = XMMatrixIdentity();
 	camera->update(0, gDeviceContext);
+	this->renderMap(camera);
+	this->renderCooldownGUI(map, camera);
+	this->renderHPGUI(map, camera);
 
 	this->renderParticles(camera);
 	FXSystem->render(camera, default_rtv, default_srv, gBackbufferRTV);
