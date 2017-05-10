@@ -60,8 +60,9 @@ float GetShadow(float3 normal, float4 coords)
 	// TODO: fixa
 	float bias = max(0.0005 * (1.0 - dot(normal, normalize(dLightDirection))), 0.0005);
 	float shadow = 0;
-
-	for (int x = -1; x <= 1; ++x) {
+    [unroll]
+    for (int x = -1; x <= 1; ++x) {
+        [unroll]
 		for (int y = -1; y <= 1; ++y) {
 			float shadowDepth = ShadowMap.Sample(ShadowSampler, proj.xy, int2(x, y)).r;
 			if (shadowDepth - bias < proj.z)

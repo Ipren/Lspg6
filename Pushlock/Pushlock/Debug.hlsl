@@ -71,9 +71,10 @@ float GetShadow(float3 normal, float4 coords)
 	// TODO: fixa
 	float bias = max(0.0005 * (1.0 - dot(normal, normalize(dLightDirection))), 0.0005);
 	float shadow = 0;
-
+    [unroll]
 	for (int x = -1; x <= 1; ++x) {
-		for (int y = -1; y <= 1; ++y) {
+         [unroll]
+        for (int y = -1; y <= 1; ++y) {
 			float shadowDepth = ShadowMap.Sample(ShadowSampler, proj.xy, int2(x, y)).r;
 			if (shadowDepth - bias < proj.z)
 				shadow += 1;
@@ -111,7 +112,7 @@ float4 PS(in VS_OUT input) : SV_TARGET
 		{
 			attenuation = saturate(1.0f - (distance / pLights[i].range));
 			P2L /= distance;
-			nDotL = saturate(dot(wNorm, P2L));
+			nDotL = saturate(dot(wNorm.xyz, P2L));
 
 			//nDotL should be multiplied here but the light doesnt appear when you do : fix
 			if (pLights[i].lightColor.w > 0)
