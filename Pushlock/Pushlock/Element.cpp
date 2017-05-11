@@ -447,12 +447,12 @@ void WindElement::stomp(Player * player, Map * map)
 			WindFartCloudSpell *spell = new WindFartCloudSpell(player,
 			{
 				position.x,
-				0,
+				0.f,
 				position.z
 			}, 
 			{
-				0,
-				0
+				0.f,
+				0.f
 			}, gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance);
 			map->add_entity(spell);
 		}

@@ -152,6 +152,14 @@ private:
 	ID3D11VertexShader *shadowMapVS;
 	ID3D11PixelShader *shadowMapPS;
 
+	ID3D11Buffer* mapVBuffer;
+	ID3D11InputLayout* mapLayout;
+	ID3D11Buffer* shrinkBuffer;
+	ID3D11VertexShader *MapVS;
+	ID3D11PixelShader *MapPS;
+	ID3D11ShaderResourceView *mapTexture;
+	ID3D11BlendState *mapBlendState;
+
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
 	ID3D11RenderTargetView* nullRTV;
@@ -162,6 +170,7 @@ private:
 	float totalTime;
 	float lastParticleInsert;
 	int pointLightCount;
+	float toatlShrunkAmount;
 
 	//void create_menu();
 	void create_debug_entity();
@@ -185,6 +194,8 @@ private:
 	void createHPShaders();
 	void createCuBuffers();
 	void createCUShaders();
+
+	void createMapResurces();
 	
 	
 	void swapBuffers();
@@ -203,6 +214,7 @@ private:
 	void renderCooldownGUI(Map *map, Camera *cam);
 	void renderHPGUI(Map *map, Camera *cam);
 	void renderParticles(Camera *camera);
+	void renderMap(Camera *cam);
 
 	
 };
