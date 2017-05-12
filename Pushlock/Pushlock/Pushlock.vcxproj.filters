@@ -280,6 +280,9 @@
     <FxCompile Include="MapVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="lavaVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">

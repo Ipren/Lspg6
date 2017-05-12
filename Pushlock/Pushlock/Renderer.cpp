@@ -1408,6 +1408,10 @@ void Renderer::loadTexture()
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/lavaTexture.png ", &texture, &this->lavaTexture);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
 
 	texture->Release();
 
@@ -1725,6 +1729,15 @@ void Renderer::createMapResurces()
 		MessageBox(0, L" map vertex shader creation failed", L"error", MB_OK);
 	}
 
+	vsBlob = compile_shader(L"lavaVS.hlsl", "main", "vs_5_0", gDevice);
+
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->lavaVS);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" map vertex shader creation failed", L"error", MB_OK);
+	}
+
 	D3D11_INPUT_ELEMENT_DESC inputDesc[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -1794,7 +1807,36 @@ void Renderer::createMapResurces()
 		MessageBox(0, L" map vBuffer creation failed", L"error", MB_OK);
 	}
 
+	TriangleVertex lavaTriangleVertices[6] =
+	{
+		23.5f, -0.19f, -23.5f, 1.0f,	//v0 pos
+		1.0f, 1.0f,
 
+		-23.5f, -0.19f, -23.5f, 1.0f,	//v1
+		0.0f, 1.0f,
+
+		-23.5f, -0.19f, 23.5f, 1.0f, //v2
+		0.0f,  0.0f,
+
+		//t2
+		-23.5f, -0.19f, 23.5f, 1.0f,//v0 pos
+		0.0f, 0.0f,
+
+		23.5f, -0.19f, 23.5f, 1.0f,//v1
+		1.0f, 0.0f,
+
+		23.5f, -0.19f, -23.5f, 1.0f,//v2
+		1.0f, 1.0f
+	};
+
+	data.pSysMem = lavaTriangleVertices;
+
+	hr = this->gDevice->CreateBuffer(&bufferDesc, &data, &this->lavaBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"lava vBuffer creation failed", L"error", MB_OK);
+	}
+	
 	ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
 
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -2209,30 +2251,33 @@ void Renderer::renderMap(Camera * cam)
 
 	UINT32 size = sizeof(float) * 6;
 	UINT32 offset = 0u;
-	gDeviceContext->IASetVertexBuffers(0, 1, &this->mapVBuffer, &size, &offset);
-	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT sampleMask = 0xffffffff;
 	gDeviceContext->OMSetBlendState(this->mapBlendState, blendFactor, sampleMask);
+	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	gDeviceContext->IASetVertexBuffers(0, 1, &this->lavaBuffer, &size, &offset);
 
-	gDeviceContext->VSSetShader(this->MapVS, nullptr, 0);
 	gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
-	gDeviceContext->VSSetConstantBuffers(1, 1, &this->shrinkBuffer);
-	gDeviceContext->PSSetShader(this->MapPS, nullptr, 0);
 	gDeviceContext->PSSetConstantBuffers(0, 1, &cam->wvp_buffer);
 	gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 	gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 	gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 	gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
 	gDeviceContext->PSSetConstantBuffers(5, 1, &this->shadow_wvp_buffer);
-
 	gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 	gDeviceContext->PSSetShaderResources(1, 1, &this->DepthBufferSRV);
-	gDeviceContext->PSSetShaderResources(2, 1, &this->mapTexture);
+	gDeviceContext->PSSetShaderResources(2, 1, &this->lavaTexture);
 	gDeviceContext->PSSetSamplers(0, 1, &this->shadowMapSampler);
+	gDeviceContext->VSSetShader(this->lavaVS, nullptr, 0);
+	gDeviceContext->PSSetShader(this->MapPS, nullptr, 0);
 
+	gDeviceContext->Draw(6, 0);
 
+	gDeviceContext->IASetVertexBuffers(0, 1, &this->mapVBuffer, &size, &offset);
+	gDeviceContext->VSSetShader(this->MapVS, nullptr, 0);
+	gDeviceContext->VSSetConstantBuffers(1, 1, &this->shrinkBuffer);
+	gDeviceContext->PSSetShader(this->MapPS, nullptr, 0);
+	gDeviceContext->PSSetShaderResources(2, 1, &this->mapTexture);
 	gDeviceContext->Draw(6, 0);
 }
 

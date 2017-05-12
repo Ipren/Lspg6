@@ -160,6 +160,10 @@ private:
 	ID3D11ShaderResourceView *mapTexture;
 	ID3D11BlendState *mapBlendState;
 
+	ID3D11Buffer* lavaBuffer;
+	ID3D11ShaderResourceView *lavaTexture;
+	ID3D11VertexShader* lavaVS;
+
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
 	ID3D11RenderTargetView* nullRTV;
