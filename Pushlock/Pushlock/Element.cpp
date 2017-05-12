@@ -169,6 +169,7 @@ void ArcaneElement::dash(Player * player, Map * map)
 			{
 				dynamic_cast<ArcaneElement*>(player->element)->returnPos = player->position;
 				dynamic_cast<ArcaneElement*>(player->element)->teleported = true;
+				
 
 			}
 			if (pUpgrades[player->index].choice[1] == 2)
@@ -220,7 +221,7 @@ void ArcaneElement::dash(Player * player, Map * map)
 			}
 
 			
-			
+			map->sounds.play(spellSounds::teleport, 0.0f, 14.0f);
 		}
 		else
 		{
@@ -236,17 +237,19 @@ void ArcaneElement::dash(Player * player, Map * map)
 				player->velocity.x += cos(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
 				player->velocity.y += sin(player->angle) * (gSpellConstants.kArcaneDashSpeed + gPlayerSpellConstants[player->index].kArcaneDashSpeed);
 			}
+			map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 		}
-		player->dashing = true;
+		player->dashing = false;
 		player->dashTime = 0.0f;
 
 		cooldown[1] = gSpellConstants.kArcaneDashCooldown + gPlayerSpellConstants[player->index].kArcaneDashCooldown;
-		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
+		
 	}
 	else if(pUpgrades[player->index].choice[1] == 1 && dynamic_cast<ArcaneElement*>(player->element)->teleported)
 	{
 		player->position = dynamic_cast<ArcaneElement*>(player->element)->returnPos;
 		this->teleported = false;
+		map->sounds.play(spellSounds::teleport, 0.0f, 14.0f);
 	}
 }
 

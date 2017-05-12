@@ -26,7 +26,7 @@ SoundSystem::SoundSystem()
 	this->buffers[18].loadFromFile("../Resources/Sounds/earthwall.wav");
 
 	this->buffers[21].loadFromFile("../Resources/Sounds/arcanehit.wav");
-
+	this->buffers[22].loadFromFile("../Resources/Sounds/teleport.wav");
 	this->buffers[23].loadFromFile("../Resources/Sounds/fartcloud.flac");
 	this->buffers[24].loadFromFile("../Resources/Sounds/playerdeath.wav");
 
