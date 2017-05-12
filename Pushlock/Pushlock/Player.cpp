@@ -146,6 +146,7 @@ void Player::update(Map *map, float dt)
 			{
 				this->dead = true;
 				map->nrOfAlivePlayers--;
+				map->sounds.play(spellSounds::playerDeath, 0.0f, 50.0f);
 			}
 		}
 	}
