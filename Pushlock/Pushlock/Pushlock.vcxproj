@@ -395,6 +395,7 @@
     <Image Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Common.hlsl" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
