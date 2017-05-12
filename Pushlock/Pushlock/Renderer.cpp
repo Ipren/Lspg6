@@ -181,6 +181,79 @@ Renderer::~Renderer()
 	this->debugDevice->Release();
 }
 
+void Renderer::createBlurPass()
+{
+	D3D11_SAMPLER_DESC sadesc;
+	ZeroMemory(&sadesc, sizeof(sadesc));
+	sadesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sadesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sadesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sadesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	DXCALL(gDevice->CreateSamplerState(&sadesc, &blur_fs_sampler));
+
+	D3D11_TEXTURE2D_DESC tex_desc;
+	ZeroMemory(&tex_desc, sizeof(tex_desc));
+	tex_desc.Width = WIDTH;
+	tex_desc.Height = HEIGHT;
+	tex_desc.Usage = D3D11_USAGE_DEFAULT;
+	tex_desc.MipLevels = 1;
+	tex_desc.ArraySize = 1;
+	tex_desc.SampleDesc.Count = 1;
+	tex_desc.SampleDesc.Quality = 0;
+	tex_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	tex_desc.CPUAccessFlags = 0;
+	tex_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	tex_desc.MiscFlags = 0;
+
+	ID3D11Texture2D *blurtex[2];
+	for (int i = 0; i < 2; ++i) {
+		DXCALL(gDevice->CreateTexture2D(&tex_desc, nullptr, &blurtex[i]));
+
+		DXCALL(gDevice->CreateShaderResourceView(blurtex[i], nullptr, &blur_srv[i]));
+		DXCALL(gDevice->CreateRenderTargetView(blurtex[i], nullptr, &blur_rtv[i]));
+	}
+
+	float vertices[] = {
+		-1,  1, 0, 0,
+		1, -1, 1, 1,
+		-1, -1, 0, 1,
+
+		1, -1, 1, 1,
+		-1,  1, 0, 0,
+		1,  1, 1, 0
+	};
+
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.ByteWidth = (UINT)(sizeof(vertices));
+	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	data.pSysMem = &vertices[0];
+
+	DXCALL(gDevice->CreateBuffer(&desc, &data, &blur_fs_vertices));
+
+	ID3DBlob *blob = compile_shader(L"GaussianPass.hlsl", "VS", "vs_5_0", gDevice);
+	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &blur_fs_vs));
+
+	D3D11_INPUT_ELEMENT_DESC iinput_desc[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	blur_fs_layout = create_input_layout(iinput_desc, ARRAYSIZE(iinput_desc), blob, gDevice);
+
+	ID3DBlob *blob = compile_shader(L"GaussianPass.hlsl", "GaussianPassX", "ps_5_0", gDevice);
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &gaussian_x_ps));
+	ID3DBlob *blob = compile_shader(L"GaussianPass.hlsl", "GaussianPassY", "ps_5_0", gDevice);
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &gaussian_y_ps));
+
+}
+
 void Renderer::create_debug_entity()
 {
 
@@ -2080,6 +2153,34 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 
 	gDeviceContext->RSSetState(DefaultRaster);
 	setViewPort(WIDTH, HEIGHT);
+}
+
+void Renderer::renderBlurPass(Map * map, Camera * cam)
+{
+	UINT32 stride = sizeof(float) * 4;
+	UINT32 offset = 0u;
+
+	gDeviceContext->IASetInputLayout(blur_fs_layout);
+	gDeviceContext->IASetVertexBuffers(0, 1, &blur_fs_vertices, &stride, &offset);
+	gDeviceContext->VSSetShader(blur_fs_vs, nullptr, 0);
+
+	gDeviceContext->PSSetSamplers(0, 1, &blur_fs_sampler);
+
+	gDeviceContext->OMSetRenderTargets(1, &blur_rtv[1], nullptr);
+	gDeviceContext->PSSetShader(gaussian_x_ps, nullptr, 0);
+	gDeviceContext->PSSetShaderResources(0, 1, &blur_srv[0]);
+	gDeviceContext->Draw(6, 0);
+
+
+	gDeviceContext->OMSetRenderTargets(1, &blur_rtv[0], nullptr);
+	gDeviceContext->PSSetShader(gaussian_x_ps, nullptr, 0);
+	gDeviceContext->PSSetShaderResources(0, 1, &blur_srv[1]);
+	gDeviceContext->Draw(6, 0);
+
+	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, nullptr);
+	gDeviceContext->PSSetShader(blur_composite, nullptr, 0);
+	gDeviceContext->PSSetShaderResources(0, 1, &default_srv);
+	gDeviceContext->PSSetShaderResources(1, 1, &blur_srv[1]);
 }
 
 void Renderer::renderCooldownGUI(Map * map, Camera * cam)
