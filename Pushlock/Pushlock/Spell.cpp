@@ -74,7 +74,7 @@ bool ArcaneProjectileSpell::on_effect(Map *map)
 	}
 	
 	FXSystem->AddFX("splosion", XMMatrixTranslation(position.x, position.y, position.z));
-	
+	map->sounds.play(spellSounds::arcaneHit, 0.0f, 14.0f);
 	return true;
 }
 

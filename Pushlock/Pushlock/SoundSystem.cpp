@@ -8,7 +8,7 @@
 
 SoundSystem::SoundSystem()
 {
-	this->buffers = new sf::SoundBuffer[21];
+	this->buffers = new sf::SoundBuffer[25];
 	this->sound = new sf::Sound[512];
 	this->buffers[0].loadFromFile("../Resources/Sounds/fireball.wav");
 	this->buffers[1].loadFromFile("../Resources/Sounds/boom.wav");
@@ -24,6 +24,8 @@ SoundSystem::SoundSystem()
 	this->buffers[14].loadFromFile("../Resources/Sounds/winddash.flac");
 
 	this->buffers[18].loadFromFile("../Resources/Sounds/earthwall.wav");
+
+	this->buffers[21].loadFromFile("../Resources/Sounds/arcanehit.wav");
 
 }
 
