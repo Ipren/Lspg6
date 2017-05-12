@@ -2544,7 +2544,7 @@ void Renderer::render(Map *map, Camera *camera)
 			}
 			gDeviceContext->Unmap(color_buffer, 0);
 
-			XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
+			XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y, entity->position.z);
 
 			camera->vals.world = model;
 			camera->update(0, gDeviceContext);
