@@ -455,6 +455,7 @@ void WindElement::stomp(Player * player, Map * map)
 				0.f
 			}, gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance);
 			map->add_entity(spell);
+			map->sounds.play(spellSounds::fartStomp, 0.0f, 50.0f);
 		}
 		else if (pUpgrades[player->index].choice[1] == 2)
 		{
@@ -474,11 +475,13 @@ void WindElement::stomp(Player * player, Map * map)
 				}, 0.1f);
 				map->add_entity(spell);
 				beaconOut = true;
+				map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 			}
 			else
 			{
 				spell->dead = true;
 				beaconOut = false;
+				map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 			}
 
 		}
@@ -494,10 +497,11 @@ void WindElement::stomp(Player * player, Map * map)
 				result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[player->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[player->index].kWindStompStrengthFalloff) - result.distance);
 				result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[player->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[player->index].kWindStompStrengthFalloff) - result.distance);
 			}
+			map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 		}
 
 		cooldown[2] = gSpellConstants.kWindStompCooldown + gPlayerSpellConstants[player->index].kWindStompCooldown;
-		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
+		
 	}
 }
 

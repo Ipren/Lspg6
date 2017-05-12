@@ -27,7 +27,7 @@ SoundSystem::SoundSystem()
 
 	this->buffers[21].loadFromFile("../Resources/Sounds/arcanehit.wav");
 
-
+	this->buffers[23].loadFromFile("../Resources/Sounds/fartcloud.flac");
 	this->buffers[24].loadFromFile("../Resources/Sounds/playerdeath.wav");
 
 }
