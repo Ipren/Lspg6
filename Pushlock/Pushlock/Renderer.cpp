@@ -1716,22 +1716,7 @@ void Renderer::createCUShaders()
 void Renderer::createMapResurces()
 {
 	HRESULT hr;
-	ID3DBlob* vsBlob = nullptr;
-	hr = D3DCompileFromFile(
-		L"MapVS.hlsl",
-		nullptr,
-		nullptr,
-		"main",
-		"vs_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0,
-		&vsBlob,
-		nullptr);
-
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"map vsblob creation failed", L"error", MB_OK);
-	}
+	ID3DBlob* vsBlob = compile_shader(L"MapVS.hlsl", "main", "vs_5_0", gDevice);
 
 	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->MapVS);
 
@@ -1755,21 +1740,7 @@ void Renderer::createMapResurces()
 
 	vsBlob->Release();
 
-	ID3DBlob *psBlob = nullptr;
-	hr = D3DCompileFromFile(
-		L"MapPS.hlsl",
-		NULL,
-		NULL,
-		"main",
-		"ps_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0,
-		&psBlob,
-		NULL);
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"map psBlob creation failed", L"error", MB_OK);
-	}
+	ID3DBlob *psBlob = compile_shader(L"MapPS.hlsl", "main", "ps_5_0", gDevice);
 
 	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->MapPS);
 	if (FAILED(hr))

@@ -9,6 +9,48 @@
 
 #include "Globals.h"
 
+
+HRESULT __stdcall ShaderInclude::Open(D3D_INCLUDE_TYPE IncludeType, LPCSTR pFileName, LPCVOID pParentData, LPCVOID *ppData, UINT *pBytes) {
+	try {
+		std::string finalPath;
+		switch (IncludeType) {
+		case D3D_INCLUDE_LOCAL:
+			finalPath = m_ShaderDir + "\\" + pFileName;
+				break;
+		case D3D_INCLUDE_SYSTEM:
+			finalPath = m_SystemDir + "\\" + pFileName;
+				break;
+		default:
+			assert(0);
+		}
+
+		std::ifstream includeFile(finalPath.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+
+		if (includeFile.is_open()) {
+			long long fileSize = includeFile.tellg();
+			char* buf = new char[fileSize];
+			includeFile.seekg(0, std::ios::beg);
+			includeFile.read(buf, fileSize);
+			includeFile.close();
+			*ppData = buf;
+			*pBytes = fileSize;
+		}
+		else {
+			return E_FAIL;
+		}
+		return S_OK;
+	}
+	catch (std::exception& e) {
+		return E_FAIL;
+	}
+}
+
+HRESULT __stdcall ShaderInclude::Close(LPCVOID pData) {
+	char* buf = (char*)pData;
+	delete[] buf;
+	return S_OK;
+}
+
 // Hjälpfunktion för att kompilera shaders, t.ex:
 //
 //   ID3D11VertexShader *vertexShader = nullptr;
@@ -18,6 +60,8 @@
 //
 ID3DBlob *compile_shader(const wchar_t *filename, const char *function, const char *model, ID3D11Device *gDevice)
 {
+	static ShaderInclude include("./", "./");
+
 	ID3DBlob *blob = nullptr;
 	ID3DBlob *error = nullptr;
 
@@ -25,7 +69,7 @@ ID3DBlob *compile_shader(const wchar_t *filename, const char *function, const ch
 		D3DCompileFromFile(
 			filename,
 			nullptr,
-			nullptr,
+			&include,
 			function,
 			model,
 			D3DCOMPILE_DEBUG,
