@@ -177,6 +177,10 @@ Renderer::~Renderer()
 	this->shrinkBuffer->Release();
 	this->mapTexture->Release();
 
+	this->lavaBuffer->Release();
+	this->lavaTexture->Release();
+	this->lavaVS->Release();
+
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
 }
