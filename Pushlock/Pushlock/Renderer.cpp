@@ -2092,7 +2092,7 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 		//model = XMMatrixMultiply(XMMatrixRotationZ(270 * XM_PI / 180), model);
 		model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
 		model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
-
+		model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
 	
 		shadow_camera.world = model;
 
@@ -2558,6 +2558,8 @@ void Renderer::render(Map *map, Camera *camera)
 				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
 				model = XMMatrixMultiply(XMMatrixRotationX( 270* XM_PI / 180), model);
 				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+
+				model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
 
 				camera->vals.world = model;
 				camera->update(0, gDeviceContext);
