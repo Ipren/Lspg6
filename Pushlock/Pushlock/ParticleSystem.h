@@ -25,7 +25,7 @@ public:
 	ParticleEffect GetFX(std::string name);
 
 	void update(Camera *cam, float dt);
-	void render(Camera *cam, ID3D11RenderTargetView *dst_rtv, ID3D11ShaderResourceView *dst_srv, ID3D11RenderTargetView *output);
+	void render(Camera *cam, ID3D11RenderTargetView *dst_rtv, ID3D11ShaderResourceView *dst_srv, ID3D11RenderTargetView *dst_bright, ID3D11RenderTargetView *output);
 
 private:
 	//ParticleEffect *getEffect(std::string name);

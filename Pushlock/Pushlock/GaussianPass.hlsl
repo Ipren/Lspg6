@@ -26,7 +26,7 @@ static const float weights[5] = {
 	0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216
 };
 
-float4 GuassianPassX(VSOut input) : SV_Target
+float4 GaussianX(VSOut input) : SV_Target
 {
 	float3 result = Texture.Sample(Sampler, input.Uv).rgb * weights[0];
 
@@ -39,7 +39,7 @@ float4 GuassianPassX(VSOut input) : SV_Target
 	return float4(result, 1.0);
 }
 
-float4 GuassianPassY(VSOut input) : SV_Target
+float4 GaussianY(VSOut input) : SV_Target
 {
 	float3 result = Texture.Sample(Sampler, input.Uv).rgb * weights[0];
 

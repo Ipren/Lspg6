@@ -16,6 +16,9 @@ ID3D11Device *globalDevice;
 ID3D11DeviceContext *globalDeviceContext;
 
 
+static ID3D11RenderTargetView *RESET_RTV[16] = {};
+static ID3D11ShaderResourceView *RESET_SRV[16] = {};
+
 Renderer::Renderer()
 {
 
@@ -61,6 +64,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 
 	this->createDirect3DContext(wndHandle);
 	this->createDepthBuffers();
+	this->createBlurPass();
 	this->createShaders();
 	this->setViewPort(width, height);
 	this->createParticleBuffer(524288);
@@ -213,6 +217,12 @@ void Renderer::createBlurPass()
 		DXCALL(gDevice->CreateRenderTargetView(blurtex[i], nullptr, &blur_rtv[i]));
 	}
 
+	SetDebugObjectName(blur_srv[0], "Blur SRV #0");
+	SetDebugObjectName(blur_rtv[0], "Blur RTV #0");
+
+	SetDebugObjectName(blur_srv[1], "Blur SRV #1");
+	SetDebugObjectName(blur_rtv[1], "Blur RTV #1");
+	
 	float vertices[] = {
 		-1,  1, 0, 0,
 		1, -1, 1, 1,
@@ -247,11 +257,13 @@ void Renderer::createBlurPass()
 	};
 	blur_fs_layout = create_input_layout(iinput_desc, ARRAYSIZE(iinput_desc), blob, gDevice);
 
-	ID3DBlob *blob = compile_shader(L"GaussianPass.hlsl", "GaussianPassX", "ps_5_0", gDevice);
+	blob = compile_shader(L"GaussianPass.hlsl", "GaussianX", "ps_5_0", gDevice);
 	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &gaussian_x_ps));
-	ID3DBlob *blob = compile_shader(L"GaussianPass.hlsl", "GaussianPassY", "ps_5_0", gDevice);
+	blob = compile_shader(L"GaussianPass.hlsl", "GaussianY", "ps_5_0", gDevice);
 	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &gaussian_y_ps));
 
+	blob = compile_shader(L"GlowComposite.hlsl", "PS", "ps_5_0", gDevice);
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &blur_composite));
 }
 
 void Renderer::create_debug_entity()
@@ -2155,6 +2167,18 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	setViewPort(WIDTH, HEIGHT);
 }
 
+/*
+
+forward_pass() -> Fwd;
+
+particle_pass(Fwd[Brightness_2], Distort) -> (Brightness_2[Fwd], Brightness_1);
+
+blur_pass_x(Brightness_1) -> Brightness_2[Fwd];
+blur_pass_y(Brightness_2[Fwd]) -> Brightness_1;
+
+composite(Fwd[Brightness_2], Brightness_1) -> Backbuffer;
+*/
+
 void Renderer::renderBlurPass(Map * map, Camera * cam)
 {
 	UINT32 stride = sizeof(float) * 4;
@@ -2171,9 +2195,11 @@ void Renderer::renderBlurPass(Map * map, Camera * cam)
 	gDeviceContext->PSSetShaderResources(0, 1, &blur_srv[0]);
 	gDeviceContext->Draw(6, 0);
 
+	gDeviceContext->PSSetShaderResources(0, 1, RESET_SRV);
+	gDeviceContext->OMSetRenderTargets(1, RESET_RTV, nullptr);
 
 	gDeviceContext->OMSetRenderTargets(1, &blur_rtv[0], nullptr);
-	gDeviceContext->PSSetShader(gaussian_x_ps, nullptr, 0);
+	gDeviceContext->PSSetShader(gaussian_y_ps, nullptr, 0);
 	gDeviceContext->PSSetShaderResources(0, 1, &blur_srv[1]);
 	gDeviceContext->Draw(6, 0);
 
@@ -2181,6 +2207,7 @@ void Renderer::renderBlurPass(Map * map, Camera * cam)
 	gDeviceContext->PSSetShader(blur_composite, nullptr, 0);
 	gDeviceContext->PSSetShaderResources(0, 1, &default_srv);
 	gDeviceContext->PSSetShaderResources(1, 1, &blur_srv[1]);
+	gDeviceContext->Draw(6, 0);
 }
 
 void Renderer::renderCooldownGUI(Map * map, Camera * cam)
@@ -2500,7 +2527,7 @@ void Renderer::render(Map *map, Camera *camera)
 	XMFLOAT4 clear = normalize_color(0x93a9bcff);
 
 	gDeviceContext->ClearRenderTargetView(default_rtv, (float*)&clear);
-	gDeviceContext->ClearDepthStencilView(DepthBufferMS, D3D11_CLEAR_DEPTH, 1.0f, 0);		
+	gDeviceContext->ClearDepthStencilView(DepthBufferMS, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0xff);
 	gDeviceContext->OMSetRenderTargets(1, &default_rtv, DepthBufferMS);
 
@@ -2530,7 +2557,7 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 		gDeviceContext->PSSetShaderResources(1, 1, &this->DepthBufferSRV);
 		gDeviceContext->PSSetSamplers(0, 1, &this->shadowMapSampler);
-		
+
 	}
 	{
 		XMFLOAT4 col = normalize_color(0x998D66ff);
@@ -2547,13 +2574,13 @@ void Renderer::render(Map *map, Camera *camera)
 	mapmesh->PreDraw(gDevice, gDeviceContext);
 	mapmesh->PrepareShaders();
 	mapmesh->Draw(gDevice, gDeviceContext);
-	
-	
 
-	
-	
+
+
+
+
 	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0xff);
-	
+
 	{
 		gDeviceContext->IASetInputLayout(debug_entity_layout);
 
@@ -2608,7 +2635,7 @@ void Renderer::render(Map *map, Camera *camera)
 			{
 
 				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
-				model = XMMatrixMultiply(XMMatrixRotationX( 270* XM_PI / 180), model);
+				model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
 				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
 
 				camera->vals.world = model;
@@ -2626,10 +2653,10 @@ void Renderer::render(Map *map, Camera *camera)
 		}
 
 	}
-	
+
 	ID3D11ShaderResourceView *reset = nullptr;
 	gDeviceContext->PSSetShaderResources(1, 1, &reset);
-	
+
 	camera->vals.world = XMMatrixIdentity();
 	camera->update(0, gDeviceContext);
 	this->renderMap(camera);
@@ -2637,7 +2664,11 @@ void Renderer::render(Map *map, Camera *camera)
 	this->renderHPGUI(map, camera);
 
 	this->renderParticles(camera);
-	FXSystem->render(camera, default_rtv, default_srv, gBackbufferRTV);
+	
+	FXSystem->render(camera, default_rtv, default_srv, blur_rtv[0], blur_rtv[1]);
+	std::swap(default_rtv, blur_rtv[1]);
+	std::swap(default_srv, blur_srv[1]);
+	renderBlurPass(map, camera);
 }
 
 

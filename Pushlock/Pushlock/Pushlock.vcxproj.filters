@@ -280,6 +280,9 @@
     <FxCompile Include="MapVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="GaussianPass.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
@@ -297,6 +300,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Common.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="GlowComposite.hlsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
