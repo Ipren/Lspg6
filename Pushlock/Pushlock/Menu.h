@@ -52,6 +52,7 @@ private:
 	bool ready[4];
 
 	std::wstring uStrings[3][5][4];
+	DirectX::XMFLOAT2 textPos[4][5];
 
 	DirectX::XMFLOAT2 readyPos;
 	

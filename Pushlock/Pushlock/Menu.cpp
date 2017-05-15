@@ -151,6 +151,37 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[2][4][2] = L"A: Stronger projectles";
 	this->uStrings[2][4][3] = L"B: Shorter wall cooldown";
 
+	float offsetX = WIDTH / 2.0f;
+	float offsetY = HEIGHT / 2.0f;
+
+	this->textPos[0][0] = { offsetX / 2, 200};
+	this->textPos[1][0] = { offsetX / 2 + offsetX, 200.0f };
+	this->textPos[2][0] = { offsetX / 2, 200.0f + offsetY };
+	this->textPos[3][0] = { offsetX / 2 + offsetX, 200.0f + offsetY };
+
+	this->textPos[0][1] = { 180.0f / 2 + 24.0f,  293.0f / 2 };
+	this->textPos[0][2] = { 180.0f / 2 + 24.0f, 389.0f / 2 };
+	this->textPos[0][3] = { 180.0f / 2 + 24.0f, 480.0f / 2 };
+	this->textPos[0][4] = { 180.0f / 2 + 24.0f, 579.0f / 2 };
+
+	
+	this->textPos[1][1] = { 180.0f / 2 + 24.0f + offsetX , 293.0f / 2 };
+	this->textPos[1][2] = { 180.0f / 2 + 24.0f + offsetX , 389.0f / 2 };
+	this->textPos[1][3] = { 180.0f / 2 + 24.0f + offsetX , 480.0f / 2 };
+	this->textPos[1][4] = { 180.0f / 2 + 24.0f + offsetX ,  579.0f / 2 };
+
+	this->textPos[2][1] = { 180.0f / 2 + 24.0f,  293.0f / 2 + offsetY };
+	this->textPos[2][2] = { 180.0f / 2 + 24.0f, 389.0f / 2 + offsetY };
+	this->textPos[2][3] = { 180.0f / 2 + 24.0f, 480.0f / 2 + offsetY };
+	this->textPos[2][4] = { 180.0f / 2 + 24.0f, 579.0f / 2 + offsetY };
+
+	this->textPos[3][1] = { 180.0f / 2 + 24.0f + offsetX , 293.0f / 2 + offsetY };
+	this->textPos[3][2] = { 180.0f / 2 + 24.0f + offsetX , 389.0f / 2 + offsetY };
+	this->textPos[3][3] = { 180.0f / 2 + 24.0f + offsetX , 480.0f / 2 + offsetY };
+	this->textPos[3][4] = { 180.0f / 2 + 24.0f + offsetX , 579.0f / 2 + offsetY };
+	
+
+
 }
 
 Menu::~Menu()
@@ -604,6 +635,11 @@ void Menu::setReady(Map * map)
 
 void Menu::drawUpgradeText(Map * map)
 {
+
+	for (size_t i = 0; i < map->nrOfPlayers; i++)
+	{
+
+	}
 }
 
 void Menu::setSelectedPos(GameState currentState)
