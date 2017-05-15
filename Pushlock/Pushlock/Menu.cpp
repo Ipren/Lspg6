@@ -151,6 +151,19 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[2][4][2] = L"A: Stronger projectles";
 	this->uStrings[2][4][3] = L"B: Shorter wall cooldown";
 
+
+	//rest of the rounds
+	for (size_t i = 3; i < 8; i++)
+	{
+		for (size_t j = 0; j < 5; j++)
+		{
+			for (size_t k = 0; k < 4; k++)
+			{
+				this->uStrings[i][j][k] = L"No text";
+			}
+		}
+	}
+
 	float offsetX = WIDTH / 2.0f;
 	float offsetY = HEIGHT / 2.0f;
 
