@@ -602,6 +602,10 @@ void Menu::setReady(Map * map)
 
 }
 
+void Menu::drawUpgradeText(Map * map)
+{
+}
+
 void Menu::setSelectedPos(GameState currentState)
 {
 	if (currentState == GameState::MainMenu)

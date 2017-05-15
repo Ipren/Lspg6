@@ -19,6 +19,7 @@ public:
 	void setUpgradesArrowPos(Map *map);
 	void setPowerArrowPos(Map *map);
 	void setReady(Map *map);
+	void drawUpgradeText(Map *map);
 
 private:
 	struct mQuad
