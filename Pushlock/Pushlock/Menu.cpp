@@ -3,7 +3,6 @@
 #include "DirectXTK.h"
 #include <DirectXMath.h>
 #include "Constants.h"
-#include "Upgrades.h"
 
 Menu::Menu(Renderer* renderer)
 {
