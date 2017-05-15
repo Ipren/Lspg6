@@ -3,6 +3,7 @@
 #include "DirectXTK.h"
 #include <DirectXMath.h>
 #include "Constants.h"
+#include "Upgrades.h"
 
 Menu::Menu(Renderer* renderer)
 {
@@ -60,7 +61,7 @@ Menu::Menu(Renderer* renderer)
 	//////////////////////round 1////////////////////////////////////////////
 	//arcane
 	this->uStrings[0][0][0] = L"X: Spilts the projectile into 3 weaker ones";
-	this->uStrings[0][0][1] = L"Y: Turns the dash ino a teleport";
+	this->uStrings[0][0][1] = L"Y: Turns the dash into a teleport";
 	this->uStrings[0][0][2] = L"A: Improves seeking";
 	this->uStrings[0][0][3] = L"B: Projectile lives longer";
 
@@ -96,13 +97,13 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[1][0][3] = L"B: Projectile lives longer";
 
 	//fire
-	this->uStrings[1][1][0] = L"X: Dash leaves fire trail that applies a damage over time effect";
+	this->uStrings[1][1][0] = L"X: Dash leaves fire trail that applies a DOT";
 	this->uStrings[1][1][1] = L"Y: Wall applies a damage over time effect";
 	this->uStrings[1][1][2] = L"A: Larger explotion Radius";
 	this->uStrings[1][1][3] = L"B: More health";
 
 	//wind
-	this->uStrings[1][2][0] = L"X: Stomping creates a cloud that appleis a damage over time effect";
+	this->uStrings[1][2][0] = L"X: Stomping creates a cloud that appleis a DOT";
 	this->uStrings[1][2][1] = L"Y: Stomping leaves a beacon that can stomp again";
 	this->uStrings[1][2][2] = L"A: Stronger projectiles";
 	this->uStrings[1][2][3] = L"B: Shorter dash cooldown";
@@ -114,7 +115,7 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[1][3][3] = L"B: Stronger stomp";
 
 	//water
-	this->uStrings[1][4][0] = L"X: Dashing causes greater knockback when hitting another player";
+	this->uStrings[1][4][0] = L"X: Dashing causes greater knockback when colliding";
 	this->uStrings[1][4][1] = L"Y: Your dash leaves a ice patch after you";
 	this->uStrings[1][4][2] = L"A: Stronger projectles";
 	this->uStrings[1][4][3] = L"B: Shorter wall cooldown";
@@ -154,10 +155,10 @@ Menu::Menu(Renderer* renderer)
 	float offsetX = WIDTH / 2.0f;
 	float offsetY = HEIGHT / 2.0f;
 
-	this->textPos[0][0] = { offsetX / 2, 200};
-	this->textPos[1][0] = { offsetX / 2 + offsetX, 200.0f };
-	this->textPos[2][0] = { offsetX / 2, 200.0f + offsetY };
-	this->textPos[3][0] = { offsetX / 2 + offsetX, 200.0f + offsetY };
+	this->textPos[0][0] = { offsetX / 2 - 42, 73};
+	this->textPos[1][0] = { offsetX / 2 - 42 + offsetX, 73.0f };
+	this->textPos[2][0] = { offsetX / 2 - 42, 73.0f + offsetY };
+	this->textPos[3][0] = { offsetX / 2 - 42 + offsetX, 73.0f + offsetY };
 
 	this->textPos[0][1] = { 180.0f / 2 + 24.0f,  293.0f / 2 };
 	this->textPos[0][2] = { 180.0f / 2 + 24.0f, 389.0f / 2 };
@@ -282,6 +283,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 
 			renderer->gDeviceContext->Draw(24, 0);
 			this->setUpgradesArrowPos(map);
+			this->drawUpgradeText(map);
 
 		}
 		else if (currentState == GameState::EndGame)
@@ -638,7 +640,11 @@ void Menu::drawUpgradeText(Map * map)
 
 	for (size_t i = 0; i < map->nrOfPlayers; i++)
 	{
-
+		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Round: ") + std::to_wstring(gMapConstants.round)).c_str(), this->textPos[i][0], Colors::Black);
+		for (size_t j = 1; j < 5; j++)
+		{
+			m_spriteFont->DrawString(m_spriteBatch.get(), this->uStrings[gMapConstants.round - 1][map->playerElemnts[i]][j - 1].c_str(), this->textPos[i][j], Colors::Black);
+		}
 	}
 }
 
