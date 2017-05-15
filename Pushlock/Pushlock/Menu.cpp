@@ -56,6 +56,101 @@ Menu::Menu(Renderer* renderer)
 
 	setSelectedPos(GameState::MainMenu);
 
+
+	//////////////////////round 1////////////////////////////////////////////
+	//arcane
+	this->uStrings[0][0][0] = L"X: Spilts the projectile into 3 weaker ones";
+	this->uStrings[0][0][1] = L"Y: Turns the dash ino a teleport";
+	this->uStrings[0][0][2] = L"A: Improves seeking";
+	this->uStrings[0][0][3] = L"B: Projectile lives longer";
+
+	//fire
+	this->uStrings[0][1][0] = L"X: Gives your projectile a damage over time effect";
+	this->uStrings[0][1][1] = L"Y: Resets the cooldown of dash if you hit with a stomp";
+	this->uStrings[0][1][2] = L"A: Larger explotion Radius";
+	this->uStrings[0][1][3] = L"B: More health";
+
+	//wind
+	this->uStrings[0][2][0] = L"X: Refelcts projectiles when dashing";
+	this->uStrings[0][2][1] = L"Y: Can dash trough walls";
+	this->uStrings[0][2][2] = L"A: Stronger projectiles";
+	this->uStrings[0][2][3] = L"B: Shorter dash cooldown";
+
+	//earth
+	this->uStrings[0][3][0] = L"X: Stomps in a line infron of you";
+	this->uStrings[0][3][1] = L"Y: Stomp creates projectiles";
+	this->uStrings[0][3][2] = L"A: Less pushback";
+	this->uStrings[0][3][3] = L"B: Stronger stomp";
+
+	//water
+	this->uStrings[0][4][0] = L"X: Projectile hits slow";
+	this->uStrings[0][4][1] = L"Y: You can chooose when to split the projectile";
+	this->uStrings[0][4][2] = L"A: Stronger projectles";
+	this->uStrings[0][4][3] = L"B: Shorter wall cooldown";
+
+	//////////////////////round 2////////////////////////////////////////////
+	//arcane
+	this->uStrings[1][0][0] = L"X: Can return to the position you teleported from";
+	this->uStrings[1][0][1] = L"Y: Teleporting into someone causes knockback";
+	this->uStrings[1][0][2] = L"A: Improves seeking";
+	this->uStrings[1][0][3] = L"B: Projectile lives longer";
+
+	//fire
+	this->uStrings[1][1][0] = L"X: Dash leaves fire trail that applies a damage over time effect";
+	this->uStrings[1][1][1] = L"Y: Wall applies a damage over time effect";
+	this->uStrings[1][1][2] = L"A: Larger explotion Radius";
+	this->uStrings[1][1][3] = L"B: More health";
+
+	//wind
+	this->uStrings[1][2][0] = L"X: Stomping creates a cloud that appleis a damage over time effect";
+	this->uStrings[1][2][1] = L"Y: Stomping leaves a beacon that can stomp again";
+	this->uStrings[1][2][2] = L"A: Stronger projectiles";
+	this->uStrings[1][2][3] = L"B: Shorter dash cooldown";
+
+	//earth
+	this->uStrings[1][3][0] = L"X: Gives your walls spikes that causes damage";
+	this->uStrings[1][3][1] = L"Y: Wall attracts nearby entitys";
+	this->uStrings[1][3][2] = L"A: Less pushback";
+	this->uStrings[1][3][3] = L"B: Stronger stomp";
+
+	//water
+	this->uStrings[1][4][0] = L"X: Dashing causes greater knockback when hitting another player";
+	this->uStrings[1][4][1] = L"Y: Your dash leaves a ice patch after you";
+	this->uStrings[1][4][2] = L"A: Stronger projectles";
+	this->uStrings[1][4][3] = L"B: Shorter wall cooldown";
+
+
+	//////////////////////round 3////////////////////////////////////////////
+	//arcane
+	this->uStrings[2][0][0] = L"X: Shorter projectile cooldown";
+	this->uStrings[2][0][1] = L"Y: Higher projectile speed";
+	this->uStrings[2][0][2] = L"A: Improves seeking";
+	this->uStrings[2][0][3] = L"B: Projectile lives longer";
+
+	//fire
+	this->uStrings[2][1][0] = L"X: Stonger projectile";
+	this->uStrings[2][1][1] = L"Y: Stronger stomp";
+	this->uStrings[2][1][2] = L"A: Larger explotion Radius";
+	this->uStrings[2][1][3] = L"B: More health";
+
+	//wind
+	this->uStrings[2][2][0] = L"X: Faster projectile";
+	this->uStrings[2][2][1] = L"Y: Stronger stomp";
+	this->uStrings[2][2][2] = L"A: Stronger projectiles";
+	this->uStrings[2][2][3] = L"B: Shorter dash cooldown";
+
+	//earth
+	this->uStrings[2][3][0] = L"X: Faster projectile";
+	this->uStrings[2][3][1] = L"Y: Larger projectile effect radius";
+	this->uStrings[2][3][2] = L"A: Less pushback";
+	this->uStrings[2][3][3] = L"B: Stronger stomp";
+
+	//water
+	this->uStrings[2][4][0] = L"X: Faster projectile";
+	this->uStrings[2][4][1] = L"Y: Larger stomp distance";
+	this->uStrings[2][4][2] = L"A: Stronger projectles";
+	this->uStrings[2][4][3] = L"B: Shorter wall cooldown";
+
 }
 
 Menu::~Menu()
