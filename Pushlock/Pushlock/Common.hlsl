@@ -49,7 +49,7 @@ float CalcPointLights(StructuredBuffer<PointLight> lights, float4 worldpos, floa
 
 	for (uint i = 0; i < count; i++) {
 		float4 wLightPos = float4(lights[i].lightPos, 1.0f);
-		float3 P2L = wLightPos.xyz - worldpos;
+		float3 P2L = wLightPos.xyz - worldpos.xyz;
 		float distance = length(P2L);
 		
 		if (distance < lights[i].range) {
