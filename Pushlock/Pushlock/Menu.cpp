@@ -205,9 +205,13 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 			renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
 			renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 			renderer->gDeviceContext->PSSetShader(renderer->cuPS, nullptr, 0);
-			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cpMenuTexture);
-
+			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cuMenuTexture);
 			for (size_t i = 1; i < 5; i++)
+			{
+				renderer->gDeviceContext->PSSetShaderResources(i, 1, &renderer->cuMenuTexture);
+			}
+
+			for (size_t i = 1; i < map->nrOfPlayers +1; i++)
 			{
 				renderer->gDeviceContext->PSSetShaderResources(i, 1, &renderer->cpMenuTexture);
 			}
@@ -238,20 +242,13 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 			{
 				renderer->gDeviceContext->PSSetShaderResources(i, 1, &renderer->cuMenuTexture);
 			}
-			if (currentRound == 1)
+
+			for (size_t i = 0; i < map->nrOfPlayers; i++)
 			{
-				for (size_t i = 0; i < map->nrOfPlayers; i++)
-				{
-					renderer->gDeviceContext->PSSetShaderResources((i + 1), 1, &renderer->r1CUTextures[map->playerElemnts[i]]);
-				}
+				renderer->gDeviceContext->PSSetShaderResources((i + 1), 1, &renderer->r1CUTextures[map->playerElemnts[i]]);
 			}
-			if (currentRound == 2)
-			{
-				for (size_t i = 0; i < map->nrOfPlayers; i++)
-				{
-					renderer->gDeviceContext->PSSetShaderResources((i + 1), 1, &renderer->r2CUTextures[map->playerElemnts[i]]);
-				}
-			}
+
+
 			renderer->gDeviceContext->Draw(24, 0);
 			this->setUpgradesArrowPos(map);
 
@@ -302,7 +299,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	}
 	else if (currentState == GameState::EndRound)
 	{
-		for (size_t i = 0; i < 4; i++)
+		for (size_t i = 0; i < map->nrOfPlayers; i++)
 		{
 			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
 		}
@@ -310,7 +307,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	}
 	else if (currentState == GameState::ChoosePowers)
 	{
-		for (size_t i = 0; i < 4; i++)
+		for (size_t i = 0; i < map->nrOfPlayers; i++)
 		{
 			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
 		}
@@ -593,11 +590,11 @@ void Menu::setReady(Map * map)
 	{
 		m_spriteBatch->Draw(m_readyTexture.Get(), DirectX::XMFLOAT2(0.0f + offsetX, 0.0f), nullptr, Colors::White, 0.f, m_origin);
 	}
-	if (this->ready[2])
+	if (this->ready[2] && map->nrOfPlayers == 3)
 	{
 		m_spriteBatch->Draw(m_readyTexture.Get(), DirectX::XMFLOAT2(0.0f, 0.0f + offsetY), nullptr, Colors::White, 0.f, m_origin);
 	}
-	if (this->ready[3])
+	if (this->ready[3] && map->nrOfPlayers == 4)
 	{
 		m_spriteBatch->Draw(m_readyTexture.Get(), DirectX::XMFLOAT2(0.0f + offsetX, 0.0f + offsetY), nullptr, Colors::White, 0.f, m_origin);
 	}
