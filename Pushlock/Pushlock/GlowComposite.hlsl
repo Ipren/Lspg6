@@ -11,7 +11,12 @@ SamplerState Sampler : register(s0);
 float4 PS(VSOut input) : SV_Target
 {
 	float4 src = Source.Sample(Sampler, input.Uv);
-	float4 glow = Glow.Sample(Sampler, input.Uv);
 
-	return src + glow;
+	float4 glow = 0;
+	[unroll]
+	for (int i = 2; i < 8; ++i) {
+		glow += Glow.SampleLevel(Sampler, input.Uv, i);
+	}
+	
+	return src + glow / 6.f;
 }

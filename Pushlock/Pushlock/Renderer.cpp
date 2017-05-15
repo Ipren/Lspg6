@@ -189,10 +189,11 @@ void Renderer::createBlurPass()
 {
 	D3D11_SAMPLER_DESC sadesc;
 	ZeroMemory(&sadesc, sizeof(sadesc));
-	sadesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sadesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sadesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sadesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sadesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sadesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sadesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sadesc.MaxLOD = 8.f;
 	DXCALL(gDevice->CreateSamplerState(&sadesc, &blur_fs_sampler));
 
 	D3D11_TEXTURE2D_DESC tex_desc;
@@ -200,21 +201,35 @@ void Renderer::createBlurPass()
 	tex_desc.Width = WIDTH;
 	tex_desc.Height = HEIGHT;
 	tex_desc.Usage = D3D11_USAGE_DEFAULT;
-	tex_desc.MipLevels = 1;
+	tex_desc.MipLevels = 8;
 	tex_desc.ArraySize = 1;
 	tex_desc.SampleDesc.Count = 1;
 	tex_desc.SampleDesc.Quality = 0;
-	tex_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	tex_desc.Format = DXGI_FORMAT_R16G16B16A16_TYPELESS;
 	tex_desc.CPUAccessFlags = 0;
 	tex_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	tex_desc.MiscFlags = 0;
+	tex_desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC sdesc;
+	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	sdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	sdesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	sdesc.Texture2D.MipLevels = 8;
+	sdesc.Texture2D.MostDetailedMip = 0;
+
+	D3D11_RENDER_TARGET_VIEW_DESC rdesc;
+	ZeroMemory(&rdesc, sizeof(D3D11_RENDER_TARGET_VIEW_DESC));
+	rdesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rdesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	rdesc.Texture2D.MipSlice = 0;
+	
 	ID3D11Texture2D *blurtex[2];
 	for (int i = 0; i < 2; ++i) {
 		DXCALL(gDevice->CreateTexture2D(&tex_desc, nullptr, &blurtex[i]));
 
-		DXCALL(gDevice->CreateShaderResourceView(blurtex[i], nullptr, &blur_srv[i]));
-		DXCALL(gDevice->CreateRenderTargetView(blurtex[i], nullptr, &blur_rtv[i]));
+		DXCALL(gDevice->CreateShaderResourceView(blurtex[i], &sdesc, &blur_srv[i]));
+		DXCALL(gDevice->CreateRenderTargetView(blurtex[i], &rdesc, &blur_rtv[i]));
+		gDeviceContext->GenerateMips(blur_srv[i]);
 	}
 
 	SetDebugObjectName(blur_srv[0], "Blur SRV #0");
@@ -2167,18 +2182,6 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	setViewPort(WIDTH, HEIGHT);
 }
 
-/*
-
-forward_pass() -> Fwd;
-
-particle_pass(Fwd[Brightness_2], Distort) -> (Brightness_2[Fwd], Brightness_1);
-
-blur_pass_x(Brightness_1) -> Brightness_2[Fwd];
-blur_pass_y(Brightness_2[Fwd]) -> Brightness_1;
-
-composite(Fwd[Brightness_2], Brightness_1) -> Backbuffer;
-*/
-
 void Renderer::renderBlurPass(Map * map, Camera * cam)
 {
 	UINT32 stride = sizeof(float) * 4;
@@ -2190,7 +2193,8 @@ void Renderer::renderBlurPass(Map * map, Camera * cam)
 
 	gDeviceContext->PSSetSamplers(0, 1, &blur_fs_sampler);
 
-	gDeviceContext->OMSetRenderTargets(1, &blur_rtv[1], nullptr);
+	// todo: remove, gammalt
+	/*gDeviceContext->OMSetRenderTargets(1, &blur_rtv[1], nullptr);
 	gDeviceContext->PSSetShader(gaussian_x_ps, nullptr, 0);
 	gDeviceContext->PSSetShaderResources(0, 1, &blur_srv[0]);
 	gDeviceContext->Draw(6, 0);
@@ -2201,12 +2205,12 @@ void Renderer::renderBlurPass(Map * map, Camera * cam)
 	gDeviceContext->OMSetRenderTargets(1, &blur_rtv[0], nullptr);
 	gDeviceContext->PSSetShader(gaussian_y_ps, nullptr, 0);
 	gDeviceContext->PSSetShaderResources(0, 1, &blur_srv[1]);
-	gDeviceContext->Draw(6, 0);
+	gDeviceContext->Draw(6, 0);*/
 
 	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, nullptr);
 	gDeviceContext->PSSetShader(blur_composite, nullptr, 0);
 	gDeviceContext->PSSetShaderResources(0, 1, &default_srv);
-	gDeviceContext->PSSetShaderResources(1, 1, &blur_srv[1]);
+	gDeviceContext->PSSetShaderResources(1, 1, &blur_srv[0]);
 	gDeviceContext->Draw(6, 0);
 }
 
@@ -2666,6 +2670,8 @@ void Renderer::render(Map *map, Camera *camera)
 	this->renderParticles(camera);
 	
 	FXSystem->render(camera, default_rtv, default_srv, blur_rtv[0], blur_rtv[1]);
+	gDeviceContext->GenerateMips(blur_srv[0]);
+	// TODO: behövs antagligen inte mer
 	std::swap(default_rtv, blur_rtv[1]);
 	std::swap(default_srv, blur_srv[1]);
 	renderBlurPass(map, camera);
