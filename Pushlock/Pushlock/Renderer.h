@@ -53,7 +53,6 @@ public:
 	Mesh *mapmesh;
 	ID3D11PixelShader *cuPS;
 	ID3D11ShaderResourceView *r1CUTextures[5];
-	ID3D11ShaderResourceView *r2CUTextures[5];
 
 	ID3D11RasterizerState *ShadowRaster;
 	ID3D11RasterizerState *DefaultRaster;

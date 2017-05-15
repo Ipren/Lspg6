@@ -1387,27 +1387,6 @@ void Renderer::loadTexture()
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
 
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR2Arcane.png ", &texture, &this->r2CUTextures[0]);
-	if (FAILED(hr)) {
-		MessageBox(0, L"texture creation failed", L"error", MB_OK);
-	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR2Fire.png ", &texture, &this->r2CUTextures[1]);
-	if (FAILED(hr)) {
-		MessageBox(0, L"texture creation failed", L"error", MB_OK);
-	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR2Wind.png ", &texture, &this->r2CUTextures[2]);
-	if (FAILED(hr)) {
-		MessageBox(0, L"texture creation failed", L"error", MB_OK);
-	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR2Earth.png ", &texture, &this->r2CUTextures[3]);
-	if (FAILED(hr)) {
-		MessageBox(0, L"texture creation failed", L"error", MB_OK);
-	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR2Water.png ", &texture, &this->r2CUTextures[4]);
-	if (FAILED(hr)) {
-		MessageBox(0, L"texture creation failed", L"error", MB_OK);
-	}
-
 	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/mapTexture.png ", &texture, &this->mapTexture);
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
