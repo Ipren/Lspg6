@@ -153,6 +153,7 @@ Menu::Menu(Renderer* renderer)
 
 
 	//rest of the rounds
+	//temp
 	for (size_t i = 3; i < 8; i++)
 	{
 		for (size_t j = 0; j < 5; j++)
@@ -652,10 +653,32 @@ void Menu::drawUpgradeText(Map * map)
 
 	for (size_t i = 0; i < map->nrOfPlayers; i++)
 	{
-		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Round: ") + std::to_wstring(gMapConstants.round)).c_str(), this->textPos[i][0], Colors::Black);
+		//round syns redan på upgrade menyn
+		//m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Round: ") + std::to_wstring(gMapConstants.round)).c_str(), this->textPos[i][0], Colors::Black);
 		for (size_t j = 1; j < 5; j++)
 		{
-			m_spriteFont->DrawString(m_spriteBatch.get(), this->uStrings[gMapConstants.round - 1][map->playerElemnts[i]][j - 1].c_str(), this->textPos[i][j], Colors::Black);
+			XMVECTOR col;
+			if (map->playerElemnts[i] == 0)//Arcane
+			{
+				col = XMVectorSet(.588f, 1.f, .965f, 1.f);
+			}
+			else if (map->playerElemnts[i] == 1)//Fire
+			{
+				col = XMVectorSet(1.f, 1.f, 1.f, 1.f);
+			}
+			else if (map->playerElemnts[i] == 2)//Wind
+			{
+				col = XMVectorSet(0.f, 0.f, 0.f, 1.f);
+			}
+			else if (map->playerElemnts[i] == 3)//Earth
+			{
+				col = XMVectorSet(0.f, .580f, 1.f, 1.f);
+			}
+			else if (map->playerElemnts[i] == 4)//Water
+			{
+				col = XMVectorSet(1.f, .929f, .400f, 1.f);
+			}
+			m_spriteFont->DrawString(m_spriteBatch.get(), this->uStrings[gMapConstants.round - 1][map->playerElemnts[i]][j - 1].c_str(), this->textPos[i][j], col);
 		}
 	}
 }
