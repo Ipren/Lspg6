@@ -57,7 +57,7 @@ float4 main(in VS_OUT input) : SV_TARGET
 
     if(c.r > 0.27)
     {
-        c.r += 0.5f;
+        c.r += 0.52f;
     }
     
     float3 lightDir = normalize(dLightDirection);
