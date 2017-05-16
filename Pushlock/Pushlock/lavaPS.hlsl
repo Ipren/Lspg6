@@ -51,8 +51,8 @@ float4 main(in VS_OUT input) : SV_TARGET
 
     
     float2 texcoord = input.uv;
-    float distortion = sin(texcoord.y * offset + dTime * 0.003f);
-    distortion /= 1000;
+    float distortion = sin(texcoord.y * offset + dTime * 0.0042f);
+    distortion /= 938.0f;
     float4 c = mapTexture.Sample(ShadowSampler, float2(texcoord.x + distortion, texcoord.y));
 
     
