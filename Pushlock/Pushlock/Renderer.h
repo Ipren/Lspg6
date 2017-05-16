@@ -162,6 +162,8 @@ private:
 	ID3D11Buffer* lavaBuffer;
 	ID3D11ShaderResourceView *lavaTexture;
 	ID3D11VertexShader* lavaVS;
+	ID3D11PixelShader* lavaPS;
+	ID3D11Buffer* heatHazeBuffer;
 
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;

@@ -176,10 +176,13 @@ Renderer::~Renderer()
 	this->mapVBuffer->Release();
 	this->shrinkBuffer->Release();
 	this->mapTexture->Release();
+	this->mapBlendState->Release();
 
 	this->lavaBuffer->Release();
 	this->lavaTexture->Release();
 	this->lavaVS->Release();
+	this->lavaPS->Release();
+	this->heatHazeBuffer->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -1744,6 +1747,16 @@ void Renderer::createMapResurces()
 		MessageBox(0, L" map pixel shader creation failed", L"error", MB_OK);
 	}
 
+
+
+	psBlob = compile_shader(L"lavaPS.hlsl", "main", "ps_5_0", gDevice);
+
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->lavaPS);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" lava pixel shader creation failed", L"error", MB_OK);
+	}
+
 	psBlob->Release();
 
 	struct TriangleVertex
@@ -1835,6 +1848,14 @@ void Renderer::createMapResurces()
 	{
 		MessageBox(0, L" map shrink buffer creation failed", L"error", MB_OK);
 	}
+
+	hr = this->gDevice->CreateBuffer(&bufferDesc, &data, &this->heatHazeBuffer);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" heat haze buffer creation failed", L"error", MB_OK);
+	}
+
 
 	D3D11_BLEND_DESC BlendState;
 	ZeroMemory(&BlendState, sizeof(D3D11_BLEND_DESC));
