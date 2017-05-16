@@ -23,14 +23,20 @@ cbuffer pLightCount : register(b4)
     uint nrOfPointLights;
 }
 
-cbuffer heatHaze : register(b4)
+cbuffer heatHaze : register(b6)
 {
     float offset;
 };
 
+cbuffer deltaTime : register(b7)
+{
+    float dTime;
+}
+
 StructuredBuffer<PointLight> pLights : register(t0);
 
 static const float3 normal = float3(0.0f, 1.0f, 0.0f);
+
 
 struct VS_OUT
 {
@@ -43,8 +49,11 @@ struct VS_OUT
 float4 main(in VS_OUT input) : SV_TARGET
 {
 
+    
     float2 texcoord = input.uv;
-    float4 c = mapTexture.Sample(ShadowSampler, texcoord);
+    float distortion = sin(texcoord.y * offset + dTime * 0.003f);
+    distortion /= 1000;
+    float4 c = mapTexture.Sample(ShadowSampler, float2(texcoord.x + distortion, texcoord.y));
 
     
     float3 lightDir = normalize(dLightDirection);

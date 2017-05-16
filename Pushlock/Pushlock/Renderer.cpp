@@ -2051,7 +2051,7 @@ void Renderer::updateHPBuffers(Player *player)
 
 void Renderer::updateheatHaze()
 {
-	this->heatHazeCounter += 1.0f;
+	this->heatHazeCounter += rand() + 1.0f;
 
 
 	D3D11_MAPPED_SUBRESOURCE data;
@@ -2282,6 +2282,7 @@ void Renderer::renderMap(Camera * cam)
 	gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
 	gDeviceContext->PSSetConstantBuffers(5, 1, &this->shadow_wvp_buffer);
 	gDeviceContext->PSSetConstantBuffers(6, 1, &this->heatHazeBuffer);
+	gDeviceContext->PSSetConstantBuffers(7, 1, &this->deltaTimeBuffer);
 	gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 	gDeviceContext->PSSetShaderResources(1, 1, &this->DepthBufferSRV);
 	gDeviceContext->PSSetShaderResources(2, 1, &this->lavaTexture);
