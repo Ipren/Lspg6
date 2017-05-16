@@ -2281,12 +2281,13 @@ void Renderer::renderMap(Camera * cam)
 	gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 	gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
 	gDeviceContext->PSSetConstantBuffers(5, 1, &this->shadow_wvp_buffer);
+	gDeviceContext->PSSetConstantBuffers(6, 1, &this->heatHazeBuffer);
 	gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 	gDeviceContext->PSSetShaderResources(1, 1, &this->DepthBufferSRV);
 	gDeviceContext->PSSetShaderResources(2, 1, &this->lavaTexture);
 	gDeviceContext->PSSetSamplers(0, 1, &this->shadowMapSampler);
 	gDeviceContext->VSSetShader(this->lavaVS, nullptr, 0);
-	gDeviceContext->PSSetShader(this->MapPS, nullptr, 0);
+	gDeviceContext->PSSetShader(this->lavaPS, nullptr, 0);
 
 	gDeviceContext->Draw(6, 0);
 
