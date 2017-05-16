@@ -176,6 +176,7 @@ private:
 	float lastParticleInsert;
 	int pointLightCount;
 	float toatlShrunkAmount;
+	float heatHazeCounter;
 
 	//void create_menu();
 	void create_debug_entity();
@@ -213,6 +214,7 @@ private:
 	void updatePointLights(Map *map);
 	void updatecooldownGUI(Player *player);
 	void updateHPBuffers(Player *player);
+	void updateheatHaze();
 
 	void renderShadowMap(Map *map, Camera *cam);
 

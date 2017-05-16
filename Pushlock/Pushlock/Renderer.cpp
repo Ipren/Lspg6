@@ -58,6 +58,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->lastParticleInsert = 0.0f;
 	this->emitterCount = 0;
 	this->toatlShrunkAmount = 0.0f;
+	this->heatHazeCounter = 0.0f;
 
 	this->createDirect3DContext(wndHandle);
 	this->createDepthBuffers();
@@ -2048,6 +2049,18 @@ void Renderer::updateHPBuffers(Player *player)
 
 }
 
+void Renderer::updateheatHaze()
+{
+	this->heatHazeCounter += 1.0f;
+
+
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->heatHazeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &this->heatHazeCounter, sizeof(float));
+	this->gDeviceContext->Unmap(this->heatHazeBuffer, 0);
+
+}
+
 void Renderer::renderShadowMap(Map * map, Camera * camera)
 {
 	float clear[] = { 0.f, 0.f, 0.f, 1.0f };
@@ -2600,6 +2613,7 @@ void Renderer::update(float dt, Map *map, Camera *camera)
 	FXSystem->update(camera, dt);
 	this->updateParticles(dt, map);
 	this->updatePointLights(map);
+	this->updateheatHaze();
 	if (map->shrunk == true)
 	{
 		map->shrunk = false;
