@@ -55,6 +55,10 @@ float4 main(in VS_OUT input) : SV_TARGET
     distortion /= 938.0f;
     float4 c = mapTexture.Sample(ShadowSampler, float2(texcoord.x + distortion, texcoord.y));
 
+    if(c.r > 0.27)
+    {
+        c.r += 0.5f;
+    }
     
     float3 lightDir = normalize(dLightDirection);
     float3 diffuse = saturate(dot(normal, lightDir));
@@ -66,5 +70,5 @@ float4 main(in VS_OUT input) : SV_TARGET
 
     diffuse += CalcPointLights(pLights, input.wPos, normal, nrOfPointLights);
 
-    return float4(diffuse + ambient + 0.2 * shadow, c.w);
+    return float4(diffuse * shadow, c.w);
 }
