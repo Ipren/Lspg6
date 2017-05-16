@@ -2054,24 +2054,26 @@ void Renderer::updateheatHaze()
 {
 	if (gb)
 	{
-		this->heatHazeCounter += rand() + 1.0f;
+		this->heatHazeCounter += rand() + 0.42f;
 	}
 	else
 	{
-		this->heatHazeCounter -= rand() - 1.0f;
+		this->heatHazeCounter -= rand() - 0.42f;
 	}
 	
 
-	if (this->heatHazeCounter > 10000000.0f)
+	if (this->heatHazeCounter > 20000000.0f)
 	{
 		this->gb = false;
 		//this->heatHazeCounter = 0.0f;
 	}
-	if (this->heatHazeCounter < -10000000.0f)
+	if (this->heatHazeCounter < -20000000.0f)
 	{
 		this->gb = true;
 	}
 
+
+	//this->heatHazeCounter += 0.1f;
 
 	D3D11_MAPPED_SUBRESOURCE data;
 	this->gDeviceContext->Map(this->heatHazeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
