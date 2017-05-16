@@ -156,13 +156,43 @@ Menu::Menu(Renderer* renderer)
 	//temp
 	for (size_t i = 3; i < 8; i++)
 	{
-		for (size_t j = 0; j < 5; j++)
+		/*for (size_t j = 0; j < 5; j++)
 		{
 			for (size_t k = 0; k < 4; k++)
 			{
 				this->uStrings[i][j][k] = L"No text";
 			}
-		}
+		}*/
+
+		//arcane
+		this->uStrings[i][0][0] = L"X: Shorter projectile cooldown";
+		this->uStrings[i][0][1] = L"Y: Higher projectile speed";
+		this->uStrings[i][0][2] = L"A: Improves seeking";
+		this->uStrings[i][0][3] = L"B: Projectile lives longer";
+
+		//fire
+		this->uStrings[i][1][0] = L"X: Stonger projectile";
+		this->uStrings[i][1][1] = L"Y: Stronger stomp";
+		this->uStrings[i][1][2] = L"A: Larger explotion Radius";
+		this->uStrings[i][1][3] = L"B: More health";
+
+		//wind
+		this->uStrings[i][2][0] = L"X: Faster projectile";
+		this->uStrings[i][2][1] = L"Y: Stronger stomp";
+		this->uStrings[i][2][2] = L"A: Stronger projectiles";
+		this->uStrings[i][2][3] = L"B: Shorter dash cooldown";
+
+		//earth
+		this->uStrings[i][3][0] = L"X: Faster projectile";
+		this->uStrings[i][3][1] = L"Y: Larger projectile effect radius";
+		this->uStrings[i][3][2] = L"A: Less pushback";
+		this->uStrings[i][3][3] = L"B: Stronger stomp";
+
+		//water
+		this->uStrings[i][4][0] = L"X: Faster projectile";
+		this->uStrings[i][4][1] = L"Y: Larger stomp distance";
+		this->uStrings[i][4][2] = L"A: Stronger projectles";
+		this->uStrings[i][4][3] = L"B: Shorter wall cooldown";
 	}
 
 	float offsetX = WIDTH / 2.0f;
