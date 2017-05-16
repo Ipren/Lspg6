@@ -177,6 +177,7 @@ private:
 	int pointLightCount;
 	float toatlShrunkAmount;
 	float heatHazeCounter;
+	bool gb;
 
 	//void create_menu();
 	void create_debug_entity();

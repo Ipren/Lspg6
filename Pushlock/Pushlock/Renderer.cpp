@@ -51,6 +51,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->nullSRV = nullptr;
 	this->nullUAV = nullptr;
 	this->nullRTV = nullptr;
+	this->gb = true;
 
 	this->height = height;
 	this->width = width;
@@ -2051,7 +2052,25 @@ void Renderer::updateHPBuffers(Player *player)
 
 void Renderer::updateheatHaze()
 {
-	this->heatHazeCounter += rand() + 1.0f;
+	if (gb)
+	{
+		this->heatHazeCounter += rand() + 1.0f;
+	}
+	else
+	{
+		this->heatHazeCounter -= rand() - 1.0f;
+	}
+	
+
+	if (this->heatHazeCounter > 10000000.0f)
+	{
+		this->gb = false;
+		//this->heatHazeCounter = 0.0f;
+	}
+	if (this->heatHazeCounter < -10000000.0f)
+	{
+		this->gb = true;
+	}
 
 
 	D3D11_MAPPED_SUBRESOURCE data;
