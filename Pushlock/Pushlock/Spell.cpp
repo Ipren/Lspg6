@@ -256,7 +256,7 @@ bool FireWallSpell::on_effect(Map * map)
 						dash = false;
 				if (dash == false || result.entity->type == EntityType::Spell)
 				{
-					if (pUpgrades[owner->index].choice[1] == 1 && result.entity->type == EntityType::Player)
+					if (pUpgrades[owner->index].choice[1] == 2 && result.entity->type == EntityType::Player)
 					{
 						Player* victim = dynamic_cast<Player*>(result.entity);
 						if (victim != nullptr && victim != owner)

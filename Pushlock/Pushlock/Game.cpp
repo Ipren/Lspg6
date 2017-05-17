@@ -313,8 +313,20 @@ bool Game::update(float dt)
 
 		if (ImGui::Button("Main Menu")) {//start the main menu
 			currentState = GameState::MainMenu;
-			gMapConstants.round = 1;
 			this->currentMap->reset(4);
+
+			for (size_t i = 0; i < 4; i++)
+			{
+				pUpgrades[i].choice[0] = 0;
+				pUpgrades[i].choice[1] = 0;
+				pUpgrades[i].choice[2] = 0;
+			}
+
+			gMapConstants.round = 1;
+			for (int i = 0; i < 4; i++)
+			{
+				currentMap->playerPoints[i] = 0;
+			}
 		}
 		int i = 0;
 		for (i; i < currentMap->nrOfAlivePlayers; i++)//showing players health
