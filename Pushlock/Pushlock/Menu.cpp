@@ -390,7 +390,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		this->setReady(map);
 	}
 	auto pos = ImGui::GetIO();// .MousePos();
-	m_spriteFont->DrawString(m_spriteBatch.get(), L"Detta ar en font", XMFLOAT2(pos.MousePos.x, pos.MousePos.y), Colors::HotPink);
+	m_spriteFont->DrawString(m_spriteBatch.get(), L"No mouse required", XMFLOAT2(pos.MousePos.x-100.f, pos.MousePos.y), Colors::HotPink);
 
 	m_spriteBatch->End();
 
@@ -720,7 +720,7 @@ void Menu::setSelectedPos(GameState currentState)
 		if (selectedButton == 0)
 		{
 			catPos.x = 375;
-			catPos.y = 200;
+			catPos.y = 225;
 		}
 		else if (selectedButton == 1) {
 			catPos.x = 375;
@@ -728,11 +728,11 @@ void Menu::setSelectedPos(GameState currentState)
 		}
 		else if (selectedButton == 2) {
 			catPos.x = 375;
-			catPos.y = 500;
+			catPos.y = 480;
 		}
 		else if (selectedButton == 3) {
 			catPos.x = 375;
-			catPos.y = 650;
+			catPos.y = 610;
 		}
 	}
 }
