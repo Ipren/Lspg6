@@ -85,7 +85,11 @@ enum spellSounds
 	arcaneWall, 
 	earthWall,
 	windWall,
-	waterWall
+	waterWall,
+	arcaneHit,
+	teleport,
+	fartStomp,
+	playerDeath
 };
 
 struct debuf

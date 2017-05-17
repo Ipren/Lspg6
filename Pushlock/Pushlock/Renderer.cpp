@@ -51,6 +51,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->nullSRV = nullptr;
 	this->nullUAV = nullptr;
 	this->nullRTV = nullptr;
+	this->gb = true;
 
 	this->height = height;
 	this->width = width;
@@ -58,6 +59,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->lastParticleInsert = 0.0f;
 	this->emitterCount = 0;
 	this->toatlShrunkAmount = 0.0f;
+	this->heatHazeCounter = 0.0f;
 
 	this->createDirect3DContext(wndHandle);
 	this->createDepthBuffers();
@@ -176,6 +178,13 @@ Renderer::~Renderer()
 	this->mapVBuffer->Release();
 	this->shrinkBuffer->Release();
 	this->mapTexture->Release();
+	this->mapBlendState->Release();
+
+	this->lavaBuffer->Release();
+	this->lavaTexture->Release();
+	this->lavaVS->Release();
+	this->lavaPS->Release();
+	this->heatHazeBuffer->Release();
 
 	/*this->debugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);*/
 	this->debugDevice->Release();
@@ -1358,23 +1367,23 @@ void Renderer::loadTexture()
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR1arcane.png ", &texture, &this->r1CUTextures[0]);
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuArcane.png ", &texture, &this->r1CUTextures[0]);
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR1fire.png ", &texture, &this->r1CUTextures[1]);
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuFire.png ", &texture, &this->r1CUTextures[1]);
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR1Wind.png ", &texture, &this->r1CUTextures[2]);
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuWind.png ", &texture, &this->r1CUTextures[2]);
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR1earth.png ", &texture, &this->r1CUTextures[3]);
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuEarth.png ", &texture, &this->r1CUTextures[3]);
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR1water.png ", &texture, &this->r1CUTextures[4]);
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuWater.png ", &texture, &this->r1CUTextures[4]);
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
@@ -1383,28 +1392,11 @@ void Renderer::loadTexture()
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
 
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR2Arcane.png ", &texture, &this->r2CUTextures[0]);
-	if (FAILED(hr)) {
-		MessageBox(0, L"texture creation failed", L"error", MB_OK);
-	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR2Fire.png ", &texture, &this->r2CUTextures[1]);
-	if (FAILED(hr)) {
-		MessageBox(0, L"texture creation failed", L"error", MB_OK);
-	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR2Wind.png ", &texture, &this->r2CUTextures[2]);
-	if (FAILED(hr)) {
-		MessageBox(0, L"texture creation failed", L"error", MB_OK);
-	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR2Earth.png ", &texture, &this->r2CUTextures[3]);
-	if (FAILED(hr)) {
-		MessageBox(0, L"texture creation failed", L"error", MB_OK);
-	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/cuR2Water.png ", &texture, &this->r2CUTextures[4]);
-	if (FAILED(hr)) {
-		MessageBox(0, L"texture creation failed", L"error", MB_OK);
-	}
-
 	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/mapTexture.png ", &texture, &this->mapTexture);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/lavaTexture.png ", &texture, &this->lavaTexture);
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
@@ -1716,24 +1708,18 @@ void Renderer::createCUShaders()
 void Renderer::createMapResurces()
 {
 	HRESULT hr;
-	ID3DBlob* vsBlob = nullptr;
-	hr = D3DCompileFromFile(
-		L"MapVS.hlsl",
-		nullptr,
-		nullptr,
-		"main",
-		"vs_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0,
-		&vsBlob,
-		nullptr);
+	ID3DBlob* vsBlob = compile_shader(L"MapVS.hlsl", "main", "vs_5_0", gDevice);
+
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->MapVS);
 
 	if (FAILED(hr))
 	{
-		MessageBox(0, L"map vsblob creation failed", L"error", MB_OK);
+		MessageBox(0, L" map vertex shader creation failed", L"error", MB_OK);
 	}
 
-	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->MapVS);
+	vsBlob = compile_shader(L"lavaVS.hlsl", "main", "vs_5_0", gDevice);
+
+	hr = this->gDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), NULL, &this->lavaVS);
 
 	if (FAILED(hr))
 	{
@@ -1755,26 +1741,22 @@ void Renderer::createMapResurces()
 
 	vsBlob->Release();
 
-	ID3DBlob *psBlob = nullptr;
-	hr = D3DCompileFromFile(
-		L"MapPS.hlsl",
-		NULL,
-		NULL,
-		"main",
-		"ps_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0,
-		&psBlob,
-		NULL);
-	if (FAILED(hr))
-	{
-		MessageBox(0, L"map psBlob creation failed", L"error", MB_OK);
-	}
+	ID3DBlob *psBlob = compile_shader(L"MapPS.hlsl", "main", "ps_5_0", gDevice);
 
 	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->MapPS);
 	if (FAILED(hr))
 	{
 		MessageBox(0, L" map pixel shader creation failed", L"error", MB_OK);
+	}
+
+
+
+	psBlob = compile_shader(L"lavaPS.hlsl", "main", "ps_5_0", gDevice);
+
+	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->lavaPS);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" lava pixel shader creation failed", L"error", MB_OK);
 	}
 
 	psBlob->Release();
@@ -1823,7 +1805,36 @@ void Renderer::createMapResurces()
 		MessageBox(0, L" map vBuffer creation failed", L"error", MB_OK);
 	}
 
+	TriangleVertex lavaTriangleVertices[6] =
+	{
+		22.5f, -0.19f, -22.5f, 1.0f,	//v0 pos
+		1.0f, 1.0f,
 
+		-22.5f, -0.19f, -22.5f, 1.0f,	//v1
+		0.0f, 1.0f,
+
+		-22.5f, -0.19f, 22.5f, 1.0f, //v2
+		0.0f,  0.0f,
+
+		//t2
+		-22.5f, -0.19f, 22.5f, 1.0f,//v0 pos
+		0.0f, 0.0f,
+
+		22.5f, -0.19f, 22.5f, 1.0f,//v1
+		1.0f, 0.0f,
+
+		22.5f, -0.19f, -22.5f, 1.0f,//v2
+		1.0f, 1.0f
+	};
+
+	data.pSysMem = lavaTriangleVertices;
+
+	hr = this->gDevice->CreateBuffer(&bufferDesc, &data, &this->lavaBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"lava vBuffer creation failed", L"error", MB_OK);
+	}
+	
 	ZeroMemory(&bufferDesc, sizeof(D3D11_BUFFER_DESC));
 
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -1839,6 +1850,14 @@ void Renderer::createMapResurces()
 	{
 		MessageBox(0, L" map shrink buffer creation failed", L"error", MB_OK);
 	}
+
+	hr = this->gDevice->CreateBuffer(&bufferDesc, &data, &this->heatHazeBuffer);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" heat haze buffer creation failed", L"error", MB_OK);
+	}
+
 
 	D3D11_BLEND_DESC BlendState;
 	ZeroMemory(&BlendState, sizeof(D3D11_BLEND_DESC));
@@ -2031,6 +2050,38 @@ void Renderer::updateHPBuffers(Player *player)
 
 }
 
+void Renderer::updateheatHaze()
+{
+	if (gb)
+	{
+		this->heatHazeCounter += rand() + 0.42f;
+	}
+	else
+	{
+		this->heatHazeCounter -= rand() - 0.42f;
+	}
+	
+
+	if (this->heatHazeCounter > 20000000.0f)
+	{
+		this->gb = false;
+		//this->heatHazeCounter = 0.0f;
+	}
+	if (this->heatHazeCounter < -20000000.0f)
+	{
+		this->gb = true;
+	}
+
+
+	//this->heatHazeCounter += 0.1f;
+
+	D3D11_MAPPED_SUBRESOURCE data;
+	this->gDeviceContext->Map(this->heatHazeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data);
+	memcpy(data.pData, &this->heatHazeCounter, sizeof(float));
+	this->gDeviceContext->Unmap(this->heatHazeBuffer, 0);
+
+}
+
 void Renderer::renderShadowMap(Map * map, Camera * camera)
 {
 	float clear[] = { 0.f, 0.f, 0.f, 1.0f };
@@ -2075,7 +2126,7 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 		//model = XMMatrixMultiply(XMMatrixRotationZ(270 * XM_PI / 180), model);
 		model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
 		model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
-
+		model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
 	
 		shadow_camera.world = model;
 
@@ -2238,30 +2289,35 @@ void Renderer::renderMap(Camera * cam)
 
 	UINT32 size = sizeof(float) * 6;
 	UINT32 offset = 0u;
-	gDeviceContext->IASetVertexBuffers(0, 1, &this->mapVBuffer, &size, &offset);
-	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT sampleMask = 0xffffffff;
 	gDeviceContext->OMSetBlendState(this->mapBlendState, blendFactor, sampleMask);
+	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	gDeviceContext->IASetVertexBuffers(0, 1, &this->lavaBuffer, &size, &offset);
 
-	gDeviceContext->VSSetShader(this->MapVS, nullptr, 0);
 	gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
-	gDeviceContext->VSSetConstantBuffers(1, 1, &this->shrinkBuffer);
-	gDeviceContext->PSSetShader(this->MapPS, nullptr, 0);
 	gDeviceContext->PSSetConstantBuffers(0, 1, &cam->wvp_buffer);
 	gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
 	gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 	gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 	gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
 	gDeviceContext->PSSetConstantBuffers(5, 1, &this->shadow_wvp_buffer);
-
+	gDeviceContext->PSSetConstantBuffers(6, 1, &this->heatHazeBuffer);
+	gDeviceContext->PSSetConstantBuffers(7, 1, &this->deltaTimeBuffer);
 	gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 	gDeviceContext->PSSetShaderResources(1, 1, &this->DepthBufferSRV);
-	gDeviceContext->PSSetShaderResources(2, 1, &this->mapTexture);
+	gDeviceContext->PSSetShaderResources(2, 1, &this->lavaTexture);
 	gDeviceContext->PSSetSamplers(0, 1, &this->shadowMapSampler);
+	gDeviceContext->VSSetShader(this->lavaVS, nullptr, 0);
+	gDeviceContext->PSSetShader(this->lavaPS, nullptr, 0);
 
+	gDeviceContext->Draw(6, 0);
 
+	gDeviceContext->IASetVertexBuffers(0, 1, &this->mapVBuffer, &size, &offset);
+	gDeviceContext->VSSetShader(this->MapVS, nullptr, 0);
+	gDeviceContext->VSSetConstantBuffers(1, 1, &this->shrinkBuffer);
+	gDeviceContext->PSSetShader(this->MapPS, nullptr, 0);
+	gDeviceContext->PSSetShaderResources(2, 1, &this->mapTexture);
 	gDeviceContext->Draw(6, 0);
 }
 
@@ -2524,7 +2580,7 @@ void Renderer::render(Map *map, Camera *camera)
 			}
 			gDeviceContext->Unmap(color_buffer, 0);
 
-			XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
+			XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y, entity->position.z);
 
 			camera->vals.world = model;
 			camera->update(0, gDeviceContext);
@@ -2538,6 +2594,8 @@ void Renderer::render(Map *map, Camera *camera)
 				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
 				model = XMMatrixMultiply(XMMatrixRotationX( 270* XM_PI / 180), model);
 				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+
+				model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
 
 				camera->vals.world = model;
 				camera->update(0, gDeviceContext);
@@ -2578,6 +2636,7 @@ void Renderer::update(float dt, Map *map, Camera *camera)
 	FXSystem->update(camera, dt);
 	this->updateParticles(dt, map);
 	this->updatePointLights(map);
+	this->updateheatHaze();
 	if (map->shrunk == true)
 	{
 		map->shrunk = false;

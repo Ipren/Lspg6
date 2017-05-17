@@ -19,6 +19,7 @@ public:
 	void setUpgradesArrowPos(Map *map);
 	void setPowerArrowPos(Map *map);
 	void setReady(Map *map);
+	void drawUpgradeText(Map *map);
 
 private:
 	struct mQuad
@@ -49,6 +50,9 @@ private:
 
 	DirectX::XMFLOAT2 arrowPos[5];
 	bool ready[4];
+
+	std::wstring uStrings[8][5][4];
+	DirectX::XMFLOAT2 textPos[4][5];
 
 	DirectX::XMFLOAT2 readyPos;
 	

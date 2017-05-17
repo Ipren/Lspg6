@@ -56,6 +56,176 @@ Menu::Menu(Renderer* renderer)
 
 	setSelectedPos(GameState::MainMenu);
 
+
+	//////////////////////round 1////////////////////////////////////////////
+	//arcane
+	this->uStrings[0][0][0] = L"X: Spilts the projectile into 3 weaker ones";
+	this->uStrings[0][0][1] = L"Y: Turns the dash into a teleport";
+	this->uStrings[0][0][2] = L"A: Improves seeking";
+	this->uStrings[0][0][3] = L"B: Projectile lives longer";
+
+	//fire
+	this->uStrings[0][1][0] = L"X: Gives your projectile a damage over time effect";
+	this->uStrings[0][1][1] = L"Y: Resets the cooldown of dash if you hit with a stomp";
+	this->uStrings[0][1][2] = L"A: Larger explotion Radius";
+	this->uStrings[0][1][3] = L"B: More health";
+
+	//wind
+	this->uStrings[0][2][0] = L"X: Refelcts projectiles when dashing";
+	this->uStrings[0][2][1] = L"Y: Can dash trough walls";
+	this->uStrings[0][2][2] = L"A: Stronger projectiles";
+	this->uStrings[0][2][3] = L"B: Shorter dash cooldown";
+
+	//earth
+	this->uStrings[0][3][0] = L"X: Stomps in a line infron of you";
+	this->uStrings[0][3][1] = L"Y: Stomp creates projectiles";
+	this->uStrings[0][3][2] = L"A: Less pushback";
+	this->uStrings[0][3][3] = L"B: Stronger stomp";
+
+	//water
+	this->uStrings[0][4][0] = L"X: Projectile hits slow";
+	this->uStrings[0][4][1] = L"Y: You can chooose when to split the projectile";
+	this->uStrings[0][4][2] = L"A: Stronger projectles";
+	this->uStrings[0][4][3] = L"B: Shorter wall cooldown";
+
+	//////////////////////round 2////////////////////////////////////////////
+	//arcane
+	this->uStrings[1][0][0] = L"X: Can return to the position you teleported from";
+	this->uStrings[1][0][1] = L"Y: Teleporting into someone causes knockback";
+	this->uStrings[1][0][2] = L"A: Improves seeking";
+	this->uStrings[1][0][3] = L"B: Projectile lives longer";
+
+	//fire
+	this->uStrings[1][1][0] = L"X: Dash leaves fire trail that applies a DOT";
+	this->uStrings[1][1][1] = L"Y: Wall applies a damage over time effect";
+	this->uStrings[1][1][2] = L"A: Larger explotion Radius";
+	this->uStrings[1][1][3] = L"B: More health";
+
+	//wind
+	this->uStrings[1][2][0] = L"X: Stomping creates a cloud that appleis a DOT";
+	this->uStrings[1][2][1] = L"Y: Stomping leaves a beacon that can stomp again";
+	this->uStrings[1][2][2] = L"A: Stronger projectiles";
+	this->uStrings[1][2][3] = L"B: Shorter dash cooldown";
+
+	//earth
+	this->uStrings[1][3][0] = L"X: Gives your walls spikes that causes damage";
+	this->uStrings[1][3][1] = L"Y: Wall attracts nearby entitys";
+	this->uStrings[1][3][2] = L"A: Less pushback";
+	this->uStrings[1][3][3] = L"B: Stronger stomp";
+
+	//water
+	this->uStrings[1][4][0] = L"X: Dashing causes greater knockback when colliding";
+	this->uStrings[1][4][1] = L"Y: Your dash leaves a ice patch after you";
+	this->uStrings[1][4][2] = L"A: Stronger projectles";
+	this->uStrings[1][4][3] = L"B: Shorter wall cooldown";
+
+
+	//////////////////////round 3////////////////////////////////////////////
+	//arcane
+	this->uStrings[2][0][0] = L"X: Shorter projectile cooldown";
+	this->uStrings[2][0][1] = L"Y: Higher projectile speed";
+	this->uStrings[2][0][2] = L"A: Improves seeking";
+	this->uStrings[2][0][3] = L"B: Projectile lives longer";
+
+	//fire
+	this->uStrings[2][1][0] = L"X: Stonger projectile";
+	this->uStrings[2][1][1] = L"Y: Stronger stomp";
+	this->uStrings[2][1][2] = L"A: Larger explotion Radius";
+	this->uStrings[2][1][3] = L"B: More health";
+
+	//wind
+	this->uStrings[2][2][0] = L"X: Faster projectile";
+	this->uStrings[2][2][1] = L"Y: Stronger stomp";
+	this->uStrings[2][2][2] = L"A: Stronger projectiles";
+	this->uStrings[2][2][3] = L"B: Shorter dash cooldown";
+
+	//earth
+	this->uStrings[2][3][0] = L"X: Faster projectile";
+	this->uStrings[2][3][1] = L"Y: Larger projectile effect radius";
+	this->uStrings[2][3][2] = L"A: Less pushback";
+	this->uStrings[2][3][3] = L"B: Stronger stomp";
+
+	//water
+	this->uStrings[2][4][0] = L"X: Faster projectile";
+	this->uStrings[2][4][1] = L"Y: Larger stomp distance";
+	this->uStrings[2][4][2] = L"A: Stronger projectles";
+	this->uStrings[2][4][3] = L"B: Shorter wall cooldown";
+
+
+	//rest of the rounds
+	//temp
+	for (size_t i = 3; i < 8; i++)
+	{
+		/*for (size_t j = 0; j < 5; j++)
+		{
+			for (size_t k = 0; k < 4; k++)
+			{
+				this->uStrings[i][j][k] = L"No text";
+			}
+		}*/
+
+		//arcane
+		this->uStrings[i][0][0] = L"X: Shorter projectile cooldown";
+		this->uStrings[i][0][1] = L"Y: Higher projectile speed";
+		this->uStrings[i][0][2] = L"A: Improves seeking";
+		this->uStrings[i][0][3] = L"B: Projectile lives longer";
+
+		//fire
+		this->uStrings[i][1][0] = L"X: Stonger projectile";
+		this->uStrings[i][1][1] = L"Y: Stronger stomp";
+		this->uStrings[i][1][2] = L"A: Larger explotion Radius";
+		this->uStrings[i][1][3] = L"B: More health";
+
+		//wind
+		this->uStrings[i][2][0] = L"X: Faster projectile";
+		this->uStrings[i][2][1] = L"Y: Stronger stomp";
+		this->uStrings[i][2][2] = L"A: Stronger projectiles";
+		this->uStrings[i][2][3] = L"B: Shorter dash cooldown";
+
+		//earth
+		this->uStrings[i][3][0] = L"X: Faster projectile";
+		this->uStrings[i][3][1] = L"Y: Larger projectile effect radius";
+		this->uStrings[i][3][2] = L"A: Less pushback";
+		this->uStrings[i][3][3] = L"B: Stronger stomp";
+
+		//water
+		this->uStrings[i][4][0] = L"X: Faster projectile";
+		this->uStrings[i][4][1] = L"Y: Larger stomp distance";
+		this->uStrings[i][4][2] = L"A: Stronger projectles";
+		this->uStrings[i][4][3] = L"B: Shorter wall cooldown";
+	}
+
+	float offsetX = WIDTH / 2.0f;
+	float offsetY = HEIGHT / 2.0f;
+
+	this->textPos[0][0] = { offsetX / 2 - 42, 73};
+	this->textPos[1][0] = { offsetX / 2 - 42 + offsetX, 73.0f };
+	this->textPos[2][0] = { offsetX / 2 - 42, 73.0f + offsetY };
+	this->textPos[3][0] = { offsetX / 2 - 42 + offsetX, 73.0f + offsetY };
+
+	this->textPos[0][1] = { 180.0f / 2 + 24.0f,  293.0f / 2 };
+	this->textPos[0][2] = { 180.0f / 2 + 24.0f, 389.0f / 2 };
+	this->textPos[0][3] = { 180.0f / 2 + 24.0f, 480.0f / 2 };
+	this->textPos[0][4] = { 180.0f / 2 + 24.0f, 579.0f / 2 };
+
+	
+	this->textPos[1][1] = { 180.0f / 2 + 24.0f + offsetX , 293.0f / 2 };
+	this->textPos[1][2] = { 180.0f / 2 + 24.0f + offsetX , 389.0f / 2 };
+	this->textPos[1][3] = { 180.0f / 2 + 24.0f + offsetX , 480.0f / 2 };
+	this->textPos[1][4] = { 180.0f / 2 + 24.0f + offsetX ,  579.0f / 2 };
+
+	this->textPos[2][1] = { 180.0f / 2 + 24.0f,  293.0f / 2 + offsetY };
+	this->textPos[2][2] = { 180.0f / 2 + 24.0f, 389.0f / 2 + offsetY };
+	this->textPos[2][3] = { 180.0f / 2 + 24.0f, 480.0f / 2 + offsetY };
+	this->textPos[2][4] = { 180.0f / 2 + 24.0f, 579.0f / 2 + offsetY };
+
+	this->textPos[3][1] = { 180.0f / 2 + 24.0f + offsetX , 293.0f / 2 + offsetY };
+	this->textPos[3][2] = { 180.0f / 2 + 24.0f + offsetX , 389.0f / 2 + offsetY };
+	this->textPos[3][3] = { 180.0f / 2 + 24.0f + offsetX , 480.0f / 2 + offsetY };
+	this->textPos[3][4] = { 180.0f / 2 + 24.0f + offsetX , 579.0f / 2 + offsetY };
+	
+
+
 }
 
 Menu::~Menu()
@@ -110,9 +280,13 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 			renderer->gDeviceContext->DSSetShader(nullptr, nullptr, 0);
 			renderer->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 			renderer->gDeviceContext->PSSetShader(renderer->cuPS, nullptr, 0);
-			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cpMenuTexture);
-
+			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->cuMenuTexture);
 			for (size_t i = 1; i < 5; i++)
+			{
+				renderer->gDeviceContext->PSSetShaderResources(i, 1, &renderer->cuMenuTexture);
+			}
+
+			for (size_t i = 1; i < map->nrOfPlayers +1; i++)
 			{
 				renderer->gDeviceContext->PSSetShaderResources(i, 1, &renderer->cpMenuTexture);
 			}
@@ -143,22 +317,16 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 			{
 				renderer->gDeviceContext->PSSetShaderResources(i, 1, &renderer->cuMenuTexture);
 			}
-			if (currentRound == 1)
+
+			for (size_t i = 0; i < map->nrOfPlayers; i++)
 			{
-				for (size_t i = 0; i < map->nrOfPlayers; i++)
-				{
-					renderer->gDeviceContext->PSSetShaderResources((i + 1), 1, &renderer->r1CUTextures[map->playerElemnts[i]]);
-				}
+				renderer->gDeviceContext->PSSetShaderResources((i + 1), 1, &renderer->r1CUTextures[map->playerElemnts[i]]);
 			}
-			if (currentRound == 2)
-			{
-				for (size_t i = 0; i < map->nrOfPlayers; i++)
-				{
-					renderer->gDeviceContext->PSSetShaderResources((i + 1), 1, &renderer->r2CUTextures[map->playerElemnts[i]]);
-				}
-			}
+
+
 			renderer->gDeviceContext->Draw(24, 0);
 			this->setUpgradesArrowPos(map);
+			this->drawUpgradeText(map);
 
 		}
 		else if (currentState == GameState::EndGame)
@@ -207,7 +375,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	}
 	else if (currentState == GameState::EndRound)
 	{
-		for (size_t i = 0; i < 4; i++)
+		for (size_t i = 0; i < map->nrOfPlayers; i++)
 		{
 			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
 		}
@@ -215,7 +383,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	}
 	else if (currentState == GameState::ChoosePowers)
 	{
-		for (size_t i = 0; i < 4; i++)
+		for (size_t i = 0; i < map->nrOfPlayers; i++)
 		{
 			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
 		}
@@ -498,16 +666,51 @@ void Menu::setReady(Map * map)
 	{
 		m_spriteBatch->Draw(m_readyTexture.Get(), DirectX::XMFLOAT2(0.0f + offsetX, 0.0f), nullptr, Colors::White, 0.f, m_origin);
 	}
-	if (this->ready[2])
+	if (this->ready[2] && map->nrOfPlayers == 3)
 	{
 		m_spriteBatch->Draw(m_readyTexture.Get(), DirectX::XMFLOAT2(0.0f, 0.0f + offsetY), nullptr, Colors::White, 0.f, m_origin);
 	}
-	if (this->ready[3])
+	if (this->ready[3] && map->nrOfPlayers == 4)
 	{
 		m_spriteBatch->Draw(m_readyTexture.Get(), DirectX::XMFLOAT2(0.0f + offsetX, 0.0f + offsetY), nullptr, Colors::White, 0.f, m_origin);
 	}
 
 
+}
+
+void Menu::drawUpgradeText(Map * map)
+{
+
+	for (size_t i = 0; i < map->nrOfPlayers; i++)
+	{
+		//round syns redan på upgrade menyn
+		//m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Round: ") + std::to_wstring(gMapConstants.round)).c_str(), this->textPos[i][0], Colors::Black);
+		for (size_t j = 1; j < 5; j++)
+		{
+			XMVECTOR col;
+			if (map->playerElemnts[i] == 0)//Arcane
+			{
+				col = XMVectorSet(.588f, 1.f, .965f, 1.f);
+			}
+			else if (map->playerElemnts[i] == 1)//Fire
+			{
+				col = XMVectorSet(1.f, 1.f, 1.f, 1.f);
+			}
+			else if (map->playerElemnts[i] == 2)//Wind
+			{
+				col = XMVectorSet(0.f, 0.f, 0.f, 1.f);
+			}
+			else if (map->playerElemnts[i] == 3)//Earth
+			{
+				col = XMVectorSet(0.f, .580f, 1.f, 1.f);
+			}
+			else if (map->playerElemnts[i] == 4)//Water
+			{
+				col = XMVectorSet(1.f, .929f, .400f, 1.f);
+			}
+			m_spriteFont->DrawString(m_spriteBatch.get(), this->uStrings[gMapConstants.round - 1][map->playerElemnts[i]][j - 1].c_str(), this->textPos[i][j], col);
+		}
+	}
 }
 
 void Menu::setSelectedPos(GameState currentState)

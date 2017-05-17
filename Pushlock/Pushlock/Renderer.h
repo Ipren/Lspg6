@@ -53,7 +53,6 @@ public:
 	Mesh *mapmesh;
 	ID3D11PixelShader *cuPS;
 	ID3D11ShaderResourceView *r1CUTextures[5];
-	ID3D11ShaderResourceView *r2CUTextures[5];
 
 	ID3D11RasterizerState *ShadowRaster;
 	ID3D11RasterizerState *DefaultRaster;
@@ -160,6 +159,12 @@ private:
 	ID3D11ShaderResourceView *mapTexture;
 	ID3D11BlendState *mapBlendState;
 
+	ID3D11Buffer* lavaBuffer;
+	ID3D11ShaderResourceView *lavaTexture;
+	ID3D11VertexShader* lavaVS;
+	ID3D11PixelShader* lavaPS;
+	ID3D11Buffer* heatHazeBuffer;
+
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
 	ID3D11RenderTargetView* nullRTV;
@@ -171,6 +176,8 @@ private:
 	float lastParticleInsert;
 	int pointLightCount;
 	float toatlShrunkAmount;
+	float heatHazeCounter;
+	bool gb;
 
 	//void create_menu();
 	void create_debug_entity();
@@ -208,6 +215,7 @@ private:
 	void updatePointLights(Map *map);
 	void updatecooldownGUI(Player *player);
 	void updateHPBuffers(Player *player);
+	void updateheatHaze();
 
 	void renderShadowMap(Map *map, Camera *cam);
 

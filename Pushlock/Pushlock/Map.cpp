@@ -40,8 +40,31 @@ Map::~Map()
 void Map::reset(int nrOfPlayers)
 {
 	entitys.clear();
-	for (int i = 0; i < nrOfPlayers; ++i) {
-		Entity *e = new Player(i, { (float)i, 0, 0 }, { 0, 0 }, gPlayerConstants.kRadius);
+	for (int i = 0; i < nrOfPlayers; ++i) 
+	{
+		float offset = 3;
+		XMFLOAT3 pPos;
+		pPos.y = 0;
+		if (i == 0)//set player 1 pos
+		{
+			pPos.x = -offset;
+			pPos.z = offset;
+		}else if (i == 1)//set player 2 pos
+		{
+			pPos.x = offset;
+			pPos.z = offset;
+		}
+		else if (i == 2)//set player 3 pos
+		{
+			pPos.x = -offset;
+			pPos.z = -offset;
+		}
+		else if (i == 3)//set player 4 pos
+		{
+			pPos.x = offset;
+			pPos.z = -offset;
+		}
+		Entity *e = new Player(i, pPos, { 0, 0 }, gPlayerConstants.kRadius);
 		Player* p = dynamic_cast<Player*>(e);
 		if (this->playerElemnts[i] == 0)
 		{
