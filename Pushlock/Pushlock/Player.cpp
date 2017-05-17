@@ -154,34 +154,74 @@ void Player::update(Map *map, float dt)
 	{
 		if (gGamepads[index]->get_button_pressed(Gamepad::A))
 		{
-			delete element;
-			element = new ArcaneElement();
+
 			map->playerElemnts[index] = 0;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::B))
 		{
-			delete element;
-			element = new FireElement();
+
 			map->playerElemnts[index] = 1;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::X))
 		{
-			delete element;
-			element = new WindElement();
+			
 			map->playerElemnts[index] = 2;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::Y))
 		{
-			delete element;
-			element = new EarthElement();
+			
 			map->playerElemnts[index] = 3;
 		}
 		if (gGamepads[index]->get_button_pressed(Gamepad::Rb))
 		{
-			delete element;
-			element = new WaterElement();
+			
 			map->playerElemnts[index] = 4;
 		}
+		
+		if (gGamepads[index]->get_button_pressed(Gamepad::Up))
+		{
+			if (map->playerElemnts[index] > 0)
+			{
+				map->playerElemnts[index]--;
+			}
+			else
+				map->playerElemnts[index] = 4;
+		}else if (gGamepads[index]->get_button_pressed(Gamepad::Down))
+		{
+			if (map->playerElemnts[index] < 4)
+			{
+				map->playerElemnts[index]++;
+			}
+			else
+				map->playerElemnts[index] = 0;
+		}
+
+
+		if (map->playerElemnts[index] == 0)
+		{
+			delete element;
+			element = new ArcaneElement();
+		}else if (map->playerElemnts[index] == 1)
+		{
+			delete element;
+			element = new FireElement();
+		}
+		else if(map->playerElemnts[index] == 2)
+		{
+			delete element;
+			element = new WindElement();
+		}
+		else if(map->playerElemnts[index] == 3)
+		{
+			delete element;
+			element = new EarthElement();
+		}
+		else if(map->playerElemnts[index] == 4)
+		{
+			delete element;
+			element = new WaterElement();
+		}
+
 		if (gGamepads[index]->get_button_pressed(Gamepad::Start))
 		{
 			this->ready = true;
@@ -215,6 +255,26 @@ void Player::update(Map *map, float dt)
 			pUpgrades[index].chooseUpgrade(4);
 			map->upgradeChoice[index] = 3;
 		}
+
+		if (gGamepads[index]->get_button_pressed(Gamepad::Up))
+		{
+			if (map->upgradeChoice[index] > 0)
+			{
+				map->upgradeChoice[index]--;
+			}
+			else
+				map->upgradeChoice[index] = 3;
+		}
+		else if (gGamepads[index]->get_button_pressed(Gamepad::Down))
+		{
+			if (map->upgradeChoice[index] < 3)
+			{
+				map->upgradeChoice[index]++;
+			}
+			else
+				map->upgradeChoice[index] = 0;
+		}
+
 		if (gGamepads[index]->get_button_pressed(Gamepad::Start))
 		{
 			this->ready = true;
