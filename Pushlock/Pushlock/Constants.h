@@ -42,7 +42,7 @@ struct SpellConstants {
 
 	float kWindProjectileStrength = 10.0f;
 	float kWindProjectileSpeed = 30.0f;
-	float kWindProjectileCooldown = 0.1f;
+	float kWindProjectileCooldown = 0.5f;
 
 	float kWindStompDistance = 5.3f;
 	float kWindStompStrength = 5.f;

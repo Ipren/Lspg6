@@ -319,6 +319,11 @@ bool Game::update(float dt)
 				pUpgrades[i].choice[0] = 0;
 				pUpgrades[i].choice[1] = 0;
 				pUpgrades[i].choice[2] = 0;
+				pUpgrades[i].choice[3] = 0;
+				pUpgrades[i].choice[4] = 0;
+				pUpgrades[i].choice[5] = 0;
+				pUpgrades[i].choice[6] = 0;
+				pUpgrades[i].choice[7] = 0;
 			}
 
 			gMapConstants.round = 1;
@@ -550,6 +555,11 @@ bool Game::update(float dt)
 			pUpgrades[i].choice[0] = 0;
 			pUpgrades[i].choice[1] = 0;
 			pUpgrades[i].choice[2] = 0;
+			pUpgrades[i].choice[3] = 0;
+			pUpgrades[i].choice[4] = 0;
+			pUpgrades[i].choice[5] = 0;
+			pUpgrades[i].choice[6] = 0;
+			pUpgrades[i].choice[7] = 0;
 		}
 		gMapConstants.round = 1;
 		ImGui::End();

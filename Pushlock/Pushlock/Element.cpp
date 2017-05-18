@@ -10,11 +10,9 @@ void ArcaneElement::projectile(Player *player, Map *map)
 	if (cooldown[0] <= 0.f) {
 		if (pUpgrades[player->index].choice[0] == 1)
 		{
-			if (gPlayerSpellConstants[player->index].kArcaneProjectileStrength > -15.0f)
+			if (gPlayerSpellConstants[player->index].kArcaneProjectileCooldown <= 0.0f)
 			{
-				
-				gPlayerSpellConstants[player->index].kArcaneProjectileStrength = -15.0f;
-				gPlayerSpellConstants[player->index].kArcaneProjectileCooldown = 1.2f;
+				gPlayerSpellConstants[player->index].kArcaneProjectileCooldown = 0.8f;
 			}
 
 			auto position = player->position;
@@ -426,14 +424,14 @@ void WindElement::projectile(Player * player, Map * map)
 
 		WindProjectileSpell *spell = new WindProjectileSpell(player,
 		{
-			position.x + cos(angle) * (radius + 0.4f),
+			position.x + cos(angle) * (radius + 0.7f),
 			0,
-			position.z + sin(angle) * (radius + 0.4f)
+			position.z + sin(angle) * (radius + 0.7f)
 		},
 		{ cos(angle) * (gSpellConstants.kWindProjectileSpeed + gPlayerSpellConstants[player->index].kWindProjectileSpeed), sin(angle) * (gSpellConstants.kWindProjectileSpeed + gPlayerSpellConstants[player->index].kWindProjectileSpeed) },
-			0.1f
+			0.6f
 		);
-
+		
 		map->add_entity(spell);
 		cooldown[0] = gSpellConstants.kWindProjectileCooldown + gPlayerSpellConstants[player->index].kWindProjectileCooldown;
 		map->sounds.play(spellSounds::windDash, 0.0f, 2.0f);

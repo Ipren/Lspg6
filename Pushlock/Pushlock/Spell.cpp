@@ -327,7 +327,7 @@ bool WindProjectileSpell::on_effect(Map * map)
 		result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWindProjectileStrength + gPlayerSpellConstants[owner->index].kWindProjectileStrength);
 	}
 
-	return true;
+	return false;
 }
 
 EarthProjectileSpell::EarthProjectileSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
