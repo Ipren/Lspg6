@@ -53,9 +53,6 @@ public:
 	pointLight light;
 	ParticleEffect trail;
 private:
-	float explosion_radius;
-	float strength;
-	
 };
 
 class ArcaneWallSpell : public Spell
@@ -70,8 +67,6 @@ public:
 	XMFLOAT2 endPos;
 	bool edge;
 private:
-	/*float explosion_radius;
-	float strength;*/
 };
 
 class FireProjectileSpell : public Spell
@@ -84,8 +79,6 @@ public:
 	virtual bool on_effect(Map *map) override;
 	pointLight light;
 private:
-	float explosion_radius;
-	float strength;
 
 };
 
@@ -101,8 +94,6 @@ public:
 	XMFLOAT2 endPos;
 	bool edge;
 private:
-	/*float explosion_radius;
-	float strength;*/
 };
 
 class WindProjectileSpell : public Spell
@@ -114,7 +105,6 @@ public:
 	virtual void update(Map *map, float dt) override;
 	virtual bool on_effect(Map *map) override;
 private:
-	float strength;
 };
 
 class EarthProjectileSpell : public Spell
@@ -129,7 +119,6 @@ public:
 private:
 	float effect_radius;
 	float strength;
-	float alive;
 
 };
 
@@ -159,7 +148,6 @@ public:
 	virtual bool on_effect(Map *map) override;
 
 private:
-	float strenght;
 };
 
 class WaterIcePatch : public Spell
