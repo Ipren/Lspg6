@@ -7,6 +7,7 @@ struct SpellConstants {
 	float kArcaneProjectileStrength = 30.0f;
 	float kArcaneProjectileSpeed = 10.0f;
 	float kArcaneProjectileCooldown = 0.8f;
+	float kArcaneProjectileExplosionRadius = 1.5f;
 
 	float kArcaneStompDistance = 7.f;
 	float kArcaneStompStrength = 5.5f;
@@ -109,6 +110,7 @@ struct PlayerSpellConstants {
 	float kArcaneProjectileSpeed = 0.0f;
 	float kArcaneProjectileCooldown = 0.0f;
 	float kArcaneProjectileLifeTime = 0.0f;
+	float kArcaneProjectileExplosionRadius = 0.0f;
 
 	float kArcaneStompDistance = 0.0f;
 	float kArcaneStompStrength = 0.0f;

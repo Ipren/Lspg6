@@ -77,6 +77,7 @@ bool Game::update(float dt)
 				ImGui::SliderFloat("strength", &gSpellConstants.kArcaneProjectileStrength, 0.0f, 60.0f);
 				ImGui::SliderFloat("speed", &gSpellConstants.kArcaneProjectileSpeed, 0.0f, 40.0f);
 				ImGui::SliderFloat("cooldown##Arcane", &gSpellConstants.kArcaneProjectileCooldown, 0.0f, 20.0f);
+				ImGui::SliderFloat("explosion radius##Arcane", &gSpellConstants.kArcaneProjectileExplosionRadius, 0.0f, 5.0f);
 
 				ImGui::TextDisabled("Stomp");
 				ImGui::SliderFloat("distance", &gSpellConstants.kArcaneStompDistance, 0.0f, 10.0f);
