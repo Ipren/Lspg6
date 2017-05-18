@@ -43,7 +43,7 @@ struct SpellConstants {
 
 	float kWindProjectileStrength = 10.0f;
 	float kWindProjectileSpeed = 30.0f;
-	float kWindProjectileCooldown = 0.1f;
+	float kWindProjectileCooldown = 0.5f;
 
 	float kWindStompDistance = 5.3f;
 	float kWindStompStrength = 5.f;
@@ -58,12 +58,11 @@ struct SpellConstants {
 	float kWindWallPillarDistance = 0.65f;
 	float kWindWallPillarRadius = 0.35f;
 
-	float kEarthProjectileStrength = 2.2f;
-	float kEarthProjectileSpeed = 10.0f;
-	float kEarthProjectileCooldown = 2.5f;
-	float kEarthProjectileEffectRadius = 5.f;
-	float kEarthProjectileEffectFalloff = 0.2f;
-	float kEarthProjectileEffectArmingTime = 0.2f;
+	float kEarthProjectileStrength = 10.f;
+	float kEarthProjectileSpeed = 12.0f;
+	float kEarthProjectileCooldown = 1.0f;
+	float kEarthProjectileStrengthIncrease = 0.1f;
+	float kEarthProjectileRadiusIncrease = 0.8f;
 
 	float kEarthStompDistance = 5.3f;
 	float kEarthStompStrength = 5.f;
@@ -164,9 +163,8 @@ struct PlayerSpellConstants {
 	float kEarthProjectileStrength = 0.0f;
 	float kEarthProjectileSpeed = 0.0f;
 	float kEarthProjectileCooldown = 0.0f;
-	float kEarthProjectileEffectRadius = 0.0f;
-	float kEarthProjectileEffectFalloff = 0.0f;
-	float kEarthProjectileEffectArmingTime = 0.0f;
+	float kEarthProjectileStrengthIncrease = 50.f;
+	float kEarthProjectileRadiusIncrease = 0.0f;
 
 	float kEarthStompDistance = 0.0f;
 	float kEarthStompStrength = 0.0f;

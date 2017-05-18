@@ -150,12 +150,11 @@ bool Game::update(float dt)
 			if (ImGui::CollapsingHeader("Earth")) {
 				ImGui::TextDisabled("Projectile");
 
-				ImGui::SliderFloat("strength##earth", &gSpellConstants.kEarthProjectileStrength, 0.0f, 3.0f);
+				ImGui::SliderFloat("strength##earth", &gSpellConstants.kEarthProjectileStrength, 0.0f, 60.0f);
 				ImGui::SliderFloat("speed##earth", &gSpellConstants.kEarthProjectileSpeed, 0.0f, 30.0f);
 				ImGui::SliderFloat("cooldown##earth", &gSpellConstants.kEarthProjectileCooldown, 0.0f, 15.0f);
-				ImGui::SliderFloat("effect radius##earth", &gSpellConstants.kEarthProjectileEffectRadius, 0.0f, 6.0f);
-				ImGui::SliderFloat("effect falloff##earth", &gSpellConstants.kEarthProjectileEffectFalloff, 0.0f, 3.0f);
-				ImGui::SliderFloat("effect arming time##earth", &gSpellConstants.kEarthProjectileEffectArmingTime, 0.0f, 1.0f);
+				ImGui::SliderFloat("strength growth##earth", &gSpellConstants.kEarthProjectileStrengthIncrease, 0.0f, 100.f);
+				ImGui::SliderFloat("radius growth##earth", &gSpellConstants.kEarthProjectileRadiusIncrease, 0.0f, 10.f);
 
 
 				ImGui::TextDisabled("Stomp");
@@ -321,6 +320,11 @@ bool Game::update(float dt)
 				pUpgrades[i].choice[0] = 0;
 				pUpgrades[i].choice[1] = 0;
 				pUpgrades[i].choice[2] = 0;
+				pUpgrades[i].choice[3] = 0;
+				pUpgrades[i].choice[4] = 0;
+				pUpgrades[i].choice[5] = 0;
+				pUpgrades[i].choice[6] = 0;
+				pUpgrades[i].choice[7] = 0;
 			}
 
 			gMapConstants.round = 1;
@@ -552,6 +556,11 @@ bool Game::update(float dt)
 			pUpgrades[i].choice[0] = 0;
 			pUpgrades[i].choice[1] = 0;
 			pUpgrades[i].choice[2] = 0;
+			pUpgrades[i].choice[3] = 0;
+			pUpgrades[i].choice[4] = 0;
+			pUpgrades[i].choice[5] = 0;
+			pUpgrades[i].choice[6] = 0;
+			pUpgrades[i].choice[7] = 0;
 		}
 		gMapConstants.round = 1;
 		ImGui::End();
@@ -643,7 +652,7 @@ void Game::updateUpgradeStats()
 				}
 				if (currentMap->playerElemnts[i] == 3)
 				{
-					gPlayerSpellConstants[i].kEarthProjectileSpeed += 1.0f;
+					gPlayerSpellConstants[i].kEarthProjectileStrengthIncrease += 0.05f;
 				}
 				if (currentMap->playerElemnts[i] == 4)
 				{
@@ -667,7 +676,7 @@ void Game::updateUpgradeStats()
 				}
 				if (currentMap->playerElemnts[i] == 3)
 				{
-					gPlayerSpellConstants[i].kEarthProjectileEffectRadius += 1.0f;
+					gPlayerSpellConstants[i].kEarthProjectileRadiusIncrease += 0.1f;
 				}
 				if (currentMap->playerElemnts[i] == 4)
 				{

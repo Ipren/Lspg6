@@ -119,7 +119,6 @@ public:
 private:
 	float effect_radius;
 	float strength;
-	float alive;
 
 };
 
