@@ -11,19 +11,23 @@
 
 using namespace DirectX;
 
-class Camera
+class EditorCamera
 {
 public:
-	Camera(XMVECTOR pos, XMVECTOR look);
-	~Camera();
+	EditorCamera(XMVECTOR pos, XMVECTOR look);
+	~EditorCamera();
 
 	void update(float dt, float width, float height);
 
-	struct BufferVals {
+	__declspec(align(16))
+		struct BufferVals {
 		XMMATRIX world;
 		XMMATRIX view;
 		XMMATRIX proj;
-	} vals;
+		XMMATRIX normal;
+	};
+	float znear, zfar;
+	BufferVals vals;
 
 	XMVECTOR pos, look;
 	XMVECTOR target;

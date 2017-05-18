@@ -15,10 +15,11 @@ inline float RandomFloat(float lo, float hi)
 	return ((hi - lo) * ((float)rand() / RAND_MAX)) + lo;
 }
 
-ParticleSystem::ParticleSystem(const wchar_t *file, UINT capacity, ID3D11Device *device, ID3D11DeviceContext *cxt)
+ParticleSystem::ParticleSystem(const wchar_t *file, UINT capacity, UINT width, UINT height, ID3D11Device *device, ID3D11DeviceContext *cxt)
 	: capacity(capacity), device(device), cxt(cxt)
 {
-	DeserializeParticles(file, effect_definitions, particle_definitions);
+	if (file)
+		DeserializeParticles(file, effect_definitions, particle_definitions);
 
 	particles.reserve(capacity);
 
@@ -141,8 +142,8 @@ ParticleSystem::ParticleSystem(const wchar_t *file, UINT capacity, ID3D11Device 
 	ID3D11Texture2D *dtex;
 	D3D11_TEXTURE2D_DESC rtv_desc;
 	ZeroMemory(&rtv_desc, sizeof(rtv_desc));
-	rtv_desc.Width = WIDTH;
-	rtv_desc.Height = HEIGHT;
+	rtv_desc.Width = width;
+	rtv_desc.Height = height;
 	rtv_desc.Usage = D3D11_USAGE_DEFAULT;
 	rtv_desc.MipLevels = 1;
 	rtv_desc.ArraySize = 1;
@@ -385,9 +386,8 @@ void ParticleSystem::update(Camera *cam, float dt)
 			scale_fn(def->scale_start, def->scale_end, age) * (def->v2 / 2048.f)
 		};
 
-		auto distort_fn = GetEaseFunc(def->distort_fn);
-		if (distort_fn)
-			p->distort = distort_fn(def->distort_start, def->distort_end, age);
+		bool glow = (int)def->distort_fn & (1 << 31);
+		auto distort_fn = GetEaseFunc((ParticleEase)((int)def->distort_fn & ~(1 << 31)));
 
 		p->uv = { def->u / 2048.f, def->v / 2048.f, (def->u + def->u2) / 2048.f, (def->v + def->v2) / 2048.f };
 
@@ -398,6 +398,17 @@ void ParticleSystem::update(Camera *cam, float dt)
 				XMLoadFloat4(&def->end_color),
 				age
 			);
+		}
+
+		if (glow) {
+			if (distort_fn) {
+				float scalar = distort_fn(def->distort_start, def->distort_end, age);
+				p->color *= { scalar, scalar, scalar, 1 };
+			}
+		}
+		else {
+			if (distort_fn)
+				p->distort = distort_fn(def->distort_start, def->distort_end, age);
 		}
 
 		if (p->age > def->lifetime) {

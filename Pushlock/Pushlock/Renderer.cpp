@@ -86,7 +86,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createCUShaders();
 	this->createMapResurces();
 
-	FXSystem = new ParticleSystem(L"../Resources/Particles.no", 4096, gDevice, gDeviceContext);
+	FXSystem = new ParticleSystem(L"../Resources/Particles.no", 4096, WIDTH, HEIGHT, gDevice, gDeviceContext);
 
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
@@ -193,7 +193,7 @@ void Renderer::createBlurPass()
 	sadesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sadesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sadesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sadesc.MaxLOD = 8.f;
+	sadesc.MaxLOD = 11.f;
 	DXCALL(gDevice->CreateSamplerState(&sadesc, &blur_fs_sampler));
 
 	D3D11_TEXTURE2D_DESC tex_desc;
@@ -201,7 +201,7 @@ void Renderer::createBlurPass()
 	tex_desc.Width = WIDTH;
 	tex_desc.Height = HEIGHT;
 	tex_desc.Usage = D3D11_USAGE_DEFAULT;
-	tex_desc.MipLevels = 8;
+	tex_desc.MipLevels = 11;
 	tex_desc.ArraySize = 1;
 	tex_desc.SampleDesc.Count = 1;
 	tex_desc.SampleDesc.Quality = 0;
@@ -214,7 +214,7 @@ void Renderer::createBlurPass()
 	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
 	sdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	sdesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	sdesc.Texture2D.MipLevels = 8;
+	sdesc.Texture2D.MipLevels = 11;
 	sdesc.Texture2D.MostDetailedMip = 0;
 
 	D3D11_RENDER_TARGET_VIEW_DESC rdesc;
@@ -231,12 +231,6 @@ void Renderer::createBlurPass()
 		DXCALL(gDevice->CreateRenderTargetView(blurtex[i], &rdesc, &blur_rtv[i]));
 		gDeviceContext->GenerateMips(blur_srv[i]);
 	}
-
-	SetDebugObjectName(blur_srv[0], "Blur SRV #0");
-	SetDebugObjectName(blur_rtv[0], "Blur RTV #0");
-
-	SetDebugObjectName(blur_srv[1], "Blur SRV #1");
-	SetDebugObjectName(blur_rtv[1], "Blur RTV #1");
 	
 	float vertices[] = {
 		-1,  1, 0, 0,

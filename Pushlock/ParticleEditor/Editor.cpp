@@ -13,22 +13,23 @@
 #include "External/Helpers.h"
 #include "External/dxerr.h"
 
-#include "Globals.h"
 #include "Camera.h"
 #include "Ease.h"
 
 #include "Particle.h"
 
+#include "../Pushlock/ParticleSystem.h"
+
+#include "Globals.h"
+
 using namespace DirectX;
 
-Camera *camera;
+EditorCamera *camera;
 float time;
 float ptime;
 
-std::vector<ParticleDefinition> definitions;
-std::vector<ParticleInstance> particles;
+ParticleSystem *FX;
 
-std::vector<ParticleEffect> effects;
 ParticleEffect *current_effect;
 
 Editor::Settings default_settings;
@@ -50,27 +51,17 @@ ID3D11SamplerState *plane_sampler;
 ID3D11RenderTargetView *default_rtv;
 ID3D11ShaderResourceView *default_srv;
 
+ID3D11Buffer *blur_fs_vertices;
+ID3D11VertexShader *blur_fs_vs;
+ID3D11InputLayout *blur_fs_layout;
+ID3D11SamplerState *blur_fs_sampler;
+
+ID3D11PixelShader *gaussian_x_ps;
+ID3D11PixelShader *gaussian_y_ps;
+
+ID3D11PixelShader *blur_composite;
+
 ID3D11BlendState *no_blend;
-
-// Particle
-ID3D11Buffer *particle_buffer;
-ID3D11InputLayout *particle_layout;
-
-ID3D11VertexShader *particle_vs;
-ID3D11GeometryShader *particle_gs;
-ID3D11PixelShader *particle_ps;
-ID3D11ShaderResourceView *particle_srv;
-ID3D11SamplerState *particle_sampler;
-
-ID3D11BlendState *particle_blend;
-
-// Composite
-ID3D11Buffer *composite_vertex_buffer;
-ID3D11InputLayout *composite_layout;
-
-ID3D11VertexShader *composite_vs;
-ID3D11PixelShader *composite_ps;
-ID3D11SamplerState *composite_sampler;
 
 ID3D11RenderTargetView *distort_rtv;
 ID3D11ShaderResourceView *distort_srv;
@@ -99,8 +90,8 @@ bool ComboFuncOptional(const char *label, ParticleEase *ease)
 void SetViewport()
 {
 	D3D11_VIEWPORT vp;
-	vp.Width = (float)WIDTH;
-	vp.Height = (float)HEIGHT;
+	vp.Width = (float)EWIDTH;
+	vp.Height = (float)EHEIGHT;
 	vp.MaxDepth = 1.0f;
 	vp.MinDepth = 0.0f;
 	vp.TopLeftX = 0;
@@ -159,8 +150,8 @@ void InitPlane()
 
 	ID3D11Texture2D *tex;
 	D3D11_TEXTURE2D_DESC rtv_desc;
-	rtv_desc.Width = WIDTH;
-	rtv_desc.Height = HEIGHT;
+	rtv_desc.Width = EWIDTH;
+	rtv_desc.Height = EHEIGHT;
 	rtv_desc.Usage = D3D11_USAGE_DEFAULT;
 	rtv_desc.MipLevels = 1;
 	rtv_desc.ArraySize = 1;
@@ -194,80 +185,20 @@ void InitPlane()
 
 void InitParticles()
 {
-	D3D11_BUFFER_DESC desc;
-	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
-	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.ByteWidth = (UINT)(sizeof(ParticleInstance) * 4096);
-	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	desc.MiscFlags = 0;
-	desc.StructureByteStride = 0;
-
-	DXCALL(gDevice->CreateBuffer(&desc, nullptr, &particle_buffer));
-
-	ID3DBlob *blob = compile_shader(L"Resources/Particle.hlsl", "VS", "vs_5_0", gDevice);
-	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &particle_vs));
-
-	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
-		{ "ORIGIN",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "VELOCITY",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR",     0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "SCALE",     0, DXGI_FORMAT_R32G32_FLOAT,       0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "ROTATION",  0, DXGI_FORMAT_R32_FLOAT,          0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "ROTATIONV", 0, DXGI_FORMAT_R32_FLOAT,          0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "AGE",       0, DXGI_FORMAT_R32_FLOAT,          0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "DISTORT",   0, DXGI_FORMAT_R32_FLOAT,          0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TYPE",      0, DXGI_FORMAT_R32_SINT,           0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "IDX",       0, DXGI_FORMAT_R32_SINT,           0, D3D10_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-	particle_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, gDevice);
-
-	blob = compile_shader(L"Resources/Particle.hlsl", "GS", "gs_5_0", gDevice);
-	DXCALL(gDevice->CreateGeometryShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &particle_gs));
-
-	blob = compile_shader(L"Resources/Particle.hlsl", "PS", "ps_5_0", gDevice);
-	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &particle_ps));
-
-	ID3D11Resource *r = nullptr;
-	DXCALL(CreateDDSTextureFromFile(gDevice, L"Resources/Particle.dds", &r, &particle_srv, 0, nullptr));
-
-	D3D11_SAMPLER_DESC sadesc;
-	ZeroMemory(&sadesc, sizeof(sadesc));
-	sadesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sadesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sadesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sadesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	DXCALL(gDevice->CreateSamplerState(&sadesc, &particle_sampler));
-
-	D3D11_BLEND_DESC state;
-	ZeroMemory(&state, sizeof(D3D11_BLEND_DESC));
-	state.RenderTarget[0].BlendEnable = TRUE;
-	state.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	state.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-	state.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	state.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-	state.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-	state.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	state.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-
-	state.RenderTarget[1].BlendEnable = FALSE;
-	state.RenderTarget[1].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-	state.RenderTarget[1].DestBlend = D3D11_BLEND_INV_SRC_COLOR;
-	state.RenderTarget[1].BlendOp = D3D11_BLEND_OP_ADD;
-	state.RenderTarget[1].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-	state.RenderTarget[1].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-	state.RenderTarget[1].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-	DXCALL(gDevice->CreateBlendState(&state, &particle_blend));
-
-	state.RenderTarget[0].BlendEnable = FALSE;
-	state.RenderTarget[1].BlendEnable = FALSE;
-	DXCALL(gDevice->CreateBlendState(&state, &no_blend));
+	FX = new ParticleSystem(nullptr, 4096, EWIDTH, EHEIGHT, gDevice, gDeviceContext);
 }
 
 void InitComposite()
 {
+	D3D11_SAMPLER_DESC sadesc;
+	ZeroMemory(&sadesc, sizeof(sadesc));
+	sadesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sadesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sadesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sadesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sadesc.MaxLOD = 11.f;
+	DXCALL(gDevice->CreateSamplerState(&sadesc, &blur_fs_sampler));
+
 	float vertices[] = {
 		-1,  1, 0, 0,
 		1, -1, 1, 1,
@@ -291,33 +222,25 @@ void InitComposite()
 	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
 	data.pSysMem = &vertices[0];
 
-	DXCALL(gDevice->CreateBuffer(&desc, &data, &composite_vertex_buffer));
+	DXCALL(gDevice->CreateBuffer(&desc, &data, &blur_fs_vertices));
 
-	ID3DBlob *blob = compile_shader(L"Resources/Composite.hlsl", "VS", "vs_5_0", gDevice);
-	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &composite_vs));
+	ID3DBlob *blob = compile_shader(L"../Pushlock/GaussianPass.hlsl", "VS", "vs_5_0", gDevice);
+	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &blur_fs_vs));
 
-	D3D11_INPUT_ELEMENT_DESC input_desc[] = {
+	D3D11_INPUT_ELEMENT_DESC iinput_desc[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	composite_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, gDevice);
+	blur_fs_layout = create_input_layout(iinput_desc, ARRAYSIZE(iinput_desc), blob, gDevice);
 
-	blob = compile_shader(L"Resources/Composite.hlsl", "PS", "ps_5_0", gDevice);
-	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &composite_ps));
-
-	D3D11_SAMPLER_DESC sampdesc;
-	ZeroMemory(&sampdesc, sizeof(sampdesc));
-	sampdesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampdesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampdesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampdesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	DXCALL(gDevice->CreateSamplerState(&sampdesc, &composite_sampler));
-
+	blob = compile_shader(L"../Pushlock/GlowComposite.hlsl", "PS", "ps_5_0", gDevice);
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &blur_composite));
+	
 	ID3D11Texture2D *tex;
 	D3D11_TEXTURE2D_DESC rtv_desc;
 	ZeroMemory(&rtv_desc, sizeof(rtv_desc));
-	rtv_desc.Width = WIDTH;
-	rtv_desc.Height = HEIGHT;
+	rtv_desc.Width = EWIDTH;
+	rtv_desc.Height = EHEIGHT;
 	rtv_desc.Usage = D3D11_USAGE_DEFAULT;
 	rtv_desc.MipLevels = 1;
 	rtv_desc.ArraySize = 1;
@@ -335,22 +258,35 @@ void InitComposite()
 
 	ID3D11Texture2D *dtex;
 	ZeroMemory(&rtv_desc, sizeof(rtv_desc));
-	rtv_desc.Width = WIDTH;
-	rtv_desc.Height = HEIGHT;
+	rtv_desc.Width = EWIDTH;
+	rtv_desc.Height = EHEIGHT;
 	rtv_desc.Usage = D3D11_USAGE_DEFAULT;
-	rtv_desc.MipLevels = 1;
+	rtv_desc.MipLevels = 11;
 	rtv_desc.ArraySize = 1;
 	rtv_desc.SampleDesc.Count = 1;
 	rtv_desc.SampleDesc.Quality = 0;
-	rtv_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	rtv_desc.Format = DXGI_FORMAT_R16G16B16A16_TYPELESS;
 	rtv_desc.CPUAccessFlags = 0;
 	rtv_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	rtv_desc.MiscFlags = 0;
+	rtv_desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS; 
 
 	DXCALL(gDevice->CreateTexture2D(&rtv_desc, nullptr, &dtex));
 
-	DXCALL(gDevice->CreateShaderResourceView(dtex, nullptr, &distort_srv));
-	DXCALL(gDevice->CreateRenderTargetView(dtex, nullptr,   &distort_rtv));
+	D3D11_SHADER_RESOURCE_VIEW_DESC sdesc;
+	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	sdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	sdesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	sdesc.Texture2D.MipLevels = 11;
+	sdesc.Texture2D.MostDetailedMip = 0;
+
+	D3D11_RENDER_TARGET_VIEW_DESC rdesc;
+	ZeroMemory(&rdesc, sizeof(D3D11_RENDER_TARGET_VIEW_DESC));
+	rdesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rdesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	rdesc.Texture2D.MipSlice = 0;
+
+	DXCALL(gDevice->CreateShaderResourceView(dtex, &sdesc, &distort_srv));
+	DXCALL(gDevice->CreateRenderTargetView(dtex, &rdesc,   &distort_rtv));
 }
 
 void RenderPlane()
@@ -369,7 +305,7 @@ void RenderPlane()
 	gDeviceContext->PSSetSamplers(0, 1, &plane_sampler);
 	gDeviceContext->PSSetShaderResources(0, 1, &plane_srv);
 
-	gDeviceContext->OMSetRenderTargets(1, &hdr_rtv, gDepthbufferDSV);
+	gDeviceContext->OMSetRenderTargets(1, &default_rtv, gDepthbufferDSV);
 
 	gDeviceContext->Draw(6, 0);
 
@@ -379,49 +315,8 @@ void RenderPlane()
 
 void RenderParticles()
 {
-	UINT32 stride = sizeof(ParticleInstance);
-	UINT32 offset = 0u;
-
-	gDeviceContext->IASetInputLayout(particle_layout);
-	gDeviceContext->IASetVertexBuffers(0, 1, &particle_buffer, &stride, &offset);
-	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-
-	gDeviceContext->VSSetShader(particle_vs, nullptr, 0);
-	
-	gDeviceContext->GSSetShader(particle_gs, nullptr, 0);
-	gDeviceContext->GSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-
-	gDeviceContext->PSSetShader(particle_ps, nullptr, 0);
-	gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-	gDeviceContext->PSSetSamplers(0, 1, &particle_sampler);
-	gDeviceContext->PSSetShaderResources(0, 1, &particle_srv);
-	gDeviceContext->PSSetShaderResources(1, 1, &gDepthbufferSRV);
-	gDeviceContext->PSSetShaderResources(2, 1, &distortSRV);
-
-	float factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	UINT mask = 0xffffffff;
-	
-	gDeviceContext->OMSetBlendState(particle_blend, factor, mask);
-	gDeviceContext->OMSetDepthStencilState(nullptr, 0xff);
-
-	ID3D11RenderTargetView *targets[] = {
-		hdr_rtv,
-		distort_rtv
-	};
-
-	gDeviceContext->OMSetRenderTargets(2, targets, nullptr);
-
-	gDeviceContext->Draw(particles.size(), 0);
-
-	ID3D11ShaderResourceView *srv = nullptr;
-	gDeviceContext->PSSetShaderResources(1, 1, &srv);
-	ID3D11RenderTargetView *rtargets[] = {
-		nullptr,
-		nullptr
-	};
-	gDeviceContext->OMSetRenderTargets(2, rtargets, nullptr);
-	gDeviceContext->GSSetShader(nullptr, nullptr, 0);
-	gDeviceContext->OMSetDepthStencilState(gDepthReadWrite, 0xff);
+	FX->render(reinterpret_cast<Camera*>(camera), default_rtv, default_srv, distort_rtv, hdr_rtv);
+	gDeviceContext->GenerateMips(distort_srv);
 }
 
 void RenderComposite()
@@ -429,27 +324,31 @@ void RenderComposite()
 	UINT32 stride = sizeof(float) * 4;
 	UINT32 offset = 0u;
 
-	gDeviceContext->IASetInputLayout(composite_layout);
-	gDeviceContext->IASetVertexBuffers(0, 1, &composite_vertex_buffer, &stride, &offset);
-	gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	gDeviceContext->IASetInputLayout(blur_fs_layout);
+	gDeviceContext->IASetVertexBuffers(0, 1, &blur_fs_vertices, &stride, &offset);
+	gDeviceContext->VSSetShader(blur_fs_vs, nullptr, 0);
 
-	gDeviceContext->VSSetShader(composite_vs, nullptr, 0);
+	gDeviceContext->PSSetSamplers(0, 1, &blur_fs_sampler);
 
-	gDeviceContext->PSSetShader(composite_ps, nullptr, 0);
-	gDeviceContext->PSSetSamplers(0, 1, &composite_sampler);
-	gDeviceContext->PSSetShaderResources(0, 1, &default_srv);
-	gDeviceContext->PSSetShaderResources(1, 1, &hdr_srv);
-	gDeviceContext->PSSetShaderResources(2, 1, &distort_srv);
-
-	float factor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-	gDeviceContext->OMSetBlendState(no_blend, factor, 0xffffffff);
-	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, nullptr);
-
+	// todo: remove, gammalt
+	/*gDeviceContext->OMSetRenderTargets(1, &blur_rtv[1], nullptr);
+	gDeviceContext->PSSetShader(gaussian_x_ps, nullptr, 0);
+	gDeviceContext->PSSetShaderResources(0, 1, &blur_srv[0]);
 	gDeviceContext->Draw(6, 0);
 
-	ID3D11ShaderResourceView *srvs[] = { nullptr, nullptr, nullptr };
-	gDeviceContext->PSSetShaderResources(0, 3, srvs);
+	gDeviceContext->PSSetShaderResources(0, 1, RESET_SRV);
+	gDeviceContext->OMSetRenderTargets(1, RESET_RTV, nullptr);
+
+	gDeviceContext->OMSetRenderTargets(1, &blur_rtv[0], nullptr);
+	gDeviceContext->PSSetShader(gaussian_y_ps, nullptr, 0);
+	gDeviceContext->PSSetShaderResources(0, 1, &blur_srv[1]);
+	gDeviceContext->Draw(6, 0);*/
+
+	gDeviceContext->OMSetRenderTargets(1, &gBackbufferRTV, nullptr);
+	gDeviceContext->PSSetShader(blur_composite, nullptr, 0);
+	gDeviceContext->PSSetShaderResources(0, 1, &hdr_srv);
+	gDeviceContext->PSSetShaderResources(1, 1, &distort_srv);
+	gDeviceContext->Draw(6, 0);
 }
 
 namespace Editor {
@@ -532,13 +431,13 @@ void MenuBar()
 
 			if (GetOpenFileName(&ofn)) {
 
-				effects.clear();
-				definitions.clear();
+				FX->effect_definitions.clear();
+				FX->particle_definitions.clear();
 
-				DeserializeParticles(ofn.lpstrFile, effects, definitions);
+				DeserializeParticles(ofn.lpstrFile, FX->effect_definitions, FX->particle_definitions);
 			}
 		}
-		if (ImGui::MenuItem("save", nullptr, nullptr, !definitions.empty() || !effects.empty())) {
+		if (ImGui::MenuItem("save", nullptr, nullptr, !FX->particle_definitions.empty() || !FX->effect_definitions.empty())) {
 			OPENFILENAME ofn;
 			wchar_t szFileName[MAX_PATH] = L"";
 
@@ -553,7 +452,7 @@ void MenuBar()
 			ofn.lpstrDefExt = L"no";
 
 			if (GetSaveFileName(&ofn)) {
-				SerializeParticles(ofn.lpstrFile, effects, definitions);
+				SerializeParticles(ofn.lpstrFile, FX->effect_definitions, FX->particle_definitions);
 			}
 		}
 		if (ImGui::MenuItem("save editor layout")) {
@@ -583,10 +482,10 @@ void ParticleEditor()
 	if (ImGui::BeginDock("Particles")) {
 		ImGui::BeginGroup();
 		ImGui::BeginChild("list", ImVec2(120, -ImGui::GetItemsLineHeightWithSpacing()), true);
-		for (int i = 0; i < definitions.size(); i++)
+		for (int i = 0; i < FX->particle_definitions.size(); i++)
 		{
 			char label[64];
-			sprintf_s(label, 64, "%s##%d", definitions[i].name, i);
+			sprintf_s(label, 64, "%s##%d", FX->particle_definitions[i].name, i);
 			if (ImGui::Selectable(label, current_def == i)) {
 				current_def = i;
 			}
@@ -595,8 +494,8 @@ void ParticleEditor()
 		ImGui::SameLine();
 
 		ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
-		if (!definitions.empty()) {
-			ParticleDefinition *def = &definitions[current_def];
+		if (!FX->particle_definitions.empty()) {
+			ParticleDefinition *def = &FX->particle_definitions[current_def];
 
 			ImGui::Text("%s", def->name);
 			ImGui::Separator();
@@ -612,10 +511,29 @@ void ParticleEditor()
 			ImGui::DragFloat("start##scale", &def->scale_start, 0.001f);
 			ImGui::DragFloat("end##scale", &def->scale_end, 0.001f);
 
-			ImGui::TextDisabled("Distort");
+			bool glow = (int)def->distort_fn & (1 << 31);
+			if (ImGui::Checkbox("Glow", &glow)) {
+				int *fn = (int*)&def->distort_fn;
+				*fn ^= 1 << 31;
+			}
+			glow = (int)def->distort_fn & (1 << 31);
+
+			if (glow)
+				ImGui::TextDisabled("Glow");
+			else
+				ImGui::TextDisabled("Distort");
+
+			auto old = def->distort_fn;
+			
+			int *fn = (int*)&def->distort_fn;
+			*fn &= ~(1 << 31);
 			if (ComboFuncOptional("ease##diostort", &def->distort_fn)) {
-				ImGui::DragFloat("start##dsdsdcolor", &def->distort_start, 0.001f, 0.f, 1.0f);
-				ImGui::DragFloat("end##dsdsdcolor", &def->distort_end, 0.001, 0.f, 1.0f);
+				ImGui::DragFloat("start##dsdsdcolor", &def->distort_start, 0.1f, 0.f, 100.0f);
+				ImGui::DragFloat("end##dsdsdcolor", &def->distort_end, 0.1, 0.f, 100.0f);
+			}
+
+			if (glow) {
+				*fn |= (1 << 31);
 			}
 
 			ImGui::TextDisabled("Color");
@@ -633,13 +551,13 @@ void ParticleEditor()
 				ImVec2(def->u2 * (limit / (float)def->v2), limit) :
 				ImVec2(limit, def->v2 * (limit / (float)def->u2));
 
-			ImGui::Image((void*)particle_srv, size, ImVec2(def->u / 2048.f, def->v / 2048.f), ImVec2((def->u + def->u2) / 2048.f, (def->v + def->v2) / 2048.f), ImVec4(def->start_color.x, def->start_color.y, def->start_color.z, def->start_color.w));
+			ImGui::Image((void*)FX->particle_srv, size, ImVec2(def->u / 2048.f, def->v / 2048.f), ImVec2((def->u + def->u2) / 2048.f, (def->v + def->v2) / 2048.f), ImVec4(def->start_color.x, def->start_color.y, def->start_color.z, def->start_color.w));
 		}
 		ImGui::EndChild();
 
 		ImGui::BeginChild("buttons");
 		if (ImGui::Button("Add")) {
-			definitions.push_back({});
+			FX->particle_definitions.push_back({});
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Remove")) {
@@ -657,14 +575,14 @@ void FXEditor()
 	if (ImGui::BeginDock("FX")) {
 		ImGui::BeginGroup();
 		ImGui::BeginChild("list", ImVec2(120, -ImGui::GetItemsLineHeightWithSpacing()), true);
-		for (int i = 0; i < effects.size(); i++)
+		for (int i = 0; i < FX->effect_definitions.size(); i++)
 		{
 			char label[64];
-			sprintf_s(label, 64, "%s##%d", effects[i].name, i);
+			sprintf_s(label, 64, "%s##%d", FX->effect_definitions[i].name, i);
 			if (ImGui::Selectable(label, current_fx == i)) {
 
 				current_fx = i;
-				effects[current_fx].age = 0.f;
+				FX->effect_definitions[current_fx].age = 0.f;
 
 			}
 		}
@@ -672,8 +590,8 @@ void FXEditor()
 		ImGui::SameLine();
 
 		ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()));
-		if (!effects.empty()) {
-			ParticleEffect *fx = &effects[current_fx];
+		if (!FX->effect_definitions.empty()) {
+			ParticleEffect *fx = &FX->effect_definitions[current_fx];
 			current_effect = fx;
 
 			ImGui::Text("%s", fx->name);
@@ -694,7 +612,7 @@ void FXEditor()
 					ParticleEffectEntry entry = fx->fx[i];
 					if (entry.idx < 0) continue;
 
-					auto def = definitions[entry.idx];
+					auto def = FX->particle_definitions[entry.idx];
 
 					fx->children_time = max(fx->children_time, entry.end);
 				}
@@ -710,7 +628,7 @@ void FXEditor()
 				ParticleEffectEntry *entry = &fx->fx[i];
 				if (entry->idx < 0) continue;
 
-				auto def = definitions[entry->idx];
+				auto def = FX->particle_definitions[entry->idx];
 
 				char label[64];
 				sprintf_s(label, 64, "%s##%d", def.name, i);
@@ -785,10 +703,10 @@ void FXEditor()
 			if (ImGui::BeginPopupModal("Add particle")) {
 
 				ImGui::BeginChild("list popiup", ImVec2(150, 200), true);
-				for (int i = 0; i < definitions.size(); i++)
+				for (int i = 0; i < FX->particle_definitions.size(); i++)
 				{
 					char label[64];
-					sprintf_s(label, 64, "%s##asd%d", definitions[i].name, i);
+					sprintf_s(label, 64, "%s##asd%d", FX->particle_definitions[i].name, i);
 					if (ImGui::Selectable(label, add_pdef == i)) {
 						add_pdef = i;
 					}
@@ -816,7 +734,7 @@ void FXEditor()
 		ImGui::BeginChild("buttons");
 		if (ImGui::Button("Add##fx")) {
 			ParticleEffect fx = {};
-			effects.push_back(fx);
+			FX->effect_definitions.push_back(fx);
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Remove")) {
@@ -827,8 +745,8 @@ void FXEditor()
 	}
 	ImGui::EndDock();
 
-	if (!effects.empty()) {
-		ParticleEffect *fx = &effects[current_fx];
+	if (!FX->effect_definitions.empty()) {
+		ParticleEffect *fx = &FX->effect_definitions[current_fx];
 		current_effect = fx;
 	}
 }
@@ -856,8 +774,8 @@ void Timeline()
 		ImGui::SameLine();
 
 		ImGui::BeginGroup();
-		if (!effects.empty()) {
-			auto fx = effects[current_fx];
+		if (!FX->effect_definitions.empty()) {
+			auto fx = FX->effect_definitions[current_fx];
 			auto time = fx.clamp_children ? fx.children_time : fx.time;
 
 			ImGui::ProgressBar(fx.age / time);
@@ -892,8 +810,8 @@ void Timeline()
 		auto acur = ImGui::GetCursorScreenPos();
 		auto w = ImGui::GetContentRegionAvailWidth();
 
-		if (!effects.empty()) {
-			auto fx = effects[current_fx];
+		if (!FX->effect_definitions.empty()) {
+			auto fx = FX->effect_definitions[current_fx];
 			auto time = fx.clamp_children ? fx.children_time : fx.time;
 			auto hi = (int)ceilf(time);
 
@@ -925,7 +843,7 @@ void Timeline()
 				ParticleEffectEntry entry = current_effect->fx[i];
 				if (entry.idx < 0) continue;
 
-				auto def = definitions[entry.idx];
+				auto def = FX->particle_definitions[entry.idx];
 				ImGui::SameLine(w * (entry.start / time));
 
 				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0, 1.0, 1.0, 0.23));
@@ -959,7 +877,7 @@ void Init()
 {
 	ImGui::LoadDock();
 
-	camera = new Camera({0.f, 0.5f, 0.f}, {});
+	camera = new EditorCamera({0.f, 0.5f, 0.f}, {});
 
 	Style();
 
@@ -976,7 +894,7 @@ void Update(float dt)
 	MenuBar();
 
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
-	ImGui::RootDock(ImVec2(0, 18), ImVec2(WIDTH, HEIGHT - 18));
+	ImGui::RootDock(ImVec2(0, 18), ImVec2(EWIDTH, EHEIGHT - 18));
 	ParticleEditor();
 	FXEditor();
 	Timeline();
@@ -1024,6 +942,9 @@ void Update(float dt)
 
 	auto fx = current_effect;
 
+	if (fx)
+		FX->ProcessFX(*fx, XMMatrixIdentity(), pdt);
+
 	if (!settings.ParticlePaused && settings.ParticleLoop && fx != nullptr) {
 		auto time = fx->clamp_children ? fx->children_time : fx->time;
 
@@ -1037,126 +958,10 @@ void Update(float dt)
 		}
 	}
 
-	if (fx != nullptr && !settings.ParticlePaused) {
-		auto time = fx->clamp_children ? fx->children_time : fx->time;
-
-		fx->age += pdt;
-		if (fx->age >= time) {
-			
-		}
-		else {
-			for (int i = 0; i < fx->fx_count; ++i) {
-				auto &entry = fx->fx[i];
-
-				auto def = definitions[entry.idx];
-
-				if (fx->age > entry.start && fx->age < entry.start + entry.end) {
-					auto factor = (fx->age - entry.start) / (entry.end);
-
-					auto spawn_ease = GetEaseFunc(entry.spawn_fn);
-					float spawn = spawn_ease((float)entry.spawn_start, (float)entry.spawn_end, factor) * pdt;
-
-					entry.spawned_particles += spawn;
-					
-					for (; entry.spawned_particles >= 1.f; entry.spawned_particles -= 1.f) {
-						XMVECTOR pos = {
-							RandomFloat(entry.emitter_xmin, entry.emitter_xmax),
-							RandomFloat(entry.emitter_ymin, entry.emitter_ymax),
-							RandomFloat(entry.emitter_zmin, entry.emitter_zmax),
-						};
-
-						XMVECTOR vel = {
-							RandomFloat(entry.vel_xmin, entry.vel_xmax),
-							RandomFloat(entry.vel_ymin, entry.vel_ymax),
-							RandomFloat(entry.vel_zmin, entry.vel_zmax),
-						};
-
-						float rot = RandomFloat(entry.rot_min, entry.rot_max);
-						float rotvel = RandomFloat(entry.rot_vmin, entry.rot_vmax);
-
-						ParticleInstance p = {};
-						p.origin = pos;
-						p.pos = pos;
-						p.velocity = vel;
-						p.idx = entry.idx;
-						p.rotation = rot;
-						p.rotation_velocity = rotvel;
-						p.type = (int)def.orientation;
-						p.scale = { 1.f, 1.f };
-						particles.push_back(p);
-					}
-				}
-			}
-		}
-	}
-
-	auto it = particles.begin();
-	while (it != particles.end())
-	{
-		auto p = it;
-
-		ParticleDefinition *def = &definitions[p->idx];
-		
-		auto age = p->age / def->lifetime;
-		if (!settings.ParticlePaused) {
-			p->pos += p->velocity * pdt;
-			p->velocity -= { 0.f, def->gravity * pdt, 0.f, 0.f };
-			p->rotation += p->rotation_velocity * pdt;
-			p->age += pdt;
-
-			if (XMVectorGetY(p->pos) < 0) {
-				p->pos *= {1.f, 0.f, 1.f};
-				p->velocity *= {0.8f, -0.3f, 0.8f};
-				p->rotation_velocity *= 0.6;
-			}
-		}
-
-		if (def->orientation == ParticleOrientation::Velocity) {
-			p->origin = p->pos;
-		}
-
-		auto scale_fn = GetEaseFunc(def->scale_fn);
-		p->scale = {
-			scale_fn(def->scale_start, def->scale_end, age) * (def->u2 / 2048.f),
-			scale_fn(def->scale_start, def->scale_end, age) * (def->v2 / 2048.f)
-		};
-
-		auto distort_fn = GetEaseFunc(def->distort_fn);
-		if (distort_fn)
-			p->distort = distort_fn(def->distort_start, def->distort_end, age);
-
-		p->uv = { def->u / 2048.f, def->v / 2048.f, (def->u + def->u2) / 2048.f, (def->v + def->v2) / 2048.f };
-
-		auto color_fn = GetEaseFuncV(def->color_fn);
-		if (color_fn) {
-			p->color = color_fn(
-				XMLoadFloat4(&def->start_color),
-				XMLoadFloat4(&def->end_color),
-				age
-			);
-		}
-
-		if (p->age > def->lifetime) {
-			it = particles.erase(it);
-		}
-		else {
-			it++;
-		}
-	}
-
-	std::sort(particles.begin(), particles.end(), [](ParticleInstance &a, ParticleInstance &b) { return XMVectorGetZ(XMVector3Length(camera->pos - a.pos)) > XMVectorGetZ(XMVector3Length(camera->pos - b.pos)); });
-
-	if (!particles.empty()) {
-		D3D11_MAPPED_SUBRESOURCE data;
-		DXCALL(gDeviceContext->Map(particle_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
-		{
-			CopyMemory(data.pData, particles.data(), sizeof(ParticleInstance) * particles.size());
-		}
-		gDeviceContext->Unmap(particle_buffer, 0);
-	}
-
 	camera->pos = { sin(time) * settings.CameraDistance, settings.CameraHeight, cos(time) * settings.CameraDistance };
 	camera->update(dt, viewport.Width, viewport.Height);
+	FX->update(reinterpret_cast<Camera*>(camera), pdt);
+
 }
 
 void Render(float dt)

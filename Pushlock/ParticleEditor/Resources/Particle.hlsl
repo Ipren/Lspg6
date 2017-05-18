@@ -222,7 +222,8 @@ PSOut PS(GSOut input)
 	float4 col = ParticleTexture.Sample(ParticleSampler, input.uv);
 	float2 dist = input.dist_uv;
 
-	output.color = col * input.color * 3;
+	output.color = col * input.color;
+	output.color.a = saturate(output.color.a);
 	output.distort = float4(RadialNormal(dist) * 2 - 1, 0, col.a * input.dist_strength);
 
 	return output;
