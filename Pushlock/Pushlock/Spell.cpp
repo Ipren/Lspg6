@@ -331,7 +331,7 @@ bool WindProjectileSpell::on_effect(Map * map)
 }
 
 EarthProjectileSpell::EarthProjectileSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
-	: Spell(owner, position, velocity, radius, 4.5f), effect_radius(1.5f), strength(1.f), alive(0.f)
+	: Spell(owner, position, velocity, radius, 2.5f), effect_radius(1.5f), strength(1.f)
 {
 	this->light.lightPos = position;
 	this->light.lightColor = XMFLOAT4(0.8, 0.8, 0.8, -1.0f);
@@ -345,30 +345,43 @@ EarthProjectileSpell::~EarthProjectileSpell()
 void EarthProjectileSpell::update(Map * map, float dt)
 {
 	//saves nearby players in a vector
-	if (alive > gSpellConstants.kEarthProjectileEffectArmingTime + gPlayerSpellConstants[owner->index].kEarthProjectileEffectArmingTime)
-	{
-		auto nearby = map->get_entities_in_radius(this, gSpellConstants.kEarthProjectileEffectRadius + gPlayerSpellConstants[owner->index].kEarthProjectileEffectRadius, [](Entity *e) {
-			return e->type == EntityType::Player;
-		});
+	//if (alive > gSpellConstants.kEarthProjectileEffectArmingTime + gPlayerSpellConstants[owner->index].kEarthProjectileEffectArmingTime)
+	//{
+	//	auto nearby = map->get_entities_in_radius(this, gSpellConstants.kEarthProjectileEffectRadius + gPlayerSpellConstants[owner->index].kEarthProjectileEffectRadius, [](Entity *e) {
+	//		return e->type == EntityType::Player;
+	//	});
 
-		for (auto result : nearby) { //moves all nearby players
-			float falloff = (abs(gSpellConstants.kEarthProjectileEffectRadius + gPlayerSpellConstants[owner->index].kEarthProjectileEffectRadius - result.distance)
-				/ (gSpellConstants.kEarthProjectileEffectRadius + gPlayerSpellConstants[owner->index].kEarthProjectileEffectRadius))
-				* (gSpellConstants.kEarthProjectileEffectFalloff + gPlayerSpellConstants[owner->index].kEarthProjectileEffectFalloff);
+	//	for (auto result : nearby) { //moves all nearby players
+	//		float falloff = (abs(gSpellConstants.kEarthProjectileEffectRadius + gPlayerSpellConstants[owner->index].kEarthProjectileEffectRadius - result.distance)
+	//			/ (gSpellConstants.kEarthProjectileEffectRadius + gPlayerSpellConstants[owner->index].kEarthProjectileEffectRadius))
+	//			* (gSpellConstants.kEarthProjectileEffectFalloff + gPlayerSpellConstants[owner->index].kEarthProjectileEffectFalloff);
 
-			result.entity->velocity.x -= cos(result.angle) * ((gSpellConstants.kEarthProjectileStrength + gPlayerSpellConstants[owner->index].kEarthProjectileStrength) * falloff);
-			result.entity->velocity.y -= sin(result.angle) * ((gSpellConstants.kEarthProjectileStrength + gPlayerSpellConstants[owner->index].kEarthProjectileStrength) * falloff);
-		}
-	}
+	//		result.entity->velocity.x -= cos(result.angle) * ((gSpellConstants.kEarthProjectileStrength + gPlayerSpellConstants[owner->index].kEarthProjectileStrength) * falloff);
+	//		result.entity->velocity.y -= sin(result.angle) * ((gSpellConstants.kEarthProjectileStrength + gPlayerSpellConstants[owner->index].kEarthProjectileStrength) * falloff);
+	//	}
+	//}
 
-	alive += dt;
+	this->radius += (gSpellConstants.kEarthProjectileRadiusIncrease + gPlayerSpellConstants[owner->index].kEarthProjectileRadiusIncrease)*dt;
+	this->strength += (gSpellConstants.kEarthProjectileStrengthIncrease + gPlayerSpellConstants[owner->index].kEarthProjectileStrengthIncrease)*dt;
+
 	Spell::update(map, dt);
 	this->light.lightPos = this->position;
 }
 
 bool EarthProjectileSpell::on_effect(Map * map)
 {
-	return false;
+	auto nearby = map->get_entities_in_radius(this, radius, [](Entity *e) {
+		return true;
+	});
+
+	this->strength += gSpellConstants.kEarthProjectileStrength + gPlayerSpellConstants[owner->index].kEarthProjectileStrength;
+
+	for (auto result : nearby) {
+		result.entity->velocity.x += cos(result.angle) * (this->strength);
+		result.entity->velocity.y += sin(result.angle) * (this->strength);
+	}
+
+	return true;
 }
 
 EarthWallSpell::EarthWallSpell(Player *owner, XMFLOAT3 position, float radius)
