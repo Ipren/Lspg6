@@ -116,6 +116,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Pushlock\ParticleSystem.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="External\dxerr.cpp" />

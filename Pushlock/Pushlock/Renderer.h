@@ -29,7 +29,7 @@ public:
 	void render(Map *map, Camera *camera);
 	void present();
 	void update(float dt, Map *map, Camera *camera);
-	
+
 	ID3D11Device *gDevice;
 	ID3D11DeviceContext *gDeviceContext;
 	ID3D11Buffer *quadVertexBuffer;
@@ -59,9 +59,22 @@ public:
 
 	float shadowznear = 1.f;
 	float shadowzfar = 30.f;
-	
+
 	ID3D11RenderTargetView *default_rtv;
 	ID3D11ShaderResourceView *default_srv;
+
+	ID3D11RenderTargetView *blur_rtv[2];
+	ID3D11ShaderResourceView *blur_srv[2];
+
+	ID3D11Buffer *blur_fs_vertices;
+	ID3D11VertexShader *blur_fs_vs;
+	ID3D11InputLayout *blur_fs_layout;
+	ID3D11SamplerState *blur_fs_sampler;
+
+	ID3D11PixelShader *gaussian_x_ps;
+	ID3D11PixelShader *gaussian_y_ps;
+	
+	ID3D11PixelShader *blur_composite;
 private:
 	IDXGISwapChain *gSwapChain;
 	
@@ -180,6 +193,7 @@ private:
 	bool gb;
 
 	//void create_menu();
+	void createBlurPass();
 	void create_debug_entity();
 	void createShadowMap();
 	void createShaders();
@@ -218,6 +232,7 @@ private:
 	void updateheatHaze();
 
 	void renderShadowMap(Map *map, Camera *cam);
+	void renderBlurPass(Map *map, Camera *cam);
 
 	void renderCooldownGUI(Map *map, Camera *cam);
 	void renderHPGUI(Map *map, Camera *cam);

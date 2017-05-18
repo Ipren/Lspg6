@@ -35,8 +35,8 @@ void createDepthBuffer()
 {
 	ID3D11Texture2D* pDepthStencil = NULL;
 	D3D11_TEXTURE2D_DESC descDepth;
-	descDepth.Width = WIDTH;
-	descDepth.Height = HEIGHT;
+	descDepth.Width = EWIDTH;
+	descDepth.Height = EHEIGHT;
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
 	descDepth.Format = DXGI_FORMAT_R24G8_TYPELESS;
@@ -157,7 +157,7 @@ HWND InitWindow(HINSTANCE hInstance)
 	if (!RegisterClassEx(&wcex))
 		return false;
 
-	RECT rc = { 0, 0, WIDTH, HEIGHT };
+	RECT rc = { 0, 0, EWIDTH, EHEIGHT };
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
 	HWND handle = CreateWindow(

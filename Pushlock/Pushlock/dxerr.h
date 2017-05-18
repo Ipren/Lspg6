@@ -79,7 +79,7 @@ HRESULT WINAPI DXTraceW( _In_z_ const WCHAR* strFile, _In_ DWORD dwLine, _In_ HR
 #define WSTRING(A)  CAT(L, #A)
 
 #if 1
-inline static HRESULT _Do_CheckHResult(HRESULT hr, const wchar_t* text, const wchar_t* file, DWORD line)
+inline static HRESULT _HDo_CheckHResult(HRESULT hr, const wchar_t* text, const wchar_t* file, DWORD line)
 {
 	if (FAILED(hr))
 	{
@@ -88,7 +88,7 @@ inline static HRESULT _Do_CheckHResult(HRESULT hr, const wchar_t* text, const wc
 	return hr;
 }
 
-#define DXCALL(x) _Do_CheckHResult(x, L#x, WSTRING(__FILE__), (DWORD)__LINE__)
+#define DXCALL(x) _HDo_CheckHResult(x, L#x, WSTRING(__FILE__), (DWORD)__LINE__)
 #else
 #define DXCALL(x)    (x)
 #endif
