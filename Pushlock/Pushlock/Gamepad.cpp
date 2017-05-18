@@ -7,6 +7,8 @@
 // saxat från https://msdn.microsoft.com/en-us/library/windows/desktop/ee417001(v=vs.85).aspx
 static XMFLOAT2 normalize_thumbs(float x, float y, float deadzone)
 {
+	if (x == 0) x = 1;
+	if (y == 0) y = 1;
 	float magnitude = sqrtf(x * x + y * y);
 
 	float normalized_x = x / magnitude;

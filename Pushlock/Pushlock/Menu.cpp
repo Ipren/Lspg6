@@ -390,7 +390,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		this->setReady(map);
 	}
 	auto pos = ImGui::GetIO();// .MousePos();
-	m_spriteFont->DrawString(m_spriteBatch.get(), L"No mouse required", XMFLOAT2(pos.MousePos.x-100.f, pos.MousePos.y), Colors::HotPink);
+	//m_spriteFont->DrawString(m_spriteBatch.get(), L"No mouse required", XMFLOAT2(pos.MousePos.x-100.f, pos.MousePos.y), Colors::HotPink);
 
 	m_spriteBatch->End();
 
