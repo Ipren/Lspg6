@@ -1,11 +1,11 @@
 #include "Camera.h"
 #include "Globals.h"
 
-Camera::Camera(XMVECTOR pos, XMVECTOR look)
+EditorCamera::EditorCamera(XMVECTOR pos, XMVECTOR look)
 	: pos(pos), look(look), target({}), temp({}), offset({})
 {
 	vals.world = XMMatrixIdentity();
-	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, WIDTH / (float)HEIGHT, 0.01f, 100.f);
+	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, EWIDTH / (float)EHEIGHT, 0.01f, 100.f);
 	vals.view = XMMatrixLookAtLH(pos, look, { 0, 1, 0 });
 
 	vals.view = DirectX::XMMatrixTranspose(vals.view);
@@ -49,13 +49,13 @@ Camera::Camera(XMVECTOR pos, XMVECTOR look)
 	
 }
 
-Camera::~Camera()
+EditorCamera::~EditorCamera()
 {
 	this->wvp_buffer->Release();
 	this->floatwvpBuffer->Release();
 }
 
-void Camera::update(float dt, float width, float height)
+void EditorCamera::update(float dt, float width, float height)
 {
 	temp = XMVectorLerp(temp, target, dt);
 	offset = XMVectorLerp(offset, temp, dt);

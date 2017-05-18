@@ -1,7 +1,7 @@
 #pragma once
 
-#define WIDTH 1600
-#define HEIGHT 900
+#define EWIDTH 1600
+#define EHEIGHT 900
 
 extern IDXGISwapChain *gSwapChain;
 

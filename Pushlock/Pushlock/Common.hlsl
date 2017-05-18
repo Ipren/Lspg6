@@ -48,8 +48,18 @@ float CalcPointLights(StructuredBuffer<PointLight> lights, float4 worldpos, floa
 	float diffuse = 0;
 
 	for (uint i = 0; i < count; i++) {
-		float4 wLightPos = float4(lights[i].lightPos, 1.0f);
-		float3 P2L = wLightPos.xyz - worldpos.xyz;
+		PointLight light = lights[i];
+		float3 lightDir = normalize(light.lightPos - worldpos.xyz);
+		// Diffuse shading
+		float diff = max(dot(normal, lightDir), 0.0);
+		// Specular shading
+		// Attenuation
+		float distance = length(light.lightPos - worldpos.xyz);
+		float attenuation = 1.0f / (1 + 1 * distance + 1 * (distance * distance));
+
+		diffuse += diff * attenuation;
+		/*float4 wLightPos = float4(lights[i].lightPos, 1.0f);
+		float3 P2L = wLightPos.xyz - worldpos;
 		float distance = length(P2L);
 		
 		if (distance < lights[i].range) {
@@ -63,7 +73,7 @@ float CalcPointLights(StructuredBuffer<PointLight> lights, float4 worldpos, floa
 				diffuse *= lights[i].lightColor.xyz * (1.0f - attenuation);
 			}
 
-		}
+		}*/
 	}
 
 	return diffuse;
