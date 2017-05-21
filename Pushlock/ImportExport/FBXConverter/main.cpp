@@ -33,10 +33,10 @@ void PrintMesh(const sMesh& mesh)
 	//for (auto& v : mesh.verts) {
 	for (int v = 0; v < mesh.header.numberOfVerts; v++) {
 		PrintVertex(mesh.verts[v]);
-		for (int u = 0; u < mesh.header.numberOfUVSets; u++) {
-			PrintUV(mesh.uvs[v*u + u]);
+		//for (int u = 0; u < mesh.header.numberOfUVSets; u++) {
+		//	PrintUV(mesh.uvs[v*u + u]);
 
-		}
+		//}
 	}
 
 }
@@ -48,22 +48,19 @@ int main()
 	//////////////////////////////////////////////////////
 
 	FBXImporter importer;
-	sMesh mesh;
+	sSkinnedMesh mesh;
 	vector<sMaterial*> meshMaterials;
 
-	importer.Import("tower.fbx", &mesh, meshMaterials);
-	PrintMesh(mesh);
+	importer.ImportAnimatedMesh("C:\\Users\\Finoli\\Desktop\\Master\\Pushlock\\Pushlock\\FBX\\arcane_spell.fbx", &mesh, meshMaterials);
 
-	//pause;
-	//clear;
 
-	//importer.ExportBinary("ExpImpTest.G6", &mesh);
-	importer.ExportBinary("tower.G6", &mesh, meshMaterials);
+	importer.ExportAnimatedBinary("C:\\Users\\Finoli\\Desktop\\Master\\Pushlock\\Pushlock\\FBX\\arcane_spell.G6Skin", &mesh, meshMaterials);
 
-	G6Import g6importer;
-	sMesh* tmp_mesh = new sMesh();
-	vector<sMaterial*> tmpMaterials;
-	g6importer.ImportStaticMesh("tower.G6", tmp_mesh, tmpMaterials);
+	//G6Import g6importer;
+	//sSkinnedMesh* tmp_mesh = new sSkinnedMesh();
+	//g6importer.ImportAnimatedMesh("IceWall.G6Skin", tmp_mesh);
+
+	pause;
 
 	//vector<Vertex> newVerts;
 	//newVerts.resize(1);
@@ -76,8 +73,6 @@ int main()
 	G6Import::ImportStaticMesh("ExpImpTest.G6", &mesh);
 	PrintMesh(mesh);
 	*/
-
-	pause;
 
 	//////////////////////////////////////////////////////
 	//// BINARY INPUT OUTPUT TEST BELOW //////////////////
