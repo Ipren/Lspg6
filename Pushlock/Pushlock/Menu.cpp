@@ -68,7 +68,7 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[0][1][0] = L"X: Gives your projectile a damage over time effect";
 	this->uStrings[0][1][1] = L"Y: Resets the cooldown of dash if you hit with a stomp";
 	this->uStrings[0][1][2] = L"A: Larger explotion Radius";
-	this->uStrings[0][1][3] = L"B: More health";
+	this->uStrings[0][1][3] = L"B: Increase your maximum health";
 
 	//wind
 	this->uStrings[0][2][0] = L"X: Refelcts projectiles when dashing";
@@ -79,7 +79,7 @@ Menu::Menu(Renderer* renderer)
 	//earth
 	this->uStrings[0][3][0] = L"X: Stomps in a line infron of you";
 	this->uStrings[0][3][1] = L"Y: Stomp creates projectiles";
-	this->uStrings[0][3][2] = L"A: Less pushback";
+	this->uStrings[0][3][2] = L"A: You take less pushback";
 	this->uStrings[0][3][3] = L"B: Stronger stomp";
 
 	//water
@@ -99,7 +99,7 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[1][1][0] = L"X: Dash leaves fire trail that applies a DOT";
 	this->uStrings[1][1][1] = L"Y: Wall applies a damage over time effect";
 	this->uStrings[1][1][2] = L"A: Larger explotion Radius";
-	this->uStrings[1][1][3] = L"B: More health";
+	this->uStrings[1][1][3] = L"B: Increase your maximum health";
 
 	//wind
 	this->uStrings[1][2][0] = L"X: Stomping creates a cloud that appleis a DOT";
@@ -110,7 +110,7 @@ Menu::Menu(Renderer* renderer)
 	//earth
 	this->uStrings[1][3][0] = L"X: Gives your walls spikes that causes damage";
 	this->uStrings[1][3][1] = L"Y: Wall attracts nearby entitys";
-	this->uStrings[1][3][2] = L"A: Less pushback";
+	this->uStrings[1][3][2] = L"A: You take less pushback";
 	this->uStrings[1][3][3] = L"B: Stronger stomp";
 
 	//water
@@ -131,7 +131,7 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[2][1][0] = L"X: Stonger projectile";
 	this->uStrings[2][1][1] = L"Y: Stronger stomp";
 	this->uStrings[2][1][2] = L"A: Larger explotion Radius";
-	this->uStrings[2][1][3] = L"B: More health";
+	this->uStrings[2][1][3] = L"B: Increase your maximum health";
 
 	//wind
 	this->uStrings[2][2][0] = L"X: Faster projectile";
@@ -142,7 +142,7 @@ Menu::Menu(Renderer* renderer)
 	//earth
 	this->uStrings[2][3][0] = L"X: Faster projectile";
 	this->uStrings[2][3][1] = L"Y: Larger projectile effect radius";
-	this->uStrings[2][3][2] = L"A: Less pushback";
+	this->uStrings[2][3][2] = L"A: You take less pushback";
 	this->uStrings[2][3][3] = L"B: Stronger stomp";
 
 	//water
@@ -153,7 +153,6 @@ Menu::Menu(Renderer* renderer)
 
 
 	//rest of the rounds
-	//temp
 	for (size_t i = 3; i < 8; i++)
 	{
 		/*for (size_t j = 0; j < 5; j++)
@@ -174,7 +173,7 @@ Menu::Menu(Renderer* renderer)
 		this->uStrings[i][1][0] = L"X: Stonger projectile";
 		this->uStrings[i][1][1] = L"Y: Stronger stomp";
 		this->uStrings[i][1][2] = L"A: Larger explotion Radius";
-		this->uStrings[i][1][3] = L"B: More health";
+		this->uStrings[i][1][3] = L"B: Increase your maximum health";
 
 		//wind
 		this->uStrings[i][2][0] = L"X: Faster projectile";
@@ -185,7 +184,7 @@ Menu::Menu(Renderer* renderer)
 		//earth
 		this->uStrings[i][3][0] = L"X: Faster projectile";
 		this->uStrings[i][3][1] = L"Y: Larger projectile effect radius";
-		this->uStrings[i][3][2] = L"A: Less pushback";
+		this->uStrings[i][3][2] = L"A: You take less pushback";
 		this->uStrings[i][3][3] = L"B: Stronger stomp";
 
 		//water

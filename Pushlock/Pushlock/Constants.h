@@ -18,7 +18,7 @@ struct SpellConstants {
 	float kArcaneDashCooldown = 1.5f;
 
 	float kArcaneWallCooldown = 4.5f;
-	int kArcaneWallNrOfPillars = 6;
+	int kArcaneWallNrOfPillars = 7;
 	float kArcaneWallPillarDistance = 0.65f;
 	float kArcaneWallPillarRadius = 0.35f;
 
@@ -37,7 +37,7 @@ struct SpellConstants {
 	float kFireDashCooldown = 1.5f;
 
 	float kFireWallCooldown = 4.5f;
-	int   kFireWallNrOfPillars = 6;
+	int   kFireWallNrOfPillars = 7;
 	float kFireWallPillarDistance = 0.65f;
 	float kFireWallPillarRadius = 0.35f;
 
@@ -54,7 +54,7 @@ struct SpellConstants {
 	float kWindDashCooldown = 1.5f;
 
 	float kWindWallCooldown = 4.5f;
-	int   kWindWallNrOfPillars = 6;
+	int   kWindWallNrOfPillars = 7;
 	float kWindWallPillarDistance = 0.65f;
 	float kWindWallPillarRadius = 0.35f;
 
@@ -73,7 +73,7 @@ struct SpellConstants {
 	float kEarthDashCooldown = 1.5f;
 
 	float kEarthWallCooldown = 4.5f;
-	int   kEarthWallNrOfPillars = 6;
+	int   kEarthWallNrOfPillars = 7;
 	float kEarthWallPillarDistance = 0.65f;
 	float kEarthWallPillarRadius = 0.35f;
 
@@ -92,7 +92,7 @@ struct SpellConstants {
 	float kWaterDashCooldown = 1.5f;
 
 	float kWaterWallCooldown = 4.5f;
-	int kWaterWallNrOfPillars = 6;
+	int kWaterWallNrOfPillars = 7;
 	float kWaterWallPillarDistance = 0.65f;
 	float kWaterWallPillarRadius = 0.35f;
 };
