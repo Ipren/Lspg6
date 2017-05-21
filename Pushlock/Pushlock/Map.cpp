@@ -9,6 +9,7 @@ using namespace DirectX;
 
 Map::Map(GameState * currentState)
 {
+	this->meshContainer.Init();
 	this->reset(4);
 	this->nrOfAlivePlayers = 4;
 	this->currentState = currentState;
