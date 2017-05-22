@@ -17,10 +17,10 @@ class FBXImporter
 public:
 	FBXImporter();
 	~FBXImporter();
-	void ImportStaticMesh(const char * filename, sMesh* mesh, vector<sMaterial*>& outMaterials);
+	void ImportStaticMesh(const char * filename, sMesh* mesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights);
 	void ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, vector<sMaterial*>& outMaterials);
 
-	void ExportStaticBinary(const char * outputFile, sMesh* mesh, vector<sMaterial*>& outMaterials);
+	void ExportStaticBinary(const char * outputFile, sMesh* mesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights);
 	void ExportAnimatedBinary(const char * outputFile, sSkinnedMesh* mesh, vector<sMaterial*>& outMaterials);
 
 	void ImportBinary(const char * inputFile, sMesh* mesh);
