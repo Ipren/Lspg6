@@ -48,58 +48,17 @@ int main()
 	//////////////////////////////////////////////////////
 
 	FBXImporter importer;
-	sSkinnedMesh mesh;
+	sMesh mesh;
 	vector<sMaterial*> meshMaterials;
 
-	importer.ImportAnimatedMesh("C:\\Users\\Finoli\\Desktop\\Master\\Pushlock\\Pushlock\\FBX\\arcane_spell.fbx", &mesh, meshMaterials);
+	importer.ImportStaticMesh("C:\\Users\\Finoli\\Desktop\\Master\\Pushlock\\Pushlock\\FBX\\character2.fbx", &mesh, meshMaterials);
 
 
-	importer.ExportAnimatedBinary("C:\\Users\\Finoli\\Desktop\\Master\\Pushlock\\Pushlock\\FBX\\arcane_spell.G6Skin", &mesh, meshMaterials);
+	importer.ExportStaticBinary("C:\\Users\\Finoli\\Desktop\\Master\\Pushlock\\Pushlock\\character.G6Mesh", &mesh, meshMaterials);
 
 	//G6Import g6importer;
 	//sSkinnedMesh* tmp_mesh = new sSkinnedMesh();
 	//g6importer.ImportAnimatedMesh("IceWall.G6Skin", tmp_mesh);
 
 	pause;
-
-	//vector<Vertex> newVerts;
-	//newVerts.resize(1);
-
-	//importer.ImportBinary("ExpImpTest.G6", &mesh);
-
-	//PrintMesh(mesh);
-	/*
-	sMesh mesh;
-	G6Import::ImportStaticMesh("ExpImpTest.G6", &mesh);
-	PrintMesh(mesh);
-	*/
-
-	//////////////////////////////////////////////////////
-	//// BINARY INPUT OUTPUT TEST BELOW //////////////////
-	//////////////////////////////////////////////////////
-
-
-	//std::ofstream outFile("test3.G6", std::ios::binary);
-
-	//Vertex vertices[3]
-	//{
-	//	{ 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-	//	{ 21.0f, 2.0f, 33.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-	//	{ 1.0f, 2.0f, 3.0f, 20.0f, 0.0f, 1.0f, 31.0f, 0.0f }
-	//};
-	//outFile.write(reinterpret_cast<char*>(vertices), sizeof(Vertex) * 3);
-	//outFile.close();
-	//Vertex inVerts[3];
-
-	//std::ifstream in("test3.G6", std::ios::binary);
-	//in.read(reinterpret_cast<char*>(inVerts), sizeof(Vertex) * 3);
-
-	//for (int i = 0; i < 3; i++)
-	//{
-	//	std::cout << "Vertex " << i + 1 << std::endl;
-	//	PrintVertex(inVerts[i]);
-	//}
-	//system("pause");
-	//in.close();
-
 }
