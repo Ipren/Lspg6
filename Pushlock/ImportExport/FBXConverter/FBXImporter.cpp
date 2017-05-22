@@ -124,6 +124,30 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 			if (pCurrentNode->GetNodeAttribute() == NULL) continue;
 
 			FbxNodeAttribute::EType AttributeType = pCurrentNode->GetNodeAttribute()->GetAttributeType();
+
+			//if node is camera
+			if (AttributeType == FbxNodeAttribute::eCamera)
+			{
+				//We do not export the camera to our format, since we do not need them in our game.
+				sCamera camera;
+				FbxCamera* currentCamera = (FbxCamera*)pCurrentNode->GetNodeAttribute();
+
+				FbxDouble3 pos, look, up;
+				up = currentCamera->UpVector.Get();
+				pos = currentCamera->Position.Get();
+				look = currentCamera->InterestPosition.Get();
+				
+				camera.roll = currentCamera->Roll.Get();
+				
+				for (int i = 0; i < 3; i++)
+				{
+					camera.pos[i] = pos.mData[i];
+					camera.look[i] = look.mData[i];
+					camera.up[i] = up.mData[i];
+				}
+			}
+
+			//From here onward we are only looking for meshes.
 			if (AttributeType != FbxNodeAttribute::eMesh) continue;
 
 			std::unordered_map<unsigned int, CtrlPoint*> mControlPoints;
@@ -324,27 +348,22 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, vector<sMaterial*>& outMaterials)
 {
 	//Initial setup //////////////////////////////////////////////////
-	//
-	importer->Initialize(filename, -1, manager->GetIOSettings());	//
-	scene = FbxScene::Create(manager, "Scene");						//
-																	//
-	importer->Import(scene);										//
-																	//
-																	//done with importer											//
-	importer->Destroy();											//
-																	//
-																	//////////////////////////////////////////////////////////////////
+	importer->Initialize(filename, -1, manager->GetIOSettings());	
+	scene = FbxScene::Create(manager, "Scene");						
+																
+	importer->Import(scene);									
+																	
+	//done with importer				
+	importer->Destroy();				
 
-																	//Set to DirectX axis system /////////////////////////////////////////////////
-																	//
-	FbxAxisSystem SceneAxisSystem = scene->GetGlobalSettings().GetAxisSystem();	//
-	FbxAxisSystem OurAxisSystem(FbxAxisSystem::DirectX);						//
-	if (SceneAxisSystem != OurAxisSystem)										//
-	{																			//
-		OurAxisSystem.ConvertScene(scene);										//
-	}																			//
-																				//
-																				//////////////////////////////////////////////////////////////////////////////
+	//Convert to DirectX axis system
+	FbxAxisSystem SceneAxisSystem = scene->GetGlobalSettings().GetAxisSystem();	
+	FbxAxisSystem OurAxisSystem(FbxAxisSystem::DirectX);						
+	if (SceneAxisSystem != OurAxisSystem)										
+	{																			
+		OurAxisSystem.ConvertScene(scene);										
+	}																			
+
 
 
 
@@ -376,8 +395,32 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 			//Get type of current node
 			FbxNodeAttribute::EType AttributeType = pCurrentNode->GetNodeAttribute()->GetAttributeType();
 
-			//We are only looking for nodes of eMesh type. If it
-			//is of any other type, skip to next child node.
+			//if node is camera
+			if (AttributeType == FbxNodeAttribute::eCamera)
+			{
+				//We do not export the camera to our format, since we do not need them in our game.
+				sCamera camera;
+				FbxCamera* currentCamera = (FbxCamera*)pCurrentNode->GetNodeAttribute();
+
+				FbxDouble3 pos, look, up;
+				up = currentCamera->UpVector.Get();
+				pos = currentCamera->Position.Get();
+				look = currentCamera->InterestPosition.Get();
+
+				camera.roll = currentCamera->Roll.Get();
+
+				for (int i = 0; i < 3; i++)
+				{
+					camera.pos[i] = pos.mData[i];
+					camera.look[i] = look.mData[i];
+					camera.up[i] = up.mData[i];
+				}
+			}
+
+			
+
+			//From here we are only looking for nodes of eMesh type. If it
+			//is of any other type, continue to next child node.
 			if (AttributeType != FbxNodeAttribute::eMesh) continue;
 
 			//Found a mesh; process geometry, materials and skin/animation data.
