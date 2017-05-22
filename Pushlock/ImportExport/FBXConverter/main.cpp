@@ -51,13 +51,14 @@ int main()
 	sMesh mesh;
 	vector<sMaterial*> meshMaterials;
 	vector<sLight*> outLights;
+	vector<sCamera*> outCameras;
 
-	importer.ImportStaticMesh("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/arena3.fbx", &mesh, meshMaterials, outLights);
+	importer.ImportStaticMesh("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/character.fbx", &mesh, meshMaterials, outLights, outCameras);
 
 
-	importer.ExportStaticBinary("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/arena3.G6Mesh", &mesh, meshMaterials, outLights);
+	importer.ExportStaticBinary("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/character.G6Mesh", &mesh, meshMaterials, outLights, outCameras);
 
-	//G6Import::ImportStaticMesh("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/light.G6Mesh", &mesh, meshMaterials, outLights);
+	//G6Import::ImportStaticMesh("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/light.G6Mesh", &mesh, meshMaterials, outLights, outCameras);
 
 
 	//G6Import g6importer;
