@@ -2501,14 +2501,14 @@ void Renderer::updateEmitters(Map * map)
 			this->createStompParticles(map->entitys[i]->position, 1);
 			map->entitys[i]->dead = true;
 		}
-		if (dynamic_cast<FirePathSpell* >(map->entitys[i]) != nullptr)
+		/*if (dynamic_cast<FirePathSpell* >(map->entitys[i]) != nullptr)
 		{
 			FirePathSpell* test = dynamic_cast<FirePathSpell*>(map->entitys[i]);
 			temp[emitterCount].position = test->pEmitter.position;
 			temp[emitterCount].randomVector = test->pEmitter.randomVector;
 			temp[emitterCount].particleType = test->pEmitter.particleType;
 			emitterCount++;
-		}
+		}*/
 	}
 	
 	D3D11_MAPPED_SUBRESOURCE data;
