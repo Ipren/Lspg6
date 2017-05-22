@@ -969,7 +969,7 @@ void WaterElement::stomp(Player * player, Map * map)
 {
 	if (cooldown[2] <= 0.0f)
 	{
-		player->stomped = true;
+		//player->stomped = true;
 		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
 			return e->type == EntityType::Player;
 		});
