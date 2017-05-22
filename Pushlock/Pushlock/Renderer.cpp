@@ -2480,14 +2480,14 @@ void Renderer::updateEmitters(Map * map)
 				dynamic_cast<FireElement*>(temp->element)->active_projectile = nullptr;
 			}
 		}
-		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
+		/*if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
 		{	
 			ArcaneProjectileSpell* test = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]);
 			temp[emitterCount].position = test->pEmitter.position;
 			temp[emitterCount].randomVector = test->pEmitter.randomVector;
 			temp[emitterCount].particleType = test->pEmitter.particleType;
 			emitterCount++;
-		}
+		}*/
 		if (dynamic_cast<WaterProjectileSpell*>(map->entitys[i]) != nullptr && dynamic_cast<WaterProjectileSpell*>(map->entitys[i])->pEmitter.particleType != -1)
 		{
 			WaterProjectileSpell* test = dynamic_cast<WaterProjectileSpell*>(map->entitys[i]);
