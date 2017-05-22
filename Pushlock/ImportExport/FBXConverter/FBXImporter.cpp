@@ -99,6 +99,14 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 
 	importer->Import(scene);
 	
+	FbxAxisSystem SceneAxisSystem = scene->GetGlobalSettings().GetAxisSystem();	//
+	FbxAxisSystem OurAxisSystem(FbxAxisSystem::DirectX);						//
+	if (SceneAxisSystem != OurAxisSystem)										//
+	{																			//
+		OurAxisSystem.ConvertScene(scene);										//
+	}
+	FbxAxisSystem NewSceneAxisSystem = scene->GetGlobalSettings().GetAxisSystem();	//
+
 	//done with importer
 	importer->Destroy();
 
