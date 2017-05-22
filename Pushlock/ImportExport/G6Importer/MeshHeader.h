@@ -7,6 +7,13 @@
 using std::string;
 using std::vector;
 
+struct sCamera
+{
+	float pos[3];
+	float look[3];
+	float up[3];
+	float roll;
+};
 struct SkinnedVertex
 {
 	float posX, posY, posZ;
