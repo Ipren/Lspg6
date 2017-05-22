@@ -164,9 +164,12 @@ bool ArcaneWallSpell::on_effect(Map *map) {
 FireProjectileSpell::FireProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, velocity, radius, 4.5f)
 {
+	static ParticleEffect FireTrail = FXSystem->GetFX("fire-proj-trail");
+
 	this->light.lightColor = XMFLOAT4(0.6f, 0.1f, 0.1f, 1.0f);
 	this->light.lightPos = position;
 	this->light.range = 0.9f;
+	this->trail = FireTrail;
 }
 
 FireProjectileSpell::~FireProjectileSpell()
@@ -177,6 +180,8 @@ void FireProjectileSpell::update(Map *map, float dt)
 {
 	Spell::update(map, dt);
 	this->light.lightPos = this->position;
+	FXSystem->ProcessFX(this->trail, XMMatrixTranslation(position.x, position.y, position.z), dt);
+
 }
 
 bool FireProjectileSpell::on_effect(Map *map)
@@ -206,6 +211,9 @@ bool FireProjectileSpell::on_effect(Map *map)
 		dynamic_cast<FireElement*>(this->owner->element)->active_projectile->dead = true;
 		dynamic_cast<FireElement*>(this->owner->element)->active_projectile = nullptr;
 	}
+	
+	FXSystem->AddFX("fire-explode", XMMatrixTranslation(position.x, position.y, position.z));
+
 	return true;
 }
 
@@ -679,9 +687,12 @@ bool WaterIcePatch::on_effect(Map * map)
 FirePathSpell::FirePathSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, { 0.0f, 0.0f }, radius, 6.3f)
 {
+	static ParticleEffect FirePatch = FXSystem->GetFX("fire-patch");
+
 	this->pEmitter.particleType = 1;
 	this->pEmitter.position = position;
 	this->pEmitter.randomVector = DirectX::XMFLOAT4(position.x, position.y, position.z, 1.0f);
+	this->patch = FirePatch;
 }
 
 FirePathSpell::~FirePathSpell()
@@ -694,6 +705,8 @@ void FirePathSpell::update(Map * map, float dt)
 	if (life <= 0.f) {
 		dead = true;
 	}
+
+	FXSystem->ProcessFX(this->patch, XMMatrixTranslation(position.x, position.y, position.z), dt);
 }
 
 bool FirePathSpell::on_effect(Map * map)
