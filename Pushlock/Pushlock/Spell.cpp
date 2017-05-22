@@ -25,6 +25,8 @@ ArcaneProjectileSpell::ArcaneProjectileSpell(Player *owner, XMFLOAT3 position, X
 	this->light.lightPos = position;
 	this->light.range = 1.4f;
 	this->trail = ArcaneTrail;
+	this->pAnimator = new Animator();
+	this->pAnimator->AssignSkinnedMesh("arcane_spell");
 }
 
 ArcaneProjectileSpell::~ArcaneProjectileSpell()

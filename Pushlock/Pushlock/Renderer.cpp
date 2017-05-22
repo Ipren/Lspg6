@@ -2218,9 +2218,14 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 
 		//model = XMMatrixMultiply(XMMatrixRotationX(90 * XM_PI / 180), model);
 		//model = XMMatrixMultiply(XMMatrixRotationZ(270 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
+		//model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+		//model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+		if (entity->pMesh)
+		{ 
+			float s = entity->pMesh->scale;
+			model = XMMatrixMultiply(XMMatrixScaling(s, s, s), model);
+		}
+
 	
 		shadow_camera.world = model;
 
@@ -2718,10 +2723,10 @@ void Renderer::render(Map *map, Camera *camera)
 			{
 
 				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
-				model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
-				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
-
-				model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
+				//model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+				//model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+				float s = entity->pMesh->scale;
+				model = XMMatrixMultiply(XMMatrixScaling(s, s, s), model);
 
 				camera->vals.world = model;
 				camera->update(0, gDeviceContext);
@@ -2734,6 +2739,27 @@ void Renderer::render(Map *map, Camera *camera)
 
 
 				entity->pMesh->Draw(globalDevice, globalDeviceContext);
+			}
+			if (entity->pAnimator != nullptr)
+			{
+				float scale = entity->pAnimator->_mesh->scale;
+				XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(scale, scale, scale) * XMMatrixTranslation(entity->position.x, entity->position.y/* + entity->radius*/, entity->position.z);
+
+				model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+
+				camera->vals.world = model;
+				camera->update(0, gDeviceContext);
+				gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+				gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+				gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
+				gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
+				gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+				gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
+
+				//TODO: deltaTime
+				entity->pAnimator->DrawAndUpdate(0.01f);
+
 			}
 		}
 
