@@ -2712,7 +2712,11 @@ void Renderer::render(Map *map, Camera *camera)
 			camera->update(0, gDeviceContext);
 
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-			gDeviceContext->Draw(129, 0);
+			if (dynamic_cast<FirePathSpell*>(entity) == nullptr)
+			{
+				gDeviceContext->Draw(129, 0);
+			}
+			
 
 			if (entity->pMesh != nullptr)
 			{
