@@ -94,6 +94,9 @@ unsigned int FindJointIndexUsingName(const std::string & inJointName, std::vecto
 void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights)
 {
 
+	outLights.clear();
+	outMaterials.clear();
+
 	importer->Initialize(filename, -1, manager->GetIOSettings());
 	scene = FbxScene::Create(manager, "Scene");
 
@@ -122,6 +125,48 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 			FbxNode* pCurrentNode = pFbxRootNode->GetChild(i);
 			if (pCurrentNode->GetNodeAttribute() == NULL) continue;
 
+
+			//Export lights
+			FbxLight* light = (FbxLight*)pCurrentNode->GetNodeAttribute();
+			FbxNodeAttribute::EType light_type = light->GetAttributeType();
+
+			if (light_type == FbxNodeAttribute::eLight) {
+				FbxDouble3 color = light->Color.Get();
+				FbxDouble intensity = light->Intensity.Get();
+
+				FbxDouble3 position = pCurrentNode->LclTranslation.Get();
+				FbxDouble3 rotation = pCurrentNode->LclRotation.Get();
+				FbxDouble3 scale = pCurrentNode->LclScaling.Get();
+
+				FbxLight::EType type = light->LightType.Get();
+
+				sLight* tmp_light = new sLight();
+				tmp_light->type = (uint32_t)type;
+
+
+				tmp_light->r = color[0];
+				tmp_light->g = color[1];
+				tmp_light->b = color[2];
+
+				tmp_light->intensity = intensity;
+
+				tmp_light->posx = position[0];
+				tmp_light->posy = position[1];
+				tmp_light->posz = position[2];
+
+				tmp_light->rotx = rotation[0];
+				tmp_light->roty = rotation[1];
+				tmp_light->rotz = rotation[2];
+
+				tmp_light->scalex = scale[0];
+				tmp_light->scaley = scale[1];
+				tmp_light->scalez = scale[2];
+
+				outLights.push_back(tmp_light);
+			}
+
+
+			//Export mesh
 			FbxNodeAttribute::EType AttributeType = pCurrentNode->GetNodeAttribute()->GetAttributeType();
 			if (AttributeType != FbxNodeAttribute::eMesh) continue;
 
@@ -318,44 +363,8 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 				outMaterials.push_back(tmp_mat);
 			}
 
-			//Export lights
-			FbxLight* light = (FbxLight*)pCurrentNode->GetNodeAttribute();
-			
-			if (light) {
-				FbxDouble3 color = light->Color.Get();
-				FbxDouble intensity = light->Intensity.Get();
-
-				FbxDouble3 position = pCurrentNode->LclTranslation.Get();
-				FbxDouble3 rotation = pCurrentNode->LclRotation.Get();
-				FbxDouble3 scale = pCurrentNode->LclScaling.Get();
-
-				sLight* tmp_light = new sLight();
-
-				
-				tmp_light->r = color[0];
-				tmp_light->g = color[1];
-				tmp_light->b = color[2];
-
-				tmp_light->intensity = intensity;
-
-				tmp_light->posx = position[0];
-				tmp_light->posy = position[1];
-				tmp_light->posz = position[2];
-
-				tmp_light->rotx = rotation[0];
-				tmp_light->roty = rotation[1];
-				tmp_light->rotz = rotation[2];
-
-				tmp_light->scalex = scale[0];
-				tmp_light->scaley = scale[1];
-				tmp_light->scalez = scale[2];
-
-				outLights.push_back(tmp_light);
-			}
 
 		}
-
-		mesh->header.numberOfLights = outLights.size();
 	}
 }
 
@@ -741,6 +750,7 @@ void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vecto
 	//   <UVSet>
 	//   <Vertex>
 	//   <Vertex>
+	//   
 	//   <UV>
 	//   <UV>
 	//   <UV>
@@ -818,7 +828,14 @@ void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vecto
 
 
 	//Write lights
-	file.write(reinterpret_cast<char*>(&outLights), sizeof(sLight) * outLights.size());
+	size_t n_of_lights = outLights.size();
+	file.write(reinterpret_cast<const char *>(&n_of_lights), sizeof(size_t));
+
+	file.write(reinterpret_cast<char*>(outLights.data()), sizeof(sLight) * outLights.size());
+
+
+
+	//End
 
 	file.close();
 }

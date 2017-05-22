@@ -42,7 +42,7 @@ void MeshContainer::Init()
 	MeshContainer::skinnedMeshes["ice_wall"] = mesh;
 
 	Mesh* mesh2 = new Mesh();
-	mesh2->scale = 0.18f;
+	mesh2->scale = 0.009f;
 	mesh2->LoadStatic("character.G6Mesh", globalDevice, globalDeviceContext);
 	MeshContainer::staticMeshes["character"] = mesh2;
 	//////////////

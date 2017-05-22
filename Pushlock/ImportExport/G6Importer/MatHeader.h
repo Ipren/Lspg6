@@ -40,7 +40,8 @@ struct sMaterial
 
 struct sLight
 {
-	MatSubHeader subheader;
+	uint32_t type;
+
 	float r;
 	float g;
 	float b;

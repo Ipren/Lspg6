@@ -81,8 +81,6 @@ struct MeshHeader
 
 	uint32_t numberOfIndex;
 	//index
-
-	uint32_t numberOfLights;
 };
 
 struct SkinnedMeshHeader
