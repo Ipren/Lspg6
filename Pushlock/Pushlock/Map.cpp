@@ -93,6 +93,8 @@ void Map::reset(int nrOfPlayers)
 		entitys.back()->pMesh = new Mesh();
 		entitys.back()->pMesh->LoadStatic("character.G6Mesh", globalDevice, globalDeviceContext);
 		
+		//entitys.back()->AssignStaticMesh("character");
+		
 	}
 	this->nrOfAlivePlayers = nrOfPlayers;
 	this->nrOfPlayers = nrOfPlayers;
