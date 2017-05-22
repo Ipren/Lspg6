@@ -2218,9 +2218,14 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 
 		//model = XMMatrixMultiply(XMMatrixRotationX(90 * XM_PI / 180), model);
 		//model = XMMatrixMultiply(XMMatrixRotationZ(270 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
+		//model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+		//model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+		if (entity->pMesh)
+		{ 
+			float s = entity->pMesh->scale;
+			model = XMMatrixMultiply(XMMatrixScaling(s, s, s), model);
+		}
+
 	
 		shadow_camera.world = model;
 
