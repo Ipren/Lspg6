@@ -26,7 +26,9 @@ bool Mesh::LoadStatic(std::string filename, ID3D11Device* device, ID3D11DeviceCo
 	//loader.load(filename, *device, *deviceContext, vertexArray, indexArray);
 	this->mesh = new sMesh;
 	vector<sMaterial*> materials;
-	G6Import::ImportStaticMesh(filename.c_str(), mesh, materials);
+	vector<sLight*> lights;
+	vector<sCamera*> cameras;
+	G6Import::ImportStaticMesh(filename.c_str(), mesh, materials, lights, cameras);
 
 
 	for (auto& v : mesh->verts) {

@@ -982,6 +982,7 @@ void WaterElement::stomp(Player * player, Map * map)
 
 		cooldown[2] = gSpellConstants.kWaterStompCooldown + gPlayerSpellConstants[player->index].kWaterStompCooldown;
 		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
+		FXSystem->AddFX("water-stomp", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
 	}
 }
 

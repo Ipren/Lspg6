@@ -4,6 +4,36 @@
 #include "HelperStructs.h"
 #include <fstream>
 
+std::wstring s2ws(const std::string& str)
+{
+	int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+	std::wstring wstrTo(size_needed, 0);
+	MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+	return wstrTo;
+}
+
+bool CopyDirTo(const wstring& source_folder, const wstring& target_folder)
+{
+	wstring new_sf = source_folder + L"\\*";
+	WCHAR sf[MAX_PATH + 1];
+	WCHAR tf[MAX_PATH + 1];
+
+	wcscpy_s(sf, MAX_PATH, new_sf.c_str());
+	wcscpy_s(tf, MAX_PATH, target_folder.c_str());
+
+	sf[lstrlenW(sf) + 1] = 0;
+	tf[lstrlenW(tf) + 1] = 0;
+
+	SHFILEOPSTRUCTW s = { 0 };
+	s.wFunc = FO_COPY;
+	s.pTo = tf;
+	s.pFrom = sf;
+	s.fFlags = FOF_SILENT | FOF_NOCONFIRMMKDIR | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_NO_UI;
+	int res = SHFileOperationW(&s);
+
+	return res == 0;
+}
+
 FBXImporter::FBXImporter()
 {
 	manager = FbxManager::Create();
@@ -91,8 +121,12 @@ unsigned int FindJointIndexUsingName(const std::string & inJointName, std::vecto
 * - a string with name of the mesh. Also not currently exported.
 * - 
 */
-void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sMaterial*>& outMaterials)
+void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights, vector<sCamera*>& outCameras)
 {
+
+	outLights.clear();
+	outMaterials.clear();
+	outCameras.clear();
 
 	importer->Initialize(filename, -1, manager->GetIOSettings());
 	scene = FbxScene::Create(manager, "Scene");
@@ -116,20 +150,62 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 	std::vector<Joint> joints;
 	DumpRecursive(pFbxRootNode, joints, 0, -1);
 
-	if (pFbxRootNode)
-	{
+	if (pFbxRootNode) {
 		for (int i = 0; i < pFbxRootNode->GetChildCount(); i++)
 		{
 			FbxNode* pCurrentNode = pFbxRootNode->GetChild(i);
 			if (pCurrentNode->GetNodeAttribute() == NULL) continue;
 
+
+			//Export lights
+			FbxLight* light = (FbxLight*)pCurrentNode->GetNodeAttribute();
+			FbxNodeAttribute::EType light_type = light->GetAttributeType();
+
+			if (light_type == FbxNodeAttribute::eLight) {
+				FbxDouble3 color = light->Color.Get();
+				FbxDouble intensity = light->Intensity.Get();
+
+				FbxDouble3 position = pCurrentNode->LclTranslation.Get();
+				FbxDouble3 rotation = pCurrentNode->LclRotation.Get();
+				FbxDouble3 scale = pCurrentNode->LclScaling.Get();
+
+				FbxLight::EType type = light->LightType.Get();
+
+				sLight* tmp_light = new sLight();
+				tmp_light->type = (uint32_t)type;
+
+
+				tmp_light->r = color[0];
+				tmp_light->g = color[1];
+				tmp_light->b = color[2];
+
+				tmp_light->intensity = intensity;
+
+				tmp_light->posx = position[0];
+				tmp_light->posy = position[1];
+				tmp_light->posz = position[2];
+
+				tmp_light->rotx = rotation[0];
+				tmp_light->roty = rotation[1];
+				tmp_light->rotz = rotation[2];
+
+				tmp_light->scalex = scale[0];
+				tmp_light->scaley = scale[1];
+				tmp_light->scalez = scale[2];
+
+				outLights.push_back(tmp_light);
+			}
+
+
+			//Export mesh
 			FbxNodeAttribute::EType AttributeType = pCurrentNode->GetNodeAttribute()->GetAttributeType();
 
 			//if node is camera
 			if (AttributeType == FbxNodeAttribute::eCamera)
 			{
 				//We do not export the camera to our format, since we do not need them in our game.
-				sCamera camera;
+				//sCamera camera;
+				sCamera* camera = new sCamera();
 				FbxCamera* currentCamera = (FbxCamera*)pCurrentNode->GetNodeAttribute();
 
 				FbxDouble3 pos, look, up;
@@ -137,14 +213,16 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 				pos = currentCamera->Position.Get();
 				look = currentCamera->InterestPosition.Get();
 				
-				camera.roll = currentCamera->Roll.Get();
+				camera->roll = currentCamera->Roll.Get();
 				
 				for (int i = 0; i < 3; i++)
 				{
-					camera.pos[i] = pos.mData[i];
-					camera.look[i] = look.mData[i];
-					camera.up[i] = up.mData[i];
+					camera->pos[i] = pos.mData[i];
+					camera->look[i] = look.mData[i];
+					camera->up[i] = up.mData[i];
 				}
+
+				outCameras.push_back(camera);
 			}
 
 			//From here onward we are only looking for meshes.
@@ -152,6 +230,7 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 
 			std::unordered_map<unsigned int, CtrlPoint*> mControlPoints;
 			ProcessControlPoints(pCurrentNode, mControlPoints);
+
 
 			FbxMesh* currentMesh = (FbxMesh*)pCurrentNode->GetNodeAttribute();
 			
@@ -186,6 +265,7 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 
 				if (deformer_type == FbxDeformer::eSkin) break;
 			}
+
 
 
 			FbxSkin *skin = deformer && deformer->Is<FbxSkin>() ? (FbxSkin*)deformer : 0;
@@ -316,8 +396,19 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 
 				if (diffuse_tex != nullptr) {
 					FbxFileTexture* diffuse_tex_file = diffuse_tex && diffuse_tex->Is<FbxFileTexture>() ? (FbxFileTexture*)diffuse_tex : 0;
+
+					//Get absolute file path
 					const char* file_path = diffuse_tex_file->GetFileName();
-					tmp_mat->diffuse_path = file_path;
+					const char* file_path_rel;
+					string abs_file_path = file_path;
+
+					//Get relative file path
+					tmp_mat->diffuse_path = FbxPathUtils::GetRelativeFilePath(scene->GetPathToRootDocument() + "FBXConverter", file_path);
+					string file_path_str = file_path;
+
+					//TODO: Copy textures to right folder, change paths if needed.
+					//CopyDirTo(s2ws("C:\\Users\\Theo\\Desktop\\Workstation\\LitetSpel\\Pushlock\\ImportExport\\FBXConverter\\cube_textured.fbm\\*"), L"C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/Pushlock");
+
 					tmp_mat->data.diffusePathLength = tmp_mat->diffuse_path.size();
 				}
 
@@ -341,6 +432,8 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 
 				outMaterials.push_back(tmp_mat);
 			}
+
+
 		}
 	}
 }
@@ -731,7 +824,7 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 }
 
 
-void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vector<sMaterial*>& outMaterials)
+void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights, vector<sCamera*>& outCameras)
 {
 	std::ofstream file(outputFile, std::ios::binary);
 	assert(file.is_open());
@@ -746,6 +839,7 @@ void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vecto
 	//   <UVSet>
 	//   <Vertex>
 	//   <Vertex>
+	//   
 	//   <UV>
 	//   <UV>
 	//   <UV>
@@ -820,7 +914,22 @@ void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vecto
 
 		}
 	}
-	
+
+
+	//Write lights
+	size_t n_of_lights = outLights.size();
+	file.write(reinterpret_cast<const char *>(&n_of_lights), sizeof(size_t));
+
+	file.write(reinterpret_cast<char*>(outLights.data()), sizeof(sLight) * outLights.size());
+
+
+	//Write cameras
+	size_t n_of_cameras = outCameras.size();
+	file.write(reinterpret_cast<const char *>(&n_of_cameras), sizeof(size_t));
+
+	file.write(reinterpret_cast<char*>(outCameras.data()), sizeof(sCamera) * outCameras.size());
+
+	//End
 
 	file.close();
 }
