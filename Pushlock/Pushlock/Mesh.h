@@ -23,6 +23,8 @@ public:
 	ID3D11DeviceContext* deviceContext;
 	///////////////////////
 
+	float scale = 1.0f;
+
 	void PrepareShaders();
 private:
 	sMesh* mesh = nullptr;
