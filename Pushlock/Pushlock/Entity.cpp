@@ -9,6 +9,17 @@ Entity::Entity(EntityType type, XMFLOAT3 position, XMFLOAT2 velocity, float radi
 {
 }
 
+void Entity::AssignStaticMesh(string meshName)
+{
+	this->pMesh = MeshContainer::staticMeshes[meshName];
+}
+
+void Entity::update(Map * map, float dt)
+{
+	if (this->pAnimator != nullptr)
+		pAnimator->Update(dt);
+}
+
 Entity::~Entity()
 {
 	if (this->pMesh != nullptr)

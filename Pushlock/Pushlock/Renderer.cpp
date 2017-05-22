@@ -2218,9 +2218,14 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 
 		//model = XMMatrixMultiply(XMMatrixRotationX(90 * XM_PI / 180), model);
 		//model = XMMatrixMultiply(XMMatrixRotationZ(270 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
+		//model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+		//model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+		if (entity->pMesh)
+		{ 
+			float s = entity->pMesh->scale;
+			model = XMMatrixMultiply(XMMatrixScaling(s, s, s), model);
+		}
+
 	
 		shadow_camera.world = model;
 
@@ -2480,14 +2485,14 @@ void Renderer::updateEmitters(Map * map)
 				dynamic_cast<FireElement*>(temp->element)->active_projectile = nullptr;
 			}
 		}
-		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
+		/*if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
 		{	
 			ArcaneProjectileSpell* test = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]);
 			temp[emitterCount].position = test->pEmitter.position;
 			temp[emitterCount].randomVector = test->pEmitter.randomVector;
 			temp[emitterCount].particleType = test->pEmitter.particleType;
 			emitterCount++;
-		}
+		}*/
 		if (dynamic_cast<WaterProjectileSpell*>(map->entitys[i]) != nullptr && dynamic_cast<WaterProjectileSpell*>(map->entitys[i])->pEmitter.particleType != -1)
 		{
 			WaterProjectileSpell* test = dynamic_cast<WaterProjectileSpell*>(map->entitys[i]);
@@ -2501,14 +2506,14 @@ void Renderer::updateEmitters(Map * map)
 			this->createStompParticles(map->entitys[i]->position, 1);
 			map->entitys[i]->dead = true;
 		}
-		if (dynamic_cast<FirePathSpell* >(map->entitys[i]) != nullptr)
+		/*if (dynamic_cast<FirePathSpell* >(map->entitys[i]) != nullptr)
 		{
 			FirePathSpell* test = dynamic_cast<FirePathSpell*>(map->entitys[i]);
 			temp[emitterCount].position = test->pEmitter.position;
 			temp[emitterCount].randomVector = test->pEmitter.randomVector;
 			temp[emitterCount].particleType = test->pEmitter.particleType;
 			emitterCount++;
-		}
+		}*/
 	}
 	
 	D3D11_MAPPED_SUBRESOURCE data;
@@ -2712,16 +2717,20 @@ void Renderer::render(Map *map, Camera *camera)
 			camera->update(0, gDeviceContext);
 
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-			gDeviceContext->Draw(129, 0);
+			if (dynamic_cast<FirePathSpell*>(entity) == nullptr)
+			{
+				gDeviceContext->Draw(129, 0);
+			}
+			
 
 			if (entity->pMesh != nullptr)
 			{
 
 				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
-				model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
-				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
-
-				model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
+				//model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+				//model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+				float s = entity->pMesh->scale;
+				model = XMMatrixMultiply(XMMatrixScaling(s, s, s), model);
 
 				camera->vals.world = model;
 				camera->update(0, gDeviceContext);
@@ -2734,6 +2743,27 @@ void Renderer::render(Map *map, Camera *camera)
 
 
 				entity->pMesh->Draw(globalDevice, globalDeviceContext);
+			}
+			if (entity->pAnimator != nullptr)
+			{
+				float scale = entity->pAnimator->_mesh->scale;
+				XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(scale, scale, scale) * XMMatrixTranslation(entity->position.x, entity->position.y/* + entity->radius*/, entity->position.z);
+
+				model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+
+				camera->vals.world = model;
+				camera->update(0, gDeviceContext);
+				gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+				gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+				gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
+				gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
+				gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+				gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
+
+				//TODO: deltaTime
+				entity->pAnimator->DrawAndUpdate(0.01f);
+
 			}
 		}
 

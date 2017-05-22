@@ -146,6 +146,14 @@ void ArcaneElement::wall(Player *player, Map *map)
 				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
 				w->edge = true;
 			}
+
+			//Add animated mesh to middle pillar
+			if (i == 4)
+			{
+				Spell* w = dynamic_cast<Spell*>(e);
+				w->pAnimator = new Animator();
+				w->pAnimator->AssignSkinnedMesh("ice_wall");
+			}
 		}
 
 
@@ -321,7 +329,7 @@ void FireElement::stomp(Player * player, Map * map)
 {
 	if (cooldown[2] <= 0.f) {
 
-		player->stomped = true;
+		//player->stomped = true;
 
 		//saves nearby players in a vector
 		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kFireStompDistance + gPlayerSpellConstants[player->index].kFireStompDistance, [](Entity *e) {
@@ -339,6 +347,8 @@ void FireElement::stomp(Player * player, Map * map)
 		}
 
 		cooldown[2] = gSpellConstants.kFireStompCooldown + gPlayerSpellConstants[player->index].kFireStompCooldown;
+		FXSystem->AddFX("fire-stomp", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
+		FXSystem->AddFX("shrapnel", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
 		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 	}
 }
@@ -972,6 +982,7 @@ void WaterElement::stomp(Player * player, Map * map)
 
 		cooldown[2] = gSpellConstants.kWaterStompCooldown + gPlayerSpellConstants[player->index].kWaterStompCooldown;
 		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
+		FXSystem->AddFX("water-stomp", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
 	}
 }
 
