@@ -6,8 +6,11 @@
 #include "MeshHeader.h"
 #include "MatHeader.h"
 #include "HelperStructs.h"
+
 using std::vector;
 using std::string;
+using std::wstring;
+
 
 class FBXImporter
 {

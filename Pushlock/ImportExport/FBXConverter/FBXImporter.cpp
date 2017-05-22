@@ -4,6 +4,36 @@
 #include "HelperStructs.h"
 #include <fstream>
 
+std::wstring s2ws(const std::string& str)
+{
+	int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
+	std::wstring wstrTo(size_needed, 0);
+	MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
+	return wstrTo;
+}
+
+bool CopyDirTo(const wstring& source_folder, const wstring& target_folder)
+{
+	wstring new_sf = source_folder + L"\\*";
+	WCHAR sf[MAX_PATH + 1];
+	WCHAR tf[MAX_PATH + 1];
+
+	wcscpy_s(sf, MAX_PATH, new_sf.c_str());
+	wcscpy_s(tf, MAX_PATH, target_folder.c_str());
+
+	sf[lstrlenW(sf) + 1] = 0;
+	tf[lstrlenW(tf) + 1] = 0;
+
+	SHFILEOPSTRUCTW s = { 0 };
+	s.wFunc = FO_COPY;
+	s.pTo = tf;
+	s.pFrom = sf;
+	s.fFlags = FOF_SILENT | FOF_NOCONFIRMMKDIR | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_NO_UI;
+	int res = SHFileOperationW(&s);
+
+	return res == 0;
+}
+
 FBXImporter::FBXImporter()
 {
 	manager = FbxManager::Create();
@@ -78,6 +108,7 @@ void FBXImporter::Import(const char * filename, sMesh* mesh, vector<sMaterial*>&
 
 			std::unordered_map<unsigned int, CtrlPoint*> mControlPoints;
 			ProcessControlPoints(pCurrentNode, mControlPoints);
+
 
 			FbxMesh* currentMesh = (FbxMesh*)pCurrentNode->GetNodeAttribute();
 			
@@ -243,8 +274,19 @@ void FBXImporter::Import(const char * filename, sMesh* mesh, vector<sMaterial*>&
 
 				if (diffuse_tex != nullptr) {
 					FbxFileTexture* diffuse_tex_file = diffuse_tex && diffuse_tex->Is<FbxFileTexture>() ? (FbxFileTexture*)diffuse_tex : 0;
+
+					//Get absolute file path
 					const char* file_path = diffuse_tex_file->GetFileName();
-					tmp_mat->diffuse_path = file_path;
+					const char* file_path_rel;
+					string abs_file_path = file_path;
+
+					//Get relative file path
+					tmp_mat->diffuse_path = FbxPathUtils::GetRelativeFilePath(scene->GetPathToRootDocument() + "FBXConverter", file_path);
+					string file_path_str = file_path;
+
+					//TODO: Copy textures to right folder, change paths if needed.
+					//CopyDirTo(s2ws("C:\\Users\\Theo\\Desktop\\Workstation\\LitetSpel\\Pushlock\\ImportExport\\FBXConverter\\cube_textured.fbm\\*"), L"C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/Pushlock");
+
 					tmp_mat->data.diffusePathLength = tmp_mat->diffuse_path.size();
 				}
 
