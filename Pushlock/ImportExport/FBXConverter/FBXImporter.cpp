@@ -91,7 +91,7 @@ unsigned int FindJointIndexUsingName(const std::string & inJointName, std::vecto
 * - a string with name of the mesh. Also not currently exported.
 * - 
 */
-void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sMaterial*>& outMaterials)
+void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights)
 {
 
 	importer->Initialize(filename, -1, manager->GetIOSettings());
@@ -108,8 +108,7 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 	std::vector<Joint> joints;
 	DumpRecursive(pFbxRootNode, joints, 0, -1);
 
-	if (pFbxRootNode)
-	{
+	if (pFbxRootNode) {
 		for (int i = 0; i < pFbxRootNode->GetChildCount(); i++)
 		{
 			FbxNode* pCurrentNode = pFbxRootNode->GetChild(i);
@@ -154,6 +153,7 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 
 				if (deformer_type == FbxDeformer::eSkin) break;
 			}
+
 
 
 			FbxSkin *skin = deformer && deformer->Is<FbxSkin>() ? (FbxSkin*)deformer : 0;
@@ -309,7 +309,45 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 
 				outMaterials.push_back(tmp_mat);
 			}
+
+			//Export lights
+			FbxLight* light = (FbxLight*)pCurrentNode->GetNodeAttribute();
+			
+			if (light) {
+				FbxDouble3 color = light->Color.Get();
+				FbxDouble intensity = light->Intensity.Get();
+
+				FbxDouble3 position = pCurrentNode->LclTranslation.Get();
+				FbxDouble3 rotation = pCurrentNode->LclRotation.Get();
+				FbxDouble3 scale = pCurrentNode->LclScaling.Get();
+
+				sLight* tmp_light = new sLight();
+
+				
+				tmp_light->r = color[0];
+				tmp_light->g = color[1];
+				tmp_light->b = color[2];
+
+				tmp_light->intensity = intensity;
+
+				tmp_light->posx = position[0];
+				tmp_light->posy = position[1];
+				tmp_light->posz = position[2];
+
+				tmp_light->rotx = rotation[0];
+				tmp_light->roty = rotation[1];
+				tmp_light->rotz = rotation[2];
+
+				tmp_light->scalex = scale[0];
+				tmp_light->scaley = scale[1];
+				tmp_light->scalez = scale[2];
+
+				outLights.push_back(tmp_light);
+			}
+
 		}
+
+		mesh->header.numberOfLights = outLights.size();
 	}
 }
 
@@ -680,7 +718,7 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 }
 
 
-void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vector<sMaterial*>& outMaterials)
+void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights)
 {
 	std::ofstream file(outputFile, std::ios::binary);
 	assert(file.is_open());
@@ -769,7 +807,10 @@ void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vecto
 
 		}
 	}
-	
+
+
+	//Write lights
+	file.write(reinterpret_cast<char*>(&outLights), sizeof(sLight) * outLights.size());
 
 	file.close();
 }

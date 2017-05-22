@@ -37,3 +37,25 @@ struct sMaterial
 
 	sMaterialData data;
 };
+
+struct sLight
+{
+	MatSubHeader subheader;
+	float r;
+	float g;
+	float b;
+
+	float intensity;
+
+	float posx;
+	float posy;
+	float posz;
+
+	float rotx;
+	float roty;
+	float rotz;
+
+	float scalex;
+	float scaley;
+	float scalez;
+};
