@@ -9,6 +9,7 @@ using namespace DirectX;
 
 Map::Map(GameState * currentState)
 {
+	this->meshContainer.Init();
 	this->reset(4);
 	this->nrOfAlivePlayers = 4;
 	this->currentState = currentState;
@@ -89,8 +90,10 @@ void Map::reset(int nrOfPlayers)
 		}
 		p->health = p->element->startHealth;//set health based on the element choice
 		entitys.push_back(e);
-		entitys.back()->pMesh = new Mesh();
-		entitys.back()->pMesh->LoadStatic("character.G6Mesh", globalDevice, globalDeviceContext);
+		//entitys.back()->pMesh = new Mesh();
+		//entitys.back()->pMesh->LoadStatic("character.G6Mesh", globalDevice, globalDeviceContext);
+		//
+		entitys.back()->AssignStaticMesh("character");
 		
 	}
 	this->nrOfAlivePlayers = nrOfPlayers;

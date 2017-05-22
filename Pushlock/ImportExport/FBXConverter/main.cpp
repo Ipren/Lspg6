@@ -33,10 +33,10 @@ void PrintMesh(const sMesh& mesh)
 	//for (auto& v : mesh.verts) {
 	for (int v = 0; v < mesh.header.numberOfVerts; v++) {
 		PrintVertex(mesh.verts[v]);
-		for (int u = 0; u < mesh.header.numberOfUVSets; u++) {
-			PrintUV(mesh.uvs[v*u + u]);
+		//for (int u = 0; u < mesh.header.numberOfUVSets; u++) {
+		//	PrintUV(mesh.uvs[v*u + u]);
 
-		}
+		//}
 	}
 
 }
@@ -51,60 +51,14 @@ int main()
 	sMesh mesh;
 	vector<sMaterial*> meshMaterials;
 
-	importer.Import("tower.fbx", &mesh, meshMaterials);
-	PrintMesh(mesh);
+	importer.ImportStaticMesh("C:\\Users\\Finoli\\Desktop\\Master\\Pushlock\\Pushlock\\FBX\\character2.fbx", &mesh, meshMaterials);
 
-	//pause;
-	//clear;
 
-	//importer.ExportBinary("ExpImpTest.G6", &mesh);
-	importer.ExportBinary("tower.G6", &mesh, meshMaterials);
+	importer.ExportStaticBinary("C:\\Users\\Finoli\\Desktop\\Master\\Pushlock\\Pushlock\\character.G6Mesh", &mesh, meshMaterials);
 
-	G6Import g6importer;
-	sMesh* tmp_mesh = new sMesh();
-	vector<sMaterial*> tmpMaterials;
-	g6importer.ImportStaticMesh("tower.G6", tmp_mesh, tmpMaterials);
-
-	//vector<Vertex> newVerts;
-	//newVerts.resize(1);
-
-	//importer.ImportBinary("ExpImpTest.G6", &mesh);
-
-	//PrintMesh(mesh);
-	/*
-	sMesh mesh;
-	G6Import::ImportStaticMesh("ExpImpTest.G6", &mesh);
-	PrintMesh(mesh);
-	*/
+	//G6Import g6importer;
+	//sSkinnedMesh* tmp_mesh = new sSkinnedMesh();
+	//g6importer.ImportAnimatedMesh("IceWall.G6Skin", tmp_mesh);
 
 	pause;
-
-	//////////////////////////////////////////////////////
-	//// BINARY INPUT OUTPUT TEST BELOW //////////////////
-	//////////////////////////////////////////////////////
-
-
-	//std::ofstream outFile("test3.G6", std::ios::binary);
-
-	//Vertex vertices[3]
-	//{
-	//	{ 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-	//	{ 21.0f, 2.0f, 33.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f },
-	//	{ 1.0f, 2.0f, 3.0f, 20.0f, 0.0f, 1.0f, 31.0f, 0.0f }
-	//};
-	//outFile.write(reinterpret_cast<char*>(vertices), sizeof(Vertex) * 3);
-	//outFile.close();
-	//Vertex inVerts[3];
-
-	//std::ifstream in("test3.G6", std::ios::binary);
-	//in.read(reinterpret_cast<char*>(inVerts), sizeof(Vertex) * 3);
-
-	//for (int i = 0; i < 3; i++)
-	//{
-	//	std::cout << "Vertex " << i + 1 << std::endl;
-	//	PrintVertex(inVerts[i]);
-	//}
-	//system("pause");
-	//in.close();
-
 }

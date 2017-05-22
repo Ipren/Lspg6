@@ -15,7 +15,6 @@ public:
 	Mesh();
 	~Mesh();
 	bool LoadStatic(std::string filename, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
-	bool LoadSkinned(std::string filename, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void PreDraw(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
@@ -23,6 +22,8 @@ public:
 	ID3D11Device* device;
 	ID3D11DeviceContext* deviceContext;
 	///////////////////////
+
+	float scale = 1.0f;
 
 	void PrepareShaders();
 private:
@@ -41,4 +42,3 @@ private:
 	ID3D11PixelShader *custom_mesh_psh;
 	ID3D11InputLayout *custom_mesh_layout;
 };
-
