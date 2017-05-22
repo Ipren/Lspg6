@@ -1,10 +1,11 @@
 #include "G6Import.h"
 
-bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights)
+bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights, vector<sCamera*>& outCameras)
 {
 
 	outMaterials.clear();
 	outLights.clear();
+	outCameras.clear();
 
 	std::ifstream file(filename, std::ios::binary);
 
@@ -112,6 +113,14 @@ bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<s
 
 	file.read(reinterpret_cast<char*>(outLights.data()), sizeof(sLight) * n_of_lights);
 
+
+	//Read cameras
+	size_t n_of_cameras = 0;
+	file.read(reinterpret_cast<char*>(&n_of_cameras), sizeof(size_t));
+
+	outCameras.resize(n_of_lights);
+
+	file.read(reinterpret_cast<char*>(outCameras.data()), sizeof(sCamera) * n_of_cameras);
 
 
 	//End

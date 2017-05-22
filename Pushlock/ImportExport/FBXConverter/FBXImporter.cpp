@@ -121,11 +121,12 @@ unsigned int FindJointIndexUsingName(const std::string & inJointName, std::vecto
 * - a string with name of the mesh. Also not currently exported.
 * - 
 */
-void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights)
+void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights, vector<sCamera*>& outCameras)
 {
 
 	outLights.clear();
 	outMaterials.clear();
+	outCameras.clear();
 
 	importer->Initialize(filename, -1, manager->GetIOSettings());
 	scene = FbxScene::Create(manager, "Scene");
@@ -203,7 +204,8 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 			if (AttributeType == FbxNodeAttribute::eCamera)
 			{
 				//We do not export the camera to our format, since we do not need them in our game.
-				sCamera camera;
+				//sCamera camera;
+				sCamera* camera = new sCamera();
 				FbxCamera* currentCamera = (FbxCamera*)pCurrentNode->GetNodeAttribute();
 
 				FbxDouble3 pos, look, up;
@@ -211,14 +213,16 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 				pos = currentCamera->Position.Get();
 				look = currentCamera->InterestPosition.Get();
 				
-				camera.roll = currentCamera->Roll.Get();
+				camera->roll = currentCamera->Roll.Get();
 				
 				for (int i = 0; i < 3; i++)
 				{
-					camera.pos[i] = pos.mData[i];
-					camera.look[i] = look.mData[i];
-					camera.up[i] = up.mData[i];
+					camera->pos[i] = pos.mData[i];
+					camera->look[i] = look.mData[i];
+					camera->up[i] = up.mData[i];
 				}
+
+				outCameras.push_back(camera);
 			}
 
 			//From here onward we are only looking for meshes.
@@ -820,7 +824,7 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 }
 
 
-void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights)
+void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights, vector<sCamera*>& outCameras)
 {
 	std::ofstream file(outputFile, std::ios::binary);
 	assert(file.is_open());
@@ -919,6 +923,11 @@ void FBXImporter::ExportStaticBinary(const char * outputFile, sMesh* mesh, vecto
 	file.write(reinterpret_cast<char*>(outLights.data()), sizeof(sLight) * outLights.size());
 
 
+	//Write cameras
+	size_t n_of_cameras = outCameras.size();
+	file.write(reinterpret_cast<const char *>(&n_of_cameras), sizeof(size_t));
+
+	file.write(reinterpret_cast<char*>(outCameras.data()), sizeof(sCamera) * outCameras.size());
 
 	//End
 

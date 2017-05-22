@@ -307,9 +307,6 @@
     <FxCompile Include="GaussianPass.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Skinned.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
@@ -330,6 +327,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="GlowComposite.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Skinned.hlsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
