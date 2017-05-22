@@ -2485,14 +2485,14 @@ void Renderer::updateEmitters(Map * map)
 				dynamic_cast<FireElement*>(temp->element)->active_projectile = nullptr;
 			}
 		}
-		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
+		/*if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
 		{	
 			ArcaneProjectileSpell* test = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]);
 			temp[emitterCount].position = test->pEmitter.position;
 			temp[emitterCount].randomVector = test->pEmitter.randomVector;
 			temp[emitterCount].particleType = test->pEmitter.particleType;
 			emitterCount++;
-		}
+		}*/
 		if (dynamic_cast<WaterProjectileSpell*>(map->entitys[i]) != nullptr && dynamic_cast<WaterProjectileSpell*>(map->entitys[i])->pEmitter.particleType != -1)
 		{
 			WaterProjectileSpell* test = dynamic_cast<WaterProjectileSpell*>(map->entitys[i]);
@@ -2506,14 +2506,14 @@ void Renderer::updateEmitters(Map * map)
 			this->createStompParticles(map->entitys[i]->position, 1);
 			map->entitys[i]->dead = true;
 		}
-		if (dynamic_cast<FirePathSpell* >(map->entitys[i]) != nullptr)
+		/*if (dynamic_cast<FirePathSpell* >(map->entitys[i]) != nullptr)
 		{
 			FirePathSpell* test = dynamic_cast<FirePathSpell*>(map->entitys[i]);
 			temp[emitterCount].position = test->pEmitter.position;
 			temp[emitterCount].randomVector = test->pEmitter.randomVector;
 			temp[emitterCount].particleType = test->pEmitter.particleType;
 			emitterCount++;
-		}
+		}*/
 	}
 	
 	D3D11_MAPPED_SUBRESOURCE data;
@@ -2717,7 +2717,11 @@ void Renderer::render(Map *map, Camera *camera)
 			camera->update(0, gDeviceContext);
 
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-			gDeviceContext->Draw(129, 0);
+			if (dynamic_cast<FirePathSpell*>(entity) == nullptr)
+			{
+				gDeviceContext->Draw(129, 0);
+			}
+			
 
 			if (entity->pMesh != nullptr)
 			{

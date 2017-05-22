@@ -50,11 +50,20 @@ void PlanarParticle(VSIn input, inout TriangleStream<GSOut> outstream)
 	
 	float w = input.scale.x;
 	float h = input.scale.y;
-	
-	float3 N = float3(0, 0, w);
-	float3 S = float3(0, 0, -w);
-	float3 E = float3(-h, 0, 0);
-	float3 W = float3(h, 0, 0);
+	float rot = input.rotation;
+
+	float4x4 rotate = {
+		cos(rot),  0.0, sin(rot), 0.0,
+		0.0,       1.0, 0.0,      0.0,
+		-sin(rot), 0.0, cos(rot), 0.0,
+		0.0,       0.0, 0.0,      1.0
+	};
+
+	float4 N = mul(rotate, float4(0, 0, w, 0));
+	float4 S = mul(rotate, float4(0, 0, -w, 0));
+	float4 E = mul(rotate, float4(-h, 0, 0, 0));
+	float4 W = mul(rotate, float4(h, 0, 0, 0));
+
 
 	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + N + W, 1.0)));
 	output.uv = input.uv.xy;

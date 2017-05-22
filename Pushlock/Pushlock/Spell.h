@@ -78,6 +78,7 @@ public:
 	virtual void update(Map *map, float dt) override;
 	virtual bool on_effect(Map *map) override;
 	pointLight light;
+	ParticleEffect trail;
 private:
 
 };
@@ -200,5 +201,6 @@ public:
 	virtual bool on_effect(Map *map) override;
 
 private:
+	ParticleEffect patch;
 	float dot = -0.43f;
 };
