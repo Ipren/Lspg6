@@ -99,6 +99,14 @@ void FBXImporter::ImportStaticMesh(const char * filename, sMesh* mesh, vector<sM
 
 	importer->Import(scene);
 	
+	FbxAxisSystem SceneAxisSystem = scene->GetGlobalSettings().GetAxisSystem();	//
+	FbxAxisSystem OurAxisSystem(FbxAxisSystem::DirectX);						//
+	if (SceneAxisSystem != OurAxisSystem)										//
+	{																			//
+		OurAxisSystem.ConvertScene(scene);										//
+	}
+	FbxAxisSystem NewSceneAxisSystem = scene->GetGlobalSettings().GetAxisSystem();	//
+
 	//done with importer
 	importer->Destroy();
 
@@ -371,7 +379,7 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 	FbxAxisSystem OurAxisSystem(FbxAxisSystem::DirectX);						//
 	if (SceneAxisSystem != OurAxisSystem)										//
 	{																			//
-																				//OurAxisSystem.ConvertScene(scene);										//
+		OurAxisSystem.ConvertScene(scene);										//
 	}																			//
 																				//
 																				//////////////////////////////////////////////////////////////////////////////
@@ -525,9 +533,9 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 							FbxTime currTime;
 							currTime.SetFrame(i, FbxTime::eFrames24);
 
-							if (mesh->animation.m_aSamples[i].m_aJointPose.size() == 0)
-								mesh->animation.m_aSamples[i].m_aJointPose.resize(joints.size());
-							JointPose& currentPose = (mesh->animation.m_aSamples[i].m_aJointPose[currJointIndex]);
+							if (mesh->animation.m_aSamples[i-1].m_aJointPose.size() == 0)
+								mesh->animation.m_aSamples[i-1].m_aJointPose.resize(joints.size());
+							JointPose& currentPose = (mesh->animation.m_aSamples[i-1].m_aJointPose[currJointIndex]);
 
 							FbxAMatrix currentTransformOffset = pCurrentNode->EvaluateGlobalTransform(currTime);
 							FbxAMatrix mGlobalTransform = currentTransformOffset.Inverse() * cluster->GetLink()->EvaluateLocalTransform(currTime);

@@ -146,6 +146,14 @@ void ArcaneElement::wall(Player *player, Map *map)
 				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
 				w->edge = true;
 			}
+
+			//Add animated mesh to middle pillar
+			if (i == 4)
+			{
+				Spell* w = dynamic_cast<Spell*>(e);
+				w->pAnimator = new Animator();
+				w->pAnimator->AssignSkinnedMesh("ice_wall");
+			}
 		}
 
 

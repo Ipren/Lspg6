@@ -29,31 +29,23 @@ std::string GetFileExtension(const std::string& FileName)
 
 void MeshContainer::Init()
 {
-	//Load meshes///
-	//string path = "Resources/Graphics/" + fileName;
-	//std::ifstream file(path);
-
-
 
 	SkinnedMesh* mesh = new SkinnedMesh();
 	mesh->scale = 0.2f;
 	mesh->LoadSkinned("arcane_spell.G6Skin", globalDevice, globalDeviceContext);
 	MeshContainer::skinnedMeshes["arcane_spell"] = mesh;
 
-	Mesh* mesh2 = new Mesh();
-	mesh2->LoadStatic("arena3.G6Mesh", globalDevice, globalDeviceContext);
-	MeshContainer::staticMeshes["arena"] = mesh2;
-	//////////////
+	mesh = new SkinnedMesh();
+	mesh->scale = 0.2f;
+	mesh->LoadSkinned("IceWall.G6Skin", globalDevice, globalDeviceContext);
+	mesh->animations["idle"].m_frameCount = 144;
+	MeshContainer::skinnedMeshes["ice_wall"] = mesh;
 
-	///Vertex buffer
-	//D3D11_BUFFER_DESC bufferDesc;
-	//memset(&bufferDesc, 0, sizeof(bufferDesc));
-	//bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	//bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	//bufferDesc.ByteWidth = sizeof(SkinnedVertex) * this->mesh->verts.size();
-	//D3D11_SUBRESOURCE_DATA data;
-	//data.pSysMem = &mesh->verts[0];
-	//globalDevice->CreateBuffer(&bufferDesc, &data, &pVertexBuffer);
+	Mesh* mesh2 = new Mesh();
+	mesh2->scale = 0.18f;
+	mesh2->LoadStatic("character.G6Mesh", globalDevice, globalDeviceContext);
+	MeshContainer::staticMeshes["character"] = mesh2;
+	//////////////
 
 	//Create skinned shaders
 	{
@@ -103,35 +95,4 @@ void MeshContainer::Init()
 		DXCALL(globalDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &custom_mesh_psh));
 		blob->Release();
 	}
-	///Constant buffer
-	//D3D11_BUFFER_DESC cbDesc;
-	//cbDesc.ByteWidth = sizeof(XMMATRIX)*aFinalMatrices.size();
-	//cbDesc.Usage = D3D11_USAGE_DYNAMIC;
-	//cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	//cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	//cbDesc.MiscFlags = 0;
-	//cbDesc.StructureByteStride = 0;
-	//D3D11_SUBRESOURCE_DATA InitData;
-	//InitData.pSysMem = &aFinalMatrices[0];
-	//InitData.SysMemPitch = 0;
-	//InitData.SysMemSlicePitch = 0;
-	//hr = this->device->CreateBuffer(&cbDesc, &InitData, &cbJointTransforms);
-	//if (FAILED(hr))
-	//	MessageBox(0, L"cbJointTransforms buffer creation failed", L"error", MB_OK);
-	/////TESTMATRIX BUFFER
-	////Constant buffer
-	//D3D11_BUFFER_DESC cbTest;
-	//cbTest.ByteWidth = sizeof(XMMATRIX);
-	//cbTest.Usage = D3D11_USAGE_DYNAMIC;
-	//cbTest.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	//cbTest.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	//cbTest.MiscFlags = 0;
-	//cbTest.StructureByteStride = 0;
-	//D3D11_SUBRESOURCE_DATA InitTestData;
-	//InitTestData.pSysMem = &aFinalMatrices[0];
-	//InitTestData.SysMemPitch = 0;
-	//InitTestData.SysMemSlicePitch = 0;
-	//hr = this->device->CreateBuffer(&cbTest, &InitTestData, &cbTestMatrix);
-	//if (FAILED(hr))
-	//	MessageBox(0, L"cbJointTransforms buffer creation failed", L"error", MB_OK);
 }

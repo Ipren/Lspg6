@@ -208,7 +208,7 @@ void Animator::LoadSkinnedMesh(const char * filename)
 
 	//TODO: Export fps and count
 	this->currentClip->m_framesPerSecond = 24;
-	this->currentClip->m_frameCount = 13;
+	//this->currentClip->m_frameCount = 13;
 }
 
 void Animator::AssignSkinnedMesh(string meshName)
@@ -227,7 +227,7 @@ void Animator::AssignSkinnedMesh(string meshName)
 
 
 	this->currentClip->m_framesPerSecond = 24;
-	this->currentClip->m_frameCount = 13;
+	//this->currentClip->m_frameCount = 13;
 
 	this->skeleton = new Skeleton();
 	skeleton->m_aJoint = this->mesh->skeletonHierarchy;
@@ -236,7 +236,6 @@ void Animator::AssignSkinnedMesh(string meshName)
 
 	this->aFinalMatrices.resize(skeleton->m_aJoint.size());
 	this->currentClip->m_framesPerSecond = 24;
-	this->currentClip->m_frameCount = 13;
 	CreateBuffersAndShaders();
 
 
