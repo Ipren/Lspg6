@@ -114,9 +114,11 @@ bool ArcaneWallSpell::on_effect(Map *map) {
 			float distance = sqrt(dx * dx + dz * dz);
 
 			WindFartCloudSpell* f = dynamic_cast<WindFartCloudSpell*>(result.entity);
+			WaterIcePatch* ip = dynamic_cast<WaterIcePatch*>(result.entity);
+			FirePathSpell* fp = dynamic_cast<FirePathSpell*>(result.entity);
 			Player* p = dynamic_cast<Player *>(result.entity);
 
-			if (distance < this->radius + result.entity->radius && f == nullptr)
+			if (distance < this->radius + result.entity->radius && f == nullptr && ip == nullptr && fp == nullptr)
 			{
 				bool dash = true;
 				if (p != nullptr)

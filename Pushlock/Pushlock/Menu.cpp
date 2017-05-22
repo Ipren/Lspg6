@@ -102,7 +102,7 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[1][1][3] = L"B: Increase your maximum health";
 
 	//wind
-	this->uStrings[1][2][0] = L"X: Stomping creates a cloud that appleis a DOT";
+	this->uStrings[1][2][0] = L"X: Stomping creates a cloud that applies a DOT";
 	this->uStrings[1][2][1] = L"Y: Stomping leaves a beacon that can stomp again";
 	this->uStrings[1][2][2] = L"A: Stronger projectiles";
 	this->uStrings[1][2][3] = L"B: Shorter dash cooldown";
