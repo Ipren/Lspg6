@@ -2718,10 +2718,10 @@ void Renderer::render(Map *map, Camera *camera)
 			{
 
 				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
-				model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
-				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
-
-				model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
+				//model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+				//model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+				float s = entity->pMesh->scale;
+				model = XMMatrixMultiply(XMMatrixScaling(s, s, s), model);
 
 				camera->vals.world = model;
 				camera->update(0, gDeviceContext);
@@ -2738,7 +2738,7 @@ void Renderer::render(Map *map, Camera *camera)
 			if (entity->pAnimator != nullptr)
 			{
 				float scale = entity->pAnimator->_mesh->scale;
-				XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(scale, scale, scale) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
+				XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(scale, scale, scale) * XMMatrixTranslation(entity->position.x, entity->position.y/* + entity->radius*/, entity->position.z);
 
 				model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
 				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
