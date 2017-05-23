@@ -1341,10 +1341,10 @@ void Renderer::createScoreQuad()
 
 	TriangleVertex triangleVertices[6] =
 	{
-		.25f, .75f, 0.0f,		//OO
+		.25f, .80f, 0.0f,		//OO
 		1.0f, 1.0f,				//OX
 
-		-.25f, .75f, 0.0f,		//OO
+		-.25f, .80f, 0.0f,		//OO
 		0.0f, 1.0f,				//XO
 
 		-.25f, 1.f, 0.0f,		//XO
@@ -1357,7 +1357,7 @@ void Renderer::createScoreQuad()
 		.25f, 1.f, 0.0f,		//OX
 		1.0f, 0.0f,				//OO
 
-		.25f, .75f, 0.0f,		//OO
+		.25f, .80f, 0.0f,		//OO
 		1.0f, 1.0f				//OX
 	};
 
