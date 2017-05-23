@@ -77,6 +77,8 @@ void Camera::update(float dt, ID3D11DeviceContext *gDeviceContext)
 	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, WIDTH / (float)HEIGHT, znear, zfar);
 	vals.view = XMMatrixLookAtLH(pos + temp * gGameConstants.kCameraDrag, look + temp, { 0, 1, 0 });
 	vals.normal = XMMatrixTranspose(XMMatrixInverse(nullptr, vals.world));
+
+	vals.inverse = XMMatrixInverse(nullptr, XMMatrixMultiply(vals.view, vals.proj));
 	
 	D3D11_MAPPED_SUBRESOURCE data;
 	DXCALL(gDeviceContext->Map(wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));

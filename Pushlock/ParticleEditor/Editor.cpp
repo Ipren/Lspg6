@@ -315,7 +315,7 @@ void RenderPlane()
 
 void RenderParticles()
 {
-	FX->render(reinterpret_cast<Camera*>(camera), default_rtv, default_srv, distort_rtv, hdr_rtv);
+	FX->render(reinterpret_cast<Camera*>(camera), default_rtv, default_srv, distort_rtv, hdr_rtv, nullptr, nullptr);
 	gDeviceContext->GenerateMips(distort_srv);
 }
 
@@ -610,9 +610,11 @@ void FXEditor()
 			if (fx->clamp_children) {
 				for (int i = 0; i < current_effect->fx_count; ++i) {
 					ParticleEffectEntry entry = fx->fx[i];
-					if (entry.idx < 0) continue;
+					auto idx = entry.idx & ~(1 << 31);
 
-					auto def = FX->particle_definitions[entry.idx];
+					if (idx < 0) continue;
+
+					auto def = FX->particle_definitions[idx];
 
 					fx->children_time = max(fx->children_time, entry.end);
 				}
@@ -626,9 +628,11 @@ void FXEditor()
 
 			for (int i = 0; i < current_effect->fx_count; ++i) {
 				ParticleEffectEntry *entry = &fx->fx[i];
-				if (entry->idx < 0) continue;
+				auto idx = entry->idx & ~(1 << 31);
 
-				auto def = FX->particle_definitions[entry->idx];
+				if (idx < 0) continue;
+
+				auto def = FX->particle_definitions[idx];
 
 				char label[64];
 				sprintf_s(label, 64, "%s##%d", def.name, i);
@@ -655,6 +659,12 @@ void FXEditor()
 					else {
 						ImGui::DragFloat("start", &entry->start, 0.01, 0.f, 10000.f, "%.3f sec");
 						ImGui::DragFloat("duration", &entry->end, 0.01, 0.f, 10000.f, "%.3f sec");
+					}
+
+					bool shadow = (int)entry->idx & (1 << 31);
+					if (ImGui::Checkbox("Shadow", &shadow)) {
+						int *fn = (int*)&entry->idx;
+						*fn ^= 1 << 31;
 					}
 
 					ImGui::TextDisabled("Emitter");
@@ -841,9 +851,11 @@ void Timeline()
 
 			for (int i = 0; i < current_effect->fx_count; ++i) {
 				ParticleEffectEntry entry = current_effect->fx[i];
-				if (entry.idx < 0) continue;
+				auto idx = entry.idx & ~(1 << 31);
 
-				auto def = FX->particle_definitions[entry.idx];
+				if (idx < 0) continue;
+
+				auto def = FX->particle_definitions[idx];
 				ImGui::SameLine(w * (entry.start / time));
 
 				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0, 1.0, 1.0, 0.23));

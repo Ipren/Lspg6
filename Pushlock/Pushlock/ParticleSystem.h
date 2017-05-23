@@ -25,7 +25,21 @@ public:
 	ParticleEffect GetFX(std::string name);
 
 	void update(Camera *cam, float dt);
-	void render(Camera *cam, ID3D11RenderTargetView *dst_rtv, ID3D11ShaderResourceView *dst_srv, ID3D11RenderTargetView *dst_bright, ID3D11RenderTargetView *output);
+	void renderShadows(
+		ID3D11Buffer *shadow_camera,
+		ID3D11Buffer *camera,
+		ID3D11DepthStencilView *shadow_map,
+		ID3D11DepthStencilState *shadow_depth_state
+	);
+	void render(
+		Camera *cam,
+		ID3D11RenderTargetView *dst_rtv,
+		ID3D11ShaderResourceView *dst_srv,
+		ID3D11RenderTargetView *dst_bright,
+		ID3D11RenderTargetView *output,
+		ID3D11DepthStencilView *dsv,
+		ID3D11DepthStencilState *depth_state
+	);
 
 //private:
 	
@@ -41,6 +55,9 @@ public:
 	ID3D11BlendState *no_blend;
 	ID3D11Buffer *particle_buffer;
 	ID3D11InputLayout *particle_layout;
+
+	ID3D11GeometryShader *shadow_gs;
+	ID3D11PixelShader *shadow_ps;
 
 	ID3D11VertexShader *particle_vs;
 	ID3D11GeometryShader *particle_gs;

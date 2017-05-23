@@ -149,6 +149,8 @@ public:
 	virtual bool on_effect(Map *map) override;
 
 private:
+	ParticleEffect trail;
+
 };
 
 class WaterIcePatch : public Spell
@@ -160,6 +162,8 @@ public:
 	virtual void update(Map *map, float dt) override;
 	virtual bool on_effect(Map *map) override;
 private:
+	ParticleEffect patch;
+
 	float dSpeed = 287.0f;
 	float dFriction = -223.0f;
 };
