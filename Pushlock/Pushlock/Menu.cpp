@@ -24,7 +24,7 @@ Menu::Menu(Renderer* renderer)
 	}
 	r->Release();
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
-	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"comicsans.spritefont");
+	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"morpheus.spritefont");
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(renderer->gDeviceContext);
 
 	this->selectedButton = 0;
@@ -356,11 +356,35 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->scoreBoardTexture);
 		renderer->gDeviceContext->Draw(6, 0);
 
-		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Round: ") + std::to_wstring(gMapConstants.round)).c_str(), XMFLOAT2(600, 30), Colors::Black);
-		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 1: ") + std::to_wstring(map->playerPoints[0])).c_str(), XMFLOAT2(500, 5), Colors::Black);
-		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 2: ") + std::to_wstring(map->playerPoints[1])).c_str(), XMFLOAT2(675, 5), Colors::Black);
-		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 3: ") + std::to_wstring(map->playerPoints[2])).c_str(), XMFLOAT2(500, 55), Colors::Black);
-		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 4: ") + std::to_wstring(map->playerPoints[3])).c_str(), XMFLOAT2(675, 55), Colors::Black);
+		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Round: ") + std::to_wstring(gMapConstants.round)).c_str(), XMFLOAT2(600, 25), Colors::Black);
+		if (map->nrOfPlayers == 2)
+		{
+			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 1: ") + std::to_wstring(map->playerPoints[0])).c_str(), XMFLOAT2(500, 2), Colors::Black);
+			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 2: ") + std::to_wstring(map->playerPoints[1])).c_str(), XMFLOAT2(675, 50), Colors::Black);
+		}
+		else
+		{
+			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 1: ") + std::to_wstring(map->playerPoints[0])).c_str(), XMFLOAT2(500, 2), Colors::Black);
+			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 2: ") + std::to_wstring(map->playerPoints[1])).c_str(), XMFLOAT2(675, 2), Colors::Black);
+		}
+		
+		if (map->nrOfPlayers >= 3)
+		{
+			if (map->nrOfPlayers == 3)
+			{
+				m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 3: ") + std::to_wstring(map->playerPoints[2])).c_str(), XMFLOAT2(592, 50), Colors::Black);
+			}
+			else
+			{
+				m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 3: ") + std::to_wstring(map->playerPoints[2])).c_str(), XMFLOAT2(500, 48), Colors::Black);
+			}
+			
+		}
+		if (map->nrOfPlayers == 4)
+		{
+			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 4: ") + std::to_wstring(map->playerPoints[3])).c_str(), XMFLOAT2(675, 48), Colors::Black);
+		}
+		
 	}
 
 	
