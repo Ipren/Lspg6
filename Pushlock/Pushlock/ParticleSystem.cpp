@@ -493,9 +493,11 @@ void ParticleSystem::render(
 	ID3D11DepthStencilState *depth_state
 )
 {
-	float clear[] = { 0.5f, 0.5f, 0.f, 1.f };
-	cxt->ClearRenderTargetView(distort_rtv, clear);
 	{
+		float clear[] = { 0.5f, 0.5f, 0.f, 1.f };
+		float bclear[] = { 0.f, 0.f, 0.f, 1.f };
+		cxt->ClearRenderTargetView(dst_bright, bclear);
+		cxt->ClearRenderTargetView(distort_rtv, clear);
 		UINT32 stride = sizeof(ParticleInstance);
 		UINT32 offset = 0u;
 
@@ -521,9 +523,10 @@ void ParticleSystem::render(
 
 		ID3D11RenderTargetView *particle_targets[] = {
 			dst_rtv,
-			distort_rtv
+			distort_rtv,
+			dst_bright
 		};
-		cxt->OMSetRenderTargets(2, particle_targets, dsv);
+		cxt->OMSetRenderTargets(3, particle_targets, dsv);
 		cxt->OMSetBlendState(particle_blend, nullptr, 0xffffffff);
 		cxt->OMSetDepthStencilState(depth_state, 0xff);
 
@@ -555,10 +558,9 @@ void ParticleSystem::render(
 
 		cxt->OMSetBlendState(no_blend, nullptr, 0xffffffff);
 		ID3D11RenderTargetView *composite_rtvs[] = {
-			output,
-			dst_bright
+			output
 		};
-		cxt->OMSetRenderTargets(2, composite_rtvs, nullptr);
+		cxt->OMSetRenderTargets(1, composite_rtvs, nullptr);
 
 		cxt->Draw(6, 0);
 

@@ -1,3 +1,5 @@
+
+
 cbuffer Camera : register(b0)
 {
 	float4x4 World;
@@ -410,7 +412,20 @@ Texture2D DepthTexture : register(t1);
 struct PSOut {
 	float4 color : SV_Target0;
 	float4 distort : SV_Target1;
+	float4 Brightness : SV_Target2;
 };
+
+float3 CalcBrightness(float4 col)
+{
+	float lum = dot(col.rgb, float3(0.2126, 0.7152, 0.0722));
+	if (lum > 1.0) {
+		return col.xyz;
+	}
+	else {
+		return 0.0;
+	}
+}
+
 
 PSOut PS(GSOut input)
 {
@@ -422,6 +437,7 @@ PSOut PS(GSOut input)
 	output.color = col * input.color;
 	output.color.a = saturate(output.color.a);
 	output.distort = float4(RadialNormal(dist), 0, col.a * input.dist_strength);
+	output.Brightness = float4(CalcBrightness(output.color), 1.0);
 
 	return output;
 }
