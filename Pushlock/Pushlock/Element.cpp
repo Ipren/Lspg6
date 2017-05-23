@@ -288,7 +288,7 @@ void FireElement::projectile(Player * player, Map * map)
 				FireProjectileSpell *spell = new FireProjectileSpell(player,
 				{
 					position.x + cos(angle) * (radius + 0.4f),
-					0,
+					0.5,
 					position.z + sin(angle) * (radius + 0.4f)
 				},
 				{ cos(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed),
@@ -435,7 +435,7 @@ void WindElement::projectile(Player * player, Map * map)
 		WindProjectileSpell *spell = new WindProjectileSpell(player,
 		{
 			position.x + cos(angle) * (radius + 0.7f),
-			0,
+			0.5,
 			position.z + sin(angle) * (radius + 0.7f)
 		},
 		{ cos(angle) * (gSpellConstants.kWindProjectileSpeed + gPlayerSpellConstants[player->index].kWindProjectileSpeed), sin(angle) * (gSpellConstants.kWindProjectileSpeed + gPlayerSpellConstants[player->index].kWindProjectileSpeed) },
@@ -596,7 +596,7 @@ void EarthElement::projectile(Player * player, Map * map)
 		EarthProjectileSpell *spell = new EarthProjectileSpell(player,
 		{
 			position.x + cos(angle) * (radius + 0.4f),
-			0,
+			0.5,
 			position.z + sin(angle) * (radius + 0.4f)
 		},
 		{ cos(angle) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed), sin(angle) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
@@ -857,7 +857,7 @@ void WaterElement::projectile(Player * player, Map * map)
 				WaterProjectileSpell *spell = new WaterProjectileSpell(player,
 				{
 					position.x + cos(angle) * (radius + 0.4f),
-					0,
+					0.5,
 					position.z + sin(angle) * (radius + 0.4f)
 				},
 				{ cos(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed),
@@ -898,7 +898,7 @@ void WaterElement::projectile(Player * player, Map * map)
 						spell = new WaterProjectileSpell(player,
 						{
 							position.x + cos(angle) * (radius + 0.4f) ,
-							0,
+							0.5,
 							position.z + sin(angle) * (radius + 0.4f)
 						},
 							v,
@@ -945,7 +945,7 @@ void WaterElement::projectile(Player * player, Map * map)
 				spell = new WaterProjectileSpell(player,
 				{
 					position.x + cos(angle) * (radius + 0.4f) ,
-					0,
+					0.5,
 					position.z + sin(angle) * (radius + 0.4f)
 				},
 					v,

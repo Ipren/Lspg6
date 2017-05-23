@@ -39,8 +39,9 @@ StructuredBuffer<PointLight> pLights : register(t0);
 		float3 pos			: POSITION;
 		float3 nor			: NORMAL;
 		float2 UV			: TEXCOORD;
-		float4 weights		: WEIGHTS;
 		int4 boneIndices	: BONEINDICES;
+
+		float4 weights		: WEIGHTS;
 	};
 
 //static const float3 normal = float3(0.0f, 1.0f, 0.0f);

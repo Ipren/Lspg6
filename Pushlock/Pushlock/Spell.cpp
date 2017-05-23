@@ -530,9 +530,12 @@ bool EarthWallSpell::on_effect(Map *map) { //made so earthwall has its own class
 WaterProjectileSpell::WaterProjectileSpell(Player *owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, velocity, radius, 4.5f)
 {
+	static ParticleEffect WaterTrail = FXSystem->GetFX("water-proj-trail");
+	
 	this->pEmitter.position = position;
 	this->pEmitter.particleType = 2;
 	this->pEmitter.randomVector = XMFLOAT4(velocity.x, 0.0f, velocity.y, 1.0f);
+	this->trail = WaterTrail;
 }
 
 WaterProjectileSpell::~WaterProjectileSpell()
@@ -542,6 +545,7 @@ WaterProjectileSpell::~WaterProjectileSpell()
 void WaterProjectileSpell::update(Map * map, float dt)
 {
 	Spell::update(map, dt);
+	FXSystem->ProcessFX(this->trail, XMMatrixTranslation(position.x, position.y, position.z), dt);
 }
 
 bool WaterProjectileSpell::on_effect(Map * map)
@@ -566,7 +570,9 @@ bool WaterProjectileSpell::on_effect(Map * map)
 	{
 		dynamic_cast<WaterElement*>(this->owner->element)->active_projectile = nullptr;
 	}
-	
+
+	FXSystem->AddFX("water-proj-explode", XMMatrixTranslation(position.x, position.y, position.z));
+
 	return true;
 }
 
@@ -655,7 +661,9 @@ void WindBeaconSpell::endStomped()
 WaterIcePatch::WaterIcePatch(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, {0.0f, 0.0f}, radius, 6.3f)
 {
+	static ParticleEffect IcePatch = FXSystem->GetFX("water-patch");
 
+	this->patch = IcePatch;
 }
 
 WaterIcePatch::~WaterIcePatch()
@@ -668,6 +676,8 @@ void WaterIcePatch::update(Map * map, float dt)
 	if (life <= 0.f) {
 		dead = true;
 	}
+
+	FXSystem->ProcessFX(this->patch, XMMatrixTranslation(position.x, position.y, position.z), dt);
 }
 
 bool WaterIcePatch::on_effect(Map * map)
@@ -697,6 +707,7 @@ FirePathSpell::FirePathSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocit
 	this->pEmitter.position = position;
 	this->pEmitter.randomVector = DirectX::XMFLOAT4(position.x, position.y, position.z, 1.0f);
 	this->patch = FirePatch;
+
 }
 
 FirePathSpell::~FirePathSpell()

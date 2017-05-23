@@ -27,6 +27,7 @@ public:
 		XMMATRIX view;
 		XMMATRIX proj;
 		XMMATRIX normal;
+		XMMATRIX inverse;
 	};
 
 	float znear, zfar;
