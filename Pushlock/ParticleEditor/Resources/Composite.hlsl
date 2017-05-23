@@ -36,11 +36,11 @@ float4 tonemap_reinhard(in float3 color)
 	return float4(ret, 1);
 }
 
-float4 CalcBrightness(float4 col)
+float3 CalcBrightness(float4 col)
 {
 	float lum = dot(col.rgb, float3(0.2126, 0.7152, 0.0722));
 	if (lum > 1.0) {
-		return col;
+		return col.xyz;
 	}
 	else {
 		return 0.0;
@@ -56,11 +56,11 @@ PSOut PS(VSOut input) : SV_Target
 {
 	PSOut output;
 	//float4 target = TargetTexture.Sample(HDRSampler, input.Uv);
-	float4 distort = DistortTexture.Sample(HDRSampler, input.Uv);
+	float2 distort = DistortTexture.Sample(HDRSampler, input.Uv) * 2 - 1;
 	float4 hdr = HDRTexture.Sample(HDRSampler, input.Uv + distort.xy * 0.1);
 
 	output.Color = hdr;
-	output.Brightness = CalcBrightness(hdr);
+	output.Brightness = float4(CalcBrightness(hdr), 1.0);
 
 	return output;
 }

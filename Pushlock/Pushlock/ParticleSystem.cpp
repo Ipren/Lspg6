@@ -93,7 +93,7 @@ ParticleSystem::ParticleSystem(const wchar_t *file, UINT capacity, UINT width, U
 	state.RenderTarget[1].BlendOp = D3D11_BLEND_OP_ADD;
 	state.RenderTarget[1].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
 	state.RenderTarget[1].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-	state.RenderTarget[1].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	state.RenderTarget[1].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN;
 	DXCALL(device->CreateBlendState(&state, &particle_blend));
 
 	state.RenderTarget[0].BlendEnable = FALSE;
@@ -155,7 +155,7 @@ ParticleSystem::ParticleSystem(const wchar_t *file, UINT capacity, UINT width, U
 	rtv_desc.ArraySize = 1;
 	rtv_desc.SampleDesc.Count = 1;
 	rtv_desc.SampleDesc.Quality = 0;
-	rtv_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	rtv_desc.Format = DXGI_FORMAT_R8G8_UNORM;
 	rtv_desc.CPUAccessFlags = 0;
 	rtv_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	rtv_desc.MiscFlags = 0;
@@ -493,7 +493,7 @@ void ParticleSystem::render(
 	ID3D11DepthStencilState *depth_state
 )
 {
-	float clear[] = { 0.f, 0.f, 0.f, 1.f };
+	float clear[] = { 0.5f, 0.5f, 0.f, 1.f };
 	cxt->ClearRenderTargetView(distort_rtv, clear);
 	{
 		UINT32 stride = sizeof(ParticleInstance);

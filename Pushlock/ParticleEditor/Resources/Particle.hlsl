@@ -421,7 +421,7 @@ PSOut PS(GSOut input)
 
 	output.color = col * input.color;
 	output.color.a = saturate(output.color.a);
-	output.distort = float4(RadialNormal(dist) * 2 - 1, 0, col.a * input.dist_strength);
+	output.distort = float4(RadialNormal(dist), 0, col.a * input.dist_strength);
 
 	return output;
 }
@@ -435,7 +435,7 @@ ShadowPSOut ShadowPS(GSOut input) {
 
 	float4 col = ParticleTexture.Sample(ParticleSampler, input.uv);
 
-	if (col.a > 0) {
+	if (col.a > 0.5) {
 		output.depth = input.pos.z;
 	}
 	else {
