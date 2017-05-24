@@ -356,33 +356,33 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->scoreBoardTexture);
 		renderer->gDeviceContext->Draw(6, 0);
 
-		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Round: ") + std::to_wstring(gMapConstants.round)).c_str(), XMFLOAT2(600, 25), Colors::Black);
+		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Round: ") + std::to_wstring(gMapConstants.round)).c_str(), XMFLOAT2(WIDTH * 0.46875f, HEIGHT * 0.03125f), Colors::Black);
 		if (map->nrOfPlayers == 2)
 		{
-			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 1: ") + std::to_wstring(map->playerPoints[0])).c_str(), XMFLOAT2(500, 2), Colors::Black);
-			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 2: ") + std::to_wstring(map->playerPoints[1])).c_str(), XMFLOAT2(675, 50), Colors::Black);
+			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 1: ") + std::to_wstring(map->playerPoints[0])).c_str(), XMFLOAT2(WIDTH * 0.390625f , HEIGHT* 0.0025f), Colors::Black);
+			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 2: ") + std::to_wstring(map->playerPoints[1])).c_str(), XMFLOAT2(WIDTH * 0.52734375f, HEIGHT* 0.0625f), Colors::Black);
 		}
 		else
 		{
-			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 1: ") + std::to_wstring(map->playerPoints[0])).c_str(), XMFLOAT2(500, 2), Colors::Black);
-			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 2: ") + std::to_wstring(map->playerPoints[1])).c_str(), XMFLOAT2(675, 2), Colors::Black);
+			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 1: ") + std::to_wstring(map->playerPoints[0])).c_str(), XMFLOAT2(WIDTH * 0.390625f, HEIGHT* 0.0025f), Colors::Black);
+			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 2: ") + std::to_wstring(map->playerPoints[1])).c_str(), XMFLOAT2(WIDTH * 0.52734375f, HEIGHT* 0.0025f), Colors::Black);
 		}
 		
 		if (map->nrOfPlayers >= 3)
 		{
 			if (map->nrOfPlayers == 3)
 			{
-				m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 3: ") + std::to_wstring(map->playerPoints[2])).c_str(), XMFLOAT2(592, 50), Colors::Black);
+				m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 3: ") + std::to_wstring(map->playerPoints[2])).c_str(), XMFLOAT2(WIDTH * 0.4625f, HEIGHT* 0.0625f), Colors::Black);
 			}
 			else
 			{
-				m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 3: ") + std::to_wstring(map->playerPoints[2])).c_str(), XMFLOAT2(500, 48), Colors::Black);
+				m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 3: ") + std::to_wstring(map->playerPoints[2])).c_str(), XMFLOAT2(WIDTH * 0.390625f, HEIGHT* 0.06f), Colors::Black);
 			}
 			
 		}
 		if (map->nrOfPlayers == 4)
 		{
-			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 4: ") + std::to_wstring(map->playerPoints[3])).c_str(), XMFLOAT2(675, 48), Colors::Black);
+			m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player 4: ") + std::to_wstring(map->playerPoints[3])).c_str(), XMFLOAT2(WIDTH * 0.52734375f, HEIGHT* 0.06f), Colors::Black);
 		}
 		
 	}
@@ -456,8 +456,8 @@ void Menu::selectUp(GameState currentState)
 
 void Menu::setUpgradesArrowPos(Map * map)
 {
-	float offsetX = 640.0f;
-	float offsetY = 400.0f;
+	float offsetX = WIDTH / 2;
+	float offsetY = HEIGHT / 2;
 	//p1
 	if (map->upgradeChoice[0] == 0)
 	{
@@ -549,8 +549,8 @@ void Menu::setUpgradesArrowPos(Map * map)
 
 void Menu::setPowerArrowPos(Map * map)
 {
-	float offsetX = 640.0f;
-	float offsetY = 400.0f;
+	float offsetX = WIDTH / 2;
+	float offsetY = HEIGHT / 2;
 
 	//player 1
 	if (map->playerElemnts[0] == 0)
@@ -664,8 +664,8 @@ void Menu::setPowerArrowPos(Map * map)
 
 void Menu::setReady(Map * map)
 {
-	float offsetX = 640.0f;
-	float offsetY = 400.0f;
+	float offsetX = WIDTH / 2;
+	float offsetY = HEIGHT / 2;
 	for (size_t i = 0; i < 4; i++)
 	{
 		this->ready[i] = true;
@@ -742,20 +742,20 @@ void Menu::setSelectedPos(GameState currentState)
 	{
 		if (selectedButton == 0)
 		{
-			catPos.x = 375;
-			catPos.y = 225;
+			catPos.x = WIDTH * 0.29296875f;
+			catPos.y = HEIGHT * 0.28125f;
 		}
 		else if (selectedButton == 1) {
-			catPos.x = 375;
-			catPos.y = 350;
+			catPos.x = WIDTH * 0.29296875f;
+			catPos.y = HEIGHT * 0.4375f;
 		}
 		else if (selectedButton == 2) {
-			catPos.x = 375;
-			catPos.y = 480;
+			catPos.x = WIDTH * 0.29296875f;
+			catPos.y = HEIGHT * 0.6f;
 		}
 		else if (selectedButton == 3) {
-			catPos.x = 375;
-			catPos.y = 610;
+			catPos.x = WIDTH * 0.29296875f;
+			catPos.y = HEIGHT * 0.7625f;
 		}
 	}
 }
