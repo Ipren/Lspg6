@@ -524,9 +524,9 @@ void ParticleSystem::render(
 		ID3D11RenderTargetView *particle_targets[] = {
 			dst_rtv,
 			distort_rtv,
-			dst_bright
+			//dst_bright
 		};
-		cxt->OMSetRenderTargets(3, particle_targets, dsv);
+		cxt->OMSetRenderTargets(2, particle_targets, dsv);
 		cxt->OMSetBlendState(particle_blend, nullptr, 0xffffffff);
 		cxt->OMSetDepthStencilState(depth_state, 0xff);
 
@@ -558,9 +558,10 @@ void ParticleSystem::render(
 
 		cxt->OMSetBlendState(no_blend, nullptr, 0xffffffff);
 		ID3D11RenderTargetView *composite_rtvs[] = {
-			output
+			output,
+			dst_bright
 		};
-		cxt->OMSetRenderTargets(1, composite_rtvs, nullptr);
+		cxt->OMSetRenderTargets(2, composite_rtvs, nullptr);
 
 		cxt->Draw(6, 0);
 
