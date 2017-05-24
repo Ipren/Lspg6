@@ -63,6 +63,9 @@ private:
 	std::wstring uStrings[8][5][4];
 	DirectX::XMFLOAT2 textPos[4][5];
 
+	SimpleMath::Vector2 buttPos[4];
+	SimpleMath::Vector2 textOffset;
+
 	DirectX::XMFLOAT2 readyPos;
 	
 };

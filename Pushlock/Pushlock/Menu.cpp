@@ -45,12 +45,14 @@ Menu::Menu(Renderer* renderer)
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(renderer->gDeviceContext);
 
 	this->selectedButton = 0;
+	float buttsX = 0.1563 * WIDTH;//200
 
-	/*main menu buttons
-	0-start game with 2 players	
-	1-start game with 3 players
-	2-start game with 4 players
-	3-quit*/
+	this->buttPos[0] = SimpleMath::Vector2(buttsX, 0.2688 * HEIGHT);//215
+	this->buttPos[1] = SimpleMath::Vector2(buttsX, 0.4375 * HEIGHT);//350
+	this->buttPos[2] = SimpleMath::Vector2(buttsX, 0.6125 * HEIGHT);//490
+	this->buttPos[3] = SimpleMath::Vector2(buttsX, 0.775 * HEIGHT);//620
+	this->textOffset = SimpleMath::Vector2(0.0234 * WIDTH, 0.0188 * HEIGHT);//30, 15
+
 	this->buttons.push_back(4);
 
 	//
@@ -445,11 +447,14 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	if (currentState == GameState::MainMenu)
 	{
 		m_spriteBatch->Draw(m_cutexture.Get(), catPos, nullptr, Colors::White, 0.f, m_origin);
-		m_spriteBatch->Draw(m_button2p.Get(), SimpleMath::Vector2({ 200, 215 }), nullptr, Colors::White, 0.f, m_origin);
-		m_spriteFont->DrawString(m_spriteBatch.get(), L"2 players", SimpleMath::Vector2({ 200+43, 215 }), Colors::HotPink);
-		m_spriteBatch->Draw(m_button3p.Get(), SimpleMath::Vector2({ 200, 350 }), nullptr, Colors::White, 0.f, m_origin);
-		m_spriteBatch->Draw(m_button4p.Get(), SimpleMath::Vector2({ 200, 490 }), nullptr, Colors::White, 0.f, m_origin);
-		m_spriteBatch->Draw(m_buttonQuit.Get(), SimpleMath::Vector2({ 200, 620 }), nullptr, Colors::White, 0.f, m_origin);
+		m_spriteBatch->Draw(m_button2p.Get(), buttPos[0], nullptr, Colors::White, 0.f, m_origin);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), L"2 players", buttPos[0] + textOffset, Colors::Black);
+		m_spriteBatch->Draw(m_button3p.Get(), buttPos[1], nullptr, Colors::White, 0.f, m_origin);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), L"3 players", buttPos[1] + textOffset, Colors::Black);
+		m_spriteBatch->Draw(m_button4p.Get(), buttPos[2], nullptr, Colors::White, 0.f, m_origin);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), L"4 players", buttPos[2] + textOffset, Colors::Black);
+		m_spriteBatch->Draw(m_buttonQuit.Get(), buttPos[3], nullptr, Colors::White, 0.f, m_origin);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), L"Quit", buttPos[3] + textOffset, Colors::Red);
 	}
 	else if (currentState == GameState::EndGame)
 	{
@@ -809,22 +814,24 @@ void Menu::setSelectedPos(GameState currentState)
 {
 	if (currentState == GameState::MainMenu)
 	{
+		float xOff = -0.0938 * WIDTH;//120
+		float yOff = -0.0125 * HEIGHT;//10
 		if (selectedButton == 0)
 		{
-			catPos.x = WIDTH * 0.07296875f;
-			catPos.y = HEIGHT * 0.28125f;
+			catPos.x = buttPos[0].x + xOff;
+			catPos.y = buttPos[0].y + yOff;
 		}
 		else if (selectedButton == 1) {
-			catPos.x = WIDTH * 0.07296875f;
-			catPos.y = HEIGHT * 0.4375f;
+			catPos.x = buttPos[1].x + xOff;
+			catPos.y = buttPos[1].y + yOff;
 		}
 		else if (selectedButton == 2) {
-			catPos.x = WIDTH * 0.07296875f;
-			catPos.y = HEIGHT * 0.6f;
+			catPos.x = buttPos[2].x + xOff;
+			catPos.y = buttPos[2].y + yOff;
 		}
 		else if (selectedButton == 3) {
-			catPos.x = WIDTH * 0.07296875f;
-			catPos.y = HEIGHT * 0.7625f;
+			catPos.x = buttPos[3].x + xOff;
+			catPos.y = buttPos[3].y + yOff;
 		}
 	}
 }
