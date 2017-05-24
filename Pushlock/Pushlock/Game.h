@@ -24,6 +24,8 @@ public:
 	int width;
 	int heigth;
 	int playerElements;
+	bool mainMenu_FirstFrame;
+	bool playing_firstFrame;
 	
 	GameState currentState;
 };

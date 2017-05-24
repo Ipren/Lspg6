@@ -22,6 +22,22 @@ Menu::Menu(Renderer* renderer)
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
+	hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/button.png ", &r, &this->m_button2p);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/button.png ", &r, &this->m_button3p);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/button.png ", &r, &this->m_button4p);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/button.png ", &r, &this->m_buttonQuit);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
 	r->Release();
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
 	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"comicsans.spritefont");
@@ -57,8 +73,9 @@ Menu::Menu(Renderer* renderer)
 	setSelectedPos(GameState::MainMenu);
 
 
+#pragma region upgradeText
 	//////////////////////round 1////////////////////////////////////////////
-	//arcane
+//arcane
 	this->uStrings[0][0][0] = L"X: Spilts the projectile into 3 weaker ones";
 	this->uStrings[0][0][1] = L"Y: Turns the dash into a teleport";
 	this->uStrings[0][0][2] = L"A: Improves seeking";
@@ -193,6 +210,8 @@ Menu::Menu(Renderer* renderer)
 		this->uStrings[i][4][2] = L"A: Stronger projectles";
 		this->uStrings[i][4][3] = L"B: Shorter wall cooldown";
 	}
+#pragma endregion
+
 
 	float offsetX = WIDTH / 2.0f;
 	float offsetY = HEIGHT / 2.0f;
@@ -243,15 +262,15 @@ Menu::~Menu()
 
 void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *map, int currentRound)
 {
-	m_spriteBatch->Begin();
+	m_spriteBatch->Begin(SpriteSortMode_Deferred, renderer->particle_blend);
 
 	if (currentState != GameState::Playing)
 	{
-		float clearColor[] = { 0, 0, 0, 1 };
+		//float clearColor[] = { 0, 0, 0, 1 };
 
 		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
 
-		renderer->gDeviceContext->ClearRenderTargetView(renderer->gBackbufferRTV, clearColor);
+		//renderer->gDeviceContext->ClearRenderTargetView(renderer->gBackbufferRTV, clearColor);
 
 		UINT vertexSize = sizeof(float) * 5;
 		UINT offset = 0;
@@ -292,11 +311,11 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 			renderer->gDeviceContext->Draw(24, 0);
 			this->setPowerArrowPos(map);
 		}
-		else if (currentState == GameState::MainMenu)
+		/*else if (currentState == GameState::MainMenu)
 		{
 			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->mainMenuTexture);
 			renderer->gDeviceContext->Draw(6, 0);
-		}
+		}*/
 		else if (currentState == GameState::EndRound)
 		{
 			vertexSize = sizeof(chooseUpgradesVertex);
@@ -336,7 +355,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		
 
 	}
-	if (currentState != GameState::MainMenu && currentState != GameState::EndGame)
+	if (currentState != GameState::MainMenu && currentState != GameState::EndGame)//render scoreboard
 	{
 		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
 
@@ -365,7 +384,14 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 
 	
 	if (currentState == GameState::MainMenu)
+	{
 		m_spriteBatch->Draw(m_cutexture.Get(), catPos, nullptr, Colors::White, 0.f, m_origin);
+		m_spriteBatch->Draw(m_button2p.Get(), SimpleMath::Vector2({ 200, 215 }), nullptr, Colors::White, 0.f, m_origin);
+		m_spriteFont->DrawString(m_spriteBatch.get(), L"2 players", SimpleMath::Vector2({ 200+43, 215 }), Colors::HotPink);
+		m_spriteBatch->Draw(m_button3p.Get(), SimpleMath::Vector2({ 200, 350 }), nullptr, Colors::White, 0.f, m_origin);
+		m_spriteBatch->Draw(m_button4p.Get(), SimpleMath::Vector2({ 200, 490 }), nullptr, Colors::White, 0.f, m_origin);
+		m_spriteBatch->Draw(m_buttonQuit.Get(), SimpleMath::Vector2({ 200, 620 }), nullptr, Colors::White, 0.f, m_origin);
+	}
 	else if (currentState == GameState::EndGame)
 	{
 		/*std::wstring s = L"Player: " + (winner + 1);
@@ -718,19 +744,19 @@ void Menu::setSelectedPos(GameState currentState)
 	{
 		if (selectedButton == 0)
 		{
-			catPos.x = 375;
+			catPos.x = 75;
 			catPos.y = 225;
 		}
 		else if (selectedButton == 1) {
-			catPos.x = 375;
+			catPos.x = 75;
 			catPos.y = 350;
 		}
 		else if (selectedButton == 2) {
-			catPos.x = 375;
+			catPos.x = 75;
 			catPos.y = 480;
 		}
 		else if (selectedButton == 3) {
-			catPos.x = 375;
+			catPos.x = 75;
 			catPos.y = 610;
 		}
 	}

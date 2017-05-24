@@ -30,6 +30,7 @@ public:
 	};
 
 	float znear, zfar;
+	float menuRoration;
 
 	BufferVals vals;
 

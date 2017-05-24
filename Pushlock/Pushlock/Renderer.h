@@ -73,7 +73,8 @@ public:
 
 	ID3D11PixelShader *gaussian_x_ps;
 	ID3D11PixelShader *gaussian_y_ps;
-	
+	ID3D11BlendState *particle_blend;
+
 	ID3D11PixelShader *blur_composite;
 private:
 	IDXGISwapChain *gSwapChain;
@@ -134,7 +135,6 @@ private:
 
 	ID3D11ShaderResourceView *particle_srv;
 	ID3D11SamplerState *particle_sampler;
-	ID3D11BlendState *particle_blend;
 
 	ID3D11Buffer *dLightBuffer;
 	ID3D11Buffer *pLightBuffer;

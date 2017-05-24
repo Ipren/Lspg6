@@ -38,6 +38,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_Balltexture;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_winner;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_readyTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_button2p;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_button3p;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_button4p;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_buttonQuit;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
 	DirectX::SimpleMath::Vector2 catPos;
