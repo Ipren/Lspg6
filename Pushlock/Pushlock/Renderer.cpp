@@ -2611,6 +2611,7 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 		gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
 		gDeviceContext->PSSetConstantBuffers(5, 1, &this->shadow_wvp_buffer);
+		gDeviceContext->PSSetConstantBuffers(6, 1, &this->shrinkBuffer);
 
 		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 		gDeviceContext->PSSetShaderResources(1, 1, &this->DepthBufferSRV);
@@ -2655,6 +2656,7 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 		gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+		gDeviceContext->PSSetConstantBuffers(6, 1, &this->shrinkBuffer);
 
 		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
@@ -2709,6 +2711,7 @@ void Renderer::render(Map *map, Camera *camera)
 				gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 				gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 				gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+				gDeviceContext->PSSetConstantBuffers(6, 1, &this->shrinkBuffer);
 				gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
 
@@ -2729,6 +2732,7 @@ void Renderer::render(Map *map, Camera *camera)
 				gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 				gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 				gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+				gDeviceContext->PSSetConstantBuffers(6, 1, &this->shrinkBuffer);
 				gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
 				//TODO: deltaTime

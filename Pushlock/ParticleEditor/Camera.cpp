@@ -14,7 +14,7 @@ EditorCamera::EditorCamera(XMVECTOR pos, XMVECTOR look)
 	D3D11_BUFFER_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 	desc.Usage = D3D11_USAGE_DYNAMIC;
-	desc.ByteWidth = sizeof(XMMATRIX) * 3;
+	desc.ByteWidth = sizeof(BufferVals);
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
@@ -65,11 +65,14 @@ void EditorCamera::update(float dt, float width, float height)
 
 	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, width / height, 0.1f, 30.f);
 	vals.view = XMMatrixLookAtLH(pos + temp, look + temp, { 0, 1, 0 });
+	vals.normal = XMMatrixTranspose(XMMatrixInverse(nullptr, vals.world));
+
+	vals.inverse = XMMatrixInverse(nullptr, XMMatrixMultiply(vals.view, vals.proj));
 
 	D3D11_MAPPED_SUBRESOURCE data;
 	DXCALL(gDeviceContext->Map(wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
 	{
-		CopyMemory(data.pData, &vals, sizeof(XMMATRIX) * 3);
+		CopyMemory(data.pData, &vals, sizeof(BufferVals));
 	}
 	gDeviceContext->Unmap(wvp_buffer, 0);
 

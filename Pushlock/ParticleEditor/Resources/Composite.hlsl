@@ -46,7 +46,6 @@ float3 CalcBrightness(float4 col)
 		return 0.0;
 	}
 }
-
 struct PSOut {
 	float4 Color : SV_Target0;
 	float4 Brightness : SV_Target1;
