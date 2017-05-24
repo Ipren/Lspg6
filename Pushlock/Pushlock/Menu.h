@@ -44,6 +44,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_buttonQuit;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
+	std::unique_ptr<DirectX::SpriteFont> m_spriteFontLarger;
 	DirectX::SimpleMath::Vector2 catPos;
 	DirectX::SimpleMath::Vector2 m_origin;
 

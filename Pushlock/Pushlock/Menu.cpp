@@ -41,6 +41,7 @@ Menu::Menu(Renderer* renderer)
 	r->Release();
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
 	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"morpheus.spritefont");
+	m_spriteFontLarger = std::make_unique<SpriteFont>(renderer->gDevice, L"morpheusLarger.spritefont");
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(renderer->gDeviceContext);
 
 	this->selectedButton = 0;
