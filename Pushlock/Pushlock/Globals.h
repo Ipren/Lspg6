@@ -7,8 +7,8 @@
 class Camera;
 
 #define RECONN_TIME 5.0
-#define WIDTH 1920
-#define HEIGHT 1080
+#define WIDTH 1280
+#define HEIGHT 800
 
 extern IDXGISwapChain *gSwapChain;
 extern ID3D11Device *globalDevice;//use the one in renderer
