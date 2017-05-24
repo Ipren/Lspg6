@@ -222,9 +222,43 @@ Menu::Menu(Renderer* renderer)
 	this->textPos[3][2] = { 180.0f / 2 + 24.0f + offsetX , 389.0f / 2 + offsetY };
 	this->textPos[3][3] = { 180.0f / 2 + 24.0f + offsetX , 480.0f / 2 + offsetY };
 	this->textPos[3][4] = { 180.0f / 2 + 24.0f + offsetX , 579.0f / 2 + offsetY };
+
+	this->eTextPos[0][0] = { WIDTH * 0.149f, HEIGHT * 0.08f};
+	this->eTextPos[0][1] = { WIDTH * 0.149f, HEIGHT * 0.15f };
+	this->eTextPos[0][2] = { WIDTH * 0.149f, HEIGHT * 0.22f };
+	this->eTextPos[0][3] = { WIDTH * 0.149f, HEIGHT * 0.29f };
+	this->eTextPos[0][4] = { WIDTH * 0.149f, HEIGHT * 0.36f };
+
+	this->eTextPos[1][0] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.08f };
+	this->eTextPos[1][1] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.15f };
+	this->eTextPos[1][2] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.22f };
+	this->eTextPos[1][3] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.29f };
+	this->eTextPos[1][4] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.36f };
+
+	this->eTextPos[2][0] = { WIDTH * 0.149f, HEIGHT * 0.08f + offsetY };
+	this->eTextPos[2][1] = { WIDTH * 0.149f, HEIGHT * 0.15f + offsetY };
+	this->eTextPos[2][2] = { WIDTH * 0.149f, HEIGHT * 0.22f + offsetY };
+	this->eTextPos[2][3] = { WIDTH * 0.149f, HEIGHT * 0.29f + offsetY };
+	this->eTextPos[2][4] = { WIDTH * 0.149f, HEIGHT * 0.36f + offsetY };
+
+	this->eTextPos[3][0] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.08f + offsetY };
+	this->eTextPos[3][1] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.15f + offsetY };
+	this->eTextPos[3][2] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.22f + offsetY };
+	this->eTextPos[3][3] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.29f + offsetY };
+	this->eTextPos[3][4] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.36f + offsetY };
 	
 
+	this->eStrings[0] = L"X: Arcane elemetal powers";
+	this->eStrings[1] = L"Y: Fire elemetal powers";
+	this->eStrings[2] = L"A: Wind elemetal powers";
+	this->eStrings[3] = L"B: Earth elemetal powers";
+	this->eStrings[4] = L"RB: Water elemetal powers";
 
+	this->eTextColor[0] = XMVectorSet(.588f, 1.f, .965f, 1.f);
+	this->eTextColor[1] = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
+	this->eTextColor[2] = XMVectorSet(0.f, 0.f, 0.f, 1.f);
+	this->eTextColor[3] = XMVectorSet(0.f, .580f, 1.f, 1.f);
+	this->eTextColor[4] = XMVectorSet(1.f, .929f, .400f, 1.f);
 }
 
 Menu::~Menu()
@@ -336,7 +370,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		
 
 	}
-	if (currentState != GameState::MainMenu && currentState != GameState::EndGame)
+	if (currentState != GameState::MainMenu && currentState != GameState::EndGame && currentState != GameState::ChoosePowers)
 	{
 		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
 
@@ -402,6 +436,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		{
 			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
 		}
+		
 		this->setReady(map);
 	}
 	else if (currentState == GameState::ChoosePowers)
@@ -409,6 +444,13 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		for (size_t i = 0; i < map->nrOfPlayers; i++)
 		{
 			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
+		}
+		for (size_t i = 0; i < map->nrOfPlayers; i++)
+		{
+			for (size_t j = 0; j < 5; j++)
+			{
+				m_spriteFont->DrawString(m_spriteBatch.get(), this->eStrings[j].c_str(), this->eTextPos[i][j], this->eTextColor[j]);
+			}
 		}
 		this->setReady(map);
 	}
@@ -555,109 +597,109 @@ void Menu::setPowerArrowPos(Map * map)
 	//player 1
 	if (map->playerElemnts[0] == 0)
 	{
-		this->arrowPos[0].x = 100 / 2;
-		this->arrowPos[0].y = 200 / 2;
+		this->arrowPos[0].x = this->eTextPos[0][0].x - 29.5f;
+		this->arrowPos[0].y = this->eTextPos[0][0].y;
 	}
 	if (map->playerElemnts[0] == 1)
 	{
-		this->arrowPos[0].x = 100 / 2;
-		this->arrowPos[0].y = 310 / 2;
+		this->arrowPos[0].x = this->eTextPos[0][1].x - 29.5f;
+		this->arrowPos[0].y = this->eTextPos[0][1].y;
 	}
 	if (map->playerElemnts[0] == 2)
 	{
-		this->arrowPos[0].x = 100 / 2;
-		this->arrowPos[0].y = 430 / 2;
+		this->arrowPos[0].x = this->eTextPos[0][2].x - 29.5f;
+		this->arrowPos[0].y = this->eTextPos[0][2].y;
 	}
 	if (map->playerElemnts[0] == 3)
 	{
-		this->arrowPos[0].x = 100 / 2;
-		this->arrowPos[0].y = 550 / 2;
+		this->arrowPos[0].x = this->eTextPos[0][3].x - 29.5f;
+		this->arrowPos[0].y = this->eTextPos[0][3].y;
 	}
 	if (map->playerElemnts[0] == 4)
 	{
-		this->arrowPos[0].x = 100 / 2;
-		this->arrowPos[0].y = 670 / 2;
+		this->arrowPos[0].x = this->eTextPos[0][4].x - 29.5f;
+		this->arrowPos[0].y = this->eTextPos[0][4].y;
 	}
 
 	//player 2
 	if (map->playerElemnts[1] == 0)
 	{
-		this->arrowPos[1].x = 100 / 2 + offsetX;
-		this->arrowPos[1].y = 200 / 2;
+		this->arrowPos[1].x = this->eTextPos[1][0].x - 29.5f;
+		this->arrowPos[1].y = this->eTextPos[1][0].y;
 	}
 	if (map->playerElemnts[1] == 1)
 	{
-		this->arrowPos[1].x = 100 / 2 + offsetX;
-		this->arrowPos[1].y = 310 / 2;
+		this->arrowPos[1].x = this->eTextPos[1][1].x - 29.5f;
+		this->arrowPos[1].y = this->eTextPos[1][1].y;
 	}
 	if (map->playerElemnts[1] == 2)
 	{
-		this->arrowPos[1].x = 100 / 2 + offsetX;
-		this->arrowPos[1].y = 430 / 2;
+		this->arrowPos[1].x = this->eTextPos[1][2].x - 29.5f;
+		this->arrowPos[1].y = this->eTextPos[1][2].y;
 	}
 	if (map->playerElemnts[1] == 3)
 	{
-		this->arrowPos[1].x = 100 / 2 + offsetX;
-		this->arrowPos[1].y = 550 / 2;
+		this->arrowPos[1].x = this->eTextPos[1][3].x - 29.5f;
+		this->arrowPos[1].y = this->eTextPos[1][3].y;
 	}
 	if (map->playerElemnts[1] == 4)
 	{
-		this->arrowPos[1].x = 100 / 2 + offsetX;
-		this->arrowPos[1].y = 670 / 2;
+		this->arrowPos[1].x = this->eTextPos[1][4].x - 29.5f;
+		this->arrowPos[1].y = this->eTextPos[1][4].y;
 	}
 
 	//player 3
 	if (map->playerElemnts[2] == 0)
 	{
-		this->arrowPos[2].x = 100 / 2;
-		this->arrowPos[2].y = 200 / 2 + offsetY;
+		this->arrowPos[2].x = this->eTextPos[2][0].x - 29.5f;
+		this->arrowPos[2].y = this->eTextPos[2][0].y;
 	}
 	if (map->playerElemnts[2] == 1)
 	{
-		this->arrowPos[2].x = 100 / 2;
-		this->arrowPos[2].y = 310 / 2 + offsetY;
+		this->arrowPos[2].x = this->eTextPos[2][1].x - 29.5f;
+		this->arrowPos[2].y = this->eTextPos[2][1].y;
 	}
 	if (map->playerElemnts[2] == 2)
 	{
-		this->arrowPos[2].x = 100 / 2;
-		this->arrowPos[2].y = 430 / 2 + offsetY;
+		this->arrowPos[2].x = this->eTextPos[2][2].x - 29.5f;
+		this->arrowPos[2].y = this->eTextPos[2][2].y;
 	}
 	if (map->playerElemnts[2] == 3)
 	{
-		this->arrowPos[2].x = 100 / 2;
-		this->arrowPos[2].y = 550 / 2 + offsetY;
+		this->arrowPos[2].x = this->eTextPos[2][3].x - 29.5f;
+		this->arrowPos[2].y = this->eTextPos[2][3].y;
 	}
 	if (map->playerElemnts[2] == 4)
 	{
-		this->arrowPos[2].x = 100 / 2;
-		this->arrowPos[2].y = 670 / 2 + offsetY;
+		this->arrowPos[2].x = this->eTextPos[2][4].x - 29.5f;
+		this->arrowPos[2].y = this->eTextPos[2][4].y;
 	}
 
 	//player 4
 	if (map->playerElemnts[3] == 0)
 	{
-		this->arrowPos[3].x = 100 / 2 + offsetX;
-		this->arrowPos[3].y = 200 / 2 + offsetY;
+		this->arrowPos[3].x = this->eTextPos[3][0].x - 29.5f;
+		this->arrowPos[3].y = this->eTextPos[3][0].y;
 	}
 	if (map->playerElemnts[3] == 1)
 	{
-		this->arrowPos[3].x = 100 / 2 + offsetX;
-		this->arrowPos[3].y = 310 / 2 + offsetY;
+		this->arrowPos[3].x = this->eTextPos[3][1].x - 29.5f;
+		this->arrowPos[3].y = this->eTextPos[3][1].y;
 	}
 	if (map->playerElemnts[3] == 2)
 	{
-		this->arrowPos[3].x = 100 / 2 + offsetX;
-		this->arrowPos[3].y = 430 / 2 + offsetY;
+		this->arrowPos[3].x = this->eTextPos[3][2].x - 29.5f;
+		this->arrowPos[3].y = this->eTextPos[3][2].y;
 	}
 	if (map->playerElemnts[3] == 3)
 	{
-		this->arrowPos[3].x = 100 / 2 + offsetX;
-		this->arrowPos[3].y = 550 / 2 + offsetY;
+		this->arrowPos[3].x = this->eTextPos[3][3].x - 29.5f;
+		this->arrowPos[3].y = this->eTextPos[3][3].y;
 	}
 	if (map->playerElemnts[3] == 4)
 	{
-		this->arrowPos[3].x = 100 / 2 + offsetX;
-		this->arrowPos[3].y = 670 / 2 + offsetY;
+		this->arrowPos[3].x = this->eTextPos[3][4].x - 29.5f;
+		this->arrowPos[3].y = this->eTextPos[3][4].y;
 	}
 
 }
