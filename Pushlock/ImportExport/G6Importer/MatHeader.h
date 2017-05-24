@@ -37,3 +37,26 @@ struct sMaterial
 
 	sMaterialData data;
 };
+
+struct sLight
+{
+	uint32_t type;
+
+	float r;
+	float g;
+	float b;
+
+	float intensity;
+
+	float posx;
+	float posy;
+	float posz;
+
+	float rotx;
+	float roty;
+	float rotz;
+
+	float scalex;
+	float scaley;
+	float scalez;
+};

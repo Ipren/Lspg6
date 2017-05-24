@@ -30,6 +30,7 @@ SoundSystem::SoundSystem()
 	this->buffers[23].loadFromFile("../Resources/Sounds/fartcloud.flac");
 	this->buffers[24].loadFromFile("../Resources/Sounds/playerdeath.wav");
 
+	this->music.openFromFile("../Resources/Sounds/BGM.wav");
 }
 
 SoundSystem::~SoundSystem()
@@ -66,6 +67,6 @@ void SoundSystem::play(spellSounds s, float offset, float volume)
 
 void SoundSystem::startBGM()
 {
-	this->music.setVolume(0);
+	this->music.setVolume(10);
 	this->music.play();
 }

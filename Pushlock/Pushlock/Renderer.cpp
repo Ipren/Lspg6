@@ -352,39 +352,6 @@ void Renderer::createShadowMap()
 
 	gDeviceContext->RSGetState(&DefaultRaster);
 	
-	// TODO: ta bort
-	ID3D11Texture2D* shadow_map = NULL;
-	D3D11_TEXTURE2D_DESC map_desc;
-	map_desc.Width = WIDTH;
-	map_desc.Height = HEIGHT;
-	map_desc.MipLevels = 1;
-	map_desc.ArraySize = 1;
-	map_desc.Format = DXGI_FORMAT_R32_FLOAT;
-	map_desc.SampleDesc.Count = 1;
-	map_desc.SampleDesc.Quality = 0;
-	map_desc.Usage = D3D11_USAGE_DEFAULT;
-	map_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	map_desc.CPUAccessFlags = 0;
-	map_desc.MiscFlags = 0;
-	DXCALL(gDevice->CreateTexture2D(&map_desc, NULL, &shadow_map));
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC sdesc;
-	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-	sdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	sdesc.Format = DXGI_FORMAT_R32_FLOAT;
-	sdesc.Texture2D.MipLevels = 1;
-	sdesc.Texture2D.MostDetailedMip = 0;
-
-	D3D11_RENDER_TARGET_VIEW_DESC rdesc;
-	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-	rdesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	rdesc.Format = DXGI_FORMAT_R32_FLOAT;
-	rdesc.Texture2D.MipSlice = 0;
-
-	DXCALL(gDevice->CreateShaderResourceView(shadow_map, nullptr, &shadowMapSRV));
-	DXCALL(gDevice->CreateRenderTargetView(shadow_map, nullptr, &shadowMapRTV));
-
-
 	D3D11_SAMPLER_DESC sampdesc;
 	ZeroMemory(&sampdesc, sizeof(sampdesc));
 	sampdesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -1341,10 +1308,10 @@ void Renderer::createScoreQuad()
 
 	TriangleVertex triangleVertices[6] =
 	{
-		.25f, .75f, 0.0f,		//OO
+		.25f, .80f, 0.0f,		//OO
 		1.0f, 1.0f,				//OX
 
-		-.25f, .75f, 0.0f,		//OO
+		-.25f, .80f, 0.0f,		//OO
 		0.0f, 1.0f,				//XO
 
 		-.25f, 1.f, 0.0f,		//XO
@@ -1357,7 +1324,7 @@ void Renderer::createScoreQuad()
 		.25f, 1.f, 0.0f,		//OX
 		1.0f, 0.0f,				//OO
 
-		.25f, .75f, 0.0f,		//OO
+		.25f, .80f, 0.0f,		//OO
 		1.0f, 1.0f				//OX
 	};
 
@@ -2178,17 +2145,9 @@ void Renderer::updateheatHaze()
 
 void Renderer::renderShadowMap(Map * map, Camera * camera)
 {
-	float clear[] = { 0.f, 0.f, 0.f, 1.0f };
-	gDeviceContext->ClearRenderTargetView(shadowMapRTV, clear);
 	gDeviceContext->ClearDepthStencilView(DepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-	gDeviceContext->VSSetShader(shadowMapVS, nullptr, 0);
-	gDeviceContext->PSSetShader(nullptr, nullptr, 0);
-	gDeviceContext->OMSetRenderTargets(0, nullptr, DepthBuffer);
-	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0x00);
-	gDeviceContext->RSSetState(ShadowRaster);
 	setViewPort(2048, 2048);
-	gDeviceContext->VSSetConstantBuffers(0, 1, &shadow_wvp_buffer);
 
 	shadow_camera.proj = XMMatrixOrthographicLH(50.f, 50.f, shadowznear, shadowzfar);
 	XMMATRIX view = XMMatrixLookAtLH(XMLoadFloat3(&directionalLightPos), XMLoadFloat3(&directionalLightFocus), { 0, 1, 0 });
@@ -2201,6 +2160,14 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	}
 	gDeviceContext->Unmap(shadow_wvp_buffer, 0);
 
+	FXSystem->renderShadows(shadow_wvp_buffer, camera->wvp_buffer, DepthBuffer, DepthStateReadWrite);
+	
+	gDeviceContext->RSSetState(ShadowRaster);
+	gDeviceContext->VSSetShader(shadowMapVS, nullptr, 0);
+	gDeviceContext->PSSetShader(nullptr, nullptr, 0);
+	gDeviceContext->OMSetRenderTargets(0, nullptr, DepthBuffer);
+	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0x00);
+	gDeviceContext->VSSetConstantBuffers(0, 1, &shadow_wvp_buffer);
 	gDeviceContext->IASetInputLayout(debug_entity_layout);
 
 
@@ -2215,12 +2182,18 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	{
 
 		XMMATRIX &model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
+		model = XMMatrixMultiply(XMMatrixRotationY(-90 * XM_PI / 180), model);
 
 		//model = XMMatrixMultiply(XMMatrixRotationX(90 * XM_PI / 180), model);
 		//model = XMMatrixMultiply(XMMatrixRotationZ(270 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
-		model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
+		//model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+		//model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+		if (entity->pMesh)
+		{ 
+			float s = entity->pMesh->scale;
+			model = XMMatrixMultiply(XMMatrixScaling(s, s, s), model);
+		}
+
 	
 		shadow_camera.world = model;
 
@@ -2252,8 +2225,10 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	}
 	gDeviceContext->Unmap(shadow_wvp_buffer, 0);
 
-	gDeviceContext->RSSetState(DefaultRaster);
+
 	setViewPort(WIDTH, HEIGHT);
+	gDeviceContext->RSSetState(DefaultRaster);
+
 }
 
 void Renderer::renderBlurPass(Map * map, Camera * cam)
@@ -2480,14 +2455,14 @@ void Renderer::updateEmitters(Map * map)
 				dynamic_cast<FireElement*>(temp->element)->active_projectile = nullptr;
 			}
 		}
-		if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
+		/*if (dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]) != nullptr)
 		{	
 			ArcaneProjectileSpell* test = dynamic_cast<ArcaneProjectileSpell*>(map->entitys[i]);
 			temp[emitterCount].position = test->pEmitter.position;
 			temp[emitterCount].randomVector = test->pEmitter.randomVector;
 			temp[emitterCount].particleType = test->pEmitter.particleType;
 			emitterCount++;
-		}
+		}*/
 		if (dynamic_cast<WaterProjectileSpell*>(map->entitys[i]) != nullptr && dynamic_cast<WaterProjectileSpell*>(map->entitys[i])->pEmitter.particleType != -1)
 		{
 			WaterProjectileSpell* test = dynamic_cast<WaterProjectileSpell*>(map->entitys[i]);
@@ -2501,14 +2476,14 @@ void Renderer::updateEmitters(Map * map)
 			this->createStompParticles(map->entitys[i]->position, 1);
 			map->entitys[i]->dead = true;
 		}
-		if (dynamic_cast<FirePathSpell* >(map->entitys[i]) != nullptr)
+		/*if (dynamic_cast<FirePathSpell* >(map->entitys[i]) != nullptr)
 		{
 			FirePathSpell* test = dynamic_cast<FirePathSpell*>(map->entitys[i]);
 			temp[emitterCount].position = test->pEmitter.position;
 			temp[emitterCount].randomVector = test->pEmitter.randomVector;
 			temp[emitterCount].particleType = test->pEmitter.particleType;
 			emitterCount++;
-		}
+		}*/
 	}
 	
 	D3D11_MAPPED_SUBRESOURCE data;
@@ -2636,6 +2611,7 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 		gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
 		gDeviceContext->PSSetConstantBuffers(5, 1, &this->shadow_wvp_buffer);
+		gDeviceContext->PSSetConstantBuffers(6, 1, &this->shrinkBuffer);
 
 		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 		gDeviceContext->PSSetShaderResources(1, 1, &this->DepthBufferSRV);
@@ -2680,6 +2656,7 @@ void Renderer::render(Map *map, Camera *camera)
 		gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 		gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 		gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+		gDeviceContext->PSSetConstantBuffers(6, 1, &this->shrinkBuffer);
 
 		gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
@@ -2712,16 +2689,20 @@ void Renderer::render(Map *map, Camera *camera)
 			camera->update(0, gDeviceContext);
 
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-			gDeviceContext->Draw(129, 0);
+			if (dynamic_cast<FirePathSpell*>(entity) == nullptr)
+			{
+				gDeviceContext->Draw(129, 0);
+			}
+			
 
 			if (entity->pMesh != nullptr)
 			{
 
 				entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
-				model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
-				model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
-
-				model = XMMatrixMultiply(XMMatrixScaling(0.75f, 0.75f, 0.75f), model);
+				//model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
+				model = XMMatrixMultiply(XMMatrixRotationY(-90 * XM_PI / 180), model);
+				float s = entity->pMesh->scale;
+				model = XMMatrixMultiply(XMMatrixScaling(s, s, s), model);
 
 				camera->vals.world = model;
 				camera->update(0, gDeviceContext);
@@ -2730,10 +2711,33 @@ void Renderer::render(Map *map, Camera *camera)
 				gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
 				gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
 				gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+				gDeviceContext->PSSetConstantBuffers(6, 1, &this->shrinkBuffer);
 				gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
 
 				entity->pMesh->Draw(globalDevice, globalDeviceContext);
+			}
+			if (entity->pAnimator != nullptr)
+			{
+				float scale = entity->pAnimator->_mesh->scale;
+				XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(scale, scale, scale) * XMMatrixTranslation(entity->position.x, entity->position.y/* + entity->radius*/, entity->position.z);
+
+				//model = XMMatrixMultiply(XMMatrixRotationX(180 * XM_PI / 180), model);
+				//model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+
+				camera->vals.world = model;
+				camera->update(0, gDeviceContext);
+				gDeviceContext->PSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+				gDeviceContext->PSSetConstantBuffers(1, 1, &color_buffer);
+				gDeviceContext->PSSetConstantBuffers(2, 1, &this->dLightBuffer);
+				gDeviceContext->PSSetConstantBuffers(3, 1, &this->cameraPosBuffer);
+				gDeviceContext->PSSetConstantBuffers(4, 1, &this->pointLightCountBuffer);
+				gDeviceContext->PSSetConstantBuffers(6, 1, &this->shrinkBuffer);
+				gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
+
+				//TODO: deltaTime
+				entity->pAnimator->DrawAndUpdate(0.01f);
+
 			}
 		}
 
@@ -2748,9 +2752,9 @@ void Renderer::render(Map *map, Camera *camera)
 	this->renderCooldownGUI(map, camera);
 	this->renderHPGUI(map, camera);
 
-	this->renderParticles(camera);
+	//this->renderParticles(camera);
 	
-	FXSystem->render(camera, default_rtv, default_srv, blur_rtv[0], blur_rtv[1]);
+	FXSystem->render(camera, default_rtv, default_srv, blur_rtv[0], blur_rtv[1], DepthBufferMS, DepthStateRead);
 	gDeviceContext->GenerateMips(blur_srv[0]);
 	// TODO: behövs antagligen inte mer
 	std::swap(default_rtv, blur_rtv[1]);
@@ -2766,7 +2770,7 @@ void Renderer::present() {
 void Renderer::update(float dt, Map *map, Camera *camera)
 {
 	FXSystem->update(camera, dt);
-	this->updateParticles(dt, map);
+	//this->updateParticles(dt, map);
 	this->updatePointLights(map);
 	this->updateheatHaze();
 	if (map->shrunk == true)

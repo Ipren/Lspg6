@@ -20,6 +20,10 @@ cbuffer pLightCount : register(b4)
 	uint nrOfPointLights;
 }
 
+cbuffer shrinkBuffer : register(b6)
+{
+	float shrinkAmount;
+};
 
 StructuredBuffer<PointLight> pLights : register(t0);
 
@@ -63,5 +67,10 @@ float4 PS(in VS_OUT input) : SV_TARGET
 	float3 ambient = c.xyz * float3(0.0f, 0.0f, 0.0f);
 	diffuse += CalcPointLights(pLights, input.wPos, input.nor, nrOfPointLights);
 
-	return float4(diffuse + ambient + 0.2 * shadow, 1.0f);
+	float d = distance(input.wPos.xz, float2(0, 0));
+	float l = 0;
+	if (d > (10 - shrinkAmount) && d < (10 - shrinkAmount) + 0.2) l = 1;
+	d = 1 - clamp((d - 5) / (6 - 5), 0, 1);
+
+	return float4(diffuse + float3(3, 0.4, 0.1) * l + ambient + 0.2 * shadow, 1.0f);
 }

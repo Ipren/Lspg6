@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <functional>
 #include "SoundSystem.h"
+#include "MeshContainer.h"
 
 struct EntityQueryResult {
 	Entity *entity;
@@ -27,6 +28,7 @@ public:
 //private:
 	std::vector <Entity*> entitys;
 	std::vector <Entity*> entitys_to_add;
+	MeshContainer meshContainer;
 	int nrOfAlivePlayers;
 	int playerPoints[4];
 	int playerElemnts[4];

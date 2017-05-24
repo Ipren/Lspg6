@@ -146,6 +146,14 @@ void ArcaneElement::wall(Player *player, Map *map)
 				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
 				w->edge = true;
 			}
+
+			//Add animated mesh to middle pillar
+			if (i == 4)
+			{
+				Spell* w = dynamic_cast<Spell*>(e);
+				w->pAnimator = new Animator();
+				w->pAnimator->AssignSkinnedMesh("ice_wall");
+			}
 		}
 
 
@@ -280,7 +288,7 @@ void FireElement::projectile(Player * player, Map * map)
 				FireProjectileSpell *spell = new FireProjectileSpell(player,
 				{
 					position.x + cos(angle) * (radius + 0.4f),
-					0,
+					0.5,
 					position.z + sin(angle) * (radius + 0.4f)
 				},
 				{ cos(angle) * (gSpellConstants.kFireProjectileSpeed + gPlayerSpellConstants[player->index].kFireProjectileSpeed),
@@ -321,7 +329,7 @@ void FireElement::stomp(Player * player, Map * map)
 {
 	if (cooldown[2] <= 0.f) {
 
-		player->stomped = true;
+		//player->stomped = true;
 
 		//saves nearby players in a vector
 		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kFireStompDistance + gPlayerSpellConstants[player->index].kFireStompDistance, [](Entity *e) {
@@ -339,6 +347,8 @@ void FireElement::stomp(Player * player, Map * map)
 		}
 
 		cooldown[2] = gSpellConstants.kFireStompCooldown + gPlayerSpellConstants[player->index].kFireStompCooldown;
+		FXSystem->AddFX("fire-stomp", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
+		FXSystem->AddFX("shrapnel", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
 		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 	}
 }
@@ -425,7 +435,7 @@ void WindElement::projectile(Player * player, Map * map)
 		WindProjectileSpell *spell = new WindProjectileSpell(player,
 		{
 			position.x + cos(angle) * (radius + 0.7f),
-			0,
+			0.5,
 			position.z + sin(angle) * (radius + 0.7f)
 		},
 		{ cos(angle) * (gSpellConstants.kWindProjectileSpeed + gPlayerSpellConstants[player->index].kWindProjectileSpeed), sin(angle) * (gSpellConstants.kWindProjectileSpeed + gPlayerSpellConstants[player->index].kWindProjectileSpeed) },
@@ -586,7 +596,7 @@ void EarthElement::projectile(Player * player, Map * map)
 		EarthProjectileSpell *spell = new EarthProjectileSpell(player,
 		{
 			position.x + cos(angle) * (radius + 0.4f),
-			0,
+			0.5,
 			position.z + sin(angle) * (radius + 0.4f)
 		},
 		{ cos(angle) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed), sin(angle) * (gSpellConstants.kEarthProjectileSpeed + gPlayerSpellConstants[player->index].kEarthProjectileSpeed) },
@@ -847,7 +857,7 @@ void WaterElement::projectile(Player * player, Map * map)
 				WaterProjectileSpell *spell = new WaterProjectileSpell(player,
 				{
 					position.x + cos(angle) * (radius + 0.4f),
-					0,
+					0.5,
 					position.z + sin(angle) * (radius + 0.4f)
 				},
 				{ cos(angle) * (gSpellConstants.kWaterProjectileSpeed + gPlayerSpellConstants[player->index].kWaterProjectileSpeed),
@@ -888,7 +898,7 @@ void WaterElement::projectile(Player * player, Map * map)
 						spell = new WaterProjectileSpell(player,
 						{
 							position.x + cos(angle) * (radius + 0.4f) ,
-							0,
+							0.5,
 							position.z + sin(angle) * (radius + 0.4f)
 						},
 							v,
@@ -935,7 +945,7 @@ void WaterElement::projectile(Player * player, Map * map)
 				spell = new WaterProjectileSpell(player,
 				{
 					position.x + cos(angle) * (radius + 0.4f) ,
-					0,
+					0.5,
 					position.z + sin(angle) * (radius + 0.4f)
 				},
 					v,
@@ -959,7 +969,7 @@ void WaterElement::stomp(Player * player, Map * map)
 {
 	if (cooldown[2] <= 0.0f)
 	{
-		player->stomped = true;
+		//player->stomped = true;
 		auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
 			return e->type == EntityType::Player;
 		});
@@ -972,6 +982,7 @@ void WaterElement::stomp(Player * player, Map * map)
 
 		cooldown[2] = gSpellConstants.kWaterStompCooldown + gPlayerSpellConstants[player->index].kWaterStompCooldown;
 		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
+		FXSystem->AddFX("water-stomp", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
 	}
 }
 

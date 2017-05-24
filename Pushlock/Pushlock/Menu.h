@@ -53,6 +53,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;
 
 	DirectX::XMFLOAT2 arrowPos[5];
+	std::wstring eStrings[5];
+	DirectX::XMFLOAT2 eTextPos[4][5];
+	DirectX::XMVECTOR eTextColor[5];
+
 	bool ready[4];
 
 	std::wstring uStrings[8][5][4];

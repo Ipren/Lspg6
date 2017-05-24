@@ -1,15 +1,24 @@
 #include "G6Import.h"
 
-bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<sMaterial*>& outMaterials)
+bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<sMaterial*>& outMaterials, vector<sLight*>& outLights, vector<sCamera*>& outCameras)
 {
+
+	outMaterials.clear();
+	outLights.clear();
+	outCameras.clear();
+
 	std::ifstream file(filename, std::ios::binary);
 
 	assert(file.is_open());
+
+	//Step 1: Read MeshHeader
 	file.read(reinterpret_cast<char*>(&outMesh->header), sizeof(outMesh->header));
 	file.read((char*)(outMesh->name.data()), outMesh->header.meshNameLength);
 	outMesh->verts.clear();
 	outMesh->verts.resize(outMesh->header.numberOfVerts);
 
+	/// NO LONGER USING/IMPORTING/EXPORTING UVSETS
+	/*
 	outMesh->uvsets.clear();
 	outMesh->uvsets.resize(outMesh->header.numberOfUVSets);
 
@@ -31,13 +40,15 @@ bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<s
 
 		free(uvset_name);
 	}
+	*/
 
-	//Assume indices as linear
+	// Step 2: Read Vertex data
 	file.read(reinterpret_cast<char*>(outMesh->verts.data()), sizeof(Vertex) * outMesh->header.numberOfVerts);
+
+	/// NO LONGER USING/IMPORTING/EXPORTING UV VECTOR
+	/*
 	file.read(reinterpret_cast<char*>(outMesh->uvs.data()), sizeof(UV) * outMesh->header.numberOfVerts * outMesh->header.numberOfUVSets);
-
-	//Use 1st uvset for now
-
+	*/
 
 	/*
 	for (int i = 0; i < outMesh->header.numberOfVerts; i++) {
@@ -54,50 +65,178 @@ bool G6Import::ImportStaticMesh(const char * filename, sMesh * outMesh, vector<s
 
 	*/
 
+	// Step 3: Read materials
+	{
+		MatHeader materials_header;
+		file.read(reinterpret_cast<char*>(&materials_header), sizeof(MatHeader));
 
 
-	//Read materials
-	MatHeader materials_header;
-	file.read(reinterpret_cast<char*>(&materials_header), sizeof(MatHeader));
+		int32_t mat_count = materials_header.mat_count;
 
+		for (int matID = 0; matID < mat_count; matID++) {
+			sMaterial* tmp_mat = new sMaterial();
+			file.read(reinterpret_cast<char*>(&tmp_mat->subheader), sizeof(MatSubHeader));
 
-	int32_t mat_count = materials_header.mat_count;
+			//Read material name
+			char* mat_name = (char*)malloc(sizeof(char) * (tmp_mat->subheader.matNameLength + 1));
+			memset(mat_name, 0x0, sizeof(char) * (tmp_mat->subheader.matNameLength + 1));
+			file.read((char*)(mat_name), tmp_mat->subheader.matNameLength * sizeof(char));
+			tmp_mat->name = mat_name;
+			free(mat_name);
 
-	for (int matID = 0; matID < mat_count; matID++) {
-		sMaterial* tmp_mat = new sMaterial();
-		file.read(reinterpret_cast<char*>(&tmp_mat->subheader), sizeof(MatSubHeader));
-		
-		//Read material name
-		char* mat_name = (char*)malloc(sizeof(char) * (tmp_mat->subheader.matNameLength + 1));
-		memset(mat_name, 0x0, sizeof(char) * (tmp_mat->subheader.matNameLength + 1));
-		file.read((char*)(mat_name), tmp_mat->subheader.matNameLength * sizeof(char));
-		tmp_mat->name = mat_name;
-		free(mat_name);
+			file.read((char*)(&tmp_mat->data), sizeof(sMaterialData)); //Fixed size data
 
-		file.read((char*)(&tmp_mat->data), sizeof(sMaterialData)); //Fixed size data
+			if (tmp_mat->data.diffusePathLength > 0) {
+				char* file_path = (char*)malloc(sizeof(char) * (tmp_mat->data.diffusePathLength + 1));
+				memset(file_path, 0x0, sizeof(char) * (tmp_mat->data.diffusePathLength + 1));
 
-		if (tmp_mat->data.diffusePathLength > 0) {
-			char* file_path = (char*)malloc(sizeof(char) * (tmp_mat->data.diffusePathLength + 1));
-			memset(file_path, 0x0, sizeof(char) * (tmp_mat->data.diffusePathLength + 1));
+				file.read((char*)(file_path), tmp_mat->data.diffusePathLength * sizeof(char));
+				tmp_mat->diffuse_path = string(file_path);
 
-			file.read((char*)(file_path), tmp_mat->data.diffusePathLength * sizeof(char));
-			tmp_mat->diffuse_path = string(file_path);
+				free(file_path);
+			}
 
-			free(file_path);
+			uint32_t diffuse = tmp_mat->data.diffuse;
+
+			//Unpack colors
+			float diff_r = ((diffuse >> 16) & 255) / 255.0;
+			float diff_g = ((diffuse >> 8) & 255) / 255.0;
+			float diff_b = (diffuse & 255) / 255.0;
 		}
-
-		uint32_t diffuse = tmp_mat->data.diffuse;
-
-		//Unpack colors
-		float diff_r = ((diffuse >> 16) & 255) / 255.0;
-		float diff_g = ((diffuse >> 8) & 255) / 255.0;
-		float diff_b = (diffuse & 255) / 255.0;
 	}
 
+	//Read lights
+	size_t n_of_lights = 0;
+	file.read(reinterpret_cast<char*>(&n_of_lights), sizeof(size_t));
+
+	outLights.resize(n_of_lights);
+
+	file.read(reinterpret_cast<char*>(outLights.data()), sizeof(sLight) * n_of_lights);
 
 
+	//Read cameras
+	size_t n_of_cameras = 0;
+	file.read(reinterpret_cast<char*>(&n_of_cameras), sizeof(size_t));
 
-	//End materials
+	outCameras.resize(n_of_lights);
+
+	file.read(reinterpret_cast<char*>(outCameras.data()), sizeof(sCamera) * n_of_cameras);
+
+
+	//End
+	file.close();
+
+	return true;
+}
+
+bool G6Import::ImportAnimatedMesh(const char * filename, sSkinnedMesh * outMesh)
+{
+	std::ifstream file(filename, std::ios::binary);
+
+	assert(file.is_open());
+
+	// Step 1: Read SkinnedMeshHeader data
+	{
+		file.read(reinterpret_cast<char*>(&outMesh->header), sizeof(outMesh->header));
+		file.read((char*)(outMesh->name.data()), outMesh->header.meshNameLength);
+	}
+
+	// Step 2: Read vertex data
+	{
+		outMesh->verts.clear();
+		outMesh->verts.resize(outMesh->header.numberOfVerts);
+
+		file.read(reinterpret_cast<char*>(outMesh->verts.data()), sizeof(SkinnedVertex) * outMesh->header.numberOfVerts);
+	}
+
+	// Step 3: Read materials 
+	{
+		MatHeader materials_header;
+		file.read(reinterpret_cast<char*>(&materials_header), sizeof(MatHeader));
+
+
+		int32_t mat_count = materials_header.mat_count;
+
+		for (int matID = 0; matID < mat_count; matID++) {
+			sMaterial* tmp_mat = new sMaterial();
+			file.read(reinterpret_cast<char*>(&tmp_mat->subheader), sizeof(MatSubHeader));
+
+			//Read material name
+			char* mat_name = (char*)malloc(sizeof(char) * (tmp_mat->subheader.matNameLength + 1));
+			memset(mat_name, 0x0, sizeof(char) * (tmp_mat->subheader.matNameLength + 1));
+			file.read((char*)(mat_name), tmp_mat->subheader.matNameLength * sizeof(char));
+			tmp_mat->name = mat_name;
+			free(mat_name);
+
+			file.read((char*)(&tmp_mat->data), sizeof(sMaterialData)); //Fixed size data
+
+			if (tmp_mat->data.diffusePathLength > 0) {
+				char* file_path = (char*)malloc(sizeof(char) * (tmp_mat->data.diffusePathLength + 1));
+				memset(file_path, 0x0, sizeof(char) * (tmp_mat->data.diffusePathLength + 1));
+
+				file.read((char*)(file_path), tmp_mat->data.diffusePathLength * sizeof(char));
+				tmp_mat->diffuse_path = string(file_path);
+
+				free(file_path);
+			}
+
+			uint32_t diffuse = tmp_mat->data.diffuse;
+
+			//Unpack colors
+			float diff_r = ((diffuse >> 16) & 255) / 255.0;
+			float diff_g = ((diffuse >> 8) & 255) / 255.0;
+			float diff_b = (diffuse & 255) / 255.0;
+		}
+	}
+
+	//Step 4: Read animation data
+	{
+		for (int i = 0; i < outMesh->header.numberOfJoints; i++)
+		{
+			Joint curr;
+			curr.globalTransform = DirectX::XMMatrixIdentity();
+			curr.localTransform = DirectX::XMMatrixIdentity();
+			curr.name = "someName";
+
+			DirectX::XMFLOAT4X4 invBndPs;
+			file.read(reinterpret_cast<char*>(invBndPs.m), sizeof(float) * 16);
+			file.read(reinterpret_cast<char*>(&curr.parent_id), sizeof(int));
+
+			curr.inverseBindPose = DirectX::XMLoadFloat4x4(&invBndPs);
+
+			outMesh->skeletonHierarchy.push_back(curr);
+		}
+
+		for (int sample = 0; sample < outMesh->header.frameCount; sample++)
+		{
+			AnimationSample currentSample;
+			for (int joint = 0; joint < outMesh->header.numberOfJoints; joint++)
+			{
+				JointPose currentPose;
+
+				DirectX::XMFLOAT4 rot;
+				DirectX::XMFLOAT3 trans;
+
+				file.read(reinterpret_cast<char*>(&rot), sizeof(float) * 4);
+				file.read(reinterpret_cast<char*>(&trans), sizeof(float) * 3);
+
+				currentPose.m_rot = DirectX::XMLoadFloat4(&rot);
+				currentPose.m_trans = DirectX::XMLoadFloat3(&trans);
+
+				file.read(reinterpret_cast<char*>(&currentPose.m_scale), sizeof(float));
+
+				currentSample.m_aJointPose.push_back(currentPose);
+			}
+			outMesh->animation.m_aSamples.push_back(currentSample);
+		}
+
+		//Extra bits//////////////////////////////////////////////////////////////
+		outMesh->animation.m_frameCount = outMesh->header.frameCount;			//
+		outMesh->animation.m_framesPerSecond = outMesh->header.framesPerSecond;	//
+		//////////////////////////////////////////////////////////////////////////
+
+	}
+
 
 	file.close();
 

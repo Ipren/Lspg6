@@ -49,7 +49,7 @@ Game::Game(HWND wndHandle, int width, int height)
 
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-	
+	currentMap->sounds.startBGM();
 
 }
 
@@ -403,6 +403,7 @@ bool Game::update(float dt)
 			if (menu->getSelectedButton() == 3 && gGamepads[i]->get_button_pressed(Gamepad::A)) {//starting the game with 4 players
 				quit = true;
 			}
+			
 		}
 		
 
@@ -455,7 +456,7 @@ bool Game::update(float dt)
 				currentState = GameState::Playing;
 				this->playing_firstFrame = true;
 				currentMap->reset(currentMap->nrOfAlivePlayers);
-			currentMap->sounds.startBGM();
+			//currentMap->sounds.startBGM();
 		}
 
 		if (ImGui::Button("start anyway"))
@@ -463,7 +464,6 @@ bool Game::update(float dt)
 			currentState = GameState::Playing;
 			this->playing_firstFrame = true;
 			currentMap->reset(currentMap->nrOfAlivePlayers);
-			currentMap->sounds.startBGM();
 		}
 		ImGui::End();
 	}

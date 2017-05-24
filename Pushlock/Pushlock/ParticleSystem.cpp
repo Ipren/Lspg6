@@ -59,6 +59,12 @@ ParticleSystem::ParticleSystem(const wchar_t *file, UINT capacity, UINT width, U
 	blob = compile_shader(L"../ParticleEditor/Resources/Particle.hlsl", "PS", "ps_5_0", device);
 	DXCALL(device->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &particle_ps));
 
+	blob = compile_shader(L"../ParticleEditor/Resources/Particle.hlsl", "ShadowGS", "gs_5_0", device);
+	DXCALL(device->CreateGeometryShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &shadow_gs));
+
+	blob = compile_shader(L"../ParticleEditor/Resources/Particle.hlsl", "ShadowPS", "ps_5_0", device);
+	DXCALL(device->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &shadow_ps));
+	
 	ID3D11Resource *r = nullptr;
 	DXCALL(CreateDDSTextureFromFile(device, L"../ParticleEditor/Resources/Particle.dds", &r, &particle_srv, 0, nullptr));
 
@@ -87,7 +93,7 @@ ParticleSystem::ParticleSystem(const wchar_t *file, UINT capacity, UINT width, U
 	state.RenderTarget[1].BlendOp = D3D11_BLEND_OP_ADD;
 	state.RenderTarget[1].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
 	state.RenderTarget[1].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-	state.RenderTarget[1].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	state.RenderTarget[1].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED | D3D11_COLOR_WRITE_ENABLE_GREEN;
 	DXCALL(device->CreateBlendState(&state, &particle_blend));
 
 	state.RenderTarget[0].BlendEnable = FALSE;
@@ -149,7 +155,7 @@ ParticleSystem::ParticleSystem(const wchar_t *file, UINT capacity, UINT width, U
 	rtv_desc.ArraySize = 1;
 	rtv_desc.SampleDesc.Count = 1;
 	rtv_desc.SampleDesc.Quality = 0;
-	rtv_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	rtv_desc.Format = DXGI_FORMAT_R8G8_UNORM;
 	rtv_desc.CPUAccessFlags = 0;
 	rtv_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	rtv_desc.MiscFlags = 0;
@@ -182,8 +188,9 @@ void ParticleSystem::ProcessFX(ParticleEffect &fx, XMMATRIX model, float dt)
 	else {
 		for (int i = 0; i < fx.fx_count; ++i) {
 			auto &entry = fx.fx[i];
+			auto idx = entry.idx & ~(1 << 31);
 
-			auto def = particle_definitions[entry.idx];
+			auto def = particle_definitions[idx];
 
 			if (fx.loop || (fx.age > entry.start && fx.age < entry.start + entry.end)) {
 				auto factor = (fx.age - entry.start) / (entry.end);
@@ -243,8 +250,9 @@ void ParticleSystem::ProcessFX(ParticleEffect & fx, XMMATRIX model, XMVECTOR vel
 	else {
 		for (int i = 0; i < fx.fx_count; ++i) {
 			auto &entry = fx.fx[i];
+			auto idx = entry.idx & ~(1 << 31);
 
-			auto def = particle_definitions[entry.idx];
+			auto def = particle_definitions[idx];
 
 			if (fx.loop || (fx.age > entry.start && fx.age < entry.start + entry.end)) {
 				auto factor = (fx.age - entry.start) / (entry.end);
@@ -266,7 +274,7 @@ void ParticleSystem::ProcessFX(ParticleEffect & fx, XMMATRIX model, XMVECTOR vel
 
 					ParticleInstance p = {};
 					p.origin = pos;
-					p.pos = pos;
+					p.pos = XMVectorAdd({ 0, 0.05f, 0 }, pos);
 					p.velocity = velocity;
 					p.idx = entry.idx;
 					p.rotation = rot;
@@ -283,7 +291,7 @@ void ParticleSystem::ProcessFX(ParticleEffect & fx, XMMATRIX model, XMVECTOR vel
 void ParticleSystem::AddFX(std::string name, XMMATRIX model)
 {
 	ParticleEffectInstance effect = {
-		XMVector3Transform({}, model),
+		XMVectorAdd({0, 0.05f, 0 }, XMVector3Transform({}, model)),
 		GetFX(name)
 	};
 	effects.push_back(effect);
@@ -312,8 +320,9 @@ void ParticleSystem::update(Camera *cam, float dt)
 		else {
 			for (int i = 0; i < fx.fx_count; ++i) {
 				auto &entry = fx.fx[i];
+				auto idx = entry.idx & ~(1 << 31);
 
-				auto def = particle_definitions[entry.idx];
+				auto def = particle_definitions[idx];
 
 				if (fx.age > entry.start && fx.age < entry.start + entry.end) {
 					auto factor = (fx.age - entry.start) / (entry.end);
@@ -359,8 +368,9 @@ void ParticleSystem::update(Camera *cam, float dt)
 	while (it != particles.end())
 	{
 		auto p = it;
+		auto idx = p->idx & ~(1 << 31);
 
-		ParticleDefinition *def = &particle_definitions[p->idx];
+		ParticleDefinition *def = &particle_definitions[idx];
 
 		auto age = p->age / def->lifetime;
 		//if (!settings.ParticlePaused) {
@@ -433,11 +443,61 @@ void ParticleSystem::update(Camera *cam, float dt)
 	}
 }
 
-void ParticleSystem::render(Camera *cam, ID3D11RenderTargetView *dst_rtv, ID3D11ShaderResourceView *dst_srv, ID3D11RenderTargetView *dst_bright, ID3D11RenderTargetView *output)
+void ParticleSystem::renderShadows(
+	ID3D11Buffer *shadow_camera,
+	ID3D11Buffer *camera,
+	ID3D11DepthStencilView *shadow_map,
+	ID3D11DepthStencilState *shadow_depth_state)
 {
-	float clear[] = { 0.f, 0.f, 0.f, 1.f };
-	cxt->ClearRenderTargetView(distort_rtv, clear);
+	UINT32 stride = sizeof(ParticleInstance);
+	UINT32 offset = 0u;
+
+	cxt->IASetInputLayout(particle_layout);
+	cxt->IASetVertexBuffers(0, 1, &particle_buffer, &stride, &offset);
+	cxt->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+	cxt->VSSetShader(particle_vs, nullptr, 0);
+
+	cxt->GSSetShader(shadow_gs, nullptr, 0);
+	cxt->GSSetConstantBuffers(0, 1, &camera);
+	cxt->GSSetConstantBuffers(1, 1, &shadow_camera);
+
+	cxt->PSSetShader(shadow_ps, nullptr, 0);
+	cxt->PSSetSamplers(0, 1, &particle_sampler);
+
+	ID3D11ShaderResourceView *particle_srvs[] = {
+		particle_srv,
+	};
+	cxt->PSSetShaderResources(0, 1, particle_srvs);
+
+	ID3D11RenderTargetView *particle_targets[] = { nullptr };
+	cxt->OMSetRenderTargets(1, particle_targets, shadow_map);
+	cxt->OMSetBlendState(particle_blend, nullptr, 0xffffffff);
+	cxt->OMSetDepthStencilState(shadow_depth_state, 0xff);
+
+	cxt->Draw(particles.size(), 0);
+
+	cxt->PSSetShaderResources(0, 2, RESET_SRV);
+	cxt->OMSetRenderTargets(2, RESET_RTV, nullptr);
+	cxt->GSSetShader(nullptr, nullptr, 0);
+	cxt->OMSetDepthStencilState(nullptr, 0xff);
+}
+
+void ParticleSystem::render(
+	Camera *cam,
+	ID3D11RenderTargetView *dst_rtv,
+	ID3D11ShaderResourceView *dst_srv,
+	ID3D11RenderTargetView *dst_bright,
+	ID3D11RenderTargetView *output,
+	ID3D11DepthStencilView *dsv,
+	ID3D11DepthStencilState *depth_state
+)
+{
 	{
+		float clear[] = { 0.5f, 0.5f, 0.f, 1.f };
+		float bclear[] = { 0.f, 0.f, 0.f, 1.f };
+		cxt->ClearRenderTargetView(dst_bright, bclear);
+		cxt->ClearRenderTargetView(distort_rtv, clear);
 		UINT32 stride = sizeof(ParticleInstance);
 		UINT32 offset = 0u;
 
@@ -463,11 +523,12 @@ void ParticleSystem::render(Camera *cam, ID3D11RenderTargetView *dst_rtv, ID3D11
 
 		ID3D11RenderTargetView *particle_targets[] = {
 			dst_rtv,
-			distort_rtv
+			distort_rtv,
+			//dst_bright
 		};
-		cxt->OMSetRenderTargets(2, particle_targets, nullptr);
+		cxt->OMSetRenderTargets(2, particle_targets, dsv);
 		cxt->OMSetBlendState(particle_blend, nullptr, 0xffffffff);
-		cxt->OMSetDepthStencilState(nullptr, 0xff);
+		cxt->OMSetDepthStencilState(depth_state, 0xff);
 
 		cxt->Draw(particles.size(), 0);
 

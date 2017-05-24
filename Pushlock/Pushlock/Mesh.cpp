@@ -14,9 +14,6 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
-	this->custom_mesh_vsh->Release();
-	this->custom_mesh_vsh->Release();
-
 	if (this->mesh != nullptr)
 		delete mesh;
 }
@@ -29,9 +26,11 @@ bool Mesh::LoadStatic(std::string filename, ID3D11Device* device, ID3D11DeviceCo
 	//loader.load(filename, *device, *deviceContext, vertexArray, indexArray);
 	this->mesh = new sMesh;
 	vector<sMaterial*> materials;
-	G6Import::ImportStaticMesh(filename.c_str(), mesh, materials);
+	vector<sLight*> lights;
+	vector<sCamera*> cameras;
+	G6Import::ImportStaticMesh(filename.c_str(), mesh, materials, lights, cameras);
 
-	
+
 	for (auto& v : mesh->verts) {
 		this->vertexArray.push_back(XMFLOAT3(v.posX, v.posY, v.posZ));
 		this->vertexArray.push_back(XMFLOAT3(v.norX, v.norY, v.norZ));
@@ -65,13 +64,13 @@ void Mesh::PreDraw(ID3D11Device* device, ID3D11DeviceContext* deviceContext) {
 		deviceContext->IASetIndexBuffer(this->pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 }
 
-void Mesh::Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext )
+void Mesh::Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 
 
-	
 
-	
+
+
 
 	if (pIndexBuffer != nullptr)
 		deviceContext->DrawIndexed(indexArray.size(), 0, 0);
