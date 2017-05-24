@@ -782,7 +782,7 @@ void Menu::drawUpgradeText(Map * map)
 			XMVECTOR col;
 			if (map->playerElemnts[i] == 0)//Arcane
 			{
-				col = XMVectorSet(.588f, 1.f, .965f, 1.f);
+				col = XMVectorSet(.0f, .0f, .0f, 1.f);
 			}
 			else if (map->playerElemnts[i] == 1)//Fire
 			{
