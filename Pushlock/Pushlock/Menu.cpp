@@ -248,17 +248,17 @@ Menu::Menu(Renderer* renderer)
 	this->eTextPos[3][4] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.36f + offsetY };
 	
 
-	this->eStrings[0] = L"X: Arcane elemetal powers";
-	this->eStrings[1] = L"Y: Fire elemetal powers";
-	this->eStrings[2] = L"A: Wind elemetal powers";
-	this->eStrings[3] = L"B: Earth elemetal powers";
-	this->eStrings[4] = L"RB: Water elemetal powers";
+	this->eStrings[0] = L"   Arcane elemetal powers";
+	this->eStrings[1] = L"   Fire elemetal powers";
+	this->eStrings[2] = L"   Wind elemetal powers";
+	this->eStrings[3] = L"   Earth elemetal powers";
+	this->eStrings[4] = L"   Water elemetal powers";
 
-	this->eTextColor[0] = XMVectorSet(.588f, 1.f, .965f, 1.f);
-	this->eTextColor[1] = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
-	this->eTextColor[2] = XMVectorSet(0.f, 0.f, 0.f, 1.f);
-	this->eTextColor[3] = XMVectorSet(0.f, .580f, 1.f, 1.f);
-	this->eTextColor[4] = XMVectorSet(1.f, .929f, .400f, 1.f);
+	this->eTextColor[0] = XMVectorSet(.588f, 0.f, .965f, 1.f);
+	this->eTextColor[1] = XMVectorSet(1.0f, 0.1f, 0.1f, 1.0f);
+	this->eTextColor[2] = XMVectorSet(0.f, .580f, 1.f, 1.f);
+	this->eTextColor[3] = XMVectorSet(0.2f, 0.1f, 0.1f, 1.f);
+	this->eTextColor[4] = XMVectorSet(0.f, .380f, 1.f, 1.f);
 }
 
 Menu::~Menu()

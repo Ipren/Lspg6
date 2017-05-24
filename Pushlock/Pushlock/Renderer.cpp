@@ -69,7 +69,7 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createBlurPass();
 	this->createShaders();
 	this->setViewPort(width, height);
-	this->createParticleBuffer(524288);
+	this->createParticleBuffer(1);
 	this->createLightBuffers();
 	this->createCameraBuffer();
 	this->createcpMenuShaders();
