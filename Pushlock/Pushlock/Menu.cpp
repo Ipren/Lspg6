@@ -810,19 +810,19 @@ void Menu::setSelectedPos(GameState currentState)
 	{
 		if (selectedButton == 0)
 		{
-			catPos.x = WIDTH * 0.29296875f;
+			catPos.x = WIDTH * 0.07296875f;
 			catPos.y = HEIGHT * 0.28125f;
 		}
 		else if (selectedButton == 1) {
-			catPos.x = WIDTH * 0.29296875f;
+			catPos.x = WIDTH * 0.07296875f;
 			catPos.y = HEIGHT * 0.4375f;
 		}
 		else if (selectedButton == 2) {
-			catPos.x = WIDTH * 0.29296875f;
+			catPos.x = WIDTH * 0.07296875f;
 			catPos.y = HEIGHT * 0.6f;
 		}
 		else if (selectedButton == 3) {
-			catPos.x = WIDTH * 0.29296875f;
+			catPos.x = WIDTH * 0.07296875f;
 			catPos.y = HEIGHT * 0.7625f;
 		}
 	}
