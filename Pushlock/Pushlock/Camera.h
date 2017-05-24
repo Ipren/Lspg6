@@ -29,9 +29,7 @@ public:
 		XMMATRIX normal;
 		XMMATRIX inverse;
 	};
-
 	float znear, zfar;
-
 	BufferVals vals;
 
 	XMVECTOR pos, look;

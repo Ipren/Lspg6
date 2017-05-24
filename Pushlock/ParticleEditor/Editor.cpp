@@ -27,6 +27,9 @@ using namespace DirectX;
 EditorCamera *camera;
 float time;
 float ptime;
+float shadowznear = 1.f;
+float shadowzfar = 30.f;
+XMFLOAT3 directionalLightPos = { -1, 4, -1 };
 
 ParticleSystem *FX;
 
@@ -38,6 +41,24 @@ Editor::Settings settings;
 D3D11_VIEWPORT viewport;
 bool viewport_render;
 bool viewport_dirty = true;
+
+
+ID3D11DepthStencilState *DepthStateReadWrite;
+ID3D11DepthStencilState *DepthStateRead;
+ID3D11DepthStencilState *DepthStateDisable;
+
+ID3D11DepthStencilView *ShadowMap;
+ID3D11RasterizerState *ShadowRaster;
+ID3D11RasterizerState *DefaultRaster;
+Camera::BufferVals shadow_camera;
+ID3D11Buffer *shadow_wvp_buffer;
+ID3D11SamplerState *shadowMapSampler;
+ID3D11RenderTargetView *shadowMapRTV;
+ID3D11ShaderResourceView *shadowMapSRV;
+ID3D11VertexShader *shadowMapVS;
+ID3D11PixelShader *shadowMapPS;
+ID3D11Buffer *dLightBuffer;
+
 
 // Plane
 ID3D11Buffer *plane_vertex_buffer;
@@ -87,16 +108,144 @@ bool ComboFuncOptional(const char *label, ParticleEase *ease)
 	return (*(int*)ease) != 3;
 }
 
-void SetViewport()
+void SetViewport(float width = EWIDTH, float height = EHEIGHT)
 {
 	D3D11_VIEWPORT vp;
-	vp.Width = (float)EWIDTH;
-	vp.Height = (float)EHEIGHT;
+	vp.Width = width;
+	vp.Height = height;
 	vp.MaxDepth = 1.0f;
 	vp.MinDepth = 0.0f;
 	vp.TopLeftX = 0;
 	vp.TopLeftY = 0;
 	gDeviceContext->RSSetViewports(1, &vp);
+}
+
+void InitShadows()
+{
+	D3D11_BUFFER_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.ByteWidth = sizeof(dirLight);
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+
+	DXCALL(gDevice->CreateBuffer(&desc, nullptr, &dLightBuffer));
+
+	ID3D11Texture2D* depth_tex = NULL;
+	D3D11_TEXTURE2D_DESC descDepth;
+	descDepth.Width = WIDTH;
+	descDepth.Height = HEIGHT;
+	descDepth.MipLevels = 1;
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Quality = 0;
+	descDepth.Usage = D3D11_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	descDepth.CPUAccessFlags = 0;
+	descDepth.MiscFlags = 0;
+	descDepth.Width = 2048;
+	descDepth.Height = 2048;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.Format = DXGI_FORMAT_R32_TYPELESS;
+	descDepth.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+
+	DXCALL(gDevice->CreateTexture2D(&descDepth, NULL, &depth_tex));
+
+	D3D11_DEPTH_STENCIL_DESC dsDesc;
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	dsDesc.StencilEnable = false;
+	dsDesc.StencilReadMask = 0xFF;
+	dsDesc.StencilWriteMask = 0xFF;
+	dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &DepthStateReadWrite));
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &DepthStateRead));
+	dsDesc.DepthEnable = false;
+	DXCALL(gDevice->CreateDepthStencilState(&dsDesc, &DepthStateDisable));
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+	ZeroMemory(&descDSV, sizeof(descDSV));
+	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
+	D3D11_SHADER_RESOURCE_VIEW_DESC descSRV;
+	ZeroMemory(&descSRV, sizeof(descSRV));
+	descSRV.Format = DXGI_FORMAT_R32_FLOAT;
+	descSRV.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	descSRV.Texture2D.MipLevels = 1;
+	descSRV.Texture2D.MostDetailedMip = 0;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	DXCALL(gDevice->CreateDepthStencilView(depth_tex, &descDSV, &ShadowMap));
+	DXCALL(gDevice->CreateShaderResourceView(depth_tex, &descSRV, &shadowMapSRV));
+	depth_tex->Release();
+
+
+
+
+
+	D3D11_RASTERIZER_DESC state;
+	ZeroMemory(&state, sizeof(D3D11_RASTERIZER_DESC));
+	state.FillMode = D3D11_FILL_SOLID;
+	state.CullMode = D3D11_CULL_FRONT;
+	state.FrontCounterClockwise = false;
+	state.DepthBias = 0;
+	state.DepthBiasClamp = 0;
+	state.SlopeScaledDepthBias = 0;
+	state.DepthClipEnable = true;
+	state.ScissorEnable = false;
+	state.MultisampleEnable = false;
+	state.AntialiasedLineEnable = false;
+
+	DXCALL(gDevice->CreateRasterizerState(&state, &ShadowRaster));
+
+	gDeviceContext->RSGetState(&DefaultRaster);
+
+	D3D11_SAMPLER_DESC sampdesc;
+	ZeroMemory(&sampdesc, sizeof(sampdesc));
+	sampdesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampdesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampdesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampdesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	sampdesc.MaxAnisotropy = 8;
+	//sampdesc.ComparisonFunc = D3D11_COMPARISON_GREATER_EQUAL;
+	DXCALL(gDevice->CreateSamplerState(&sampdesc, &shadowMapSampler));
+
+	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.ByteWidth = sizeof(Camera::BufferVals);
+	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA data;
+	ZeroMemory(&data, sizeof(D3D11_SUBRESOURCE_DATA));
+	data.pSysMem = &shadow_camera;
+
+	DXCALL(gDevice->CreateBuffer(&desc, &data, &shadow_wvp_buffer));
+
+	ID3DBlob *blob = compile_shader(L"../Pushlock/Shadow.hlsl", "VS", "vs_5_0", gDevice);
+	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &shadowMapVS));
+
+	/*D3D11_INPUT_ELEMENT_DESC input_desc[] = {
+	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	debug_entity_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, gDevice);*/
+
+	blob = compile_shader(L"../Pushlock/Shadow.hlsl", "PS", "ps_5_0", gDevice);
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &shadowMapPS));
+
 }
 
 void InitPlane()
@@ -289,6 +438,73 @@ void InitComposite()
 	DXCALL(gDevice->CreateRenderTargetView(dtex, &rdesc,   &distort_rtv));
 }
 
+void RenderShadow()
+{
+	dirLight light;
+	light.lightColor = { 0.9f, 0.9f, 0.9f, 1.0f };
+	light.lightDirection = { directionalLightPos.x, directionalLightPos.y, directionalLightPos.z, 1 };
+	D3D11_MAPPED_SUBRESOURCE dddata;
+	DXCALL(gDeviceContext->Map(dLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &dddata));
+	{
+		CopyMemory(dddata.pData, &light, sizeof(dirLight));
+	}
+	gDeviceContext->Unmap(dLightBuffer, 0);
+
+
+	gDeviceContext->ClearDepthStencilView(ShadowMap, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	SetViewport(2048, 2048);
+
+	shadow_camera.proj = XMMatrixOrthographicLH(33.f, 33.f, shadowznear, 20);
+	XMMATRIX view = XMMatrixLookAtLH(XMLoadFloat3(&directionalLightPos), { 0, 0, 0 }, { 0, 1, 0 });
+	shadow_camera.view = view;
+
+	D3D11_MAPPED_SUBRESOURCE ddata;
+	DXCALL(gDeviceContext->Map(shadow_wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ddata));
+	{
+		CopyMemory(ddata.pData, &shadow_camera, sizeof(Camera::BufferVals));
+	}
+	gDeviceContext->Unmap(shadow_wvp_buffer, 0);
+
+	FX->renderShadows(shadow_wvp_buffer, camera->wvp_buffer, ShadowMap, DepthStateReadWrite);
+	gDeviceContext->RSSetState(DefaultRaster);
+
+	{
+		UINT32 stride = sizeof(float) * 3;
+		UINT32 offset = 0u;
+
+		gDeviceContext->IASetInputLayout(plane_layout);
+		gDeviceContext->IASetVertexBuffers(0, 1, &plane_vertex_buffer, &stride, &offset);
+		gDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		gDeviceContext->VSSetShader(plane_vs, nullptr, 0);
+		gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
+		gDeviceContext->PSSetShader(nullptr, nullptr, 0);
+		ID3D11ShaderResourceView *reset[5] = { nullptr, nullptr, nullptr, nullptr, nullptr };
+		gDeviceContext->PSSetShaderResources(0, 5, reset);
+
+
+		gDeviceContext->OMSetRenderTargets(0, nullptr, ShadowMap);
+
+		gDeviceContext->Draw(6, 0);
+		gDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+
+	}
+
+	shadow_camera.world = XMMatrixIdentity();
+
+	D3D11_MAPPED_SUBRESOURCE data;
+	DXCALL(gDeviceContext->Map(shadow_wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
+	{
+		CopyMemory(data.pData, &shadow_camera, sizeof(Camera::BufferVals));
+	}
+	gDeviceContext->Unmap(shadow_wvp_buffer, 0);
+
+
+	SetViewport(EWIDTH, EHEIGHT);
+	gDeviceContext->RSSetState(DefaultRaster);
+}
+
 void RenderPlane()
 {
 	UINT32 stride = sizeof(float) * 3;
@@ -304,6 +520,10 @@ void RenderPlane()
 	gDeviceContext->PSSetShader(plane_ps, nullptr, 0);
 	gDeviceContext->PSSetSamplers(0, 1, &plane_sampler);
 	gDeviceContext->PSSetShaderResources(0, 1, &plane_srv);
+	gDeviceContext->PSSetConstantBuffers(2, 1, &dLightBuffer);
+	gDeviceContext->PSSetConstantBuffers(5, 1, &shadow_wvp_buffer);
+	gDeviceContext->PSSetShaderResources(1, 1, &shadowMapSRV);
+	gDeviceContext->PSSetSamplers(1, 1, &shadowMapSampler);
 
 	gDeviceContext->OMSetRenderTargets(1, &default_rtv, gDepthbufferDSV);
 
@@ -315,7 +535,7 @@ void RenderPlane()
 
 void RenderParticles()
 {
-	FX->render(reinterpret_cast<Camera*>(camera), default_rtv, default_srv, distort_rtv, hdr_rtv, nullptr, nullptr);
+	FX->render(reinterpret_cast<Camera*>(camera), default_rtv, default_srv, distort_rtv, hdr_rtv, gDepthbufferDSV, DepthStateRead);
 	gDeviceContext->GenerateMips(distort_srv);
 }
 
@@ -462,8 +682,8 @@ void MenuBar()
 	}
 	if (ImGui::BeginMenu("Settings")) {
 		ImGui::TextDisabled("Camera");
-		ImGui::SliderFloat("distance", &settings.CameraDistance, 0.1f, 8.f);
-		ImGui::SliderFloat("height", &settings.CameraHeight, 0.0f, 8.f);
+		ImGui::SliderFloat("distance", &settings.CameraDistance, 0.1f, 16.f);
+		ImGui::SliderFloat("height", &settings.CameraHeight, 0.0f, 16.f);
 		ImGui::SliderFloat("speed", &settings.CameraSpeed, -1.5f, 1.5f);
 		ImGui::TextDisabled("Simulation");
 		ImGui::SliderFloat("speed##part", &settings.ParticleSpeed, -1.5f, 1.5f);
@@ -893,6 +1113,7 @@ void Init()
 
 	Style();
 
+	InitShadows();
 	InitPlane();
 	InitParticles();
 	InitComposite();
@@ -998,6 +1219,7 @@ void Render(float dt)
 	if (viewport_render) {
 		SetViewport();
 
+		RenderShadow();
 		RenderPlane();
 		RenderParticles();
 		gDeviceContext->RSSetViewports(1, &vp);
