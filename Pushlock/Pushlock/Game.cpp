@@ -47,7 +47,7 @@ Game::Game(HWND wndHandle, int width, int height)
 
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-	
+	currentMap->sounds.startBGM();
 
 }
 
@@ -314,7 +314,7 @@ bool Game::update(float dt)
 		if (ImGui::Button("Main Menu")) {//start the main menu
 			currentState = GameState::MainMenu;
 			this->currentMap->reset(4);
-
+			
 			for (size_t i = 0; i < 4; i++)
 			{
 				pUpgrades[i].choice[0] = 0;
@@ -361,6 +361,7 @@ bool Game::update(float dt)
 	}
 	if (currentState == GameState::MainMenu)
 	{
+		
 		for (int i = 0; i < 4; i++)
 		{
 			if (gGamepads[i]->get_button_pressed(Gamepad::Down))
@@ -388,6 +389,7 @@ bool Game::update(float dt)
 			if (menu->getSelectedButton() == 3 && gGamepads[i]->get_button_pressed(Gamepad::A)) {//starting the game with 4 players
 				quit = true;
 			}
+			
 		}
 		
 
@@ -439,14 +441,13 @@ bool Game::update(float dt)
 		{
 				currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfAlivePlayers);
-			currentMap->sounds.startBGM();
+			
 		}
 
 		if (ImGui::Button("start anyway"))
 		{
 			currentState = GameState::Playing;
 			currentMap->reset(currentMap->nrOfAlivePlayers);
-			currentMap->sounds.startBGM();
 		}
 		ImGui::End();
 	}
