@@ -8,7 +8,7 @@ Menu::Menu(Renderer* renderer)
 {
 
 	ID3D11Resource *r = nullptr;
-	DXCALL(CreateDDSTextureFromFile(renderer->gDevice, L"cat.dds", &r, &m_texture, 0, nullptr));
+	//DXCALL(CreateDDSTextureFromFile(renderer->gDevice, L"cat.dds", &r, &m_texture, 0, nullptr));
 
 	HRESULT hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/arrow.png ", &r, &this->m_cutexture);
 	if (FAILED(hr)) {
@@ -460,7 +460,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	{
 		/*std::wstring s = L"Player: " + (winner + 1);
 		wchar_t* c = new wchar_t(&s.c_str());*/
-		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player: ") + std::to_wstring(winner+1)).c_str(), XMFLOAT2(375, 300), Colors::HotPink);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), (std::wstring(L"Player: ") + std::to_wstring(winner+1)).c_str(), XMFLOAT2(375, 300), Colors::HotPink);
 	}
 	else if (currentState == GameState::EndRound)
 	{
@@ -787,7 +787,7 @@ void Menu::drawUpgradeText(Map * map)
 			XMVECTOR col;
 			if (map->playerElemnts[i] == 0)//Arcane
 			{
-				col = XMVectorSet(.588f, 1.f, .965f, 1.f);
+				col = XMVectorSet(.0f, .0f, .0f, 1.f);
 			}
 			else if (map->playerElemnts[i] == 1)//Fire
 			{
