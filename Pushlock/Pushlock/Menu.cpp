@@ -79,97 +79,97 @@ Menu::Menu(Renderer* renderer)
 #pragma region upgradeText
 	//////////////////////round 1////////////////////////////////////////////
 //arcane
-	this->uStrings[0][0][0] = L"X: Spilts the projectile into 3 weaker ones";
-	this->uStrings[0][0][1] = L"Y: Turns the dash into a teleport";
-	this->uStrings[0][0][2] = L"A: Improves seeking";
-	this->uStrings[0][0][3] = L"B: Projectile lives longer";
-
-	//fire
-	this->uStrings[0][1][0] = L"X: Gives your projectile a DOT effect";
-	this->uStrings[0][1][1] = L"Y: Cooldown resets on dash if you hit with stomp";
-	this->uStrings[0][1][2] = L"A: Larger explotion Radius";
-	this->uStrings[0][1][3] = L"B: Increase your maximum health";
-
-	//wind
-	this->uStrings[0][2][0] = L"X: Refelcts projectiles when dashing";
-	this->uStrings[0][2][1] = L"Y: Can dash trough walls";
-	this->uStrings[0][2][2] = L"A: Stronger projectiles";
-	this->uStrings[0][2][3] = L"B: Shorter dash cooldown";
-
-	//earth
-	this->uStrings[0][3][0] = L"X: Stomps in a line infron of you";
-	this->uStrings[0][3][1] = L"Y: Stomp creates projectiles";
-	this->uStrings[0][3][2] = L"A: You take less pushback";
-	this->uStrings[0][3][3] = L"B: Stronger stomp";
-
-	//water
-	this->uStrings[0][4][0] = L"X: Projectile hits slow";
-	this->uStrings[0][4][1] = L"Y: You can chooose when to split the projectile";
-	this->uStrings[0][4][2] = L"A: Stronger projectles";
-	this->uStrings[0][4][3] = L"B: Shorter wall cooldown";
+	this->uStrings[0][0][0] = L"   Spilts the projectile into 3 weaker ones";
+	this->uStrings[0][0][1] = L"   Turns the dash into a teleport";
+	this->uStrings[0][0][2] = L"   Improves seeking";
+	this->uStrings[0][0][3] = L"   Projectile lives longer";
+								  
+	//fire						  
+	this->uStrings[0][1][0] = L"   Gives your projectile a DOT effect";
+	this->uStrings[0][1][1] = L"   Cooldown resets on dash if you hit with stomp";
+	this->uStrings[0][1][2] = L"   Larger explotion Radius";
+	this->uStrings[0][1][3] = L"   Increase your maximum health";
+								  
+	//wind						  
+	this->uStrings[0][2][0] = L"   Refelcts projectiles when dashing";
+	this->uStrings[0][2][1] = L"   Can dash trough walls";
+	this->uStrings[0][2][2] = L"   Stronger projectiles";
+	this->uStrings[0][2][3] = L"   Shorter dash cooldown";
+								  
+	//earth						  
+	this->uStrings[0][3][0] = L"   Stomps in a line infron of you";
+	this->uStrings[0][3][1] = L"   Stomp creates projectiles";
+	this->uStrings[0][3][2] = L"   You take less pushback";
+	this->uStrings[0][3][3] = L"   Stronger stomp";
+								  
+	//water						  
+	this->uStrings[0][4][0] = L"   Projectile hits slow";
+	this->uStrings[0][4][1] = L"   You can chooose when to split the projectile";
+	this->uStrings[0][4][2] = L"   Stronger projectles";
+	this->uStrings[0][4][3] = L"   Shorter wall cooldown";
 
 	//////////////////////round 2////////////////////////////////////////////
 	//arcane					   
-	this->uStrings[1][0][0] = L"X: Can recast teleport to return last position";
-	this->uStrings[1][0][1] = L"Y: Teleporting into someone causes knockback";
-	this->uStrings[1][0][2] = L"A: Improves seeking";
-	this->uStrings[1][0][3] = L"B: Projectile lives longer";
-
-	//fire
-	this->uStrings[1][1][0] = L"X: Dash leaves fire trail that applies a DOT";
-	this->uStrings[1][1][1] = L"Y: Wall applies a damage over time effect";
-	this->uStrings[1][1][2] = L"A: Larger explotion Radius";
-	this->uStrings[1][1][3] = L"B: Increase your maximum health";
-
-	//wind
-	this->uStrings[1][2][0] = L"X: Stomping creates a cloud that applies a DOT";
-	this->uStrings[1][2][1] = L"Y: Stomping leaves a beacon that can stomp again";
-	this->uStrings[1][2][2] = L"A: Stronger projectiles";
-	this->uStrings[1][2][3] = L"B: Shorter dash cooldown";
-
-	//earth
-	this->uStrings[1][3][0] = L"X: Gives your walls spikes that causes damage";
-	this->uStrings[1][3][1] = L"Y: Wall attracts nearby entitys";
-	this->uStrings[1][3][2] = L"A: You take less pushback";
-	this->uStrings[1][3][3] = L"B: Stronger stomp";
-
-	//water
-	this->uStrings[1][4][0] = L"X: Dash causes larger knockback when colliding";
-	this->uStrings[1][4][1] = L"Y: Your dash leaves a ice patch after you";
-	this->uStrings[1][4][2] = L"A: Stronger projectles";
-	this->uStrings[1][4][3] = L"B: Shorter wall cooldown";
+	this->uStrings[1][0][0] = L"   Can recast teleport to return last position";
+	this->uStrings[1][0][1] = L"   Teleporting into someone causes knockback";
+	this->uStrings[1][0][2] = L"   Improves seeking";
+	this->uStrings[1][0][3] = L"   Projectile lives longer";
+								  
+	//fire						  
+	this->uStrings[1][1][0] = L"   Dash leaves fire trail that applies a DOT";
+	this->uStrings[1][1][1] = L"   Wall applies a damage over time effect";
+	this->uStrings[1][1][2] = L"   Larger explotion Radius";
+	this->uStrings[1][1][3] = L"   Increase your maximum health";
+								  
+	//wind						  
+	this->uStrings[1][2][0] = L"   Stomping creates a cloud that applies a DOT";
+	this->uStrings[1][2][1] = L"   Stomping leaves a beacon that can stomp again";
+	this->uStrings[1][2][2] = L"   Stronger projectiles";
+	this->uStrings[1][2][3] = L"   Shorter dash cooldown";
+								  
+	//earth						  
+	this->uStrings[1][3][0] = L"   Gives your walls spikes that causes damage";
+	this->uStrings[1][3][1] = L"   Wall attracts nearby entitys";
+	this->uStrings[1][3][2] = L"   You take less pushback";
+	this->uStrings[1][3][3] = L"   Stronger stomp";
+								  
+	//water						  
+	this->uStrings[1][4][0] = L"   Dash causes larger knockback when colliding";
+	this->uStrings[1][4][1] = L"   Your dash leaves a ice patch after you";
+	this->uStrings[1][4][2] = L"   Stronger projectles";
+	this->uStrings[1][4][3] = L"   Shorter wall cooldown";
 
 
 	//////////////////////round 3////////////////////////////////////////////
 	//arcane
-	this->uStrings[2][0][0] = L"X: Shorter projectile cooldown";
-	this->uStrings[2][0][1] = L"Y: Higher projectile speed";
-	this->uStrings[2][0][2] = L"A: Improves seeking";
-	this->uStrings[2][0][3] = L"B: Projectile lives longer";
-
-	//fire
-	this->uStrings[2][1][0] = L"X: Stonger projectile";
-	this->uStrings[2][1][1] = L"Y: Stronger stomp";
-	this->uStrings[2][1][2] = L"A: Larger explotion Radius";
-	this->uStrings[2][1][3] = L"B: Increase your maximum health";
-
-	//wind
-	this->uStrings[2][2][0] = L"X: Faster projectile";
-	this->uStrings[2][2][1] = L"Y: Stronger stomp";
-	this->uStrings[2][2][2] = L"A: Stronger projectiles";
-	this->uStrings[2][2][3] = L"B: Shorter dash cooldown";
-
-	//earth
-	this->uStrings[2][3][0] = L"X: Faster projectile";
-	this->uStrings[2][3][1] = L"Y: Larger projectile effect radius";
-	this->uStrings[2][3][2] = L"A: You take less pushback";
-	this->uStrings[2][3][3] = L"B: Stronger stomp";
-
-	//water
-	this->uStrings[2][4][0] = L"X: Faster projectile";
-	this->uStrings[2][4][1] = L"Y: Larger stomp distance";
-	this->uStrings[2][4][2] = L"A: Stronger projectles";
-	this->uStrings[2][4][3] = L"B: Shorter wall cooldown";
+	this->uStrings[2][0][0] = L"   Shorter projectile cooldown";
+	this->uStrings[2][0][1] = L"   Higher projectile speed";
+	this->uStrings[2][0][2] = L"   Improves seeking";
+	this->uStrings[2][0][3] = L"   Projectile lives longer";
+								  
+	//fire						  
+	this->uStrings[2][1][0] = L"   Stonger projectile";
+	this->uStrings[2][1][1] = L"   Stronger stomp";
+	this->uStrings[2][1][2] = L"   Larger explotion Radius";
+	this->uStrings[2][1][3] = L"   Increase your maximum health";
+								  
+	//wind						  
+	this->uStrings[2][2][0] = L"   Faster projectile";
+	this->uStrings[2][2][1] = L"   Stronger stomp";
+	this->uStrings[2][2][2] = L"   Stronger projectiles";
+	this->uStrings[2][2][3] = L"   Shorter dash cooldown";
+								  
+	//earth						  
+	this->uStrings[2][3][0] = L"   Faster projectile";
+	this->uStrings[2][3][1] = L"   Larger projectile effect radius";
+	this->uStrings[2][3][2] = L"   You take less pushback";
+	this->uStrings[2][3][3] = L"   Stronger stomp";
+								  
+	//water						  
+	this->uStrings[2][4][0] = L"   Faster projectile";
+	this->uStrings[2][4][1] = L"   Larger stomp distance";
+	this->uStrings[2][4][2] = L"   Stronger projectles";
+	this->uStrings[2][4][3] = L"   Shorter wall cooldown";
 
 
 	//rest of the rounds
@@ -184,34 +184,34 @@ Menu::Menu(Renderer* renderer)
 		}*/
 
 		//arcane
-		this->uStrings[i][0][0] = L"X: Shorter projectile cooldown";
-		this->uStrings[i][0][1] = L"Y: Higher projectile speed";
-		this->uStrings[i][0][2] = L"A: Improves seeking";
-		this->uStrings[i][0][3] = L"B: Projectile lives longer";
-
-		//fire
-		this->uStrings[i][1][0] = L"X: Stonger projectile";
-		this->uStrings[i][1][1] = L"Y: Stronger stomp";
-		this->uStrings[i][1][2] = L"A: Larger explotion Radius";
-		this->uStrings[i][1][3] = L"B: Increase your maximum health";
-
-		//wind
-		this->uStrings[i][2][0] = L"X: Faster projectile";
-		this->uStrings[i][2][1] = L"Y: Stronger stomp";
-		this->uStrings[i][2][2] = L"A: Stronger projectiles";
-		this->uStrings[i][2][3] = L"B: Shorter dash cooldown";
-
-		//earth
-		this->uStrings[i][3][0] = L"X: Faster projectile";
-		this->uStrings[i][3][1] = L"Y: Larger projectile effect radius";
-		this->uStrings[i][3][2] = L"A: You take less pushback";
-		this->uStrings[i][3][3] = L"B: Stronger stomp";
-
-		//water
-		this->uStrings[i][4][0] = L"X: Faster projectile";
-		this->uStrings[i][4][1] = L"Y: Larger stomp distance";
-		this->uStrings[i][4][2] = L"A: Stronger projectles";
-		this->uStrings[i][4][3] = L"B: Shorter wall cooldown";
+		this->uStrings[i][0][0] = L"   Shorter projectile cooldown";
+		this->uStrings[i][0][1] = L"   Higher projectile speed";
+		this->uStrings[i][0][2] = L"   Improves seeking";
+		this->uStrings[i][0][3] = L"   Projectile lives longer";
+									  
+		//fire						  
+		this->uStrings[i][1][0] = L"   Stonger projectile";
+		this->uStrings[i][1][1] = L"   Stronger stomp";
+		this->uStrings[i][1][2] = L"   Larger explotion Radius";
+		this->uStrings[i][1][3] = L"   Increase your maximum health";
+									  
+		//wind						  
+		this->uStrings[i][2][0] = L"   Faster projectile";
+		this->uStrings[i][2][1] = L"   Stronger stomp";
+		this->uStrings[i][2][2] = L"   Stronger projectiles";
+		this->uStrings[i][2][3] = L"   Shorter dash cooldown";
+									  
+		//earth						  
+		this->uStrings[i][3][0] = L"   Faster projectile";
+		this->uStrings[i][3][1] = L"   Larger projectile effect radius";
+		this->uStrings[i][3][2] = L"   You take less pushback";
+		this->uStrings[i][3][3] = L"   Stronger stomp";
+									  
+		//water						  
+		this->uStrings[i][4][0] = L"   Faster projectile";
+		this->uStrings[i][4][1] = L"   Larger stomp distance";
+		this->uStrings[i][4][2] = L"   Stronger projectles";
+		this->uStrings[i][4][3] = L"   Shorter wall cooldown";
 	}
 #pragma endregion
 
@@ -460,7 +460,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	{
 		/*std::wstring s = L"Player: " + (winner + 1);
 		wchar_t* c = new wchar_t(&s.c_str());*/
-		m_spriteFontLarger->DrawString(m_spriteBatch.get(), (std::wstring(L"Player: ") + std::to_wstring(winner+1)).c_str(), XMFLOAT2(375, 300), Colors::HotPink);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), (std::wstring(L" Winner winner you're not a beginner \n Player ") + std::to_wstring(winner+1) + L"!").c_str(), XMFLOAT2(200, 220), Colors::Black);
 	}
 	else if (currentState == GameState::EndRound)
 	{
@@ -536,88 +536,88 @@ void Menu::setUpgradesArrowPos(Map * map)
 	if (map->upgradeChoice[0] == 0)
 	{
 		this->arrowPos[0].y = 293.0f/2;
-		this->arrowPos[0].x = 180.0f/2;
+		this->arrowPos[0].x = 189.0f/2;
 	}
 	if (map->upgradeChoice[0] == 1)
 	{
 		this->arrowPos[0].y = 389.0f / 2;
-		this->arrowPos[0].x = 180.0f / 2;
+		this->arrowPos[0].x = 189.0f / 2;
 	}
 	if (map->upgradeChoice[0] == 2)
 	{
 		this->arrowPos[0].y = 480.0f / 2;
-		this->arrowPos[0].x = 180.0f / 2;
+		this->arrowPos[0].x = 189.0f / 2;
 	}
 	if (map->upgradeChoice[0] == 3)
 	{
 		this->arrowPos[0].y = 579.0f / 2;
-		this->arrowPos[0].x = 180.0f / 2;
+		this->arrowPos[0].x = 189.0f / 2;
 	}
 
 	//p2
 	if (map->upgradeChoice[1] == 0)
 	{
 		this->arrowPos[1].y = 293.0f / 2 ;
-		this->arrowPos[1].x = 180.0f / 2 + offsetX;
+		this->arrowPos[1].x = 189.0f / 2 + offsetX;
 	}
 	if (map->upgradeChoice[1] == 1)
 	{
 		this->arrowPos[1].y = 389.0f / 2;
-		this->arrowPos[1].x = 180.0f / 2 + offsetX;
+		this->arrowPos[1].x = 189.0f / 2 + offsetX;
 	}
 	if (map->upgradeChoice[1] == 2)
 	{
 		this->arrowPos[1].y = 480.0f / 2;
-		this->arrowPos[1].x = 180.0f / 2 + offsetX;
+		this->arrowPos[1].x = 189.0f / 2 + offsetX;
 	}
 	if (map->upgradeChoice[1] == 3)
 	{
 		this->arrowPos[1].y = 579.0f / 2;
-		this->arrowPos[1].x = 180.0f / 2 + offsetX;
+		this->arrowPos[1].x = 189.0f / 2 + offsetX;
 	}
 
 	//p3
 	if (map->upgradeChoice[2] == 0)
 	{
 		this->arrowPos[2].y = 293.0f / 2 + offsetY;
-		this->arrowPos[2].x = 180.0f / 2;
+		this->arrowPos[2].x = 189.0f / 2;
 	}
 	if (map->upgradeChoice[2] == 1)
 	{
 		this->arrowPos[2].y = 389.0f / 2 + offsetY;
-		this->arrowPos[2].x = 180.0f / 2 ;
+		this->arrowPos[2].x = 189.0f / 2 ;
 	}
 	if (map->upgradeChoice[2] == 2)
 	{
 		this->arrowPos[2].y = 480.0f / 2 + offsetY;
-		this->arrowPos[2].x = 180.0f / 2;
+		this->arrowPos[2].x = 189.0f / 2;
 	}
 	if (map->upgradeChoice[2] == 3)
 	{
 		this->arrowPos[2].y = 579.0f / 2 + offsetY;
-		this->arrowPos[2].x = 180.0f / 2 ;
+		this->arrowPos[2].x = 189.0f / 2 ;
 	}
 
 	//p4
 	if (map->upgradeChoice[3] == 0)
 	{
 		this->arrowPos[3].y = 293.0f / 2 + offsetY;
-		this->arrowPos[3].x = 180.0f / 2 + offsetX;
+		this->arrowPos[3].x = 189.0f / 2 + offsetX;
 	}
 	if (map->upgradeChoice[3] == 1)
 	{
 		this->arrowPos[3].y = 389.0f / 2 + offsetY;
-		this->arrowPos[3].x = 180.0f / 2 + offsetX;
+		this->arrowPos[3].x = 189.0f / 2 + offsetX;
 	}
 	if (map->upgradeChoice[3] == 2)
 	{
 		this->arrowPos[3].y = 480.0f / 2 + offsetY;
-		this->arrowPos[3].x = 180.0f / 2 + offsetX;
+		this->arrowPos[3].x = 189.0f / 2 + offsetX;
 	}
 	if (map->upgradeChoice[3] == 3)
 	{
 		this->arrowPos[3].y = 579.0f / 2 + offsetY;
-		this->arrowPos[3].x = 180.0f / 2 + offsetX;
+		this->arrowPos[3].x = 189.0f / 2 + offsetX;
 	}
 }
 
