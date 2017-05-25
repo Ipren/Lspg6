@@ -17,6 +17,7 @@ public:
 	bool ready;
 
 //private:
+	bool defaultUpgradeSet;
 	float health;
 	float prevHealth;
 	float timeSinceLastDmg;

@@ -148,9 +148,11 @@ struct PlayerSpellConstants {
 	float kWindProjectileCooldown = 0.0f;
 
 	float kWindStompDistance = 0.0f;
+	float kWindFartDistance = 2.5f;
 	float kWindStompStrength = 0.0f;
 	float kWindStompStrengthFalloff = 0.0f;
 	float kWindStompCooldown = 0.0f;
+	float kWindFartCooldown = 5.0f;
 
 	float kWindDashSpeed = 0.0f;
 	float kWindDashCooldown = 0.0f;

@@ -581,6 +581,9 @@ bool WaterProjectileSpell::on_effect(Map * map)
 WindFartCloudSpell::WindFartCloudSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, velocity, radius, 4.5f)
 {
+	static ParticleEffect FartCloud = FXSystem->GetFX("fart-cloud");
+
+	this->cloud = FartCloud;
 }
 
 WindFartCloudSpell::~WindFartCloudSpell()
@@ -590,6 +593,8 @@ WindFartCloudSpell::~WindFartCloudSpell()
 void WindFartCloudSpell::update(Map * map, float dt)
 {
 	Spell::update(map, dt);
+
+	FXSystem->ProcessFX(this->cloud, XMMatrixTranslation(position.x, position.y, position.z), dt);
 }
 
 bool WindFartCloudSpell::on_effect(Map * map)
