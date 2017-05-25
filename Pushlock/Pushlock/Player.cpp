@@ -252,7 +252,7 @@ void Player::update(Map *map, float dt)
 		{
 			pUpgrades[index].chooseUpgrade(1);
 		}
-		if (gGamepads[index]->get_button_pressed(Gamepad::X))
+		/*if (gGamepads[index]->get_button_pressed(Gamepad::X))
 		{
 			pUpgrades[index].chooseUpgrade(1);
 			map->upgradeChoice[index] = 0;
@@ -261,35 +261,51 @@ void Player::update(Map *map, float dt)
 		{
 			pUpgrades[index].chooseUpgrade(2);
 			map->upgradeChoice[index] = 1;
-		}
+		}*/
 		if (gGamepads[index]->get_button_pressed(Gamepad::A))
 		{
-			pUpgrades[index].chooseUpgrade(3);
-			map->upgradeChoice[index] = 2;
+			/*pUpgrades[index].chooseUpgrade(3);
+			map->upgradeChoice[index] = 2;*/
+
+			if (this->ready)
+			{
+				this->ready = false;
+			}
+			else
+			{
+				this->ready = true;
+			}
 		}
-		if (gGamepads[index]->get_button_pressed(Gamepad::B))
+		/*if (gGamepads[index]->get_button_pressed(Gamepad::B))
 		{
 			pUpgrades[index].chooseUpgrade(4);
 			map->upgradeChoice[index] = 3;
-		}
+		}*/
 
 		if (gGamepads[index]->get_button_pressed(Gamepad::Up))
 		{
-			if (map->upgradeChoice[index] > 0)
+			if (!this->ready)
 			{
-				map->upgradeChoice[index]--;
+				if (map->upgradeChoice[index] > 0)
+				{
+					map->upgradeChoice[index]--;
+				}
+				else
+					map->upgradeChoice[index] = 3;
 			}
-			else
-				map->upgradeChoice[index] = 3;
 		}
 		else if (gGamepads[index]->get_button_pressed(Gamepad::Down))
 		{
-			if (map->upgradeChoice[index] < 3)
+			if (!this->ready)
 			{
-				map->upgradeChoice[index]++;
+				if (map->upgradeChoice[index] < 3)
+				{
+					map->upgradeChoice[index]++;
+				}
+				else
+					map->upgradeChoice[index] = 0;
 			}
-			else
-				map->upgradeChoice[index] = 0;
+			
 		}
 
 		if (gGamepads[index]->get_button_pressed(Gamepad::Start))
