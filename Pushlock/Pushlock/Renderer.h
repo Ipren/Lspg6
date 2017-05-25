@@ -26,7 +26,7 @@ public:
 	Renderer(HWND wndHandle, int width, int height);
 	virtual ~Renderer();
 
-	void render(Map *map, Camera *camera);
+	void render(Map *map, Camera *camera, float dt);
 	void present();
 	void update(float dt, Map *map, Camera *camera);
 
@@ -181,6 +181,8 @@ private:
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
 	ID3D11RenderTargetView* nullRTV;
+	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
+	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 
 	int width; 
 	int height;
@@ -235,7 +237,7 @@ private:
 	void renderBlurPass(Map *map, Camera *cam);
 
 	void renderCooldownGUI(Map *map, Camera *cam);
-	void renderHPGUI(Map *map, Camera *cam);
+	void renderHPGUI(Map *map, Camera *cam, float dt);
 	void renderParticles(Camera *camera);
 	void renderMap(Camera *cam);
 

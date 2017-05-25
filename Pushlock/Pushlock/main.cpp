@@ -126,7 +126,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			ImGui_ImplDX11_NewFrame();
 
 			quit |= game->update((elapsed) / 1000.f);
-			game->render();
+			game->render((elapsed) / 1000.f);
 
 			prev = newtime;
 		}

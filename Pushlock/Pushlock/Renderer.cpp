@@ -5,6 +5,7 @@
 #include <time.h>
 #include "Constants.h"
 #include "Globals.h"
+#include "DirectXTK.h"
 
 ParticleSystem *FXSystem;
 
@@ -89,6 +90,12 @@ Renderer::Renderer(HWND wndHandle, int width, int height)
 	this->createMapResurces();
 
 	FXSystem = new ParticleSystem(L"../Resources/Particles.no", 4096, WIDTH, HEIGHT, gDevice, gDeviceContext);
+	//for (size_t i = 0; i < 4; i++)
+	//{
+		m_spriteFont = std::make_unique<SpriteFont>(this->gDevice, L"morpheus.spritefont");
+		
+	//}
+	m_spriteBatch = std::make_unique<SpriteBatch>(this->gDeviceContext);
 
 	HRESULT hr = this->gDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void **>(&debugDevice));
 	if (FAILED(hr))
@@ -2301,8 +2308,9 @@ void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 	
 }
 
-void Renderer::renderHPGUI(Map * map, Camera * cam)
+void Renderer::renderHPGUI(Map * map, Camera * cam, float dt)
 {
+	this->m_spriteBatch->Begin(SpriteSortMode_Deferred);
 	this->gDeviceContext->IASetInputLayout(this->HPInputLayout);
 	UINT32 size = sizeof(float) * 4;
 	UINT32 offset = 0u;
@@ -2316,14 +2324,24 @@ void Renderer::renderHPGUI(Map * map, Camera * cam)
 
 	for (auto entity : map->entitys)
 	{
-
+	
 		Player* p = dynamic_cast<Player*>(entity);
 		if (p != nullptr)
 		{
+			XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 2.5f, entity->position.z + 1.69f);
+			//XMMATRIX tempMatrix = model;
+			//XMMATRIX tempView = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, WIDTH / (float)HEIGHT, 0.1f, 500.f);
 
+			//tempMatrix = XMMatrixMultiply(tempMatrix, tempView);
+			////tempMatrix = XMMatrixMultiply(tempMatrix, cam->vals.proj);
+			//XMVECTOR temp = XMVectorSet(p->position.x, p->position.y, p->position.z, 1.0f);
+			//XMVector4Transform(temp, tempMatrix);
+			//XMFLOAT4 tempFloat = {0.0f, 0.0f, 0.0f, 0.0f};
+			//XMStoreFloat4(&tempFloat, temp);
+			
 			if ((p->maxHealth - p->health) > 0.001f)
 			{
-				XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 2.5f, entity->position.z + 1.69f);
+				
 
 				cam->vals.world = model;
 				cam->update(0, gDeviceContext);
@@ -2333,10 +2351,32 @@ void Renderer::renderHPGUI(Map * map, Camera * cam)
 				this->gDeviceContext->VSSetConstantBuffers(1, 1, &this->HPBuffer);
 				gDeviceContext->Draw(12, 0);
 			}
-			
+			if (p->prevHealth - p->health > 0.001f && p->timeSinceLastDmg > 0.5f && p->showDmg == false)
+			{
+				p->showDmg = true;
+				p->dmgShowTime = 0.0f;
+				p->timeSinceLastDmg = 0.0f;
+			}
+			if (p->showDmg == true)
+			{
+				if (p->dmgShowTime > 1.6f)
+				{
+					p->showDmg = false;
+					p->prevHealth = p->health;
+				}
+				else
+				{
+					p->dmgShowTime += dt;
+					float test = (p->prevHealth - p->health) * 10;
+
+					this->m_spriteFont->DrawString(this->m_spriteBatch.get(), (std::to_wstring((int)((test)))).c_str(), XMFLOAT2( 25 * p->position.x + WIDTH / 2.f, (-24.4 * (p->position.z + p->dmgShowTime*2) + HEIGHT / 2.0f)), Colors::Red);
+					
+				}
+			}
+			p->timeSinceLastDmg += dt;
 		}
 	}
-
+	this->m_spriteBatch->End();
 	cam->vals.world = XMMatrixIdentity();
 	cam->update(0, gDeviceContext);
 }
@@ -2570,7 +2610,7 @@ void Renderer::createStompParticles(DirectX::XMFLOAT3 pos, int type)
 
 }
 
-void Renderer::render(Map *map, Camera *camera)
+void Renderer::render(Map *map, Camera *camera, float dt)
 {
 	dirLight light;
 	light.lightColor = { 0.9f, 0.9f, 0.9f, 1.0f };
@@ -2754,7 +2794,7 @@ void Renderer::render(Map *map, Camera *camera)
 	camera->update(0, gDeviceContext);
 	this->renderMap(camera);
 	this->renderCooldownGUI(map, camera);
-	this->renderHPGUI(map, camera);
+	this->renderHPGUI(map, camera, dt);
 
 	//this->renderParticles(camera);
 	

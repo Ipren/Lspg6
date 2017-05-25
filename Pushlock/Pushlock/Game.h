@@ -12,7 +12,7 @@ public:
 
 	bool update(float dt);
 	void updateUpgradeStats();
-	void render();
+	void render(float dt);
 
 //private: 
 

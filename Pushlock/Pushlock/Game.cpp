@@ -710,11 +710,11 @@ void Game::updateUpgradeStats()
 	}
 }
 
-void Game::render()
+void Game::render(float dt)
 {
 
 
-	this->renderer->render(this->currentMap, this->camera);
+	this->renderer->render(this->currentMap, this->camera, dt);
 	if (this->menu != nullptr)
 		this->menu->render(this->renderer, this->currentState, currentMap->indexWinner, this->currentMap, gMapConstants.round);
 

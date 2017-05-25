@@ -23,7 +23,12 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	ready = false;
 	frosen = false;
 	this->health = gPlayerConstants.maxHealth + gPlayerSpellConstants[index].kHealth;
+	this->prevHealth = this->health;
 	this->maxHealth = gPlayerConstants.maxHealth + gPlayerSpellConstants[index].kHealth;
+
+	this->timeSinceLastDmg = 0.0f;
+	this->dmgShowTime = 0.0f;
+	this->showDmg = false;
 
 	this->debuffs.dot = 0.0f;
 	this->debuffs.speed = 0.0f;

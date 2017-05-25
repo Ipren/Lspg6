@@ -18,6 +18,11 @@ public:
 
 //private:
 	float health;
+	float prevHealth;
+	float timeSinceLastDmg;
+	float dmgShowTime;
+	bool showDmg;
+
 	float maxHealth;
 	Element *element;
 	debuf debuffs;
