@@ -2693,7 +2693,7 @@ void Renderer::render(Map *map, Camera *camera)
 			camera->update(0, gDeviceContext);
 
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-			if (dynamic_cast<FirePathSpell*>(entity) == nullptr)
+			if (dynamic_cast<FirePathSpell*>(entity) == nullptr && dynamic_cast<WaterIcePatch*>(entity) == nullptr)
 			{
 				gDeviceContext->Draw(129, 0);
 			}
@@ -2775,6 +2775,7 @@ void Renderer::update(float dt, Map *map, Camera *camera)
 {
 	FXSystem->update(camera, dt);
 	//this->updateParticles(dt, map);
+	this->updateDTimeBuffer(dt);
 	this->updatePointLights(map);
 	this->updateheatHaze();
 	if (map->shrunk == true)

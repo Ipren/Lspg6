@@ -85,8 +85,8 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[0][0][3] = L"B: Projectile lives longer";
 
 	//fire
-	this->uStrings[0][1][0] = L"X: Gives your projectile a damage over time effect";
-	this->uStrings[0][1][1] = L"Y: Resets the cooldown of dash if you hit with a stomp";
+	this->uStrings[0][1][0] = L"X: Gives your projectile a DOT effect";
+	this->uStrings[0][1][1] = L"Y: Cooldown resets on dash if you hit with stomp";
 	this->uStrings[0][1][2] = L"A: Larger explotion Radius";
 	this->uStrings[0][1][3] = L"B: Increase your maximum health";
 
@@ -109,8 +109,8 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[0][4][3] = L"B: Shorter wall cooldown";
 
 	//////////////////////round 2////////////////////////////////////////////
-	//arcane
-	this->uStrings[1][0][0] = L"X: Can return to the position you teleported from";
+	//arcane					   
+	this->uStrings[1][0][0] = L"X: Can recast teleport to return last position";
 	this->uStrings[1][0][1] = L"Y: Teleporting into someone causes knockback";
 	this->uStrings[1][0][2] = L"A: Improves seeking";
 	this->uStrings[1][0][3] = L"B: Projectile lives longer";
@@ -134,7 +134,7 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[1][3][3] = L"B: Stronger stomp";
 
 	//water
-	this->uStrings[1][4][0] = L"X: Dashing causes greater knockback when colliding";
+	this->uStrings[1][4][0] = L"X: Dash causes larger knockback when colliding";
 	this->uStrings[1][4][1] = L"Y: Your dash leaves a ice patch after you";
 	this->uStrings[1][4][2] = L"A: Stronger projectles";
 	this->uStrings[1][4][3] = L"B: Shorter wall cooldown";
@@ -791,19 +791,19 @@ void Menu::drawUpgradeText(Map * map)
 			}
 			else if (map->playerElemnts[i] == 1)//Fire
 			{
-				col = XMVectorSet(1.f, 1.f, 1.f, 1.f);
+				col = XMVectorSet(.0f, .0f, .0f, 1.f);
 			}
 			else if (map->playerElemnts[i] == 2)//Wind
 			{
-				col = XMVectorSet(0.f, 0.f, 0.f, 1.f);
+				col = XMVectorSet(.0f, .0f, .0f, 1.f);
 			}
 			else if (map->playerElemnts[i] == 3)//Earth
 			{
-				col = XMVectorSet(0.f, .580f, 1.f, 1.f);
+				col = XMVectorSet(.0f, .0f, .0f, 1.f);
 			}
 			else if (map->playerElemnts[i] == 4)//Water
 			{
-				col = XMVectorSet(1.f, .929f, .400f, 1.f);
+				col = XMVectorSet(.0f, .0f, .0f, 1.f);
 			}
 			m_spriteFont->DrawString(m_spriteBatch.get(), this->uStrings[gMapConstants.round - 1][map->playerElemnts[i]][j - 1].c_str(), this->textPos[i][j], col);
 		}
