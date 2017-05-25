@@ -30,6 +30,8 @@ public:
 		XMMATRIX inverse;
 	};
 	float znear, zfar;
+	float menuRoration;
+
 	BufferVals vals;
 
 	XMVECTOR pos, look;

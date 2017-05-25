@@ -31,6 +31,8 @@ Game::Game(HWND wndHandle, int width, int height)
 	this->currentState = GameState::MainMenu;
 	this->renderer = new Renderer(wndHandle, width, height);
 	this->currentMap = new Map(&currentState);
+	this->mainMenu_FirstFrame = true;
+	this->playing_firstFrame = true;
 
 	this->menu = new Menu(renderer);
 	this->currentMenu = 0;
@@ -314,17 +316,14 @@ bool Game::update(float dt)
 		if (ImGui::Button("Main Menu")) {//start the main menu
 			currentState = GameState::MainMenu;
 			this->currentMap->reset(4);
-			
+			this->mainMenu_FirstFrame = true;
+
 			for (size_t i = 0; i < 4; i++)
 			{
-				pUpgrades[i].choice[0] = 0;
-				pUpgrades[i].choice[1] = 0;
-				pUpgrades[i].choice[2] = 0;
-				pUpgrades[i].choice[3] = 0;
-				pUpgrades[i].choice[4] = 0;
-				pUpgrades[i].choice[5] = 0;
-				pUpgrades[i].choice[6] = 0;
-				pUpgrades[i].choice[7] = 0;
+				for (size_t j = 0; j < 8; j++)
+				{
+					pUpgrades[i].choice[j] = 0;
+				}
 			}
 
 			gMapConstants.round = 1;
@@ -361,7 +360,22 @@ bool Game::update(float dt)
 	}
 	if (currentState == GameState::MainMenu)
 	{
-		
+		if (this->mainMenu_FirstFrame)
+		{
+			camera->pos = XMVectorSet(
+				XMVectorGetX(camera->pos),
+				7.f,
+				XMVectorGetZ(camera->pos),
+				XMVectorGetW(camera->pos));
+
+			this->mainMenu_FirstFrame = false;
+		}
+		camera->menuRoration += dt * 0.5f; //rotation speed
+		camera->pos = XMVectorSet(
+			cos(camera->menuRoration) * (10.f),//distance from center
+			cos(camera->menuRoration) + 7.f,
+			sin(camera->menuRoration) * (5.f),//distance from center
+			XMVectorGetW(camera->pos));
 		for (int i = 0; i < 4; i++)
 		{
 			if (gGamepads[i]->get_button_pressed(Gamepad::Down))
@@ -440,19 +454,28 @@ bool Game::update(float dt)
 		if (readyCount == currentMap->nrOfAlivePlayers)
 		{
 				currentState = GameState::Playing;
-			currentMap->reset(currentMap->nrOfAlivePlayers);
-			
+				this->playing_firstFrame = true;
+				currentMap->reset(currentMap->nrOfAlivePlayers);
+			//currentMap->sounds.startBGM();
 		}
 
 		if (ImGui::Button("start anyway"))
 		{
 			currentState = GameState::Playing;
+			this->playing_firstFrame = true;
 			currentMap->reset(currentMap->nrOfAlivePlayers);
 		}
 		ImGui::End();
 	}
 	else if (currentState == GameState::Playing)
 	{
+		if (playing_firstFrame)
+		{
+			this->camera->pos = XMVectorSet(0.f, 15.f, -5.f, 0.f);
+			this->camera->look = XMVectorSet(0.f, 0.f, 0.f, 0.f);
+
+			playing_firstFrame = false;
+		}
 		for (int i = 0; i < 4; ++i) {
 			gGamepads[i]->update(dt);
 		}
@@ -543,6 +566,7 @@ bool Game::update(float dt)
 			if (gGamepads[i]->get_button_pressed(Gamepad::A))
 			{
 				currentState = GameState::MainMenu;
+				this->mainMenu_FirstFrame = true;
 			}
 			pUpgrades[i].resetUpgrades();
 		}
@@ -551,17 +575,14 @@ bool Game::update(float dt)
 		if (ImGui::Button("Go to main menu")) 
 		{
 			currentState = GameState::MainMenu;
+			this->mainMenu_FirstFrame = true;
 		}
 		for (size_t i = 0; i < 4; i++)
 		{
-			pUpgrades[i].choice[0] = 0;
-			pUpgrades[i].choice[1] = 0;
-			pUpgrades[i].choice[2] = 0;
-			pUpgrades[i].choice[3] = 0;
-			pUpgrades[i].choice[4] = 0;
-			pUpgrades[i].choice[5] = 0;
-			pUpgrades[i].choice[6] = 0;
-			pUpgrades[i].choice[7] = 0;
+			for (size_t j = 0;  j < 8;  j++)
+			{
+				pUpgrades[i].choice[j] = 0;
+			}
 		}
 		gMapConstants.round = 1;
 		ImGui::End();

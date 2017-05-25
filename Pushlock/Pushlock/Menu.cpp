@@ -8,7 +8,7 @@ Menu::Menu(Renderer* renderer)
 {
 
 	ID3D11Resource *r = nullptr;
-	DXCALL(CreateDDSTextureFromFile(renderer->gDevice, L"cat.dds", &r, &m_texture, 0, nullptr));
+	//DXCALL(CreateDDSTextureFromFile(renderer->gDevice, L"cat.dds", &r, &m_texture, 0, nullptr));
 
 	HRESULT hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/arrow.png ", &r, &this->m_cutexture);
 	if (FAILED(hr)) {
@@ -22,18 +22,37 @@ Menu::Menu(Renderer* renderer)
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
+	hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/button.png ", &r, &this->m_button2p);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/button.png ", &r, &this->m_button3p);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/button.png ", &r, &this->m_button4p);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/button.png ", &r, &this->m_buttonQuit);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
 	r->Release();
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
 	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"morpheus.spritefont");
+	m_spriteFontLarger = std::make_unique<SpriteFont>(renderer->gDevice, L"morpheusLarger.spritefont");
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(renderer->gDeviceContext);
 
 	this->selectedButton = 0;
+	float buttsX = 0.1563 * WIDTH;//200
 
-	/*main menu buttons
-	0-start game with 2 players	
-	1-start game with 3 players
-	2-start game with 4 players
-	3-quit*/
+	this->buttPos[0] = SimpleMath::Vector2(buttsX, 0.2688 * HEIGHT);//215
+	this->buttPos[1] = SimpleMath::Vector2(buttsX, 0.4375 * HEIGHT);//350
+	this->buttPos[2] = SimpleMath::Vector2(buttsX, 0.6125 * HEIGHT);//490
+	this->buttPos[3] = SimpleMath::Vector2(buttsX, 0.775 * HEIGHT);//620
+	this->textOffset = SimpleMath::Vector2(0.0234 * WIDTH, 0.0188 * HEIGHT);//30, 15
+
 	this->buttons.push_back(4);
 
 	//
@@ -57,8 +76,9 @@ Menu::Menu(Renderer* renderer)
 	setSelectedPos(GameState::MainMenu);
 
 
+#pragma region upgradeText
 	//////////////////////round 1////////////////////////////////////////////
-	//arcane
+//arcane
 	this->uStrings[0][0][0] = L"X: Spilts the projectile into 3 weaker ones";
 	this->uStrings[0][0][1] = L"Y: Turns the dash into a teleport";
 	this->uStrings[0][0][2] = L"A: Improves seeking";
@@ -193,6 +213,8 @@ Menu::Menu(Renderer* renderer)
 		this->uStrings[i][4][2] = L"A: Stronger projectles";
 		this->uStrings[i][4][3] = L"B: Shorter wall cooldown";
 	}
+#pragma endregion
+
 
 	float offsetX = WIDTH / 2.0f;
 	float offsetY = HEIGHT / 2.0f;
@@ -222,9 +244,43 @@ Menu::Menu(Renderer* renderer)
 	this->textPos[3][2] = { 180.0f / 2 + 24.0f + offsetX , 389.0f / 2 + offsetY };
 	this->textPos[3][3] = { 180.0f / 2 + 24.0f + offsetX , 480.0f / 2 + offsetY };
 	this->textPos[3][4] = { 180.0f / 2 + 24.0f + offsetX , 579.0f / 2 + offsetY };
+
+	this->eTextPos[0][0] = { WIDTH * 0.149f, HEIGHT * 0.08f};
+	this->eTextPos[0][1] = { WIDTH * 0.149f, HEIGHT * 0.15f };
+	this->eTextPos[0][2] = { WIDTH * 0.149f, HEIGHT * 0.22f };
+	this->eTextPos[0][3] = { WIDTH * 0.149f, HEIGHT * 0.29f };
+	this->eTextPos[0][4] = { WIDTH * 0.149f, HEIGHT * 0.36f };
+
+	this->eTextPos[1][0] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.08f };
+	this->eTextPos[1][1] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.15f };
+	this->eTextPos[1][2] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.22f };
+	this->eTextPos[1][3] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.29f };
+	this->eTextPos[1][4] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.36f };
+
+	this->eTextPos[2][0] = { WIDTH * 0.149f, HEIGHT * 0.08f + offsetY };
+	this->eTextPos[2][1] = { WIDTH * 0.149f, HEIGHT * 0.15f + offsetY };
+	this->eTextPos[2][2] = { WIDTH * 0.149f, HEIGHT * 0.22f + offsetY };
+	this->eTextPos[2][3] = { WIDTH * 0.149f, HEIGHT * 0.29f + offsetY };
+	this->eTextPos[2][4] = { WIDTH * 0.149f, HEIGHT * 0.36f + offsetY };
+
+	this->eTextPos[3][0] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.08f + offsetY };
+	this->eTextPos[3][1] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.15f + offsetY };
+	this->eTextPos[3][2] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.22f + offsetY };
+	this->eTextPos[3][3] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.29f + offsetY };
+	this->eTextPos[3][4] = { WIDTH * 0.149f + offsetX, HEIGHT * 0.36f + offsetY };
 	
 
+	this->eStrings[0] = L"   Arcane elemetal powers";
+	this->eStrings[1] = L"   Fire elemetal powers";
+	this->eStrings[2] = L"   Wind elemetal powers";
+	this->eStrings[3] = L"   Earth elemetal powers";
+	this->eStrings[4] = L"   Water elemetal powers";
 
+	this->eTextColor[0] = XMVectorSet(.588f, 0.f, .965f, 1.f);
+	this->eTextColor[1] = XMVectorSet(1.0f, 0.1f, 0.1f, 1.0f);
+	this->eTextColor[2] = XMVectorSet(0.f, .580f, 1.f, 1.f);
+	this->eTextColor[3] = XMVectorSet(0.2f, 0.1f, 0.1f, 1.f);
+	this->eTextColor[4] = XMVectorSet(0.f, .380f, 1.f, 1.f);
 }
 
 Menu::~Menu()
@@ -243,15 +299,15 @@ Menu::~Menu()
 
 void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *map, int currentRound)
 {
-	m_spriteBatch->Begin();
+	m_spriteBatch->Begin(SpriteSortMode_Deferred, renderer->particle_blend);
 
 	if (currentState != GameState::Playing)
 	{
-		float clearColor[] = { 0, 0, 0, 1 };
+		//float clearColor[] = { 0, 0, 0, 1 };
 
 		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
 
-		renderer->gDeviceContext->ClearRenderTargetView(renderer->gBackbufferRTV, clearColor);
+		//renderer->gDeviceContext->ClearRenderTargetView(renderer->gBackbufferRTV, clearColor);
 
 		UINT vertexSize = sizeof(float) * 5;
 		UINT offset = 0;
@@ -292,11 +348,11 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 			renderer->gDeviceContext->Draw(24, 0);
 			this->setPowerArrowPos(map);
 		}
-		else if (currentState == GameState::MainMenu)
+		/*else if (currentState == GameState::MainMenu)
 		{
 			renderer->gDeviceContext->PSSetShaderResources(0, 1, &renderer->mainMenuTexture);
 			renderer->gDeviceContext->Draw(6, 0);
-		}
+		}*/
 		else if (currentState == GameState::EndRound)
 		{
 			vertexSize = sizeof(chooseUpgradesVertex);
@@ -336,7 +392,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		
 
 	}
-	if (currentState != GameState::MainMenu && currentState != GameState::EndGame)
+	if (currentState != GameState::MainMenu && currentState != GameState::EndGame && currentState != GameState::ChoosePowers)//render scoreboard
 	{
 		renderer->gDeviceContext->OMSetRenderTargets(1, &renderer->gBackbufferRTV, nullptr);
 
@@ -389,12 +445,22 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 
 	
 	if (currentState == GameState::MainMenu)
+	{
 		m_spriteBatch->Draw(m_cutexture.Get(), catPos, nullptr, Colors::White, 0.f, m_origin);
+		m_spriteBatch->Draw(m_button2p.Get(), buttPos[0], nullptr, Colors::White, 0.f, m_origin);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), L"2 players", buttPos[0] + textOffset, Colors::Black);
+		m_spriteBatch->Draw(m_button3p.Get(), buttPos[1], nullptr, Colors::White, 0.f, m_origin);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), L"3 players", buttPos[1] + textOffset, Colors::Black);
+		m_spriteBatch->Draw(m_button4p.Get(), buttPos[2], nullptr, Colors::White, 0.f, m_origin);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), L"4 players", buttPos[2] + textOffset, Colors::Black);
+		m_spriteBatch->Draw(m_buttonQuit.Get(), buttPos[3], nullptr, Colors::White, 0.f, m_origin);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), L"Quit", buttPos[3] + textOffset, Colors::Red);
+	}
 	else if (currentState == GameState::EndGame)
 	{
 		/*std::wstring s = L"Player: " + (winner + 1);
 		wchar_t* c = new wchar_t(&s.c_str());*/
-		m_spriteFont->DrawString(m_spriteBatch.get(), (std::wstring(L"Player: ") + std::to_wstring(winner+1)).c_str(), XMFLOAT2(375, 300), Colors::HotPink);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), (std::wstring(L"Player: ") + std::to_wstring(winner+1)).c_str(), XMFLOAT2(375, 300), Colors::HotPink);
 	}
 	else if (currentState == GameState::EndRound)
 	{
@@ -402,6 +468,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		{
 			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
 		}
+		
 		this->setReady(map);
 	}
 	else if (currentState == GameState::ChoosePowers)
@@ -409,6 +476,13 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 		for (size_t i = 0; i < map->nrOfPlayers; i++)
 		{
 			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
+		}
+		for (size_t i = 0; i < map->nrOfPlayers; i++)
+		{
+			for (size_t j = 0; j < 5; j++)
+			{
+				m_spriteFont->DrawString(m_spriteBatch.get(), this->eStrings[j].c_str(), this->eTextPos[i][j], this->eTextColor[j]);
+			}
 		}
 		this->setReady(map);
 	}
@@ -555,109 +629,109 @@ void Menu::setPowerArrowPos(Map * map)
 	//player 1
 	if (map->playerElemnts[0] == 0)
 	{
-		this->arrowPos[0].x = 100 / 2;
-		this->arrowPos[0].y = 200 / 2;
+		this->arrowPos[0].x = this->eTextPos[0][0].x - 29.5f;
+		this->arrowPos[0].y = this->eTextPos[0][0].y;
 	}
 	if (map->playerElemnts[0] == 1)
 	{
-		this->arrowPos[0].x = 100 / 2;
-		this->arrowPos[0].y = 310 / 2;
+		this->arrowPos[0].x = this->eTextPos[0][1].x - 29.5f;
+		this->arrowPos[0].y = this->eTextPos[0][1].y;
 	}
 	if (map->playerElemnts[0] == 2)
 	{
-		this->arrowPos[0].x = 100 / 2;
-		this->arrowPos[0].y = 430 / 2;
+		this->arrowPos[0].x = this->eTextPos[0][2].x - 29.5f;
+		this->arrowPos[0].y = this->eTextPos[0][2].y;
 	}
 	if (map->playerElemnts[0] == 3)
 	{
-		this->arrowPos[0].x = 100 / 2;
-		this->arrowPos[0].y = 550 / 2;
+		this->arrowPos[0].x = this->eTextPos[0][3].x - 29.5f;
+		this->arrowPos[0].y = this->eTextPos[0][3].y;
 	}
 	if (map->playerElemnts[0] == 4)
 	{
-		this->arrowPos[0].x = 100 / 2;
-		this->arrowPos[0].y = 670 / 2;
+		this->arrowPos[0].x = this->eTextPos[0][4].x - 29.5f;
+		this->arrowPos[0].y = this->eTextPos[0][4].y;
 	}
 
 	//player 2
 	if (map->playerElemnts[1] == 0)
 	{
-		this->arrowPos[1].x = 100 / 2 + offsetX;
-		this->arrowPos[1].y = 200 / 2;
+		this->arrowPos[1].x = this->eTextPos[1][0].x - 29.5f;
+		this->arrowPos[1].y = this->eTextPos[1][0].y;
 	}
 	if (map->playerElemnts[1] == 1)
 	{
-		this->arrowPos[1].x = 100 / 2 + offsetX;
-		this->arrowPos[1].y = 310 / 2;
+		this->arrowPos[1].x = this->eTextPos[1][1].x - 29.5f;
+		this->arrowPos[1].y = this->eTextPos[1][1].y;
 	}
 	if (map->playerElemnts[1] == 2)
 	{
-		this->arrowPos[1].x = 100 / 2 + offsetX;
-		this->arrowPos[1].y = 430 / 2;
+		this->arrowPos[1].x = this->eTextPos[1][2].x - 29.5f;
+		this->arrowPos[1].y = this->eTextPos[1][2].y;
 	}
 	if (map->playerElemnts[1] == 3)
 	{
-		this->arrowPos[1].x = 100 / 2 + offsetX;
-		this->arrowPos[1].y = 550 / 2;
+		this->arrowPos[1].x = this->eTextPos[1][3].x - 29.5f;
+		this->arrowPos[1].y = this->eTextPos[1][3].y;
 	}
 	if (map->playerElemnts[1] == 4)
 	{
-		this->arrowPos[1].x = 100 / 2 + offsetX;
-		this->arrowPos[1].y = 670 / 2;
+		this->arrowPos[1].x = this->eTextPos[1][4].x - 29.5f;
+		this->arrowPos[1].y = this->eTextPos[1][4].y;
 	}
 
 	//player 3
 	if (map->playerElemnts[2] == 0)
 	{
-		this->arrowPos[2].x = 100 / 2;
-		this->arrowPos[2].y = 200 / 2 + offsetY;
+		this->arrowPos[2].x = this->eTextPos[2][0].x - 29.5f;
+		this->arrowPos[2].y = this->eTextPos[2][0].y;
 	}
 	if (map->playerElemnts[2] == 1)
 	{
-		this->arrowPos[2].x = 100 / 2;
-		this->arrowPos[2].y = 310 / 2 + offsetY;
+		this->arrowPos[2].x = this->eTextPos[2][1].x - 29.5f;
+		this->arrowPos[2].y = this->eTextPos[2][1].y;
 	}
 	if (map->playerElemnts[2] == 2)
 	{
-		this->arrowPos[2].x = 100 / 2;
-		this->arrowPos[2].y = 430 / 2 + offsetY;
+		this->arrowPos[2].x = this->eTextPos[2][2].x - 29.5f;
+		this->arrowPos[2].y = this->eTextPos[2][2].y;
 	}
 	if (map->playerElemnts[2] == 3)
 	{
-		this->arrowPos[2].x = 100 / 2;
-		this->arrowPos[2].y = 550 / 2 + offsetY;
+		this->arrowPos[2].x = this->eTextPos[2][3].x - 29.5f;
+		this->arrowPos[2].y = this->eTextPos[2][3].y;
 	}
 	if (map->playerElemnts[2] == 4)
 	{
-		this->arrowPos[2].x = 100 / 2;
-		this->arrowPos[2].y = 670 / 2 + offsetY;
+		this->arrowPos[2].x = this->eTextPos[2][4].x - 29.5f;
+		this->arrowPos[2].y = this->eTextPos[2][4].y;
 	}
 
 	//player 4
 	if (map->playerElemnts[3] == 0)
 	{
-		this->arrowPos[3].x = 100 / 2 + offsetX;
-		this->arrowPos[3].y = 200 / 2 + offsetY;
+		this->arrowPos[3].x = this->eTextPos[3][0].x - 29.5f;
+		this->arrowPos[3].y = this->eTextPos[3][0].y;
 	}
 	if (map->playerElemnts[3] == 1)
 	{
-		this->arrowPos[3].x = 100 / 2 + offsetX;
-		this->arrowPos[3].y = 310 / 2 + offsetY;
+		this->arrowPos[3].x = this->eTextPos[3][1].x - 29.5f;
+		this->arrowPos[3].y = this->eTextPos[3][1].y;
 	}
 	if (map->playerElemnts[3] == 2)
 	{
-		this->arrowPos[3].x = 100 / 2 + offsetX;
-		this->arrowPos[3].y = 430 / 2 + offsetY;
+		this->arrowPos[3].x = this->eTextPos[3][2].x - 29.5f;
+		this->arrowPos[3].y = this->eTextPos[3][2].y;
 	}
 	if (map->playerElemnts[3] == 3)
 	{
-		this->arrowPos[3].x = 100 / 2 + offsetX;
-		this->arrowPos[3].y = 550 / 2 + offsetY;
+		this->arrowPos[3].x = this->eTextPos[3][3].x - 29.5f;
+		this->arrowPos[3].y = this->eTextPos[3][3].y;
 	}
 	if (map->playerElemnts[3] == 4)
 	{
-		this->arrowPos[3].x = 100 / 2 + offsetX;
-		this->arrowPos[3].y = 670 / 2 + offsetY;
+		this->arrowPos[3].x = this->eTextPos[3][4].x - 29.5f;
+		this->arrowPos[3].y = this->eTextPos[3][4].y;
 	}
 
 }
@@ -713,7 +787,7 @@ void Menu::drawUpgradeText(Map * map)
 			XMVECTOR col;
 			if (map->playerElemnts[i] == 0)//Arcane
 			{
-				col = XMVectorSet(.588f, 1.f, .965f, 1.f);
+				col = XMVectorSet(.0f, .0f, .0f, 1.f);
 			}
 			else if (map->playerElemnts[i] == 1)//Fire
 			{
@@ -740,22 +814,24 @@ void Menu::setSelectedPos(GameState currentState)
 {
 	if (currentState == GameState::MainMenu)
 	{
+		float xOff = -0.0938 * WIDTH;//120
+		float yOff = -0.0125 * HEIGHT;//10
 		if (selectedButton == 0)
 		{
-			catPos.x = WIDTH * 0.29296875f;
-			catPos.y = HEIGHT * 0.28125f;
+			catPos.x = buttPos[0].x + xOff;
+			catPos.y = buttPos[0].y + yOff;
 		}
 		else if (selectedButton == 1) {
-			catPos.x = WIDTH * 0.29296875f;
-			catPos.y = HEIGHT * 0.4375f;
+			catPos.x = buttPos[1].x + xOff;
+			catPos.y = buttPos[1].y + yOff;
 		}
 		else if (selectedButton == 2) {
-			catPos.x = WIDTH * 0.29296875f;
-			catPos.y = HEIGHT * 0.6f;
+			catPos.x = buttPos[2].x + xOff;
+			catPos.y = buttPos[2].y + yOff;
 		}
 		else if (selectedButton == 3) {
-			catPos.x = WIDTH * 0.29296875f;
-			catPos.y = HEIGHT * 0.7625f;
+			catPos.x = buttPos[3].x + xOff;
+			catPos.y = buttPos[3].y + yOff;
 		}
 	}
 }

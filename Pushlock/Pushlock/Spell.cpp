@@ -536,6 +536,8 @@ WaterProjectileSpell::WaterProjectileSpell(Player *owner, XMFLOAT3 position, XMF
 	this->pEmitter.particleType = 2;
 	this->pEmitter.randomVector = XMFLOAT4(velocity.x, 0.0f, velocity.y, 1.0f);
 	this->trail = WaterTrail;
+	this->pAnimator = new Animator();
+	this->pAnimator->AssignSkinnedMesh("arcane_spell");
 }
 
 WaterProjectileSpell::~WaterProjectileSpell()

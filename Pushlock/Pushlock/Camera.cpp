@@ -2,7 +2,7 @@
 #include "Constants.h"
 
 Camera::Camera(XMVECTOR pos, XMVECTOR look, ID3D11Device *gDevice)
-	: pos(pos), look(look), target({}), temp({}), offset({}), znear(0.1), zfar(500.f)
+	: pos(pos), look(look), target({}), temp({}), offset({}), znear(0.1), zfar(500.f), menuRoration(0.f)
 {
 	vals.world = XMMatrixIdentity();
 	vals.proj = XMMatrixPerspectiveFovLH(XM_PI * 0.45f, WIDTH / (float)HEIGHT, 0.1f, 500.f);
