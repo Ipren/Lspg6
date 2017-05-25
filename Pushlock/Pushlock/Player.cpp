@@ -155,9 +155,19 @@ void Player::update(Map *map, float dt)
 		if (gGamepads[index]->get_button_pressed(Gamepad::A))
 		{
 
-			map->playerElemnts[index] = 0;
+			/*map->playerElemnts[index] = 0;*/
+			if (this->ready)
+			{
+				this->ready = false;
+			}
+			else
+			{
+				this->ready = true;
+			}
+			
+
 		}
-		if (gGamepads[index]->get_button_pressed(Gamepad::B))
+		/*if (gGamepads[index]->get_button_pressed(Gamepad::B))
 		{
 
 			map->playerElemnts[index] = 1;
@@ -176,24 +186,31 @@ void Player::update(Map *map, float dt)
 		{
 			
 			map->playerElemnts[index] = 4;
-		}
+		}*/
 		
 		if (gGamepads[index]->get_button_pressed(Gamepad::Up))
 		{
-			if (map->playerElemnts[index] > 0)
+			if (!this->ready)
 			{
-				map->playerElemnts[index]--;
+				if (map->playerElemnts[index] > 0)
+				{
+					map->playerElemnts[index]--;
+				}
+				else
+					map->playerElemnts[index] = 4;
 			}
-			else
-				map->playerElemnts[index] = 4;
 		}else if (gGamepads[index]->get_button_pressed(Gamepad::Down))
 		{
-			if (map->playerElemnts[index] < 4)
+			if (!this->ready)
 			{
-				map->playerElemnts[index]++;
+				if (map->playerElemnts[index] < 4)
+				{
+					map->playerElemnts[index]++;
+				}
+				else
+					map->playerElemnts[index] = 0;
 			}
-			else
-				map->playerElemnts[index] = 0;
+			
 		}
 
 
