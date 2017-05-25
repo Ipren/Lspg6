@@ -508,7 +508,7 @@ void WindElement::stomp(Player * player, Map * map)
 				result.entity->velocity.x += cos(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[player->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[player->index].kWindStompStrengthFalloff) - result.distance);
 				result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[player->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[player->index].kWindStompStrengthFalloff) - result.distance);
 			}
-			map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
+			map->sounds.play(spellSounds::windDash, 0.0f, 80.0f);
 		}
 
 		cooldown[2] = gSpellConstants.kWindStompCooldown + gPlayerSpellConstants[player->index].kWindStompCooldown;

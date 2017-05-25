@@ -460,7 +460,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	{
 		/*std::wstring s = L"Player: " + (winner + 1);
 		wchar_t* c = new wchar_t(&s.c_str());*/
-		m_spriteFontLarger->DrawString(m_spriteBatch.get(), (std::wstring(L"Player: ") + std::to_wstring(winner+1)).c_str(), XMFLOAT2(375, 300), Colors::HotPink);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), (std::wstring(L" Winner winner you're not a beginner \n Player ") + std::to_wstring(winner+1) + L"!").c_str(), XMFLOAT2(200, 220), Colors::Black);
 	}
 	else if (currentState == GameState::EndRound)
 	{
