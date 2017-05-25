@@ -510,7 +510,7 @@ bool Game::update(float dt)
 		}
 		if (firsttime == true)
 		{
-			currentMap->reset(currentMap->nrOfPlayers);
+			//currentMap->reset(currentMap->nrOfPlayers);
 			firsttime = false;
 		}
 		currentMap->update(dt, camera);

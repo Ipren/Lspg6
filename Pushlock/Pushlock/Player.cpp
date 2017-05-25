@@ -12,6 +12,8 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	this->velocity.x = 0;
 	this->velocity.y = 0;
 
+	this->defaultUpgradeSet = false;
+
 	element = new ArcaneElement;
 
 	/*for (int i = 0; i < 5; i++)
@@ -44,7 +46,6 @@ void Player::update(Map *map, float dt)
 
 	acceleration.x += left.x * (gPlayerConstants.kSpeed + gPlayerSpellConstants[index].kSpeed + (debuffs.speed * debuffs.duration));
 	acceleration.y += left.y * (gPlayerConstants.kSpeed + gPlayerSpellConstants[index].kSpeed + (debuffs.speed * debuffs.duration));
-
 
 	
 	if (debuffs.duration  - dt > 0.0f)
@@ -248,6 +249,11 @@ void Player::update(Map *map, float dt)
 
 	if (*map->currentState == GameState::EndRound)
 	{
+		if (defaultUpgradeSet == false)
+		{
+			map->upgradeChoice[index] = 1;
+			defaultUpgradeSet = true;
+		}
 		if (pUpgrades[index].choice[gMapConstants.round - 1] == 0)
 		{
 			pUpgrades[index].chooseUpgrade(1);
@@ -262,7 +268,7 @@ void Player::update(Map *map, float dt)
 			pUpgrades[index].chooseUpgrade(2);
 			map->upgradeChoice[index] = 1;
 		}*/
-		if (gGamepads[index]->get_button_pressed(Gamepad::A))
+		if (gGamepads[index]->get_button_pressed(Gamepad::A) || gGamepads[index]->get_button_pressed(Gamepad::B))
 		{
 			/*pUpgrades[index].chooseUpgrade(3);
 			map->upgradeChoice[index] = 2;*/
@@ -293,6 +299,8 @@ void Player::update(Map *map, float dt)
 				else
 					map->upgradeChoice[index] = 3;
 			}
+			pUpgrades[index].chooseUpgrade(map->upgradeChoice[index]);
+
 		}
 		else if (gGamepads[index]->get_button_pressed(Gamepad::Down))
 		{
@@ -305,7 +313,8 @@ void Player::update(Map *map, float dt)
 				else
 					map->upgradeChoice[index] = 0;
 			}
-			
+			pUpgrades[index].chooseUpgrade(map->upgradeChoice[index]);
+
 		}
 
 		if (gGamepads[index]->get_button_pressed(Gamepad::Start))
