@@ -464,9 +464,11 @@ void WindElement::stomp(Player * player, Map * map)
 			{
 				0.f,
 				0.f
-			}, gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance);
+			}, gPlayerSpellConstants[player->index].kWindFartDistance);
 			map->add_entity(spell);
 			map->sounds.play(spellSounds::fartStomp, 0.0f, 50.0f);
+
+			cooldown[2] = gPlayerSpellConstants[player->index].kWindFartCooldown;
 		}
 		else if (pUpgrades[player->index].choice[1] == 2)
 		{
@@ -494,7 +496,7 @@ void WindElement::stomp(Player * player, Map * map)
 				beaconOut = false;
 				map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 			}
-
+			cooldown[2] = gSpellConstants.kWindStompCooldown + gPlayerSpellConstants[player->index].kWindStompCooldown;
 		}
 		else 
 		{
@@ -511,9 +513,8 @@ void WindElement::stomp(Player * player, Map * map)
 			map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
 
 			FXSystem->AddFX("wind-stomp", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
+			cooldown[2] = gSpellConstants.kWindStompCooldown + gPlayerSpellConstants[player->index].kWindStompCooldown;
 		}
-
-		cooldown[2] = gSpellConstants.kWindStompCooldown + gPlayerSpellConstants[player->index].kWindStompCooldown;
 		
 	}
 }
