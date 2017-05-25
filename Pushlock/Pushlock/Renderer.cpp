@@ -2775,6 +2775,7 @@ void Renderer::update(float dt, Map *map, Camera *camera)
 {
 	FXSystem->update(camera, dt);
 	//this->updateParticles(dt, map);
+	this->updateDTimeBuffer(dt);
 	this->updatePointLights(map);
 	this->updateheatHaze();
 	if (map->shrunk == true)
