@@ -2265,36 +2265,40 @@ void Renderer::renderBlurPass(Map * map, Camera * cam)
 
 void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 {
-	this->gDeviceContext->IASetInputLayout(this->cooldownCirclesLayout);
-	UINT32 size = sizeof(float) * 4;
-	UINT32 offset = 0u;
-
-	this->gDeviceContext->IASetVertexBuffers(0, 1, &this->cooldownCircles, &size, &offset);
-	this->gDeviceContext->VSSetShader(this->cooldownVS, nullptr, 0);
-	this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
-	this->gDeviceContext->PSSetShader(this->cooldownPS, nullptr, 0);
-	gDeviceContext->OMSetDepthStencilState(DepthStateDisable, 0xff);
-	
-
-	for (auto entity : map->entitys)
+	if (*map->currentState == GameState::Playing)
 	{
-		if (dynamic_cast<Player*>(entity) != nullptr)
+		this->gDeviceContext->IASetInputLayout(this->cooldownCirclesLayout);
+		UINT32 size = sizeof(float) * 4;
+		UINT32 offset = 0u;
+
+		this->gDeviceContext->IASetVertexBuffers(0, 1, &this->cooldownCircles, &size, &offset);
+		this->gDeviceContext->VSSetShader(this->cooldownVS, nullptr, 0);
+		this->gDeviceContext->GSSetShader(nullptr, nullptr, 0);
+		this->gDeviceContext->PSSetShader(this->cooldownPS, nullptr, 0);
+		gDeviceContext->OMSetDepthStencilState(DepthStateDisable, 0xff);
+
+
+		for (auto entity : map->entitys)
 		{
+			if (dynamic_cast<Player*>(entity) != nullptr)
+			{
 
 
-			XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 2.5f, entity->position.z + 1.4f);
+				XMMATRIX model = XMMatrixTranslation(entity->position.x - 0.4f, 2.5f, entity->position.z + 1.4f);
 
-			cam->vals.world = model;
-			cam->update(0, gDeviceContext);
+				cam->vals.world = model;
+				cam->update(0, gDeviceContext);
 
-			gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
-			this->updatecooldownGUI(dynamic_cast<Player*>(entity));
-			this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->cooldownBuffer);
-			gDeviceContext->Draw(4 * 128 * 3, 0);
+				gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
+				this->updatecooldownGUI(dynamic_cast<Player*>(entity));
+				this->gDeviceContext->PSSetConstantBuffers(0, 1, &this->cooldownBuffer);
+				gDeviceContext->Draw(4 * 128 * 3, 0);
+			}
 		}
+
+
 	}
-
-
+	
 }
 
 void Renderer::renderHPGUI(Map * map, Camera * cam)
