@@ -509,6 +509,8 @@ void WindElement::stomp(Player * player, Map * map)
 				result.entity->velocity.y += sin(result.angle) * (gSpellConstants.kWindStompStrength + gPlayerSpellConstants[player->index].kWindStompStrength) * abs((gSpellConstants.kWindStompDistance + gPlayerSpellConstants[player->index].kWindStompDistance + gSpellConstants.kWindStompStrengthFalloff + gPlayerSpellConstants[player->index].kWindStompStrengthFalloff) - result.distance);
 			}
 			map->sounds.play(spellSounds::windDash, 0.0f, 80.0f);
+
+			FXSystem->AddFX("wind-stomp", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
 		}
 
 		cooldown[2] = gSpellConstants.kWindStompCooldown + gPlayerSpellConstants[player->index].kWindStompCooldown;
@@ -757,7 +759,7 @@ void EarthElement::stomp(Player * player, Map * map)
 		}
 		else
 		{
-			player->stomped = true;
+			//player->stomped = true;
 			//saves nearby players in a vector
 			auto nearby = map->get_entities_in_radius(player, gSpellConstants.kEarthStompDistance + gPlayerSpellConstants[player->index].kEarthStompDistance, [](Entity *e) {
 				return e->type == EntityType::Player;
@@ -772,6 +774,7 @@ void EarthElement::stomp(Player * player, Map * map)
 		}
 		cooldown[2] = gSpellConstants.kEarthStompCooldown + gPlayerSpellConstants[player->index].kEarthStompCooldown;
 		map->sounds.play(spellSounds::arcaneStomp, 0.0f, 80.0f);
+		FXSystem->AddFX("earth-stomp", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
 	}
 }
 

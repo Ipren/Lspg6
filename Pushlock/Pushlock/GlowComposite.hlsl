@@ -14,9 +14,9 @@ float4 PS(VSOut input) : SV_Target
 
 	float4 glow = 0;
 	[unroll]
-	for (int i = 2; i < 8; ++i) {
+	for (int i = 1; i < 11; ++i) {
 		glow += Glow.SampleLevel(Sampler, input.Uv, i);
 	}
 	
-	return src + glow / 6.f;
+	return src + glow / 10.f;
 }

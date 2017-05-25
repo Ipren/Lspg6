@@ -67,10 +67,15 @@ float4 PS(in VS_OUT input) : SV_TARGET
 	float3 ambient = c.xyz * float3(0.0f, 0.0f, 0.0f);
 	diffuse += CalcPointLights(pLights, input.wPos, input.nor, nrOfPointLights);
 
+	// TODO: lägg i VS
 	float d = distance(input.wPos.xz, float2(0, 0));
 	float l = 0;
-	if (d > (10 - shrinkAmount) && d < (10 - shrinkAmount) + 0.2) l = 1;
-	d = 1 - clamp((d - 5) / (6 - 5), 0, 1);
+	float shrink = 10 - shrinkAmount;
+	if (d > shrink && d < shrink + 0.2) l = 1;
+	//if (d > shrink && d < (10 - shrinkAmount) + 0.2) l = 1;
+	d = 1 - saturate((d - shrink) / (shrink + 3 - shrink));
 
-	return float4(diffuse + float3(3, 0.4, 0.1) * l + ambient + 0.2 * shadow, 1.0f);
+	float3 col = diffuse + float3(3, 0.4, 0.1) * l + ambient + 0.2 * shadow;
+
+	return float4(lerp(col, float3(0.2, 0.2, 0.2), 1 - d), 1.0f);
 }

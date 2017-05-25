@@ -2416,7 +2416,7 @@ void Renderer::renderMap(Camera * cam)
 	gDeviceContext->VSSetShader(this->lavaVS, nullptr, 0);
 	gDeviceContext->PSSetShader(this->lavaPS, nullptr, 0);
 
-	gDeviceContext->Draw(6, 0);
+	//gDeviceContext->Draw(6, 0);
 
 	gDeviceContext->IASetVertexBuffers(0, 1, &this->mapVBuffer, &size, &offset);
 	gDeviceContext->VSSetShader(this->MapVS, nullptr, 0);
@@ -2586,7 +2586,7 @@ void Renderer::render(Map *map, Camera *camera)
 	renderShadowMap(map, camera);
 
 	this->updateCameraPosBuffer(camera);
-	XMFLOAT4 clear = normalize_color(0x93a9bcff);
+	XMFLOAT4 clear = { 0.2f,0.2f,0.2f,1.0f };// normalize_color(0x93a9bcff);
 
 	gDeviceContext->ClearRenderTargetView(default_rtv, (float*)&clear);
 	gDeviceContext->ClearDepthStencilView(DepthBufferMS, D3D11_CLEAR_DEPTH, 1.0f, 0);

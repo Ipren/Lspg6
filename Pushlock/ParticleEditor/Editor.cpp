@@ -31,6 +31,8 @@ float shadowznear = 1.f;
 float shadowzfar = 30.f;
 XMFLOAT3 directionalLightPos = { -1, 4, -1 };
 
+XMFLOAT3 particlePos = { 0,0,0 };
+
 ParticleSystem *FX;
 
 ParticleEffect *current_effect;
@@ -686,6 +688,9 @@ void MenuBar()
 		ImGui::SliderFloat("height", &settings.CameraHeight, 0.0f, 16.f);
 		ImGui::SliderFloat("speed", &settings.CameraSpeed, -1.5f, 1.5f);
 		ImGui::TextDisabled("Simulation");
+		ImGui::SliderFloat("X", &particlePos.x, -5, 5);
+		ImGui::SliderFloat("Y", &particlePos.y, 0, 10);
+		ImGui::SliderFloat("Z", &particlePos.z, -5, 5);
 		ImGui::SliderFloat("speed##part", &settings.ParticleSpeed, -1.5f, 1.5f);
 		ImGui::Checkbox("paused", &settings.ParticlePaused);
 
@@ -1176,7 +1181,7 @@ void Update(float dt)
 	auto fx = current_effect;
 
 	if (fx)
-		FX->ProcessFX(*fx, XMMatrixIdentity(), pdt);
+		FX->ProcessFX(*fx, XMMatrixTranslation(particlePos.x, particlePos.y, particlePos.z), pdt);
 
 	if (!settings.ParticlePaused && settings.ParticleLoop && fx != nullptr) {
 		auto time = fx->clamp_children ? fx->children_time : fx->time;
