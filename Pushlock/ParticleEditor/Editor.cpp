@@ -24,6 +24,23 @@
 
 using namespace DirectX;
 
+void GetMipLevelSize(int startw, int starth, int level, int &outw, int &outh)
+{
+	while (level-- && !(startw == 1 && starth == 1)) {
+		if (startw != 1)
+			startw /= 2;
+
+		if (starth != 1)
+			starth /= 2;
+	}
+
+	outw = startw;
+	outh = starth;
+}
+
+static ID3D11RenderTargetView *RESET_RTV[16] = {};
+static ID3D11ShaderResourceView *RESET_SRV[16] = {};
+
 EditorCamera *camera;
 float time;
 float ptime;
@@ -78,6 +95,13 @@ ID3D11Buffer *blur_fs_vertices;
 ID3D11VertexShader *blur_fs_vs;
 ID3D11InputLayout *blur_fs_layout;
 ID3D11SamplerState *blur_fs_sampler;
+
+
+ID3D11ShaderResourceView *mip_start;
+
+ID3D11RenderTargetView *mip_rtv[10];
+ID3D11ShaderResourceView *mip_srv[10];
+ID3D11PixelShader *passthrough_ps;
 
 ID3D11PixelShader *gaussian_x_ps;
 ID3D11PixelShader *gaussian_y_ps;
@@ -383,6 +407,8 @@ void InitComposite()
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 	blur_fs_layout = create_input_layout(iinput_desc, ARRAYSIZE(iinput_desc), blob, gDevice);
+	blob = compile_shader(L"../Pushlock/GaussianPass.hlsl", "PS", "ps_5_0", gDevice);
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &passthrough_ps));
 
 	blob = compile_shader(L"../Pushlock/GlowComposite.hlsl", "PS", "ps_5_0", gDevice);
 	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &blur_composite));
@@ -419,7 +445,7 @@ void InitComposite()
 	rtv_desc.Format = DXGI_FORMAT_R16G16B16A16_TYPELESS;
 	rtv_desc.CPUAccessFlags = 0;
 	rtv_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	rtv_desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS; 
+	rtv_desc.MiscFlags = 0; 
 
 	DXCALL(gDevice->CreateTexture2D(&rtv_desc, nullptr, &dtex));
 
@@ -438,6 +464,20 @@ void InitComposite()
 
 	DXCALL(gDevice->CreateShaderResourceView(dtex, &sdesc, &distort_srv));
 	DXCALL(gDevice->CreateRenderTargetView(dtex, &rdesc,   &distort_rtv));
+
+	sdesc.Texture2D.MipLevels = 1;
+	DXCALL(gDevice->CreateShaderResourceView(dtex, &sdesc, &mip_start));
+
+
+	for (int i = 0; i < 10; ++i) {
+		sdesc.Texture2D.MostDetailedMip = i + 1;
+		sdesc.Texture2D.MipLevels = 1;
+		rdesc.Texture2D.MipSlice = i + 1;
+
+		DXCALL(gDevice->CreateShaderResourceView(dtex, &sdesc, &mip_srv[i]));
+		DXCALL(gDevice->CreateRenderTargetView(dtex, &rdesc, &mip_rtv[i]));
+	}
+
 }
 
 void RenderShadow()
@@ -535,10 +575,44 @@ void RenderPlane()
 	gDeviceContext->OMSetRenderTargets(1, &rtv, nullptr);
 }
 
+void RenderMips()
+{
+	gDeviceContext->PSSetShaderResources(0, 1, RESET_SRV);
+	gDeviceContext->OMSetRenderTargets(1, RESET_RTV, nullptr);
+
+	UINT32 stride = sizeof(float) * 4;
+	UINT32 offset = 0u;
+
+	gDeviceContext->IASetInputLayout(blur_fs_layout);
+	gDeviceContext->IASetVertexBuffers(0, 1, &blur_fs_vertices, &stride, &offset);
+	gDeviceContext->VSSetShader(blur_fs_vs, nullptr, 0);
+
+	gDeviceContext->PSSetShader(passthrough_ps, nullptr, 0);
+
+	gDeviceContext->PSSetSamplers(0, 1, &blur_fs_sampler);
+	gDeviceContext->PSSetShaderResources(0, 1, &mip_start);
+
+	for (int i = -1; i < 9; ++i) {
+		if (i >= 0)
+			gDeviceContext->PSSetShaderResources(0, 1, &mip_srv[i]);
+		gDeviceContext->OMSetRenderTargets(1, &mip_rtv[i + 1], nullptr);
+
+		int mipw, miph;
+		GetMipLevelSize(EWIDTH, EHEIGHT, i + 2, mipw, miph);
+		SetViewport(mipw, miph);
+		gDeviceContext->Draw(6, 0);
+
+		gDeviceContext->PSSetShaderResources(0, 1, RESET_SRV);
+		gDeviceContext->OMSetRenderTargets(1, RESET_RTV, nullptr);
+	}
+
+	SetViewport(EWIDTH, EHEIGHT);
+}
+
 void RenderParticles()
 {
 	FX->render(reinterpret_cast<Camera*>(camera), default_rtv, default_srv, distort_rtv, hdr_rtv, gDepthbufferDSV, DepthStateRead);
-	gDeviceContext->GenerateMips(distort_srv);
+	RenderMips();
 }
 
 void RenderComposite()

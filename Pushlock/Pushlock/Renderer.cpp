@@ -2311,13 +2311,6 @@ void Renderer::renderMips()
 
 	gDeviceContext->PSSetShader(passthrough_ps, nullptr, 0);
 
-	ID3D11ShaderResourceView *srvs[] = {
-		blur_srv[0], mip_srv[0], mip_srv[1], mip_srv[2], mip_srv[3], mip_srv[4], mip_srv[5], mip_srv[6], mip_srv[7], mip_srv[8], mip_srv[9]
-	};
-	ID3D11RenderTargetView *rtvs[] = {
-		             mip_rtv[0], mip_rtv[1], mip_rtv[2], mip_rtv[3], mip_rtv[4], mip_rtv[5], mip_rtv[6], mip_rtv[7], mip_rtv[8], mip_rtv[9]
-	};
-
 	gDeviceContext->PSSetSamplers(0, 1, &blur_fs_sampler);
 	gDeviceContext->PSSetShaderResources(0, 1, &mip_start);
 
