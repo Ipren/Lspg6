@@ -16,6 +16,19 @@ const UINT UAVFLAG = -1;
 ID3D11Device *globalDevice;
 ID3D11DeviceContext *globalDeviceContext;
 
+void GetMipLevelSize(int startw, int starth, int level, int &outw, int &outh)
+{
+	while (level-- && !(startw == 1 && starth == 1)) {
+		if (startw != 1)
+			startw /= 2;
+
+		if (starth != 1)
+			starth /= 2;
+	}
+
+	outw = startw;
+	outh = starth;
+}
 
 static ID3D11RenderTargetView *RESET_RTV[16] = {};
 static ID3D11ShaderResourceView *RESET_SRV[16] = {};
@@ -224,7 +237,7 @@ void Renderer::createBlurPass()
 	tex_desc.Format = DXGI_FORMAT_R16G16B16A16_TYPELESS;
 	tex_desc.CPUAccessFlags = 0;
 	tex_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	tex_desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	tex_desc.MiscFlags = 0;// D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC sdesc;
 	ZeroMemory(&sdesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
@@ -245,7 +258,19 @@ void Renderer::createBlurPass()
 
 		DXCALL(gDevice->CreateShaderResourceView(blurtex[i], &sdesc, &blur_srv[i]));
 		DXCALL(gDevice->CreateRenderTargetView(blurtex[i], &rdesc, &blur_rtv[i]));
-		gDeviceContext->GenerateMips(blur_srv[i]);
+	}
+
+	sdesc.Texture2D.MipLevels = 1;
+	DXCALL(gDevice->CreateShaderResourceView(blurtex[0], &sdesc, &mip_start));
+
+
+	for (int i = 0; i < 10; ++i) {
+		sdesc.Texture2D.MostDetailedMip = i + 1;
+		sdesc.Texture2D.MipLevels = 1;
+		rdesc.Texture2D.MipSlice = i + 1;
+
+		DXCALL(gDevice->CreateShaderResourceView(blurtex[0], &sdesc, &mip_srv[i]));
+		DXCALL(gDevice->CreateRenderTargetView(blurtex[0], &rdesc, &mip_rtv[i]));
 	}
 	
 	float vertices[] = {
@@ -282,6 +307,8 @@ void Renderer::createBlurPass()
 	};
 	blur_fs_layout = create_input_layout(iinput_desc, ARRAYSIZE(iinput_desc), blob, gDevice);
 
+	blob = compile_shader(L"GaussianPass.hlsl", "PS", "ps_5_0", gDevice);
+	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &passthrough_ps));
 	blob = compile_shader(L"GaussianPass.hlsl", "GaussianX", "ps_5_0", gDevice);
 	DXCALL(gDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &gaussian_x_ps));
 	blob = compile_shader(L"GaussianPass.hlsl", "GaussianY", "ps_5_0", gDevice);
@@ -2270,6 +2297,47 @@ void Renderer::renderBlurPass(Map * map, Camera * cam)
 	gDeviceContext->Draw(6, 0);
 }
 
+void Renderer::renderMips()
+{
+	gDeviceContext->PSSetShaderResources(0, 1, RESET_SRV);
+	gDeviceContext->OMSetRenderTargets(1, RESET_RTV, nullptr);
+
+	UINT32 stride = sizeof(float) * 4;
+	UINT32 offset = 0u;
+
+	gDeviceContext->IASetInputLayout(blur_fs_layout);
+	gDeviceContext->IASetVertexBuffers(0, 1, &blur_fs_vertices, &stride, &offset);
+	gDeviceContext->VSSetShader(blur_fs_vs, nullptr, 0);
+
+	gDeviceContext->PSSetShader(passthrough_ps, nullptr, 0);
+
+	ID3D11ShaderResourceView *srvs[] = {
+		blur_srv[0], mip_srv[0], mip_srv[1], mip_srv[2], mip_srv[3], mip_srv[4], mip_srv[5], mip_srv[6], mip_srv[7], mip_srv[8], mip_srv[9]
+	};
+	ID3D11RenderTargetView *rtvs[] = {
+		             mip_rtv[0], mip_rtv[1], mip_rtv[2], mip_rtv[3], mip_rtv[4], mip_rtv[5], mip_rtv[6], mip_rtv[7], mip_rtv[8], mip_rtv[9]
+	};
+
+	gDeviceContext->PSSetSamplers(0, 1, &blur_fs_sampler);
+	gDeviceContext->PSSetShaderResources(0, 1, &mip_start);
+
+	for (int i = -1; i < 9; ++i) {
+		if (i >= 0)
+			gDeviceContext->PSSetShaderResources(0, 1, &mip_srv[i]);
+		gDeviceContext->OMSetRenderTargets(1, &mip_rtv[i + 1], nullptr);
+		
+		int mipw, miph;
+		GetMipLevelSize(WIDTH, HEIGHT, i + 2, mipw, miph);
+		setViewPort(mipw, miph);
+		gDeviceContext->Draw(6, 0);
+		
+		gDeviceContext->PSSetShaderResources(0, 1, RESET_SRV);
+		gDeviceContext->OMSetRenderTargets(1, RESET_RTV, nullptr);
+	}
+
+	setViewPort(WIDTH, HEIGHT);
+}
+
 void Renderer::renderCooldownGUI(Map * map, Camera * cam)
 {
 	if (*map->currentState == GameState::Playing)
@@ -2793,13 +2861,17 @@ void Renderer::render(Map *map, Camera *camera, float dt)
 	camera->vals.world = XMMatrixIdentity();
 	camera->update(0, gDeviceContext);
 	this->renderMap(camera);
+
+	//gDeviceContext->GenerateMips(blur_srv[0]);
+
 	this->renderCooldownGUI(map, camera);
 	this->renderHPGUI(map, camera, dt);
 
 	//this->renderParticles(camera);
-	
+
 	FXSystem->render(camera, default_rtv, default_srv, blur_rtv[0], blur_rtv[1], DepthBufferMS, DepthStateRead);
-	gDeviceContext->GenerateMips(blur_srv[0]);
+	renderMips();
+
 	// TODO: behövs antagligen inte mer
 	std::swap(default_rtv, blur_rtv[1]);
 	std::swap(default_srv, blur_srv[1]);

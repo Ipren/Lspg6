@@ -22,6 +22,11 @@ VSOut VS(VSIn input)
 Texture2D Texture : register(t0);
 SamplerState Sampler : register(s0);
 
+float4 PS(VSOut input) : SV_Target
+{
+	return Texture.Sample(Sampler, input.Uv);
+}
+
 static const float weights[5] = {
 	0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216
 };

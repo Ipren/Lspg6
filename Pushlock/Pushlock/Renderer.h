@@ -66,11 +66,17 @@ public:
 	ID3D11RenderTargetView *blur_rtv[2];
 	ID3D11ShaderResourceView *blur_srv[2];
 
+	ID3D11ShaderResourceView *mip_start;
+
+	ID3D11RenderTargetView *mip_rtv[10];
+	ID3D11ShaderResourceView *mip_srv[10];
+
 	ID3D11Buffer *blur_fs_vertices;
 	ID3D11VertexShader *blur_fs_vs;
 	ID3D11InputLayout *blur_fs_layout;
 	ID3D11SamplerState *blur_fs_sampler;
 
+	ID3D11PixelShader *passthrough_ps;
 	ID3D11PixelShader *gaussian_x_ps;
 	ID3D11PixelShader *gaussian_y_ps;
 	ID3D11BlendState *particle_blend;
@@ -235,6 +241,7 @@ private:
 
 	void renderShadowMap(Map *map, Camera *cam);
 	void renderBlurPass(Map *map, Camera *cam);
+	void renderMips();
 
 	void renderCooldownGUI(Map *map, Camera *cam);
 	void renderHPGUI(Map *map, Camera *cam, float dt);
