@@ -38,7 +38,8 @@ public:
 		ID3D11RenderTargetView *dst_bright,
 		ID3D11RenderTargetView *output,
 		ID3D11DepthStencilView *dsv,
-		ID3D11DepthStencilState *depth_state
+		ID3D11DepthStencilState *depth_state,
+		bool debug = false
 	);
 
 //private:
@@ -52,6 +53,8 @@ public:
 	std::vector<ParticleEffectInstance> effects;
 	std::vector<ParticleInstance> particles;
 
+	ID3D11RasterizerState *DefaultRaster;
+
 	ID3D11BlendState *no_blend;
 	ID3D11Buffer *particle_buffer;
 	ID3D11InputLayout *particle_layout;
@@ -63,6 +66,7 @@ public:
 	ID3D11GeometryShader *particle_gs;
 	ID3D11PixelShader *particle_ps;
 	ID3D11ShaderResourceView *particle_srv;
+	ID3D11ShaderResourceView *particle_debug_srv;
 	ID3D11SamplerState *particle_sampler;
 
 	ID3D11BlendState *particle_blend;

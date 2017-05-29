@@ -6,6 +6,7 @@
 #include "Constants.h"
 #include "Globals.h"
 #include "DirectXTK.h"
+#include <d3d9.h>
 
 ParticleSystem *FXSystem;
 
@@ -2683,11 +2684,15 @@ void Renderer::render(Map *map, Camera *camera, float dt)
 	}
 	gDeviceContext->Unmap(dLightBuffer, 0);
 
-
+	D3DPERF_BeginEvent(0xff444444, L"Shadow Pass");
 	renderShadowMap(map, camera);
+	D3DPERF_EndEvent();
 
 	this->updateCameraPosBuffer(camera);
 	XMFLOAT4 clear = { 0.2f,0.2f,0.2f,1.0f };// normalize_color(0x93a9bcff);
+
+
+	D3DPERF_BeginEvent(0xff80DDA9, L"Map Forward Pass");
 
 	gDeviceContext->ClearRenderTargetView(default_rtv, (float*)&clear);
 	gDeviceContext->ClearDepthStencilView(DepthBufferMS, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -2738,10 +2743,12 @@ void Renderer::render(Map *map, Camera *camera, float dt)
 	mapmesh->PreDraw(gDevice, gDeviceContext);
 	mapmesh->PrepareShaders();
 	mapmesh->Draw(gDevice, gDeviceContext);
+	D3DPERF_EndEvent();
 
 
 
 
+	D3DPERF_BeginEvent(0xff80DDA9, L"Entities Forward Pass");
 
 	gDeviceContext->OMSetDepthStencilState(DepthStateReadWrite, 0xff);
 
@@ -2847,28 +2854,46 @@ void Renderer::render(Map *map, Camera *camera, float dt)
 		}
 
 	}
+	D3DPERF_EndEvent();
+
 
 	ID3D11ShaderResourceView *reset = nullptr;
 	gDeviceContext->PSSetShaderResources(1, 1, &reset);
 
 	camera->vals.world = XMMatrixIdentity();
 	camera->update(0, gDeviceContext);
+	
+	D3DPERF_BeginEvent(0xff80DDA9, L"Map Overlay");
 	this->renderMap(camera);
+	D3DPERF_EndEvent();
 
-	//gDeviceContext->GenerateMips(blur_srv[0]);
+	D3DPERF_BeginEvent(0xffDDFF6D, L"In-Game UI");
+		D3DPERF_BeginEvent(0xffDDFF6D, L"Cooldowns");
+		this->renderCooldownGUI(map, camera);
+		D3DPERF_EndEvent();
 
-	this->renderCooldownGUI(map, camera);
-	this->renderHPGUI(map, camera, dt);
+		D3DPERF_BeginEvent(0xffDDFF6D, L"HP bar");
+		this->renderHPGUI(map, camera, dt);
+		D3DPERF_EndEvent();
+	D3DPERF_EndEvent();
 
 	//this->renderParticles(camera);
 
+	D3DPERF_BeginEvent(0xff5ed9e9, L"Particle System");
 	FXSystem->render(camera, default_rtv, default_srv, blur_rtv[0], blur_rtv[1], DepthBufferMS, DepthStateRead);
+	D3DPERF_EndEvent();
+
+	D3DPERF_BeginEvent(0xff5ed9e9, L"Generate mipchain");
 	renderMips();
+	D3DPERF_EndEvent();
 
 	// TODO: behövs antagligen inte mer
 	std::swap(default_rtv, blur_rtv[1]);
 	std::swap(default_srv, blur_srv[1]);
+
+	D3DPERF_BeginEvent(0xff5ed9e9, L"Glow composite/Backbuffer output");
 	renderBlurPass(map, camera);
+	D3DPERF_EndEvent();
 }
 
 

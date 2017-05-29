@@ -23,6 +23,8 @@ ParticleSystem::ParticleSystem(const wchar_t *file, UINT capacity, UINT width, U
 
 	particles.reserve(capacity);
 
+	cxt->RSGetState(&DefaultRaster);
+
 	D3D11_BUFFER_DESC desc;
 	ZeroMemory(&desc, sizeof(D3D11_BUFFER_DESC));
 	desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -67,6 +69,7 @@ ParticleSystem::ParticleSystem(const wchar_t *file, UINT capacity, UINT width, U
 	
 	ID3D11Resource *r = nullptr;
 	DXCALL(CreateDDSTextureFromFile(device, L"../ParticleEditor/Resources/Particle.dds", &r, &particle_srv, 0, nullptr));
+	DXCALL(CreateDDSTextureFromFile(device, L"../ParticleEditor/Resources/Debug.dds", &r, &particle_debug_srv, 0, nullptr));
 
 	D3D11_SAMPLER_DESC sadesc;
 	ZeroMemory(&sadesc, sizeof(sadesc));
@@ -490,7 +493,8 @@ void ParticleSystem::render(
 	ID3D11RenderTargetView *dst_bright,
 	ID3D11RenderTargetView *output,
 	ID3D11DepthStencilView *dsv,
-	ID3D11DepthStencilState *depth_state
+	ID3D11DepthStencilState *depth_state,
+	bool debug
 )
 {
 	{
@@ -515,7 +519,7 @@ void ParticleSystem::render(
 		cxt->PSSetSamplers(0, 1, &particle_sampler);
 
 		ID3D11ShaderResourceView *particle_srvs[] = {
-			particle_srv,
+			debug ? particle_debug_srv : particle_srv,
 			nullptr,
 			//gDepthbufferSRV
 		};
@@ -542,6 +546,7 @@ void ParticleSystem::render(
 		UINT32 stride = sizeof(float) * 4;
 		UINT32 offset = 0u;
 
+		cxt->RSSetState(DefaultRaster);
 		cxt->IASetInputLayout(composite_layout);
 		cxt->IASetVertexBuffers(0, 1, &composite_vertex_buffer, &stride, &offset);
 		cxt->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
