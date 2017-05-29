@@ -1,5 +1,6 @@
 #include "Game.h"
 
+#include <d3d9.h>
 #include <d3d11.h>
 #include <Xinput.h>
 #include "dxerr.h"
@@ -712,13 +713,15 @@ void Game::updateUpgradeStats()
 
 void Game::render(float dt)
 {
-
-
 	this->renderer->render(this->currentMap, this->camera, dt);
-	if (this->menu != nullptr)
+	if (this->menu != nullptr) {
+		D3DPERF_BeginEvent(0xffDDFF6D, L"In-Game Menu");
 		this->menu->render(this->renderer, this->currentState, currentMap->indexWinner, this->currentMap, gMapConstants.round);
-
-	
+		D3DPERF_EndEvent();
+	}
+	D3DPERF_BeginEvent(0xffFF3AA0, L"ImGui");
 	ImGui::Render();
+	D3DPERF_EndEvent();
+
 	this->renderer->present();
 }

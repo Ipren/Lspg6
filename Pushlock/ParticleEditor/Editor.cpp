@@ -46,6 +46,7 @@ float time;
 float ptime;
 float shadowznear = 1.f;
 float shadowzfar = 30.f;
+bool debug = false;
 XMFLOAT3 directionalLightPos = { -1, 4, -1 };
 
 XMFLOAT3 particlePos = { 0,0,0 };
@@ -69,6 +70,7 @@ ID3D11DepthStencilState *DepthStateDisable;
 ID3D11DepthStencilView *ShadowMap;
 ID3D11RasterizerState *ShadowRaster;
 ID3D11RasterizerState *DefaultRaster;
+ID3D11RasterizerState *DebugRaster;
 Camera::BufferVals shadow_camera;
 ID3D11Buffer *shadow_wvp_buffer;
 ID3D11SamplerState *shadowMapSampler;
@@ -234,6 +236,20 @@ void InitShadows()
 	state.AntialiasedLineEnable = false;
 
 	DXCALL(gDevice->CreateRasterizerState(&state, &ShadowRaster));
+
+	ZeroMemory(&state, sizeof(D3D11_RASTERIZER_DESC));
+	state.FillMode = D3D11_FILL_WIREFRAME;
+	state.CullMode = D3D11_CULL_NONE;
+	state.FrontCounterClockwise = false;
+	state.DepthBias = 0;
+	state.DepthBiasClamp = 0;
+	state.SlopeScaledDepthBias = 0;
+	state.DepthClipEnable = true;
+	state.ScissorEnable = false;
+	state.MultisampleEnable = false;
+	state.AntialiasedLineEnable = true;
+
+	DXCALL(gDevice->CreateRasterizerState(&state, &DebugRaster));
 
 	gDeviceContext->RSGetState(&DefaultRaster);
 
@@ -611,7 +627,15 @@ void RenderMips()
 
 void RenderParticles()
 {
-	FX->render(reinterpret_cast<Camera*>(camera), default_rtv, default_srv, distort_rtv, hdr_rtv, gDepthbufferDSV, DepthStateRead);
+	if (debug)
+		gDeviceContext->RSSetState(DebugRaster);
+	else
+		gDeviceContext->RSSetState(DefaultRaster);
+
+	FX->render(reinterpret_cast<Camera*>(camera), default_rtv, default_srv, distort_rtv, hdr_rtv, gDepthbufferDSV, DepthStateRead, debug);
+	
+	gDeviceContext->RSSetState(DefaultRaster);
+
 	RenderMips();
 }
 
@@ -766,7 +790,9 @@ void MenuBar()
 		ImGui::SliderFloat("Y", &particlePos.y, 0, 10);
 		ImGui::SliderFloat("Z", &particlePos.z, -5, 5);
 		ImGui::SliderFloat("speed##part", &settings.ParticleSpeed, -1.5f, 1.5f);
+		ImGui::DragFloat("time", &time, 0.01);
 		ImGui::Checkbox("paused", &settings.ParticlePaused);
+		ImGui::Checkbox("debug", &debug);
 
 		if (ImGui::Button("reset")) {
 			settings = default_settings;
@@ -1200,8 +1226,10 @@ void Init()
 
 void Update(float dt)
 {
-	time += dt * settings.CameraSpeed;
-	ptime += dt * settings.ParticleSpeed;
+	if (!settings.ParticlePaused) {
+		time += dt * settings.CameraSpeed;
+		ptime += dt * settings.ParticleSpeed;
+	}
 
 	MenuBar();
 
@@ -1254,7 +1282,7 @@ void Update(float dt)
 
 	auto fx = current_effect;
 
-	if (fx)
+	if (fx && !settings.ParticlePaused)
 		FX->ProcessFX(*fx, XMMatrixTranslation(particlePos.x, particlePos.y, particlePos.z), pdt);
 
 	if (!settings.ParticlePaused && settings.ParticleLoop && fx != nullptr) {
@@ -1272,7 +1300,8 @@ void Update(float dt)
 
 	camera->pos = { sin(time) * settings.CameraDistance, settings.CameraHeight, cos(time) * settings.CameraDistance };
 	camera->update(dt, viewport.Width, viewport.Height);
-	FX->update(reinterpret_cast<Camera*>(camera), pdt);
+	if (!settings.ParticlePaused)
+		FX->update(reinterpret_cast<Camera*>(camera), pdt);
 
 }
 
