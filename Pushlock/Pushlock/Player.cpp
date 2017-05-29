@@ -302,7 +302,7 @@ void Player::update(Map *map, float dt)
 					map->upgradeChoice[index]--;
 				}
 				else
-					map->upgradeChoice[index] = 3;
+					map->upgradeChoice[index] = 4;
 			}
 			pUpgrades[index].chooseUpgrade(map->upgradeChoice[index]);
 
@@ -311,7 +311,7 @@ void Player::update(Map *map, float dt)
 		{
 			if (!this->ready)
 			{
-				if (map->upgradeChoice[index] < 3)
+				if (map->upgradeChoice[index] < 4)
 				{
 					map->upgradeChoice[index]++;
 				}
