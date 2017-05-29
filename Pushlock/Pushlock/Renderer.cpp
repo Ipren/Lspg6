@@ -2430,8 +2430,10 @@ void Renderer::renderHPGUI(Map * map, Camera * cam, float dt)
 				{
 					p->dmgShowTime += dt;
 					float test = (p->prevHealth - p->health) * 10;
-
-					this->m_spriteFont->DrawString(this->m_spriteBatch.get(), (std::to_wstring((int)((test)))).c_str(), XMFLOAT2( 25 * p->position.x + WIDTH / 2.f, (-24.4 * (p->position.z + p->dmgShowTime*2) + HEIGHT / 2.0f)), Colors::Red);
+					XMFLOAT2 temp{0.0f, 0.0f};
+					temp.x = 20 * p->position.x + (WIDTH / 2.f);
+					temp.y = (-20 * p->position.z + (HEIGHT / 2.0f)) + (p->dmgShowTime * -30);
+					this->m_spriteFont->DrawString(this->m_spriteBatch.get(), (std::to_wstring((int)((test)))).c_str(), temp, Colors::Red);
 					
 				}
 			}

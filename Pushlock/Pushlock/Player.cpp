@@ -311,7 +311,8 @@ void Player::update(Map *map, float dt)
 		{
 			if (!this->ready)
 			{
-				if (map->upgradeChoice[index] < 4)
+				if (map->upgradeChoice[index] < 4
+					)
 				{
 					map->upgradeChoice[index]++;
 				}
