@@ -32,6 +32,10 @@ cbuffer deltaTime : register(b7)
 {
     float dTime;
 }
+cbuffer shrinkBuffer : register(b8)
+{
+    float shrinkAmount;
+};
 
 StructuredBuffer<PointLight> pLights : register(t0);
 
@@ -70,5 +74,17 @@ float4 main(in VS_OUT input) : SV_TARGET
 
     diffuse += CalcPointLights(pLights, input.wPos, normal, nrOfPointLights);
 
-    return float4(diffuse * shadow, c.w);
+   // TODO: lägg i VS
+    float d = distance(input.wPos.xz, float2(0, 0));
+    float l = 0;
+    float shrink = 10 - shrinkAmount;
+    if (d > shrink && d < shrink + 0.2)
+        l = 1;
+	//if (d > shrink && d < (10 - shrinkAmount) + 0.2) l = 1;
+    d = 1 - saturate((d - shrink) / (shrink + 3 - shrink));
+ float3 col = diffuse + float3(3, 0.4, 0.1) * l + ambient * shadow;
+   
+
+    //return float4(lerp(col, float3(0.2, 0.2, 0.2), 1 - d), 1.0f);
+    return float4(col, c.w);
 }

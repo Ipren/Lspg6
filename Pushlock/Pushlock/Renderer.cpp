@@ -1492,7 +1492,7 @@ void Renderer::loadTexture()
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/lavaTexture.png ", &texture, &this->lavaTexture);
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/lavaTexture.jpg ", &texture, &this->lavaTexture);
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
@@ -1903,23 +1903,23 @@ void Renderer::createMapResurces()
 
 	TriangleVertex lavaTriangleVertices[6] =
 	{
-		22.5f, -0.19f, -22.5f, 1.0f,	//v0 pos
+		32.5f, -0.19f, -32.5f, 1.0f,	//v0 pos
 		1.0f, 1.0f,
 
-		-22.5f, -0.19f, -22.5f, 1.0f,	//v1
+		-32.5f, -0.19f, -32.5f, 1.0f,	//v1
 		0.0f, 1.0f,
 
-		-22.5f, -0.19f, 22.5f, 1.0f, //v2
+		-32.5f, -0.19f, 32.5f, 1.0f, //v2
 		0.0f,  0.0f,
 
 		//t2
-		-22.5f, -0.19f, 22.5f, 1.0f,//v0 pos
+		-32.5f, -0.19f, 32.5f, 1.0f,//v0 pos
 		0.0f, 0.0f,
 
-		22.5f, -0.19f, 22.5f, 1.0f,//v1
+		32.5f, -0.19f, 32.5f, 1.0f,//v1
 		1.0f, 0.0f,
 
-		22.5f, -0.19f, -22.5f, 1.0f,//v2
+		32.5f, -0.19f, -32.5f, 1.0f,//v2
 		1.0f, 1.0f
 	};
 
@@ -2206,12 +2206,12 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	gDeviceContext->IASetInputLayout(debug_entity_layout);
 
 
-	mapmesh->PreDraw(gDevice, gDeviceContext);
-	mapmesh->PrepareShaders();
-	gDeviceContext->VSSetShader(shadowMapVS, nullptr, 0);
+	//mapmesh->PreDraw(gDevice, gDeviceContext);
+	//mapmesh->PrepareShaders();
+	//gDeviceContext->VSSetShader(shadowMapVS, nullptr, 0);
 
-	gDeviceContext->PSSetShader(nullptr, nullptr, 0);
-	mapmesh->Draw(gDevice, gDeviceContext);
+	//gDeviceContext->PSSetShader(nullptr, nullptr, 0);
+	//mapmesh->Draw(gDevice, gDeviceContext);
 	
 	for (auto entity : map->entitys)
 	{
@@ -2543,13 +2543,14 @@ void Renderer::renderMap(Camera * cam)
 	gDeviceContext->VSSetShader(this->lavaVS, nullptr, 0);
 	gDeviceContext->PSSetShader(this->lavaPS, nullptr, 0);
 
-	//gDeviceContext->Draw(6, 0);
+	gDeviceContext->Draw(6, 0);
 
 	gDeviceContext->IASetVertexBuffers(0, 1, &this->mapVBuffer, &size, &offset);
 	gDeviceContext->VSSetShader(this->MapVS, nullptr, 0);
 	gDeviceContext->VSSetConstantBuffers(1, 1, &this->shrinkBuffer);
 	gDeviceContext->PSSetShader(this->MapPS, nullptr, 0);
 	gDeviceContext->PSSetShaderResources(2, 1, &this->mapTexture);
+	gDeviceContext->PSSetConstantBuffers(8, 1, &this->shrinkBuffer);
 	gDeviceContext->Draw(6, 0);
 }
 
@@ -2765,9 +2766,9 @@ void Renderer::render(Map *map, Camera *camera, float dt)
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT sampleMask = 0xffffffff;
 	gDeviceContext->OMSetBlendState(NULL, blendFactor, sampleMask);
-	mapmesh->PreDraw(gDevice, gDeviceContext);
+	/*mapmesh->PreDraw(gDevice, gDeviceContext);
 	mapmesh->PrepareShaders();
-	mapmesh->Draw(gDevice, gDeviceContext);
+	mapmesh->Draw(gDevice, gDeviceContext);*/
 	D3DPERF_EndEvent();
 
 
