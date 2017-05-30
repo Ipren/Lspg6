@@ -30,6 +30,7 @@ void ArcaneElement::projectile(Player *player, Map *map)
 				sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
 				0.1f
 			);
+			spell->angle = angle;
 			map->add_entity(spell);
 
 			for (size_t i = 1; i < 3; i++)
@@ -84,7 +85,8 @@ void ArcaneElement::projectile(Player *player, Map *map)
 				sin(angle) * (gSpellConstants.kArcaneProjectileSpeed + gPlayerSpellConstants[player->index].kArcaneProjectileSpeed) },
 				0.1f
 			);
-
+			
+			spell->angle = angle;
 			map->add_entity(spell);
 		}
 		cooldown[0] = gSpellConstants.kArcaneProjectileCooldown + gPlayerSpellConstants[player->index].kArcaneProjectileCooldown;
