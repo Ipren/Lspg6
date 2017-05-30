@@ -1496,6 +1496,10 @@ void Renderer::loadTexture()
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/mapNormals.png ", &texture, &this->normalMap);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
 
 	texture->Release();
 
@@ -1836,6 +1840,17 @@ void Renderer::createMapResurces()
 	}
 
 	vsBlob->Release();
+
+
+	ID3DBlob* gsBlob = compile_shader(L"MapGS.hlsl", "main", "gs_5_0", gDevice);
+
+	hr = this->gDevice->CreateGeometryShader(gsBlob->GetBufferPointer(), gsBlob->GetBufferSize(), NULL, &this->mapGS);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" map geometry shader creation failed", L"error", MB_OK);
+	}
+	gsBlob->Release();
 
 	ID3DBlob *psBlob = compile_shader(L"MapPS.hlsl", "main", "ps_5_0", gDevice);
 
@@ -2547,11 +2562,15 @@ void Renderer::renderMap(Camera * cam)
 
 	gDeviceContext->IASetVertexBuffers(0, 1, &this->mapVBuffer, &size, &offset);
 	gDeviceContext->VSSetShader(this->MapVS, nullptr, 0);
+	gDeviceContext->GSSetShader(this->mapGS, nullptr, 0);
 	gDeviceContext->VSSetConstantBuffers(1, 1, &this->shrinkBuffer);
 	gDeviceContext->PSSetShader(this->MapPS, nullptr, 0);
 	gDeviceContext->PSSetShaderResources(2, 1, &this->mapTexture);
+	gDeviceContext->PSSetShaderResources(3, 1, &this->normalMap);
 	gDeviceContext->PSSetConstantBuffers(8, 1, &this->shrinkBuffer);
 	gDeviceContext->Draw(6, 0);
+
+	gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 }
 
 void Renderer::updateDTimeBuffer(float dt)
