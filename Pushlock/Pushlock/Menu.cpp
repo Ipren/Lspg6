@@ -97,7 +97,7 @@ Menu::Menu(Renderer* renderer)
 	this->uStrings[0][2][3] = L"   Shorter dash cooldown";
 								  
 	//earth						  
-	this->uStrings[0][3][0] = L"   Stomps in a line infron of you";
+	this->uStrings[0][3][0] = L"   Stomps in a line infront of you";
 	this->uStrings[0][3][1] = L"   Stomp creates projectiles";
 	this->uStrings[0][3][2] = L"   You take less pushback";
 	this->uStrings[0][3][3] = L"   Stronger stomp";

@@ -2406,7 +2406,7 @@ void Renderer::renderHPGUI(Map * map, Camera * cam, float dt)
 				
 
 				cam->vals.world = model;
-				cam->update(0, gDeviceContext);
+				cam->update(dt, gDeviceContext);
 
 				gDeviceContext->VSSetConstantBuffers(0, 1, &cam->wvp_buffer);
 				this->updateHPBuffers(p);
@@ -2431,16 +2431,31 @@ void Renderer::renderHPGUI(Map * map, Camera * cam, float dt)
 					p->dmgShowTime += dt;
 					float test = (p->prevHealth - p->health) * 10;
 					XMFLOAT2 temp = {0.0f, 0.0f};
-					if (p->position.x < map->radius - 3.9f)
-					{
-						temp.x = 20 * p->position.x + (WIDTH / 2.f);
-					}
-					else
-					{
-						temp.x = 15 * p->position.x + (WIDTH / 2.f);
-					}
-					
-					temp.y = (-20 * p->position.z + (HEIGHT / 2.0f)) + (p->dmgShowTime * -30);
+
+					XMVECTOR v = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+					//cam->update(0, gDeviceContext);
+					v = XMVector4Transform(v, model);
+					v = XMVector4Transform(v, cam->vals.view);
+					v = XMVector4Transform(v, cam->vals.proj);
+					XMFLOAT4 tFloat = { 0.0f, 0.0f, 0.0f, 0.0f };
+					XMStoreFloat4(&tFloat, v);
+
+					tFloat.x /= tFloat.w;
+					tFloat.y /= tFloat.w;
+					tFloat.z /= tFloat.w;
+					tFloat.w /= tFloat.w;
+
+					tFloat.x += 1.0f;
+					tFloat.x /= 2.0f;
+
+					tFloat.y += 1.0f;
+					tFloat.y /= 2.0f;
+					tFloat.y = 1 - tFloat.y;
+
+					temp.x = tFloat.x * WIDTH - 40;
+					temp.y = tFloat.y * HEIGHT + (p->dmgShowTime * -10) - 20;
+			
+
 					this->m_spriteFont->DrawString(this->m_spriteBatch.get(), (std::to_wstring((int)((test)))).c_str(), temp, Colors::Red);
 					
 				}
