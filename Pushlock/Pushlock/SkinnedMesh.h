@@ -1,5 +1,6 @@
 #pragma once
 #include <d3d11.h>
+#include "Texture.h"
 #include <DirectXMath.h>
 #include <string>
 #include <vector>
@@ -16,6 +17,9 @@ public:
 	void Draw(ID3D11Device* device, ID3D11DeviceContext* deviceContext);	// ?
 
 																			///////////////////////
+
+	Texture* texture = nullptr;
+
 	ID3D11Device* device;
 	ID3D11DeviceContext* deviceContext;
 	///////////////////////

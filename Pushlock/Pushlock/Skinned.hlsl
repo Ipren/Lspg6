@@ -100,15 +100,18 @@ VS_OUT VS(VS_IN input)
 	output.nor = normalize(output.nor);
 
 	//jeez..
-	input.UV.x += sum;
 	output.uv = input.UV;
+	output.uv.y = 1 - input.UV.y;
 	return output;
 
 }
 
+texture2D tex : register(t2);
+SamplerState diffuseSampler : register(s2);
+
 float4 PS(in VS_OUT input) : SV_TARGET
 {
-	float4 c = Color;
+	float4 c = tex.Sample(diffuseSampler, input.uv);
 
 	//return float4(input.nor.xyz, 1.0);
 	float3 lightDir = normalize(dLightDirection);
@@ -117,11 +120,11 @@ float4 PS(in VS_OUT input) : SV_TARGET
 	diffuse *= c.xyz * dLightcolor.xyz;
 
 	float4 coords = mul(ShadowProj, mul(ShadowView, mul(ShadowWorld, input.wPos)));
-    float shadow = GetShadow(input.nor, dLightDirection, coords);
+	float shadow = GetShadow(input.nor, dLightDirection, coords);
 
-	float3 ambient = c.xyz * float3(0.0f, 0.0f, 0.0f);
+	float3 ambient = float3(0.34f, 0.22f, 0.06f) * 0.15f;
 
-    diffuse += CalcPointLights(pLights, input.wPos, input.nor, nrOfPointLights);
+	diffuse += CalcPointLights(pLights, input.wPos, input.nor, nrOfPointLights);
 
 	return float4(diffuse + ambient + 0.2 * shadow, 1.0f);
 }

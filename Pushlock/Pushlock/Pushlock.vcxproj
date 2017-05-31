@@ -189,6 +189,7 @@
     <ClCompile Include="SkinnedMesh.cpp" />
     <ClCompile Include="SoundSystem.cpp" />
     <ClCompile Include="Spell.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Upgrades.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -222,6 +223,7 @@
     <ClInclude Include="stb_rect_pack.h" />
     <ClInclude Include="stb_textedit.h" />
     <ClInclude Include="stb_truetype.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Upgrades.h" />
   </ItemGroup>
   <ItemGroup>

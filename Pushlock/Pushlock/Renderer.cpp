@@ -2873,7 +2873,7 @@ void Renderer::render(Map *map, Camera *camera, float dt)
 				gDeviceContext->PSSetShaderResources(0, 1, &this->pLightSRV);
 
 				//TODO: deltaTime
-				entity->pAnimator->DrawAndUpdate(0.01f);
+				entity->pAnimator->DrawAndUpdate(dt);
 
 			}
 		}

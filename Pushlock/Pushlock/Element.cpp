@@ -1,5 +1,5 @@
 #include "Element.h"
-
+#include "Texture.h"
 #include "Spell.h"
 #include "Player.h"
 #include "Constants.h"
@@ -150,7 +150,7 @@ void ArcaneElement::wall(Player *player, Map *map)
 			}
 
 			//Add animated mesh to middle pillar
-			if (i == 4)
+			if (i == 3)
 			{
 				Spell* w = dynamic_cast<Spell*>(e);
 				w->pAnimator = new Animator();
@@ -812,6 +812,13 @@ void EarthElement::wall(Player * player, Map * map)
 			{
 				EarthWallSpell* w = dynamic_cast<EarthWallSpell*>(e);
 				w->edge = true;
+			}
+
+			if (i == 3)
+			{
+				Spell* w = dynamic_cast<Spell*>(e);
+				w->pAnimator = new Animator();
+				w->pAnimator->AssignSkinnedMesh("earth_wall");
 			}
 		}
 

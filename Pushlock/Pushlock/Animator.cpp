@@ -255,6 +255,9 @@ void Animator::PreDraw()
 	deviceContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &vertexSize, &offset);
 	deviceContext->IASetInputLayout(this->skinned_layout);
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	if (this->_mesh->texture != nullptr)
+		this->_mesh->texture->Bind();
 }
 
 void Animator::DrawAndUpdate(float deltaTime)
