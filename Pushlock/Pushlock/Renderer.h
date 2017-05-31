@@ -185,6 +185,9 @@ private:
 	ID3D11PixelShader* lavaPS;
 	ID3D11Buffer* heatHazeBuffer;
 
+	ID3D11GeometryShader* mapGS;
+	ID3D11ShaderResourceView* normalMap;
+
 	ID3D11UnorderedAccessView* nullUAV;
 	ID3D11ShaderResourceView* nullSRV;
 	ID3D11RenderTargetView* nullRTV;

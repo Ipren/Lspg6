@@ -75,7 +75,8 @@ float4 PS(in VS_OUT input) : SV_TARGET
 	//if (d > shrink && d < (10 - shrinkAmount) + 0.2) l = 1;
 	d = 1 - saturate((d - shrink) / (shrink + 3 - shrink));
 
-	float3 col = diffuse + float3(3, 0.4, 0.1) * l + ambient + 0.2 * shadow;
+    float3 col = diffuse + float3(3, 0.4, 0.1) * l + ambient + 0.2 * shadow;
 
-	return float4(lerp(col, float3(0.2, 0.2, 0.2), 1 - d), 1.0f);
+	//return float4(lerp(col, float3(0.2, 0.2, 0.2), 1 - d), 1.0f);
+    return float4(col, 1.0f);
 }
