@@ -414,6 +414,8 @@ void Renderer::createShadowMap()
 	
 	ID3DBlob *blob = compile_shader(L"Shadow.hlsl", "VS", "vs_5_0", gDevice);
 	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &shadowMapVS));
+	blob = compile_shader(L"Shadow.hlsl", "SkinnedVS", "vs_5_0", gDevice);
+	DXCALL(gDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &SkinnedShadowMapVS));
 
 	/*D3D11_INPUT_ELEMENT_DESC input_desc[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -2197,7 +2199,6 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 
 	FXSystem->renderShadows(shadow_wvp_buffer, camera->wvp_buffer, DepthBuffer, DepthStateReadWrite);
 	
-	gDeviceContext->RSSetState(ShadowRaster);
 	gDeviceContext->VSSetShader(shadowMapVS, nullptr, 0);
 	gDeviceContext->PSSetShader(nullptr, nullptr, 0);
 	gDeviceContext->OMSetRenderTargets(0, nullptr, DepthBuffer);
@@ -2212,43 +2213,60 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 
 	gDeviceContext->PSSetShader(nullptr, nullptr, 0);
 	mapmesh->Draw(gDevice, gDeviceContext);
-	
+	gDeviceContext->RSSetState(ShadowRaster);
+
 	for (auto entity : map->entitys)
 	{
 
-		XMMATRIX &model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
-		model = XMMatrixMultiply(XMMatrixRotationY(-90 * XM_PI / 180), model);
+		if (entity->pAnimator != nullptr)
+		{
+			float scale = entity->pAnimator->_mesh->scale;
+			XMMATRIX model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(scale, scale, scale) * XMMatrixTranslation(entity->position.x, entity->position.y/* + entity->radius*/, entity->position.z);
 
-		//model = XMMatrixMultiply(XMMatrixRotationX(90 * XM_PI / 180), model);
-		//model = XMMatrixMultiply(XMMatrixRotationZ(270 * XM_PI / 180), model);
-		//model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
-		//model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
-		if (entity->pMesh)
-		{ 
+			//model = XMMatrixMultiply(XMMatrixRotationX(180 * XM_PI / 180), model);
+			//model = XMMatrixMultiply(XMMatrixRotationZ(90 * XM_PI / 180), model);
+
+			shadow_camera.world = model;
+			D3D11_MAPPED_SUBRESOURCE data;
+			DXCALL(gDeviceContext->Map(shadow_wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
+			{
+				CopyMemory(data.pData, &shadow_camera, sizeof(Camera::BufferVals));
+			}
+			gDeviceContext->Unmap(shadow_wvp_buffer, 0);
+
+			//TODO: deltaTime
+			auto ps = entity->pAnimator->skinned_ps;
+			auto vs = entity->pAnimator->skinned_vs;
+			entity->pAnimator->skinned_vs = SkinnedShadowMapVS;
+			entity->pAnimator->skinned_ps = nullptr;
+			entity->pAnimator->DrawAndUpdate(0.f);
+			entity->pAnimator->skinned_ps = ps;
+			entity->pAnimator->skinned_vs = vs;
+		}
+		else if (entity->pMesh != nullptr) {
+			XMMATRIX &model = XMMatrixRotationAxis({ 0, 1, 0 }, XM_PI * 0.5f - entity->angle) * XMMatrixScaling(entity->radius, entity->radius, entity->radius) * XMMatrixTranslation(entity->position.x, entity->position.y + entity->radius, entity->position.z);
+			model = XMMatrixMultiply(XMMatrixRotationY(-90 * XM_PI / 180), model);
+
+			entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
+			//model = XMMatrixMultiply(XMMatrixRotationX(270 * XM_PI / 180), model);
 			float s = entity->pMesh->scale;
 			model = XMMatrixMultiply(XMMatrixScaling(s, s, s), model);
-		}
 
-	
-		shadow_camera.world = model;
+			shadow_camera.world = model;
 
-		
-		D3D11_MAPPED_SUBRESOURCE data;
-		DXCALL(gDeviceContext->Map(shadow_wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
-		{
-			CopyMemory(data.pData, &shadow_camera, sizeof(Camera::BufferVals));
-		}
-		gDeviceContext->Unmap(shadow_wvp_buffer, 0);
-		
-		if (entity->pMesh)
-		{
+			D3D11_MAPPED_SUBRESOURCE data;
+			DXCALL(gDeviceContext->Map(shadow_wvp_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &data));
+			{
+				CopyMemory(data.pData, &shadow_camera, sizeof(Camera::BufferVals));
+			}
+			gDeviceContext->Unmap(shadow_wvp_buffer, 0);
+
 			entity->pMesh->PreDraw(globalDevice, globalDeviceContext);
 			gDeviceContext->PSSetShader(nullptr, nullptr, 0);
 			gDeviceContext->VSSetShader(shadowMapVS, nullptr, 0);
 
 			entity->pMesh->Draw(globalDevice, globalDeviceContext);
 		}
-			
 	}
 	
 	shadow_camera.world = XMMatrixIdentity();

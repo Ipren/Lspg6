@@ -167,6 +167,7 @@ private:
 	ID3D11SamplerState *shadowMapSampler;
 	ID3D11RenderTargetView *shadowMapRTV;
 	ID3D11ShaderResourceView *shadowMapSRV;
+	ID3D11VertexShader *SkinnedShadowMapVS;
 	ID3D11VertexShader *shadowMapVS;
 	ID3D11PixelShader *shadowMapPS;
 
