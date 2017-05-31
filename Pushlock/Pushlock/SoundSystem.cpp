@@ -68,5 +68,6 @@ void SoundSystem::play(spellSounds s, float offset, float volume)
 void SoundSystem::startBGM()
 {
 	this->music.setVolume(10);
+	this->music.setLoop(true);
 	this->music.play();
 }
