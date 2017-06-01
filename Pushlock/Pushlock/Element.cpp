@@ -216,6 +216,8 @@ void ArcaneElement::dash(Player * player, Map * map)
 					}
 				}
 			}
+
+			FXSystem->AddFX("arcane-teleport", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
 			if (leftVector.x != 0.f && leftVector.y != 0.f)//if it is not: dash to where you are walking
 			{
 				float left_angle = gGamepads[index]->get_left_thumb_angle();
@@ -227,8 +229,8 @@ void ArcaneElement::dash(Player * player, Map * map)
 				player->position.x += cos(player->angle) * 5.0f;
 				player->position.z += sin(player->angle) * 5.0f;
 			}
+			FXSystem->AddFX("arcane-teleport", XMMatrixTranslation(player->position.x, player->position.y, player->position.z));
 
-			
 			map->sounds.play(spellSounds::teleport, 0.0f, 14.0f);
 		}
 		else
@@ -270,12 +272,7 @@ void ArcaneElement::update(Player *player, Map *map, float dt) {
 	}
 }
 
-FireElement::FireElement()
-	: active_projectile(nullptr)
-{
-	this->startHealth = 10.f;
 
-}
 
 void FireElement::projectile(Player * player, Map * map)
 {
@@ -426,6 +423,16 @@ void FireElement::dash(Player * player, Map * map)
 		map->sounds.play(spellSounds::windDash, 0.0f, 50.0f);
 	}
 }
+
+void FireElement::update(Player *player, Map *map, float dt) {
+	Element::update(player, map, dt);
+
+	if (player->dashing) {
+		XMVECTOR vel = { player->velocity.x, 0, player->velocity.y };
+		FXSystem->ProcessFX(dash_trail, XMMatrixTranslation(player->position.x, player->position.y, player->position.z), -vel * 0.15, dt);
+	}
+}
+
 
 void WindElement::projectile(Player * player, Map * map)
 {

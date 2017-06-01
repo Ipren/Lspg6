@@ -317,6 +317,9 @@ bool FireWallSpell::on_effect(Map * map)
 WindProjectileSpell::WindProjectileSpell(Player * owner, XMFLOAT3 position, XMFLOAT2 velocity, float radius)
 	: Spell(owner, position, velocity, radius, 4.5f)
 {
+	static ParticleEffect WindTrail = FXSystem->GetFX("wind-proj-trail");
+
+	trail = WindTrail;
 }
 
 WindProjectileSpell::~WindProjectileSpell()
@@ -326,6 +329,8 @@ WindProjectileSpell::~WindProjectileSpell()
 void WindProjectileSpell::update(Map * map, float dt)
 {
 	Spell::update(map, dt);
+	FXSystem->ProcessFX(this->trail, XMMatrixTranslation(position.x, position.y, position.z), dt);
+
 }
 
 bool WindProjectileSpell::on_effect(Map * map)
@@ -403,6 +408,8 @@ EarthWallSpell::EarthWallSpell(Player *owner, XMFLOAT3 position, float radius)
 	this->type = EntityType::Wall;
 	this->angle = owner->angle;
 	this->edge = false;
+
+	FXSystem->AddFX("earth-wall", XMMatrixTranslation(position.x, position.y, position.z));
 }
 
 EarthWallSpell::~EarthWallSpell()

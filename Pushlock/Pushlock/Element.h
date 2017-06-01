@@ -53,15 +53,24 @@ public:
 
 class FireElement : public Element {
 public:
-	FireElement();
+	FireElement() : active_projectile(nullptr)
+	{
+		this->startHealth = 10.f;
+		static ParticleEffect trail = FXSystem->GetFX("fire-dash");
+		dash_trail = trail;
+
+	}
 
 	virtual void projectile(Player *player, Map *map) override;
 	virtual void stomp(Player *player, Map *map) override;
 	virtual void wall(Player *player, Map *map) override;
 	virtual void dash(Player *player, Map *map) override;
+	virtual void update(Player *player, Map *map, float dt) override;
 
 	FireProjectileSpell *active_projectile;
 	int firePatchCount;
+	ParticleEffect dash_trail;
+
 	float time = 0.0f;
 };
 

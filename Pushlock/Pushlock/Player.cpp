@@ -6,9 +6,12 @@
 #include "Constants.h"
 #include "Upgrades.h"
 
+
 Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float radius) :
 	Entity(EntityType::Player, position, velocity, radius), index(index)
 {
+	static ParticleEffect DeathDot = FXSystem->GetFX("death-dot");
+
 	this->velocity.x = 0;
 	this->velocity.y = 0;
 
@@ -31,6 +34,7 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	this->timeSinceLastDmg = 0.0f;
 	this->dmgShowTime = 0.0f;
 	this->showDmg = false;
+	this->dot = DeathDot;
 
 	this->debuffs.dot = 0.0f;
 	this->debuffs.speed = 0.0f;
@@ -147,9 +151,13 @@ void Player::update(Map *map, float dt)
 
 		if (sqrt(this->position.x*this->position.x + this->position.z*this->position.z) > map->radius && gGameConstants.kCanDie)
 		{
+			FXSystem->ProcessFX(this->dot, XMMatrixTranslation(position.x, position.y, position.z), dt);
+
 			this->health -= 0.01f;
 			if (this->health <= 0) 
 			{
+				FXSystem->AddFX("death", XMMatrixTranslation(position.x, position.y, position.z));
+
 				this->dead = true;
 				map->nrOfAlivePlayers--;
 				map->sounds.play(spellSounds::playerDeath, 0.0f, 50.0f);

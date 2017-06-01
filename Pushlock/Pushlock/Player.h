@@ -30,4 +30,6 @@ public:
 	bool dashing;
 	float dashTime;
 	bool frosen;
+
+	ParticleEffect dot;
 };
