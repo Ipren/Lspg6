@@ -31,6 +31,7 @@ struct VS_IN
 {
 	float3 pos : POSITION;
 	float3 nor : NORMAL;
+	float2 uv : TEXCOORD0;
 };
 
 struct VS_OUT
@@ -48,14 +49,17 @@ VS_OUT VS(VS_IN input)
 	output.wPos = mul(World, float4(input.pos, 1.0f));
 	output.nor = mul(NormalMatrix, float4(input.nor, 1.0f)).xyz;
 	output.nor = normalize(output.nor);
-	output.uv = float2(0, 0);
+	output.uv = float2(input.uv.x, 1 - input.uv.y);
 	return output;
 
 }
 
+texture2D tex : register(t2);
+SamplerState diffuseSampler : register(s2);
+
 float4 PS(in VS_OUT input) : SV_TARGET
 {
-	float4 c = Color;
+	float4 c = tex.Sample(diffuseSampler, input.uv);
 
 	float3 lightDir = normalize(dLightDirection);
 	float3 diffuse = saturate(dot(input.nor.xyz, lightDir));

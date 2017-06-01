@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include "MeshHeader.h"
-
+#include "Texture.h"
 using DirectX::XMFLOAT2;
 using DirectX::XMFLOAT3;
 using std::vector;
@@ -26,12 +26,16 @@ public:
 	float scale = 1.0f;
 
 	void PrepareShaders();
+
+	Texture* texture = nullptr;
+
 private:
 	sMesh* mesh = nullptr;
 	void CreateBuffers();
 
-	vector<XMFLOAT3> vertexArray;
+	vector<Vertex> vertexArray;
 	vector<XMFLOAT2> uvArray;
+
 
 	UINT vertexCount;
 	vector<UINT> indexArray;

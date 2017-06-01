@@ -61,10 +61,10 @@ void Animator::CalculateFinalMatrices()
 		//Calculate final matrix (skinning matrix)
 		aFinalMatrices[i] = DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&currentJoint.inverseBindPose), DirectX::XMLoadFloat4x4(&currentJoint.globalTransform));
 
-		DirectX::XMFLOAT4X4 temp;
-		DirectX::XMStoreFloat4x4(&temp, aFinalMatrices[i]);
-		temp._11 = temp._22 = temp._33 = temp._44 = 1.0000f;
-		aFinalMatrices[i] = DirectX::XMLoadFloat4x4(&temp);
+		//DirectX::XMFLOAT4X4 temp;
+		//DirectX::XMStoreFloat4x4(&temp, aFinalMatrices[i]);
+		//temp._11 = temp._22 = temp._33 = temp._44 = 1.0000f;
+		//aFinalMatrices[i] = DirectX::XMLoadFloat4x4(&temp);
 	}
 
 	//All matrices have been updated. We could upload them to the GPU here. (i think..)

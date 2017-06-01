@@ -74,6 +74,8 @@ void MeshContainer::Init()
 	mesh2->scale = 0.009f;
 	mesh2->LoadStatic("character.G6Mesh", globalDevice, globalDeviceContext);
 	MeshContainer::staticMeshes["character"] = mesh2;
+	mesh2->texture = new Texture(L"../Resources/textures/character_texture.png ");
+
 	//////////////
 
 	//Create skinned shaders
@@ -110,8 +112,8 @@ void MeshContainer::Init()
 		//int offset = 0;
 		D3D11_INPUT_ELEMENT_DESC input_desc[] = {
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-			//{ "TEXCOORD", 0, DXGI_FORMAT_R16G16_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R16G16_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
 		//custom_mesh_layout = create_input_layout(input_desc, ARRAYSIZE(input_desc), blob, device);
 		HRESULT hr = globalDevice->CreateInputLayout(input_desc, ARRAYSIZE(input_desc), blob->GetBufferPointer(), blob->GetBufferSize(), &this->custom_mesh_layout);
