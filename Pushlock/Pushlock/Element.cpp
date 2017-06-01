@@ -937,7 +937,7 @@ void WaterElement::projectile(Player * player, Map * map)
 							v,
 							0.1f
 						);
-
+						spell->angle = angle;
 						map->add_entity(spell);
 					}
 					this->active_projectile->dead = true; 
@@ -984,7 +984,7 @@ void WaterElement::projectile(Player * player, Map * map)
 					v,
 					0.1f
 				);
-
+				spell->angle = angle;
 				map->add_entity(spell);
 
 			}
