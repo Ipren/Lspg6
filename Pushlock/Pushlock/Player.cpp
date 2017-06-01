@@ -157,7 +157,7 @@ void Player::update(Map *map, float dt)
 		{
 			FXSystem->ProcessFX(this->dot, XMMatrixTranslation(position.x, position.y, position.z), dt);
 
-			this->health -= 0.01f;
+			this->health -= 1.f * dt;
 			if (this->health <= 0) 
 			{
 				FXSystem->AddFX("death", XMMatrixTranslation(position.x, position.y, position.z));
