@@ -90,9 +90,7 @@ void Map::reset(int nrOfPlayers)
 		}
 		p->health = p->element->startHealth;//set health based on the element choice
 		entitys.push_back(e);
-
-		//entitys.back()->pAnimator = new Animator();
-		//entitys.back()->pAnimator->AssignSkinnedMesh("arcane_spell");
+		e->AssignStaticMesh("character");
 		
 	}
 	this->nrOfAlivePlayers = nrOfPlayers;
