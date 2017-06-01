@@ -652,9 +652,9 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 							FbxTime currTime;
 							currTime.SetFrame(i, FbxTime::eFrames24);
 
-							if (mesh->animation.m_aSamples[i-1].m_aJointPose.size() == 0)
-								mesh->animation.m_aSamples[i-1].m_aJointPose.resize(joints.size());
-							JointPose& currentPose = (mesh->animation.m_aSamples[i-1].m_aJointPose[currJointIndex]);
+							if (mesh->animation.m_aSamples[i].m_aJointPose.size() == 0)
+								mesh->animation.m_aSamples[i].m_aJointPose.resize(joints.size());
+							JointPose& currentPose = (mesh->animation.m_aSamples[i].m_aJointPose[currJointIndex]);
 
 							FbxAMatrix currentTransformOffset = pCurrentNode->EvaluateGlobalTransform(currTime);
 							FbxAMatrix mGlobalTransform = currentTransformOffset.Inverse() * cluster->GetLink()->EvaluateLocalTransform(currTime);

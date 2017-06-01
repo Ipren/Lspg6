@@ -68,10 +68,7 @@ void Animator::CalculateFinalMatrices()
 			currentJoint.globalTransform = currentJoint.localTransform;
 		else
 		{
-			if (currentJoint.parent_id)
-			DirectX::XMStoreFloat4x4(&currentJoint.globalTransform, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&currentJoint.localTransform), DirectX::XMLoadFloat4x4(&skeleton->m_aJoint[currentJoint.parent_id - 1].globalTransform)));
-			DirectX::XMStoreFloat4x4(&currentJoint.globalTransform, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&currentJoint.localTransform), DirectX::XMLoadFloat4x4(&skeleton->m_aJoint[currentJoint.parent_id - 1].globalTransform)));
-
+			DirectX::XMStoreFloat4x4(&currentJoint.globalTransform, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&currentJoint.localTransform), DirectX::XMLoadFloat4x4(&skeleton->m_aJoint[currentJoint.parent_id].globalTransform)));
 		}
 		//Calculate final matrix (skinning matrix)
 		aFinalMatrices[i] = DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&currentJoint.inverseBindPose), DirectX::XMLoadFloat4x4(&currentJoint.globalTransform));
@@ -99,9 +96,6 @@ void Animator::CreateBuffersAndShaders()
 	data.pSysMem = &mesh->verts[0];
 	globalDevice->CreateBuffer(&bufferDesc, &data, &pVertexBuffer);
 
-
-
-
 	//ID3DBlob *blob = compile_shader(L"Skinned.hlsl", "VS", "vs_5_0", globalDevice);
 	//DXCALL(globalDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &skinned_vs));
 
@@ -124,6 +118,7 @@ void Animator::CreateBuffersAndShaders()
 	//blob = compile_shader(L"Skinned.hlsl", "PS", "ps_5_0", globalDevice);
 	//DXCALL(globalDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &skinned_ps));
 	//blob->Release();
+
 	HRESULT hr;
 	//Constant buffer
 	D3D11_BUFFER_DESC cbDesc;
@@ -258,8 +253,6 @@ void Animator::AssignSkinnedMesh(string meshName)
 	this->aFinalMatrices.resize(skeleton->m_aJoint.size());
 	this->currentClip->m_framesPerSecond = 24;
 	CreateBuffersAndShaders();
-
-
 }
 
 void Animator::PreDraw()
