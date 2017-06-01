@@ -611,14 +611,15 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 						FbxString animStackName = currAnimStack->GetName();
 						AnimationName = animStackName.Buffer();
 						FbxTakeInfo* takeInfo = scene->GetTakeInfo(animStackName);
-						FbxTime start = 1; //takeInfo->mLocalTimeSpan.GetStart();
+						FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
 						FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
 
 
 						mesh->animation.m_framesPerSecond = 24;
 						mesh->animation.m_frameCount = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
-						mesh->animation.m_aSamples.resize(joints.size());
-						mesh->animation.m_aSamples[currJointIndex].m_aJointPose.resize(joints.size());
+						mesh->animation.m_aSamples.resize(mesh->animation.m_frameCount);
+						for (auto& sample : mesh->animation.m_aSamples)
+							sample.m_aJointPose.resize(joints.size());
 						FbxLongLong poop = end.GetFrameCount(FbxTime::eFrames24);
 						for (FbxLongLong i = 1; i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
 						{
@@ -753,8 +754,10 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 							}
 
 							//Export blending data
+							//mControlPoints[iControlPointIndex]->mBlendingInfo.size()
 							for (int i = 0; i < mControlPoints[iControlPointIndex]->mBlendingInfo.size(); i++)
 							{
+								if (mControlPoints[iControlPointIndex]->mBlendingInfo.size() > 4) continue;
 								vertex.boneIndex[i] = mControlPoints[iControlPointIndex]->mBlendingInfo[i].mBlendingIndex;
 								float weight = mControlPoints[iControlPointIndex]->mBlendingInfo[i].mBlendingWeight;
 								vertex.boneWeights[i] = weight;

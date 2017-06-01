@@ -30,6 +30,11 @@ std::string GetFileExtension(const std::string& FileName)
 void MeshContainer::Init()
 {
 
+	SkinnedMesh* cyl = new SkinnedMesh();
+	cyl->scale = 0.2f;
+	cyl->LoadSkinned("cyl2.G6Skinned", globalDevice, globalDeviceContext);
+	MeshContainer::skinnedMeshes["cyl"] = cyl;
+
 	SkinnedMesh* mesh = new SkinnedMesh();
 	mesh->scale = 0.2f;
 	mesh->LoadSkinned("arcane_spell.G6Skin", globalDevice, globalDeviceContext);

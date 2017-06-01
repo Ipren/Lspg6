@@ -105,6 +105,12 @@ void Map::reset(int nrOfPlayers)
 	shrinking = false;
 	shrinkAmount = gDefaultMapConstants.kShrinkAmount;
 	shrinkTimer = gDefaultMapConstants.kShrinkTimer;
+
+	Entity* cyl = new Entity();
+	cyl->pAnimator = new Animator();
+	cyl->pAnimator->AssignSkinnedMesh("cyl");
+	entitys.push_back(cyl);
+
 }
 
 Entity* Map::add_entity(Entity * entity)

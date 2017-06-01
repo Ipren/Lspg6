@@ -58,7 +58,7 @@ void Animator::CalculateFinalMatrices()
 			currentJoint.globalTransform = DirectX::XMMatrixMultiply(currentJoint.localTransform, skeleton->m_aJoint[currentJoint.parent_id].globalTransform);
 
 		//Calculate final matrix (skinning matrix)
-		aFinalMatrices[i] = DirectX::XMMatrixMultiply(currentJoint.inverseBindPose, currentJoint.globalTransform);
+		aFinalMatrices[i] = DirectX::XMMatrixMultiply(currentJoint.globalTransform, currentJoint.inverseBindPose);
 	}
 
 	//All matrices have been updated. We could upload them to the GPU here. (i think..)

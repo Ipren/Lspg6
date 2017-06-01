@@ -59,7 +59,8 @@ int main()
 
 	//importer.ExportStaticBinary("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/character.G6Mesh", &mesh, meshMaterials, outLights, outCameras);
 
-	importer.ImportAnimatedMesh("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/char6_applied.fbx", &smesh, meshMaterials);
+	importer.ImportAnimatedMesh("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/cyl2.fbx", &smesh, meshMaterials);
+	importer.ExportAnimatedBinary("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/cyl2.G6Skinned", &smesh, meshMaterials);
 
 	//G6Import::ImportStaticMesh("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/light.G6Mesh", &mesh, meshMaterials, outLights, outCameras);
 
