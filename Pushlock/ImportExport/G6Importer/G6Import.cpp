@@ -194,15 +194,17 @@ bool G6Import::ImportAnimatedMesh(const char * filename, sSkinnedMesh * outMesh)
 		for (int i = 0; i < outMesh->header.numberOfJoints; i++)
 		{
 			Joint curr;
-			curr.globalTransform = DirectX::XMMatrixIdentity();
-			curr.localTransform = DirectX::XMMatrixIdentity();
+			DirectX::XMStoreFloat4x4(&curr.globalTransform, DirectX::XMMatrixIdentity());
+			DirectX::XMStoreFloat4x4(&curr.localTransform, DirectX::XMMatrixIdentity());
+
+			//curr.localTransform = DirectX::XMMatrixIdentity();
 			curr.name = "someName";
 
 			DirectX::XMFLOAT4X4 invBndPs;
 			file.read(reinterpret_cast<char*>(invBndPs.m), sizeof(float) * 16);
 			file.read(reinterpret_cast<char*>(&curr.parent_id), sizeof(int));
 
-			curr.inverseBindPose = DirectX::XMLoadFloat4x4(&invBndPs);
+			curr.inverseBindPose = invBndPs;
 
 			outMesh->skeletonHierarchy.push_back(curr);
 		}
@@ -220,8 +222,8 @@ bool G6Import::ImportAnimatedMesh(const char * filename, sSkinnedMesh * outMesh)
 				file.read(reinterpret_cast<char*>(&rot), sizeof(float) * 4);
 				file.read(reinterpret_cast<char*>(&trans), sizeof(float) * 3);
 
-				currentPose.m_rot = DirectX::XMLoadFloat4(&rot);
-				currentPose.m_trans = DirectX::XMLoadFloat3(&trans);
+				currentPose.m_rot = rot;
+				currentPose.m_trans = trans;
 
 				file.read(reinterpret_cast<char*>(&currentPose.m_scale), sizeof(float));
 

@@ -41,9 +41,9 @@ struct UV {
 };
 
 struct Joint {
-	DirectX::XMMATRIX inverseBindPose;
-	DirectX::XMMATRIX localTransform;
-	DirectX::XMMATRIX globalTransform;
+	DirectX::XMFLOAT4X4 inverseBindPose;
+	DirectX::XMFLOAT4X4 localTransform;
+	DirectX::XMFLOAT4X4 globalTransform;
 
 	int parent_id;
 	string name;
@@ -51,8 +51,8 @@ struct Joint {
 
 struct JointPose
 {
-	DirectX::XMVECTOR   m_rot;      //Q
-	DirectX::XMVECTOR   m_trans;    //T    
+	DirectX::XMFLOAT4   m_rot;      //Q
+	DirectX::XMFLOAT3	m_trans;    //T    
 	float				m_scale;    //S     
 };
 

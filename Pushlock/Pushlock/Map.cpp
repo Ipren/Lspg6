@@ -92,7 +92,7 @@ void Map::reset(int nrOfPlayers)
 		entitys.push_back(e);
 
 		//entitys.back()->pAnimator = new Animator();
-		//entitys.back()->pAnimator->AssignSkinnedMesh("character");
+		//entitys.back()->pAnimator->AssignSkinnedMesh("arcane_spell");
 		
 	}
 	this->nrOfAlivePlayers = nrOfPlayers;

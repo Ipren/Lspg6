@@ -48,15 +48,13 @@ int main()
 	//////////////////////////////////////////////////////
 
 	FBXImporter importer;
-	sMesh mesh;
+	sSkinnedMesh mesh;
 	vector<sMaterial*> meshMaterials;
-	vector<sLight*> outLights;
-	vector<sCamera*> outCameras;
 
-	importer.ImportStaticMesh("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/character.fbx", &mesh, meshMaterials, outLights, outCameras);
+	importer.ImportAnimatedMesh("C:\\Users\\TheoXD\\Desktop\\cyl.fbx", &mesh, meshMaterials);
 
 
-	importer.ExportStaticBinary("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/character.G6Mesh", &mesh, meshMaterials, outLights, outCameras);
+	importer.ExportAnimatedBinary("C:\\Users\\TheoXD\\Desktop\\MASTEEEEEEER\\Pushlock\\Pushlock\\cyl5.G6Skin", &mesh, meshMaterials);
 
 	//G6Import::ImportStaticMesh("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/light.G6Mesh", &mesh, meshMaterials, outLights, outCameras);
 

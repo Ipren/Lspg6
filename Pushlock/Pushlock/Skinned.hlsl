@@ -88,7 +88,7 @@ VS_OUT VS(VS_IN input)
 			//TODO: cbuffer gWorld
 			position += weights[i] * mul(float4(input.pos, 1.0f),
 				gBoneTransforms[input.boneIndices[i]]).xyz;
-			position = float3(position.xyz);
+			//position = float3(position.xyz);
 			nor += weights[i] * mul(input.nor,
 				(float3x3)gBoneTransforms[input.boneIndices[i]]);
 		}
@@ -123,7 +123,7 @@ float4 PS(in VS_OUT input) : SV_TARGET
 	float shadow = GetShadow(input.nor, dLightDirection, coords);
 
 	//float3 ambient = (c * 0.04f) + float3(0.04f, 0.04f, 0.04f);
-	float3 ambient = float3(.15f, 0.0f, 0.0f);
+	float3 ambient = float3(.0f, 0.0f, 0.0f);
 
 
 	diffuse += CalcPointLights(pLights, input.wPos, input.nor, nrOfPointLights);

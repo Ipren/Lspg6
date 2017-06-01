@@ -19,21 +19,22 @@ void Animator::CalculateInitialGlobalTransforms()
 		if (j.parent_id == -1)
 			j.globalTransform = j.localTransform;
 		else
-			j.globalTransform = skeleton->m_aJoint[j.parent_id].globalTransform * j.localTransform;
+			DirectX::XMStoreFloat4x4(&j.globalTransform, (DirectX::XMLoadFloat4x4(&skeleton->m_aJoint[j.parent_id].globalTransform) * DirectX::XMLoadFloat4x4(&j.localTransform)));
 	}
 }
 
 void Animator::InterpolateKeyframes(const AnimationSample& last, const AnimationSample& next, float progression)
 {
+
 	int i = 0;
 	for (auto& joint : skeleton->m_aJoint)
 	{
 		//Interpolate rotation
-		DirectX::XMVECTOR rot = DirectX::XMQuaternionSlerp(last.m_aJointPose[i].m_rot, next.m_aJointPose[i].m_rot, progression);
+		DirectX::XMVECTOR rot = DirectX::XMQuaternionSlerp(DirectX::XMLoadFloat4(&last.m_aJointPose[i].m_rot), DirectX::XMLoadFloat4(&next.m_aJointPose[i].m_rot), progression);
 		//Interpolate translation
-		DirectX::XMVECTOR trans = DirectX::XMVectorLerp(last.m_aJointPose[i].m_trans, next.m_aJointPose[i].m_trans, progression);
+		DirectX::XMVECTOR trans = DirectX::XMVectorLerp(DirectX::XMLoadFloat3(&last.m_aJointPose[i].m_trans), DirectX::XMLoadFloat3(&next.m_aJointPose[i].m_trans), progression);
 		//Assign matrix to joint
-		joint.localTransform = DirectX::XMMatrixAffineTransformation({ 1.0f, 1.0f, 1.0f }, { 0,0,0 }, rot, trans);
+		DirectX::XMStoreFloat4x4(&joint.localTransform, DirectX::XMMatrixAffineTransformation({ 1.0f, 1.0f, 1.0f }, { 0,0,0 }, rot, trans));
 		i++;
 	}
 }
@@ -55,10 +56,15 @@ void Animator::CalculateFinalMatrices()
 		if (currentJoint.parent_id == -1)
 			currentJoint.globalTransform = currentJoint.localTransform;
 		else
-			currentJoint.globalTransform = DirectX::XMMatrixMultiply(currentJoint.localTransform, skeleton->m_aJoint[currentJoint.parent_id].globalTransform);
+			DirectX::XMStoreFloat4x4(&currentJoint.globalTransform, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&currentJoint.localTransform), DirectX::XMLoadFloat4x4(&skeleton->m_aJoint[currentJoint.parent_id].globalTransform)));
 
 		//Calculate final matrix (skinning matrix)
-		aFinalMatrices[i] = DirectX::XMMatrixMultiply(currentJoint.inverseBindPose, currentJoint.globalTransform);
+		aFinalMatrices[i] = DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&currentJoint.inverseBindPose), DirectX::XMLoadFloat4x4(&currentJoint.globalTransform));
+
+		DirectX::XMFLOAT4X4 temp;
+		DirectX::XMStoreFloat4x4(&temp, aFinalMatrices[i]);
+		temp._11 = temp._22 = temp._33 = temp._44 = 1.0000f;
+		aFinalMatrices[i] = DirectX::XMLoadFloat4x4(&temp);
 	}
 
 	//All matrices have been updated. We could upload them to the GPU here. (i think..)
@@ -283,7 +289,14 @@ void Animator::UpdateConstantBuffers()
 	ZeroMemory(&mappedResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 	deviceContext->Map(cbJointTransforms, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 
-	memcpy(mappedResource.pData, &aFinalMatrices[0], sizeof(XMMATRIX) * aFinalMatrices.size());
+	DirectX::XMFLOAT4X4* arr = new DirectX::XMFLOAT4X4[aFinalMatrices.size()];
+	for (int i = 0; i < aFinalMatrices.size(); i++)
+	{
+		DirectX::XMStoreFloat4x4(&arr[i], aFinalMatrices[i]);
+	}
 
+	memcpy(mappedResource.pData, &arr[0], sizeof(float) * 16 * aFinalMatrices.size());
 	deviceContext->Unmap(cbJointTransforms, 0);
+	delete[] arr;
+
 }

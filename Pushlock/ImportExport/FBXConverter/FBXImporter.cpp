@@ -567,6 +567,24 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 				if (skin) {
 					int n_of_clusters = skin->GetClusterCount();
 
+					/// ----------------------------------------------------------------------------------------------------------------------
+					FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(0);
+					FbxString animStackName = currAnimStack->GetName();
+					AnimationName = animStackName.Buffer();
+					FbxTakeInfo* takeInfo = scene->GetTakeInfo(animStackName);
+					FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
+					FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+
+
+					mesh->animation.m_framesPerSecond = 24;
+					mesh->animation.m_frameCount = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
+					mesh->animation.m_aSamples.resize(mesh->animation.m_frameCount);
+
+					for (auto& sample : mesh->animation.m_aSamples)
+						sample.m_aJointPose.resize(joints.size());
+					/// ---------------------------------------------------------------------------------------------------------------------
+
+
 					for (int c = 0; c < n_of_clusters; c++) {
 
 						FbxCluster *cluster = skin->GetCluster(c);
@@ -587,7 +605,7 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 
 						FbxAMatrix bind_pose_inv = model_to_pose_mat_inv * bone_init_pose;
 						FbxAMatrix bild_pose = bind_pose_inv.Inverse();
-						joints[currJointIndex].inverseBindPose = FbxMatrixToXMFLOAT4X4A(bind_pose_inv);
+						DirectX::XMStoreFloat4x4(&joints[currJointIndex].inverseBindPose, FbxMatrixToXMFLOAT4X4A(bind_pose_inv));
 
 						int n_of_indices = cluster->GetControlPointIndicesCount();
 						int *indices = cluster->GetControlPointIndices();
@@ -606,19 +624,22 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 						// Get animation information
 						// Now only supports one take
 
+						
+							FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(0);
+							FbxString animStackName = currAnimStack->GetName();
+							AnimationName = animStackName.Buffer();
+							FbxTakeInfo* takeInfo = scene->GetTakeInfo(animStackName);
+							FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
+							FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
 
-						FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(0);
-						FbxString animStackName = currAnimStack->GetName();
-						AnimationName = animStackName.Buffer();
-						FbxTakeInfo* takeInfo = scene->GetTakeInfo(animStackName);
-						FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
-						FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
 
+							mesh->animation.m_framesPerSecond = 24;
+							mesh->animation.m_frameCount = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
+							mesh->animation.m_aSamples.resize(mesh->animation.m_frameCount);
 
-						mesh->animation.m_framesPerSecond = 24;
-						mesh->animation.m_frameCount = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
-						mesh->animation.m_aSamples.resize(mesh->animation.m_frameCount);
-						mesh->animation.m_aSamples[currJointIndex].m_aJointPose.resize(joints.size());
+							for (auto& sample : mesh->animation.m_aSamples)
+								sample.m_aJointPose.resize(joints.size());
+						
 						FbxLongLong poop = end.GetFrameCount(FbxTime::eFrames24);
 						for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
 						{
@@ -657,8 +678,8 @@ void FBXImporter::ImportAnimatedMesh(const char * filename, sSkinnedMesh* mesh, 
 								mGlobalTransform.GetT()[2]);
 
 							//Load into currentPose
-							currentPose.m_rot = DirectX::XMLoadFloat4(&rot);
-							currentPose.m_trans = DirectX::XMLoadFloat3(&trans);
+							currentPose.m_rot = rot;
+							currentPose.m_trans = trans;
 
 							//Scale always 1.0f
 							currentPose.m_scale = 1.0f;
@@ -1029,9 +1050,9 @@ void FBXImporter::ExportAnimatedBinary(const char * outputFile, sSkinnedMesh * m
 		//Write skeleton
 		for (auto& joint : mesh->skeletonHierarchy)
 		{
-			DirectX::XMFLOAT4X4 invBndPs;
-			DirectX::XMStoreFloat4x4(&invBndPs, joint.inverseBindPose);
-			file.write(reinterpret_cast<char*>(invBndPs.m), sizeof(float) * 16);
+			//DirectX::XMFLOAT4X4 invBndPs;
+			//DirectX::XMStoreFloat4x4(&invBndPs, joint.inverseBindPose);
+			file.write(reinterpret_cast<char*>(joint.inverseBindPose.m), sizeof(float) * 16);
 			file.write(reinterpret_cast<char*>(&joint.parent_id), sizeof(int));
 		}
 
@@ -1040,14 +1061,14 @@ void FBXImporter::ExportAnimatedBinary(const char * outputFile, sSkinnedMesh * m
 		{
 			for (int j = 0; j < mesh->header.numberOfJoints; j++)
 			{
-				DirectX::XMFLOAT4 rot;
-				DirectX::XMFLOAT3 trans;
+				//DirectX::XMFLOAT4 rot;
+				//DirectX::XMFLOAT3 trans;
 
-				DirectX::XMStoreFloat4(&rot, mesh->animation.m_aSamples[i].m_aJointPose[j].m_rot);
-				DirectX::XMStoreFloat3(&trans, mesh->animation.m_aSamples[i].m_aJointPose[j].m_trans);
+				//DirectX::XMStoreFloat4(&rot, mesh->animation.m_aSamples[i].m_aJointPose[j].m_rot);
+				//DirectX::XMStoreFloat3(&trans, mesh->animation.m_aSamples[i].m_aJointPose[j].m_trans);
 
-				file.write(reinterpret_cast<char*>(&rot), sizeof(float) * 4);
-				file.write(reinterpret_cast<char*>(&trans), sizeof(float) * 3);
+				file.write(reinterpret_cast<char*>(&mesh->animation.m_aSamples[i].m_aJointPose[j].m_rot), sizeof(float) * 4);
+				file.write(reinterpret_cast<char*>(&mesh->animation.m_aSamples[i].m_aJointPose[j].m_trans), sizeof(float) * 3);
 				file.write(reinterpret_cast<char*>(&mesh->animation.m_aSamples[i].m_aJointPose[j].m_scale), sizeof(float)); //currently always 1.0f
 
 			}
