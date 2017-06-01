@@ -2844,7 +2844,7 @@ void Renderer::render(Map *map, Camera *camera, float dt)
 			camera->update(0, gDeviceContext);
 
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-			if (dynamic_cast<FirePathSpell*>(entity) == nullptr && dynamic_cast<WaterIcePatch*>(entity) == nullptr && dynamic_cast<WindFartCloudSpell*>(entity) == nullptr)
+			if (dynamic_cast<FirePathSpell*>(entity) == nullptr && dynamic_cast<WaterIcePatch*>(entity) == nullptr && dynamic_cast<WindFartCloudSpell*>(entity) == nullptr && entity->type == EntityType::Player)
 			{
 				gDeviceContext->Draw(129, 0);
 			}

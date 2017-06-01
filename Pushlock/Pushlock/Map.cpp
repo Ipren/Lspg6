@@ -90,10 +90,9 @@ void Map::reset(int nrOfPlayers)
 		}
 		p->health = p->element->startHealth;//set health based on the element choice
 		entitys.push_back(e);
-		//entitys.back()->pMesh = new Mesh();
-		//entitys.back()->pMesh->LoadStatic("character.G6Mesh", globalDevice, globalDeviceContext);
-		//
-		entitys.back()->AssignStaticMesh("character");
+
+		//entitys.back()->pAnimator = new Animator();
+		//entitys.back()->pAnimator->AssignSkinnedMesh("character");
 		
 	}
 	this->nrOfAlivePlayers = nrOfPlayers;

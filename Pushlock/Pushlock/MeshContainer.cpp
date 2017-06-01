@@ -36,8 +36,22 @@ void MeshContainer::Init()
 	MeshContainer::skinnedMeshes["arcane_spell"] = mesh;
 
 	mesh = new SkinnedMesh();
-	mesh->scale = 0.2f;
-	mesh->LoadSkinned("Ice_wall.G6Skin", globalDevice, globalDeviceContext);
+	mesh->scale = 1.0f;
+	mesh->LoadSkinned("char3.G6Skin", globalDevice, globalDeviceContext);
+	mesh->animations["idle"].m_frameCount = 10;
+	mesh->texture = new Texture(L"../Resources/textures/arcanewall.png ");
+	MeshContainer::skinnedMeshes["character"] = mesh;
+
+	mesh = new SkinnedMesh();
+	mesh->scale = 0.16f;
+	mesh->LoadSkinned("arcane_wall.G6Skin", globalDevice, globalDeviceContext);
+	mesh->animations["idle"].m_frameCount = 240;
+	mesh->texture = new Texture(L"../Resources/textures/arcanewall.png ");
+	MeshContainer::skinnedMeshes["arcane_wall"] = mesh;
+
+	mesh = new SkinnedMesh();
+	mesh->scale = 0.16f;
+	mesh->LoadSkinned("arcane_wall.G6Skin", globalDevice, globalDeviceContext);
 	mesh->animations["idle"].m_frameCount = 240;
 	mesh->texture = new Texture(L"../Resources/textures/icewall.png ");
 	MeshContainer::skinnedMeshes["ice_wall"] = mesh;
@@ -48,6 +62,13 @@ void MeshContainer::Init()
 	mesh->animations["idle"].m_frameCount = 240;
 	mesh->texture = new Texture(L"../Resources/textures/stonewall.png ");
 	MeshContainer::skinnedMeshes["earth_wall"] = mesh;
+
+	mesh = new SkinnedMesh();
+	mesh->scale = 0.59f;
+	mesh->LoadSkinned("stone_wall.G6Skin", globalDevice, globalDeviceContext);
+	mesh->animations["idle"].m_frameCount = 240;
+	mesh->texture = new Texture(L"../Resources/textures/firewall.png ");
+	MeshContainer::skinnedMeshes["fire_wall"] = mesh;
 
 	Mesh* mesh2 = new Mesh();
 	mesh2->scale = 0.009f;

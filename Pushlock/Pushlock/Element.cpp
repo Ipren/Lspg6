@@ -154,7 +154,7 @@ void ArcaneElement::wall(Player *player, Map *map)
 			{
 				Spell* w = dynamic_cast<Spell*>(e);
 				w->pAnimator = new Animator();
-				w->pAnimator->AssignSkinnedMesh("ice_wall");
+				w->pAnimator->AssignSkinnedMesh("arcane_wall");
 			}
 		}
 
@@ -386,6 +386,14 @@ void FireElement::wall(Player * player, Map * map)
 			{
 				FireWallSpell* w = dynamic_cast<FireWallSpell*>(e);
 				w->edge = true;
+			}
+
+			//Add animated mesh to middle pillar
+			if (i == 3)
+			{
+				Spell* w = dynamic_cast<Spell*>(e);
+				w->pAnimator = new Animator();
+				w->pAnimator->AssignSkinnedMesh("fire_wall");
 			}
 		}
 
@@ -1030,6 +1038,14 @@ void WaterElement::wall(Player * player, Map * map)
 			{
 				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
 				w->edge = true;
+			}
+
+			//Add animated mesh to middle pillar
+			if (i == 3)
+			{
+				Spell* w = dynamic_cast<Spell*>(e);
+				w->pAnimator = new Animator();
+				w->pAnimator->AssignSkinnedMesh("ice_wall");
 			}
 		}
 
