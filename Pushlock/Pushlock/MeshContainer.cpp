@@ -32,15 +32,15 @@ void MeshContainer::Init()
 
 	SkinnedMesh* mesh = new SkinnedMesh();
 	mesh->scale = 0.2f;
-	mesh->LoadSkinned("arcane_spell_oriented.G6Skin", globalDevice, globalDeviceContext);
+	mesh->LoadSkinned("arcane_projectile.G6Skin", globalDevice, globalDeviceContext);
 	MeshContainer::skinnedMeshes["arcane_spell"] = mesh;
 
-	//mesh = new SkinnedMesh();
-	//mesh->scale = 1.0f;
-	//mesh->LoadSkinned("char3.G6Skin", globalDevice, globalDeviceContext);
-	//mesh->animations["idle"].m_frameCount = 10;
-	//mesh->texture = new Texture(L"../Resources/textures/arcanewall.png ");
-	//MeshContainer::skinnedMeshes["character"] = mesh;
+	mesh = new SkinnedMesh();
+	mesh->scale = 1.0f;
+	mesh->LoadSkinned("char_1.G6Skin", globalDevice, globalDeviceContext);
+	mesh->animations["idle"].m_frameCount = 80;
+	mesh->texture = new Texture(L"../Resources/textures/arcanewall.png ");
+	MeshContainer::skinnedMeshes["character"] = mesh;
 
 	mesh = new SkinnedMesh();
 	mesh->scale = 0.16f;

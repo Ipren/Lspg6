@@ -51,10 +51,10 @@ int main()
 	sSkinnedMesh mesh;
 	vector<sMaterial*> meshMaterials;
 
-	importer.ImportAnimatedMesh("C:\\Users\\TheoXD\\Desktop\\cyl.fbx", &mesh, meshMaterials);
+	importer.ImportAnimatedMesh("C:\\Users\\TheoXD\\Desktop\\char_1.fbx", &mesh, meshMaterials);
 
 
-	importer.ExportAnimatedBinary("C:\\Users\\TheoXD\\Desktop\\MASTEEEEEEER\\Pushlock\\Pushlock\\cyl5.G6Skin", &mesh, meshMaterials);
+	importer.ExportAnimatedBinary("C:\\Users\\TheoXD\\Desktop\\MASTEEEEEEER\\Pushlock\\Pushlock\\char_1.G6Skin", &mesh, meshMaterials);
 
 	//G6Import::ImportStaticMesh("C:/Users/Theo/Desktop/Workstation/LitetSpel/Pushlock/ImportExport/FBXConverter/light.G6Mesh", &mesh, meshMaterials, outLights, outCameras);
 

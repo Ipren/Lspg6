@@ -19,7 +19,7 @@ void Animator::CalculateInitialGlobalTransforms()
 		if (j.parent_id == -1)
 			j.globalTransform = j.localTransform;
 		else
-			DirectX::XMStoreFloat4x4(&j.globalTransform, (DirectX::XMLoadFloat4x4(&skeleton->m_aJoint[j.parent_id].globalTransform) * DirectX::XMLoadFloat4x4(&j.localTransform)));
+			DirectX::XMStoreFloat4x4(&j.globalTransform, (DirectX::XMLoadFloat4x4(&j.localTransform) * DirectX::XMLoadFloat4x4(&skeleton->m_aJoint[j.parent_id].globalTransform)));
 	}
 }
 
@@ -29,13 +29,24 @@ void Animator::InterpolateKeyframes(const AnimationSample& last, const Animation
 	int i = 0;
 	for (auto& joint : skeleton->m_aJoint)
 	{
+		DirectX::XMMATRIX temp = DirectX::XMMatrixIdentity();
+
 		//Interpolate rotation
 		DirectX::XMVECTOR rot = DirectX::XMQuaternionSlerp(DirectX::XMLoadFloat4(&last.m_aJointPose[i].m_rot), DirectX::XMLoadFloat4(&next.m_aJointPose[i].m_rot), progression);
 		//Interpolate translation
 		DirectX::XMVECTOR trans = DirectX::XMVectorLerp(DirectX::XMLoadFloat3(&last.m_aJointPose[i].m_trans), DirectX::XMLoadFloat3(&next.m_aJointPose[i].m_trans), progression);
 		//Assign matrix to joint
-		DirectX::XMStoreFloat4x4(&joint.localTransform, DirectX::XMMatrixAffineTransformation({ 1.0f, 1.0f, 1.0f }, { 0,0,0 }, rot, trans));
+
+		DirectX::XMMATRIX rt = DirectX::XMMatrixRotationQuaternion(rot);
+		DirectX::XMMATRIX tr = DirectX::XMMatrixTranslationFromVector(trans);
+
+		temp = DirectX::XMMatrixMultiply(temp, rt);
+		temp = DirectX::XMMatrixMultiply(temp, tr);
+
+		DirectX::XMStoreFloat4x4(&joint.localTransform, temp);
 		i++;
+		//DirectX::XMStoreFloat4x4(&joint.localTransform, DirectX::XMMatrixAffineTransformation({ 1.0f, 1.0f, 1.0f }, { 0,0,0 }, rot, trans));
+		//i++;
 	}
 }
 
@@ -56,8 +67,12 @@ void Animator::CalculateFinalMatrices()
 		if (currentJoint.parent_id == -1)
 			currentJoint.globalTransform = currentJoint.localTransform;
 		else
-			DirectX::XMStoreFloat4x4(&currentJoint.globalTransform, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&currentJoint.localTransform), DirectX::XMLoadFloat4x4(&skeleton->m_aJoint[currentJoint.parent_id].globalTransform)));
+		{
+			if (currentJoint.parent_id)
+			DirectX::XMStoreFloat4x4(&currentJoint.globalTransform, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&currentJoint.localTransform), DirectX::XMLoadFloat4x4(&skeleton->m_aJoint[currentJoint.parent_id - 1].globalTransform)));
+			DirectX::XMStoreFloat4x4(&currentJoint.globalTransform, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&currentJoint.localTransform), DirectX::XMLoadFloat4x4(&skeleton->m_aJoint[currentJoint.parent_id - 1].globalTransform)));
 
+		}
 		//Calculate final matrix (skinning matrix)
 		aFinalMatrices[i] = DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&currentJoint.inverseBindPose), DirectX::XMLoadFloat4x4(&currentJoint.globalTransform));
 
