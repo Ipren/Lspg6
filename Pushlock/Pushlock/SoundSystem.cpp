@@ -30,7 +30,7 @@ SoundSystem::SoundSystem()
 	this->buffers[23].loadFromFile("../Resources/Sounds/fartcloud.flac");
 	this->buffers[24].loadFromFile("../Resources/Sounds/playerdeath.wav");
 
-	this->music.openFromFile("../Resources/Sounds/BGM.wav");
+	this->music.openFromFile("../Resources/Sounds/boss_arena.ogg");
 }
 
 SoundSystem::~SoundSystem()
