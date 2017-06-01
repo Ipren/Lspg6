@@ -30,4 +30,5 @@ public:
 	bool dashing;
 	float dashTime;
 	bool frosen;
+	bool d;
 };

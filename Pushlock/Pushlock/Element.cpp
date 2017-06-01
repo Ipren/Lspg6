@@ -173,6 +173,8 @@ void ArcaneElement::dash(Player * player, Map * map)
 
 		if (pUpgrades[player->index].choice[0] == 2)
 		{
+			player->d = false;
+
 			if (pUpgrades[player->index].choice[1] == 1)
 			{
 				dynamic_cast<ArcaneElement*>(player->element)->returnPos = player->position;
