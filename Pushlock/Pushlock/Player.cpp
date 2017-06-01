@@ -35,6 +35,7 @@ Player::Player(unsigned int index, XMFLOAT3 position, XMFLOAT2 velocity, float r
 	this->dmgShowTime = 0.0f;
 	this->showDmg = false;
 	this->dot = DeathDot;
+	this->d = false;
 
 	this->debuffs.dot = 0.0f;
 	this->debuffs.speed = 0.0f;
@@ -73,6 +74,7 @@ void Player::update(Map *map, float dt)
 	{
 		dashing = false;
 		frosen = false;
+		d = false;
 	}
 	
 
@@ -136,6 +138,8 @@ void Player::update(Map *map, float dt)
 
 		if (gGamepads[index]->get_button_pressed(Gamepad::Lt))//dash
 		{
+			
+			this->d = true;
 			this->element->dash(this, map);
 		}
 

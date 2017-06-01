@@ -32,4 +32,5 @@ public:
 	bool frosen;
 
 	ParticleEffect dot;
+	bool d;
 };

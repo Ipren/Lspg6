@@ -225,21 +225,25 @@ inline void ShadowPlanarParticle(VSIn input, inout TriangleStream<GSOut> outstre
 
 
 	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + N + W, 1.0)));
+	output.pos.z = (output.pos.z + output.pos.w) * 0.5;
 	output.uv = input.uv.xy;
 	output.dist_uv = UV.xy;
 	outstream.Append(output);
 
 	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + S + W, 1.0)));
+	output.pos.z = (output.pos.z + output.pos.w) * 0.5;
 	output.uv = input.uv.xw;
 	output.dist_uv = UV.xw;
 	outstream.Append(output);
 
 	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + N + E, 1.0)));
+	output.pos.z = (output.pos.z + output.pos.w) * 0.5;
 	output.uv = input.uv.zy;
 	output.dist_uv = UV.zy;
 	outstream.Append(output);
 
 	output.pos = mul(Proj, mul(View, float4(input.pos.xyz + S + E, 1.0)));
+	output.pos.z = (output.pos.z + output.pos.w) * 0.5;
 	output.uv = input.uv.zw;
 	output.dist_uv = UV.zw;
 	outstream.Append(output);
@@ -270,22 +274,25 @@ inline void ShadowBillboardParticle(VSIn input, inout TriangleStream<GSOut> outs
 	float4 pos = mul(View, float4(input.pos.xyz, 1.0));
 
 	output.pos = mul(ShadowProj, mul(ShadowView, mul(InverseWVP, mul(Proj, pos + N + W))));
+	output.pos.z = (output.pos.z + output.pos.w) * 0.5;
 	output.uv = input.uv.xy;
 	output.dist_uv = UV.xy;
 	outstream.Append(output);
 
 	output.pos = mul(ShadowProj, mul(ShadowView, mul(InverseWVP, mul(Proj, pos + S + W))));
+	output.pos.z = (output.pos.z + output.pos.w) * 0.5;
 	output.uv = input.uv.xw;
 	output.dist_uv = UV.xw;
 	outstream.Append(output);
 
 	output.pos = mul(ShadowProj, mul(ShadowView, mul(InverseWVP, mul(Proj, pos + N + E))));
+	output.pos.z = (output.pos.z + output.pos.w) * 0.5;
 	output.uv = input.uv.zy;
 	output.dist_uv = UV.zy;
 	outstream.Append(output);
 
 	output.pos = mul(ShadowProj, mul(ShadowView, mul(InverseWVP, mul(Proj, pos + S + E))));
-
+	output.pos.z = (output.pos.z + output.pos.w) * 0.5;
 	output.uv = input.uv.zw;
 	output.dist_uv = UV.zw;
 	outstream.Append(output);

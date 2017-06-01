@@ -173,6 +173,8 @@ void ArcaneElement::dash(Player * player, Map * map)
 
 		if (pUpgrades[player->index].choice[0] == 2)
 		{
+			player->d = false;
+
 			if (pUpgrades[player->index].choice[1] == 1)
 			{
 				dynamic_cast<ArcaneElement*>(player->element)->returnPos = player->position;
@@ -266,7 +268,7 @@ void ArcaneElement::dash(Player * player, Map * map)
 void ArcaneElement::update(Player *player, Map *map, float dt) {
 	Element::update(player, map, dt);
 
-	if (player->dashing) {
+	if (player->d) {
 		XMVECTOR vel = { player->velocity.x, 0, player->velocity.y };
 		FXSystem->ProcessFX(dash_trail, XMMatrixTranslation(player->position.x, player->position.y, player->position.z), -vel * 0.15, dt);
 	}
@@ -402,6 +404,9 @@ void FireElement::wall(Player * player, Map * map)
 void FireElement::dash(Player * player, Map * map)
 {
 	if (cooldown[1] <= 0.f) {
+		player->d = true;
+		player->dashTime = 0.0f;
+
 		auto index = player->index;
 		XMFLOAT2 leftVector = gGamepads[index]->get_left_thumb();
 
@@ -435,7 +440,7 @@ void FireElement::dash(Player * player, Map * map)
 void FireElement::update(Player *player, Map *map, float dt) {
 	Element::update(player, map, dt);
 
-	if (player->dashing) {
+	if (player->d) {
 		XMVECTOR vel = { player->velocity.x, 0, player->velocity.y };
 		FXSystem->ProcessFX(dash_trail, XMMatrixTranslation(player->position.x, player->position.y, player->position.z), -vel * 0.15, dt);
 	}
