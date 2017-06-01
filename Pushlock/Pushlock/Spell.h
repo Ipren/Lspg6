@@ -106,6 +106,8 @@ public:
 	virtual void update(Map *map, float dt) override;
 	virtual bool on_effect(Map *map) override;
 private:
+	ParticleEffect trail;
+
 };
 
 class EarthProjectileSpell : public Spell
