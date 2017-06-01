@@ -122,8 +122,8 @@ float4 PS(in VS_OUT input) : SV_TARGET
 	float4 coords = mul(ShadowProj, mul(ShadowView, mul(ShadowWorld, input.wPos)));
 	float shadow = GetShadow(input.nor, dLightDirection, coords);
 
-	//float3 ambient = float3(0.34f, 0.22f, 0.06f) * 0.15f;
-	float3 ambient = (c * 0.04f) + float3(0.04f, 0.04f, 0.04f);
+	//float3 ambient = (c * 0.04f) + float3(0.04f, 0.04f, 0.04f);
+	float3 ambient = float3(.15f, 0.0f, 0.0f);
 
 
 	diffuse += CalcPointLights(pLights, input.wPos, input.nor, nrOfPointLights);
