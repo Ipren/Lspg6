@@ -1494,7 +1494,11 @@ void Renderer::loadTexture()
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
-	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/lavaTexture.png ", &texture, &this->lavaTexture);
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/lavaTexture.jpg ", &texture, &this->lavaTexture);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
+	hr = DirectX::CreateWICTextureFromFile(this->gDevice, this->gDeviceContext, L"../Resources/textures/mapNormals.png ", &texture, &this->normalMap);
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
@@ -1839,6 +1843,17 @@ void Renderer::createMapResurces()
 
 	vsBlob->Release();
 
+
+	ID3DBlob* gsBlob = compile_shader(L"MapGS.hlsl", "main", "gs_5_0", gDevice);
+
+	hr = this->gDevice->CreateGeometryShader(gsBlob->GetBufferPointer(), gsBlob->GetBufferSize(), NULL, &this->mapGS);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L" map geometry shader creation failed", L"error", MB_OK);
+	}
+	gsBlob->Release();
+
 	ID3DBlob *psBlob = compile_shader(L"MapPS.hlsl", "main", "ps_5_0", gDevice);
 
 	hr = this->gDevice->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), nullptr, &this->MapPS);
@@ -1905,23 +1920,23 @@ void Renderer::createMapResurces()
 
 	TriangleVertex lavaTriangleVertices[6] =
 	{
-		22.5f, -0.19f, -22.5f, 1.0f,	//v0 pos
+		49.5f, -0.19f, -49.5f, 1.0f,	//v0 pos
 		1.0f, 1.0f,
 
-		-22.5f, -0.19f, -22.5f, 1.0f,	//v1
+		-49.5f, -0.19f, -49.5f, 1.0f,	//v1
 		0.0f, 1.0f,
 
-		-22.5f, -0.19f, 22.5f, 1.0f, //v2
+		-49.5f, -0.19f, 49.5f, 1.0f, //v2
 		0.0f,  0.0f,
 
 		//t2
-		-22.5f, -0.19f, 22.5f, 1.0f,//v0 pos
+		-49.5f, -0.19f, 49.5f, 1.0f,//v0 pos
 		0.0f, 0.0f,
 
-		22.5f, -0.19f, 22.5f, 1.0f,//v1
+		49.5f, -0.19f, 49.5f, 1.0f,//v1
 		1.0f, 0.0f,
 
-		22.5f, -0.19f, -22.5f, 1.0f,//v2
+		49.5f, -0.19f, -49.5f, 1.0f,//v2
 		1.0f, 1.0f
 	};
 
@@ -2207,12 +2222,12 @@ void Renderer::renderShadowMap(Map * map, Camera * camera)
 	gDeviceContext->IASetInputLayout(debug_entity_layout);
 
 
-	mapmesh->PreDraw(gDevice, gDeviceContext);
-	mapmesh->PrepareShaders();
-	gDeviceContext->VSSetShader(shadowMapVS, nullptr, 0);
+	//mapmesh->PreDraw(gDevice, gDeviceContext);
+	//mapmesh->PrepareShaders();
+	//gDeviceContext->VSSetShader(shadowMapVS, nullptr, 0);
 
-	gDeviceContext->PSSetShader(nullptr, nullptr, 0);
-	mapmesh->Draw(gDevice, gDeviceContext);
+	//gDeviceContext->PSSetShader(nullptr, nullptr, 0);
+	//mapmesh->Draw(gDevice, gDeviceContext);
 	gDeviceContext->RSSetState(ShadowRaster);
 
 	for (auto entity : map->entitys)
@@ -2561,14 +2576,19 @@ void Renderer::renderMap(Camera * cam)
 	gDeviceContext->VSSetShader(this->lavaVS, nullptr, 0);
 	gDeviceContext->PSSetShader(this->lavaPS, nullptr, 0);
 
-	//gDeviceContext->Draw(6, 0);
+	gDeviceContext->Draw(6, 0);
 
 	gDeviceContext->IASetVertexBuffers(0, 1, &this->mapVBuffer, &size, &offset);
 	gDeviceContext->VSSetShader(this->MapVS, nullptr, 0);
+	gDeviceContext->GSSetShader(this->mapGS, nullptr, 0);
 	gDeviceContext->VSSetConstantBuffers(1, 1, &this->shrinkBuffer);
 	gDeviceContext->PSSetShader(this->MapPS, nullptr, 0);
 	gDeviceContext->PSSetShaderResources(2, 1, &this->mapTexture);
+	gDeviceContext->PSSetShaderResources(3, 1, &this->normalMap);
+	gDeviceContext->PSSetConstantBuffers(8, 1, &this->shrinkBuffer);
 	gDeviceContext->Draw(6, 0);
+
+	gDeviceContext->GSSetShader(nullptr, nullptr, 0);
 }
 
 void Renderer::updateDTimeBuffer(float dt)
@@ -2783,9 +2803,9 @@ void Renderer::render(Map *map, Camera *camera, float dt)
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT sampleMask = 0xffffffff;
 	gDeviceContext->OMSetBlendState(NULL, blendFactor, sampleMask);
-	mapmesh->PreDraw(gDevice, gDeviceContext);
+	/*mapmesh->PreDraw(gDevice, gDeviceContext);
 	mapmesh->PrepareShaders();
-	mapmesh->Draw(gDevice, gDeviceContext);
+	mapmesh->Draw(gDevice, gDeviceContext);*/
 	D3DPERF_EndEvent();
 
 
@@ -2844,7 +2864,7 @@ void Renderer::render(Map *map, Camera *camera, float dt)
 			camera->update(0, gDeviceContext);
 
 			gDeviceContext->VSSetConstantBuffers(0, 1, &camera->wvp_buffer);
-			if (dynamic_cast<FirePathSpell*>(entity) == nullptr && dynamic_cast<WaterIcePatch*>(entity) == nullptr && dynamic_cast<WindFartCloudSpell*>(entity) == nullptr && entity->type == EntityType::Player)
+			if (entity->type == EntityType::Player)
 			{
 				gDeviceContext->Draw(129, 0);
 			}
