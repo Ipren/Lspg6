@@ -32,7 +32,7 @@ void MeshContainer::Init()
 
 	SkinnedMesh* mesh = new SkinnedMesh();
 	mesh->scale = 0.2f;
-	mesh->LoadSkinned("arcane_spell.G6Skin", globalDevice, globalDeviceContext);
+	mesh->LoadSkinned("arcane_spell_oriented.G6Skin", globalDevice, globalDeviceContext);
 	MeshContainer::skinnedMeshes["arcane_spell"] = mesh;
 
 	//mesh = new SkinnedMesh();
