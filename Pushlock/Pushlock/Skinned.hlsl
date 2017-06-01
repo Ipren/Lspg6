@@ -27,6 +27,11 @@ cbuffer camPos : register(b3)
 	float4 cameraPosition;
 }
 
+cbuffer shrinkBuffer : register(b6)
+{
+	float shrinkAmount;
+};
+
 cbuffer pLightCount : register(b4)
 {
 	uint nrOfPointLights;
@@ -128,5 +133,16 @@ float4 PS(in VS_OUT input) : SV_TARGET
 
 	diffuse += CalcPointLights(pLights, input.wPos, input.nor, nrOfPointLights);
 
-	return float4(diffuse + ambient + 0.2 * shadow, 0.5f);
+	// TODO: lägg i VS
+	float d = distance(input.wPos.xz, float2(0, 0));
+	float l = 0;
+	float shrink = 10 - shrinkAmount;
+	if (d > shrink && d < shrink + 0.2) return float4(5, 0.8, 0.4, 1.0);
+	//if (d > shrink && d < (10 - shrinkAmount) + 0.2) l = 1;
+	d = 1 - saturate((d - shrink) / (shrink + 3 - shrink));
+
+	float3 col = diffuse + ambient + 0.2 * shadow;
+
+	//return float4(lerp(col, float3(0.2, 0.2, 0.2), 1 - d), 1.0f);
+	return float4(col, 1.0f);
 }
