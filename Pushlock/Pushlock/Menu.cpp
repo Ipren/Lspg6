@@ -38,6 +38,10 @@ Menu::Menu(Renderer* renderer)
 	if (FAILED(hr)) {
 		MessageBox(0, L"texture creation failed", L"error", MB_OK);
 	}
+	hr = DirectX::CreateWICTextureFromFile(renderer->gDevice, renderer->gDeviceContext, L"../Resources/textures/Title.png ", &r, &this->m_title);
+	if (FAILED(hr)) {
+		MessageBox(0, L"texture creation failed", L"error", MB_OK);
+	}
 	r->Release();
 	m_spriteBatch = std::make_unique<SpriteBatch>(renderer->gDeviceContext);
 	m_spriteFont = std::make_unique<SpriteFont>(renderer->gDevice, L"morpheus.spritefont");
@@ -447,6 +451,8 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	if (currentState == GameState::MainMenu)
 	{
 		m_spriteBatch->Draw(m_cutexture.Get(), catPos, nullptr, Colors::White, 0.f, m_origin);
+		m_spriteBatch->Draw(m_title.Get(), XMFLOAT2(WIDTH/2, HEIGHT/6), nullptr, Colors::White, 0.f, SimpleMath::Vector2(671.f/2.f, 186.f/2.f));
+
 		m_spriteBatch->Draw(m_button2p.Get(), buttPos[0], nullptr, Colors::White, 0.f, m_origin);
 		m_spriteFontLarger->DrawString(m_spriteBatch.get(), L"2 players", buttPos[0] + textOffset, Colors::Black);
 		m_spriteBatch->Draw(m_button3p.Get(), buttPos[1], nullptr, Colors::White, 0.f, m_origin);
