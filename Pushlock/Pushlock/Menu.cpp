@@ -224,26 +224,26 @@ Menu::Menu(Renderer* renderer)
 	this->textPos[2][0] = { offsetX / 2 - 42, 73.0f + offsetY };
 	this->textPos[3][0] = { offsetX / 2 - 42 + offsetX, 73.0f + offsetY };
 
-	this->textPos[0][1] = { 180.0f / 2 + 24.0f,  293.0f / 2 };
-	this->textPos[0][2] = { 180.0f / 2 + 24.0f, 389.0f / 2 };
-	this->textPos[0][3] = { 180.0f / 2 + 24.0f, 480.0f / 2 };
-	this->textPos[0][4] = { 180.0f / 2 + 24.0f, 579.0f / 2 };
+	this->textPos[0][1] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f),  HEIGHT * 0.36625f / 2 };
+	this->textPos[0][2] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f), HEIGHT * 0.48625f / 2 };
+	this->textPos[0][3] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f), 0.6f * HEIGHT / 2 };
+	this->textPos[0][4] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f), 0.72375f * HEIGHT / 2 };
 
 	
-	this->textPos[1][1] = { 180.0f / 2 + 24.0f + offsetX , 293.0f / 2 };
-	this->textPos[1][2] = { 180.0f / 2 + 24.0f + offsetX , 389.0f / 2 };
-	this->textPos[1][3] = { 180.0f / 2 + 24.0f + offsetX , 480.0f / 2 };
-	this->textPos[1][4] = { 180.0f / 2 + 24.0f + offsetX ,  579.0f / 2 };
+	this->textPos[1][1] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f + offsetX) , HEIGHT * 0.36625f / 2 };
+	this->textPos[1][2] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f + offsetX) , HEIGHT * 0.48625f / 2 };
+	this->textPos[1][3] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f + offsetX ), 0.6f * HEIGHT / 2 };
+	this->textPos[1][4] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f + offsetX ),  0.72375f * HEIGHT / 2 };
 
-	this->textPos[2][1] = { 180.0f / 2 + 24.0f,  293.0f / 2 + offsetY };
-	this->textPos[2][2] = { 180.0f / 2 + 24.0f, 389.0f / 2 + offsetY };
-	this->textPos[2][3] = { 180.0f / 2 + 24.0f, 480.0f / 2 + offsetY };
-	this->textPos[2][4] = { 180.0f / 2 + 24.0f, 579.0f / 2 + offsetY };
+	this->textPos[2][1] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f),  HEIGHT * 0.36625f / 2 + offsetY };
+	this->textPos[2][2] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f), HEIGHT * 0.48625f / 2 + offsetY };
+	this->textPos[2][3] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f), 0.6f * HEIGHT / 2 + offsetY };
+	this->textPos[2][4] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f), 0.72375f * HEIGHT / 2 + offsetY };
 
-	this->textPos[3][1] = { 180.0f / 2 + 24.0f + offsetX , 293.0f / 2 + offsetY };
-	this->textPos[3][2] = { 180.0f / 2 + 24.0f + offsetX , 389.0f / 2 + offsetY };
-	this->textPos[3][3] = { 180.0f / 2 + 24.0f + offsetX , 480.0f / 2 + offsetY };
-	this->textPos[3][4] = { 180.0f / 2 + 24.0f + offsetX , 579.0f / 2 + offsetY };
+	this->textPos[3][1] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f + offsetX ), HEIGHT * 0.36625f / 2 + offsetY };
+	this->textPos[3][2] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f + offsetX ), HEIGHT * 0.48625f / 2 + offsetY };
+	this->textPos[3][3] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f + offsetX ), 0.6f * HEIGHT / 2 + offsetY };
+	this->textPos[3][4] = { (float)(WIDTH * 0.140625 / 2.0f + 24.0f + offsetX ), 0.72375f * HEIGHT / 2 + offsetY };
 
 	this->eTextPos[0][0] = { WIDTH * 0.149f, HEIGHT * 0.08f};
 	this->eTextPos[0][1] = { WIDTH * 0.149f, HEIGHT * 0.15f };
@@ -460,7 +460,7 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	{
 		/*std::wstring s = L"Player: " + (winner + 1);
 		wchar_t* c = new wchar_t(&s.c_str());*/
-		m_spriteFontLarger->DrawString(m_spriteBatch.get(), (std::wstring(L" Winner winner you're not a beginner \n Player ") + std::to_wstring(winner+1) + L"!").c_str(), XMFLOAT2(200, 220), Colors::Black);
+		m_spriteFontLarger->DrawString(m_spriteBatch.get(), (std::wstring(L" Winner winner you're not a beginner \n Player ") + std::to_wstring(winner+1) + L"!").c_str(), XMFLOAT2(WIDTH* 0.15625f, HEIGHT* 0.275f), Colors::Black);
 	}
 	else if (currentState == GameState::EndRound)
 	{
@@ -535,89 +535,89 @@ void Menu::setUpgradesArrowPos(Map * map)
 	//p1
 	if (map->upgradeChoice[0] == 1)
 	{
-		this->arrowPos[0].y = 293.0f/2;
-		this->arrowPos[0].x = 189.0f/2;
+		this->arrowPos[0].y = HEIGHT * 0.36625f /2;
+		this->arrowPos[0].x = WIDTH * 0.14765625 /2;
 	}
 	if (map->upgradeChoice[0] == 2)
 	{
-		this->arrowPos[0].y = 389.0f / 2;
-		this->arrowPos[0].x = 189.0f / 2;
+		this->arrowPos[0].y = HEIGHT * 0.48625f / 2;
+		this->arrowPos[0].x = WIDTH * 0.14765625 / 2;
 	}
 	if (map->upgradeChoice[0] == 3)
 	{
-		this->arrowPos[0].y = 480.0f / 2;
-		this->arrowPos[0].x = 189.0f / 2;
+		this->arrowPos[0].y = 0.6f * HEIGHT / 2;
+		this->arrowPos[0].x = WIDTH * 0.14765625 / 2;
 	}
 	if (map->upgradeChoice[0] == 4)
 	{
-		this->arrowPos[0].y = 579.0f / 2;
-		this->arrowPos[0].x = 189.0f / 2;
+		this->arrowPos[0].y = 0.72375f * HEIGHT / 2;
+		this->arrowPos[0].x = WIDTH * 0.14765625 / 2;
 	}
 
 	//p2
 	if (map->upgradeChoice[1] == 1)
 	{
-		this->arrowPos[1].y = 293.0f / 2 ;
-		this->arrowPos[1].x = 189.0f / 2 + offsetX;
+		this->arrowPos[1].y = HEIGHT * 0.36625 / 2 ;
+		this->arrowPos[1].x = WIDTH * 0.14765625 / 2 + offsetX;
 	}
 	if (map->upgradeChoice[1] == 2)
 	{
-		this->arrowPos[1].y = 389.0f / 2;
-		this->arrowPos[1].x = 189.0f / 2 + offsetX;
+		this->arrowPos[1].y = HEIGHT * 0.48625f / 2;
+		this->arrowPos[1].x = WIDTH * 0.14765625 / 2 + offsetX;
 	}
 	if (map->upgradeChoice[1] == 3)
 	{
-		this->arrowPos[1].y = 480.0f / 2;
-		this->arrowPos[1].x = 189.0f / 2 + offsetX;
+		this->arrowPos[1].y = 0.6f * HEIGHT / 2;
+		this->arrowPos[1].x = WIDTH * 0.14765625 / 2 + offsetX;
 	}
 	if (map->upgradeChoice[1] == 4)
 	{
-		this->arrowPos[1].y = 579.0f / 2;
-		this->arrowPos[1].x = 189.0f / 2 + offsetX;
+		this->arrowPos[1].y = 0.72375f * HEIGHT / 2;
+		this->arrowPos[1].x = WIDTH * 0.14765625 / 2 + offsetX;
 	}
 
 	//p3
 	if (map->upgradeChoice[2] == 1)
 	{
-		this->arrowPos[2].y = 293.0f / 2 + offsetY;
-		this->arrowPos[2].x = 189.0f / 2;
+		this->arrowPos[2].y = HEIGHT * 0.36625 / 2 + offsetY;
+		this->arrowPos[2].x = WIDTH * 0.14765625 / 2;
 	}
 	if (map->upgradeChoice[2] == 2)
 	{
-		this->arrowPos[2].y = 389.0f / 2 + offsetY;
-		this->arrowPos[2].x = 189.0f / 2 ;
+		this->arrowPos[2].y = HEIGHT * 0.48625f / 2 + offsetY;
+		this->arrowPos[2].x = WIDTH * 0.14765625 / 2 ;
 	}
 	if (map->upgradeChoice[2] == 3)
 	{
-		this->arrowPos[2].y = 480.0f / 2 + offsetY;
-		this->arrowPos[2].x = 189.0f / 2;
+		this->arrowPos[2].y = 0.6f * HEIGHT / 2 + offsetY;
+		this->arrowPos[2].x = WIDTH * 0.14765625 / 2;
 	}
 	if (map->upgradeChoice[2] == 4)
 	{
-		this->arrowPos[2].y = 579.0f / 2 + offsetY;
-		this->arrowPos[2].x = 189.0f / 2 ;
+		this->arrowPos[2].y = 0.72375f * HEIGHT / 2 + offsetY;
+		this->arrowPos[2].x = WIDTH * 0.14765625 / 2 ;
 	}
 
 	//p4
 	if (map->upgradeChoice[3] == 1)
 	{
-		this->arrowPos[3].y = 293.0f / 2 + offsetY;
-		this->arrowPos[3].x = 189.0f / 2 + offsetX;
+		this->arrowPos[3].y = HEIGHT * 0.36625 / 2 + offsetY;
+		this->arrowPos[3].x = WIDTH * 0.14765625 / 2 + offsetX;
 	}
 	if (map->upgradeChoice[3] == 2)
 	{
-		this->arrowPos[3].y = 389.0f / 2 + offsetY;
-		this->arrowPos[3].x = 189.0f / 2 + offsetX;
+		this->arrowPos[3].y = HEIGHT * 0.48625f / 2 + offsetY;
+		this->arrowPos[3].x = WIDTH * 0.14765625 / 2 + offsetX;
 	}
 	if (map->upgradeChoice[3] == 3)
 	{
-		this->arrowPos[3].y = 480.0f / 2 + offsetY;
-		this->arrowPos[3].x = 189.0f / 2 + offsetX;
+		this->arrowPos[3].y = 0.6f * HEIGHT / 2 + offsetY;
+		this->arrowPos[3].x = WIDTH * 0.14765625 / 2 + offsetX;
 	}
 	if (map->upgradeChoice[3] == 4)
 	{
-		this->arrowPos[3].y = 579.0f / 2 + offsetY;
-		this->arrowPos[3].x = 189.0f / 2 + offsetX;
+		this->arrowPos[3].y = 0.72375f * HEIGHT / 2 + offsetY;
+		this->arrowPos[3].x = WIDTH * 0.14765625 / 2 + offsetX;
 	}
 }
 
