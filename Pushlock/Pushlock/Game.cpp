@@ -720,7 +720,7 @@ void Game::render(float dt)
 		D3DPERF_EndEvent();
 	}
 	D3DPERF_BeginEvent(0xffFF3AA0, L"ImGui");
-	ImGui::Render();
+	//ImGui::Render();
 	D3DPERF_EndEvent();
 
 	this->renderer->present();

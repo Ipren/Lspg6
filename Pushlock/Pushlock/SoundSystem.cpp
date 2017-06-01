@@ -40,7 +40,7 @@ SoundSystem::~SoundSystem()
 
 void SoundSystem::play(spellSounds s, float offset, float volume)
 {
-	if (waveOutGetNumDevs()) 
+	/*if (waveOutGetNumDevs()) 
 	{
 		int i = 0;
 		bool cont = true;
@@ -61,13 +61,13 @@ void SoundSystem::play(spellSounds s, float offset, float volume)
 		this->sound[i].setPlayingOffset(t);
 		this->sound[i].setBuffer(this->buffers[s]);
 		this->sound[i].play();
-	}
+	}*/
 	
 }
 
 void SoundSystem::startBGM()
 {
-	this->music.setVolume(10);
+	/*this->music.setVolume(10);
 	this->music.setLoop(true);
-	this->music.play();
+	this->music.play();*/
 }
