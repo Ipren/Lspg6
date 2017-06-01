@@ -481,13 +481,13 @@ void Menu::render(Renderer* renderer, GameState currentState, int winner, Map *m
 	{
 		for (size_t i = 0; i < map->nrOfPlayers; i++)
 		{
-			m_spriteBatch->Draw(m_Balltexture.Get(), this->arrowPos[i], nullptr, Colors::White, 0.f, m_origin);
+			m_spriteBatch->Draw(m_Balltexture.Get(), XMFLOAT2(this->arrowPos[i].x +40.9f, this->arrowPos[i].y), nullptr, Colors::White, 0.f, m_origin);
 		}
 		for (size_t i = 0; i < map->nrOfPlayers; i++)
 		{
 			for (size_t j = 0; j < 5; j++)
 			{
-				m_spriteFont->DrawString(m_spriteBatch.get(), this->eStrings[j].c_str(), this->eTextPos[i][j], this->eTextColor[j]);
+				//m_spriteFont->DrawString(m_spriteBatch.get(), this->eStrings[j].c_str(), this->eTextPos[i][j], this->eTextColor[j]);
 			}
 		}
 		this->setReady(map);
