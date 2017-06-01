@@ -575,8 +575,16 @@ void WindElement::wall(Player * player, Map * map)
 				ArcaneWallSpell* w = dynamic_cast<ArcaneWallSpell*>(e);
 				w->edge = true;
 			}
+
+			if (i == 3)
+			{
+				Spell* w = dynamic_cast<Spell*>(e);
+				w->pAnimator = new Animator();
+				w->pAnimator->AssignSkinnedMesh("arcane_wall");
+			}
 		}
 
+		
 		cooldown[3] = gSpellConstants.kWindWallCooldown  + gPlayerSpellConstants[player->index].kWindWallCooldown;
 		map->sounds.play(spellSounds::earthWall, 0.0f, 100.0f);
 	}
